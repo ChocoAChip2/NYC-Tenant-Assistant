@@ -19,10 +19,21 @@ else:
     except Exception as e:
         print(f"❌ Something went wrong: {e}", flush=True)
 
-# 3. Create a simple webpage
+# 3. Create a simple webpage that asks Supabase for data
 @app.route('/')
 def home():
-    return "My Tenant Assistant is running and connected to Supabase!"
+    try:
+        # Reach out to Supabase and grab everything in our test table
+        response = supabase.table('test_connection').select('*').execute()
+        
+        # Extract the data from the response
+        data = response.data
+        
+        # Return the data to the webpage!
+        return f"<h1>Success!</h1> <p>Render asked Supabase for data, and Supabase said: {data}</p>"
+    
+    except Exception as e:
+        return f"<h1>Uh oh!</h1> <p>The connection failed: {e}</p>"
 
 # 4. Tell the server to stay awake and listen on the right port
 if __name__ == '__main__':
