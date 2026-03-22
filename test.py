@@ -1,3 +1,15 @@
+import os
+from supabase import create_client, Client
+
+# Grab the secret variables from Render
+url = os.environ.get("SUPABASE_URL")
+key = os.environ.get("SUPABASE_KEY")
+
+# Create the database connection
+supabase: Client = create_client(url, key)
+
+# Now you can use the 'supabase' variable to talk to your database!
+
 # This is a test program to check if Render will operate or not. 
 class BankAccount:
     # 1. The Setup Function (Constructor)
