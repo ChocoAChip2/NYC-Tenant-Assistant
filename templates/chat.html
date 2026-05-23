@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NYC Tenant Assistant | Chat</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 16px; }
+    .chat-box { border: 1px solid #ccc; border-radius: 8px; min-height: 280px; padding: 16px; margin-bottom: 12px; background: #fafafa; }
+    .input-row { display: flex; gap: 10px; }
+    input { flex: 1; padding: 10px; }
+    button { padding: 10px 14px; }
+  </style>
+</head>
+<body>
+  <h1>Welcome to NYC Tenant Assistant</h1>
+  <p>Logged in as: <strong>{{ user_email }}</strong></p>
+
+  <div class="chat-box">
+    <p><strong>AI:</strong> Hi! This is a placeholder chat UI. Your assistant integration will appear here.</p>
+  </div>
+
+  <form class="input-row" onsubmit="return false;">
+    <input type="text" placeholder="Type your message... (placeholder)">
+    <button type="button">Send</button>
+  </form>
+
+  <p><a href="{{ url_for('main.logout') }}">Log out</a></p>
+</body>
+</html>
