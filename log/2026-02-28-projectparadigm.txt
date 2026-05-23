@@ -1,0 +1,21 @@
+Deployment Summary — ProjectParadigm
+Date: 2026-02-28
+
+Implemented schema and security for per-user data access.
+Ensured/created tables: public.profiles, public.items.
+Enabled Row-Level Security on both tables.
+
+Added RLS policies:
+Users can only SELECT/INSERT/UPDATE/DELETE their own rows.
+Admin override policy checks JWT claim role = 'admin'.
+Created indexes on policy columns (profiles.id, items.owner) for performance.
+Applied SQL migration to the live project and validated success.
+
+Produced developer artifacts:
+docs/SUPABASE_SETUP.md
+tests/supabase_rsl_tests.mjs
+.github/workflows/check_rls.yml
+
+Left for us:
+OAuth provider setup (Google/GitHub), SMTP/email config, and admin assignment method (app_metadata or DB roles).
+Next steps available on request: run tests, add OAuth walkthrough, deploy Edge Function to set admin role, or create DB role helper.
