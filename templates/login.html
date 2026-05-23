@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <!-- Page metadata and page-local styling for the login screen. -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NYC Tenant Assistant | Login</title>
@@ -13,9 +14,11 @@
   </style>
 </head>
 <body>
+  <!-- Intro text for the login route handled by routes.py:login. -->
   <h1>Log in</h1>
   <p>Use your confirmed Supabase account to continue.</p>
 
+  <!-- Flash messages explain validation errors or successful signup redirects. -->
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       {% for category, message in messages %}
@@ -24,6 +27,8 @@
     {% endif %}
   {% endwith %}
 
+  <!-- This form posts to the login route, which authenticates through
+       supabase_service.py and stores the user email in the Flask session. -->
   <form method="POST">
     <label>
       Email
@@ -36,6 +41,7 @@
     <button type="submit">Log In</button>
   </form>
 
+  <!-- Link the user back to the signup page if they do not have an account yet. -->
   <p>Need an account? <a href="{{ url_for('main.signup') }}">Create one</a></p>
 </body>
 </html>

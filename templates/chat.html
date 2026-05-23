@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <!-- Page metadata and page-local styling for the protected chat screen. -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NYC Tenant Assistant | Chat</title>
@@ -13,18 +14,24 @@
   </style>
 </head>
 <body>
+  <!-- This page is only rendered when routes.py:chat finds a logged-in user in
+       the Flask session and passes user_email into the template context. -->
   <h1>Welcome to NYC Tenant Assistant</h1>
   <p>Logged in as: <strong>{{ user_email }}</strong></p>
 
+  <!-- Placeholder assistant output area for future chat features. -->
   <div class="chat-box">
     <p><strong>AI:</strong> Hi! This is a placeholder chat UI. Your assistant integration will appear here.</p>
   </div>
 
+  <!-- Placeholder input row; it currently avoids submitting because the chat
+       backend has not been implemented yet. -->
   <form class="input-row" onsubmit="return false;">
     <input type="text" placeholder="Type your message... (placeholder)">
     <button type="button">Send</button>
   </form>
 
+  <!-- Logout returns the user to the login route after clearing the session. -->
   <p><a href="{{ url_for('main.logout') }}">Log out</a></p>
 </body>
 </html>

@@ -1,3 +1,9 @@
+"""Flask application bootstrap.
+
+This file creates the Flask app, loads environment settings, wires in the
+Supabase service, and registers the routes defined in routes.py.
+"""
+
 from flask import Flask
 
 from config import load_settings
@@ -6,25 +12,39 @@ from supabase_service import SupabaseService
 
 
 def create_app() -> Flask:
+    """Build the Flask app and connect the services used by the route layer."""
+
+    # Load environment-driven settings first so every later step uses one source
+    # of truth for secrets, ports, and Supabase connection details.
     settings = load_settings()
+
+    # Create the Flask application object that the rest of the project shares.
     app = Flask(__name__)
     app.secret_key = settings.flask_secret_key
 
+    # Build the Supabase service here and store it on the app so routes.py can
+    # retrieve the shared service for signup and login requests.
     supabase_service = SupabaseService.from_settings(settings)
     app.config["SUPABASE_SERVICE"] = supabase_service
 
+    # Print startup status so it is obvious whether auth-related routes will be
+    # ready when the server begins handling requests.
     if not supabase_service.is_ready():
         print(f"❌ {supabase_service.initialization_error}", flush=True)
     else:
         print("✅ Supabase client ready.", flush=True)
 
+    # Register the blueprint from routes.py so Flask knows about each page URL.
     app.register_blueprint(main_bp)
     return app
 
 
+# Create the shared app object for local runs, tests, and WSGI servers.
 app = create_app()
 
 
 if __name__ == "__main__":
+    # When the file is run directly, start the development server on the
+    # configured host/port using the same settings loader as create_app().
     app_settings = load_settings()
     app.run(host="0.0.0.0", port=app_settings.port)
