@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <!-- Page metadata and page-local styling for the signup screen. -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NYC Tenant Assistant | Sign Up</title>
@@ -13,9 +14,11 @@
   </style>
 </head>
 <body>
+  <!-- Intro text for the account-creation route handled by routes.py:signup. -->
   <h1>Create your account</h1>
   <p>Sign up with email and password. After email confirmation, log in to continue.</p>
 
+  <!-- Flash messages come from Flask after signup validation succeeds or fails. -->
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
       {% for category, message in messages %}
@@ -24,6 +27,8 @@
     {% endif %}
   {% endwith %}
 
+  <!-- This form posts back to the same signup route, which reads email/password
+       and forwards them to supabase_service.py for account creation. -->
   <form method="POST">
     <label>
       Email
@@ -36,6 +41,7 @@
     <button type="submit">Sign Up</button>
   </form>
 
+  <!-- Link the user to the login route after they confirm their email. -->
   <p>Already confirmed? <a href="{{ url_for('main.login') }}">Go to login</a></p>
 </body>
 </html>
