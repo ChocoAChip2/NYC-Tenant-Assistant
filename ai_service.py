@@ -38,19 +38,37 @@ class AIService:
         if not self.client:
             raise RuntimeError("Gemini is not configured yet.")
 
-        conversation = []
+        contents = []
+        system_messages = []
         for message in messages:
             role = message.get("role", "").strip().lower()
             content = message.get("content", "").strip()
             if not content or role not in {"system", "user", "assistant"}:
                 continue
-            conversation.append(f"{role.upper()}: {content}")
+            if role == "system":
+                system_messages.append(content)
+                continue
+            contents.append(
+                {
+                    "role": "model" if role == "assistant" else "user",
+                    "parts": [{"text": content}],
+                }
+            )
 
-        if not conversation:
+        if system_messages:
+            contents.insert(
+                0,
+                {
+                    "role": "user",
+                    "parts": [{"text": "System instructions:\n" + "\n".join(system_messages)}],
+                },
+            )
+
+        if not contents:
             raise ValueError("No valid messages were provided.")
 
         response = self.client.models.generate_content(
             model="gemini-1.5-flash",
-            contents="\n".join(conversation),
+            contents=contents,
         )
         return (response.text or "").strip() or "I could not generate a response."

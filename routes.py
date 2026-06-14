@@ -5,6 +5,7 @@ stored in the Flask app config to handle authentication work.
 """
 
 from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, session, url_for
+import logging
 
 from ai_service import AIService
 from supabase_service import SupabaseService
@@ -12,6 +13,7 @@ from supabase_service import SupabaseService
 # The blueprint groups the page routes together so app.py can register them as
 # one unit.
 main_bp = Blueprint("main", __name__)
+logger = logging.getLogger(__name__)
 
 
 def get_supabase_service() -> SupabaseService:
@@ -116,11 +118,12 @@ def chat_message():
     try:
         reply = get_ai_service().generate_reply(messages)
         return jsonify({"reply": reply})
-    except ValueError as exc:
-        return jsonify({"error": str(exc)}), 400
-    except RuntimeError as exc:
-        return jsonify({"error": str(exc)}), 503
-    except Exception:
+    except ValueError:
+        return jsonify({"error": "No valid messages were provided."}), 400
+    except RuntimeError:
+        return jsonify({"error": "AI service is not configured yet."}), 503
+    except Exception as exc:
+        logger.exception("Failed to generate AI response: %s", exc)
         return jsonify({"error": "Failed to generate a response. Please try again."}), 500
 
 

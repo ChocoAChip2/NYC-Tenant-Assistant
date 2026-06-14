@@ -100,6 +100,16 @@
       border: 1px solid #775126;
     }
     a { color: #9cdcff; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
   </style>
 </head>
 <body>
@@ -120,8 +130,9 @@
   </main>
 
   <form id="chat-form">
-    <textarea id="message-input" placeholder="Message NYC Tenant Assistant" required></textarea>
-    <button id="send-btn" type="submit" {% if not ai_ready %}disabled{% endif %}>Send</button>
+    <label for="message-input" class="sr-only">Message input</label>
+    <textarea id="message-input" placeholder="Message NYC Tenant Assistant" aria-label="Message input" required></textarea>
+    <button id="send-btn" type="submit" title="{% if not ai_ready %}Configure GEMINI_API_KEY to enable chat{% else %}Send message{% endif %}" {% if not ai_ready %}disabled{% endif %}>Send</button>
   </form>
 
   <script>
