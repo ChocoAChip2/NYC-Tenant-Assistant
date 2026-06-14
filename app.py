@@ -9,6 +9,28 @@ from flask import Flask
 from config import load_settings
 from routes import main_bp
 from supabase_service import SupabaseService
+from fastapi import FastAPI
+import os
+from google import genai
+
+app = FastAPI()
+
+@app.get("/test-gemini")
+def test_gemini():
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        return {"error": "API key not found in environment variables"}
+
+    try:
+        client = genai.Client(api_key=api_key)
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents="Say 'Gemini test successful'"
+        )
+        return {"gemini_response": response.text}
+
+    except Exception as e:
+        return {"error": str(e)}
 
 
 def create_app() -> Flask:
