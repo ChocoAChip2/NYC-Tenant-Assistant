@@ -13,6 +13,8 @@ FALLBACK_MODELS = (
 
 
 def _is_model_not_found_error(error: ClientError) -> bool:
+    """Handle the SDK's varying 404 representations across environments."""
+
     status = getattr(error, "status", None)
     if status == 404:
         return True
@@ -68,7 +70,7 @@ class AIService:
             config = {"system_instruction": "\n".join(system_instructions)}
 
         if not contents:
-            raise ValueError("No valid non-system messages were provided.")
+            raise ValueError("No messages were provided for content generation.")
 
         last_error = None
         for model_name in FALLBACK_MODELS:
