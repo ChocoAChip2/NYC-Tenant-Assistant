@@ -4,8 +4,9 @@ app.py registers this blueprint, and each route uses the shared SupabaseService
 stored in the Flask app config to handle authentication work.
 """
 
-from flask import Blueprint, current_app, flash, redirect, render_template, request, session, url_for
+from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, session, url_for
 
+from ai_service import AIService
 from supabase_service import SupabaseService
 
 # The blueprint groups the page routes together so app.py can register them as
@@ -17,6 +18,12 @@ def get_supabase_service() -> SupabaseService:
     """Fetch the shared service object that app.py stored on the Flask app."""
 
     return current_app.config["SUPABASE_SERVICE"]
+
+
+def get_ai_service() -> AIService:
+    """Fetch the shared AI service object that app.py stored on the Flask app."""
+
+    return current_app.config["AI_SERVICE"]
 
 
 @main_bp.route("/", methods=["GET", "POST"])
@@ -84,14 +91,37 @@ def login():
 
 @main_bp.route("/chat")
 def chat():
-    """Render the placeholder chat page only for logged-in users."""
+    """Render the chat page only for logged-in users."""
 
     # login() stores the email in the session; if it is missing, the visitor is
     # redirected back to the login page.
     user_email = session.get("user_email")
     if not user_email:
         return redirect(url_for("main.login"))
-    return render_template("chat.html", user_email=user_email)
+    return render_template("chat.html", user_email=user_email, ai_ready=get_ai_service().is_ready())
+
+
+@main_bp.route("/chat/message", methods=["POST"])
+def chat_message():
+    """Generate an AI reply for authenticated chat requests."""
+
+    if not session.get("user_email"):
+        return jsonify({"error": "Please log in first."}), 401
+
+    payload = request.get_json(silent=True) or {}
+    messages = payload.get("messages")
+    if not isinstance(messages, list):
+        return jsonify({"error": "Invalid request payload."}), 400
+
+    try:
+        reply = get_ai_service().generate_reply(messages)
+        return jsonify({"reply": reply})
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+    except RuntimeError as exc:
+        return jsonify({"error": str(exc)}), 503
+    except Exception:
+        return jsonify({"error": "Failed to generate a response. Please try again."}), 500
 
 
 @main_bp.route("/logout")

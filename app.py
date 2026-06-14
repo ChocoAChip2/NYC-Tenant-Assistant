@@ -6,31 +6,10 @@ Supabase service, and registers the routes defined in routes.py.
 
 from flask import Flask
 
+from ai_service import AIService
 from config import load_settings
 from routes import main_bp
 from supabase_service import SupabaseService
-from fastapi import FastAPI
-import os
-from google import genai
-
-app = FastAPI()
-
-@app.get("/test-gemini")
-def test_gemini():
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key:
-        return {"error": "API key not found in environment variables"}
-
-    try:
-        client = genai.Client(api_key=api_key)
-        response = client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents="Say 'Gemini test successful'"
-        )
-        return {"gemini_response": response.text}
-
-    except Exception as e:
-        return {"error": str(e)}
 
 
 def create_app() -> Flask:
@@ -49,12 +28,21 @@ def create_app() -> Flask:
     supabase_service = SupabaseService.from_settings(settings)
     app.config["SUPABASE_SERVICE"] = supabase_service
 
+    # Build the AI service and store it on the app for chat message generation.
+    ai_service = AIService.from_settings(settings)
+    app.config["AI_SERVICE"] = ai_service
+
     # Print startup status so it is obvious whether auth-related routes will be
     # ready when the server begins handling requests.
     if not supabase_service.is_ready():
         print(f"❌ {supabase_service.initialization_error}", flush=True)
     else:
         print("✅ Supabase client ready.", flush=True)
+
+    if not ai_service.is_ready():
+        print(f"❌ {ai_service.initialization_error}", flush=True)
+    else:
+        print("✅ Gemini client ready.", flush=True)
 
     # Register the blueprint from routes.py so Flask knows about each page URL.
     app.register_blueprint(main_bp)
