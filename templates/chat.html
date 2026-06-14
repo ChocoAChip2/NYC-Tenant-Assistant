@@ -141,12 +141,7 @@
     const messageInput = document.getElementById("message-input");
     const sendBtn = document.getElementById("send-btn");
 
-    const messages = [
-      {
-        role: "assistant",
-        content: "Hi! I'm your NYC Tenant Assistant. Ask me a housing or tenant-rights question."
-      }
-    ];
+    const messages = [];
 
     function renderMessage(role, content) {
       const wrapper = document.createElement("div");
@@ -164,8 +159,6 @@
       chatBox.appendChild(wrapper);
       chatBox.scrollTop = chatBox.scrollHeight;
     }
-
-    renderMessage("assistant", messages[0].content);
 
     chatForm.addEventListener("submit", async (event) => {
       event.preventDefault();

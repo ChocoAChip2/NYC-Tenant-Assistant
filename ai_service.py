@@ -2,8 +2,14 @@
 
 from dataclasses import dataclass
 from google import genai
+from google.genai.errors import ClientError
 
 from config import Settings
+
+FALLBACK_MODELS = (
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+)
 
 
 @dataclass
@@ -52,11 +58,25 @@ class AIService:
         if system_instructions:
             config = {"system_instruction": "\n".join(system_instructions)}
 
-        response = self.client.models.generate_content(
-            model="gemini-1.5-flash-latest",
-            contents=contents,
-            config=config,
-        )
+        if not contents:
+            raise ValueError("No valid non-system messages were provided.")
 
-        return (response.text or "").strip() or "I could not generate a response."
+        last_error = None
+        for model_name in FALLBACK_MODELS:
+            try:
+                response = self.client.models.generate_content(
+                    model=model_name,
+                    contents=contents,
+                    config=config,
+                )
+                return (response.text or "").strip() or "I could not generate a response."
+            except ClientError as exc:
+                status = str(getattr(exc, "status", "")).upper()
+                if status in {"404", "NOT_FOUND"} or "not found" in str(exc).lower():
+                    last_error = exc
+                    continue
+                raise
 
+        if last_error:
+            raise RuntimeError("No supported Gemini model is available for this API key.") from last_error
+        raise RuntimeError("No supported Gemini model is available.")
