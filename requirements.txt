@@ -1,2 +1,5 @@
 supabase
 Flask
+google-genai
+fastapi
+uvicorn
