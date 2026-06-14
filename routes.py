@@ -124,7 +124,7 @@ def chat_message():
         return jsonify({"error": "AI service is not configured yet."}), 503
     except Exception:
         logger.exception("Failed to generate AI response.")
-        return jsonify({"error": "Failed to generate a response. Please try again."}), 500
+        return jsonify({"error": "The AI service is currently unavailable. Please try again shortly."}), 500
 
 
 @main_bp.route("/logout")

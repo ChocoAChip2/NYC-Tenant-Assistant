@@ -191,7 +191,7 @@
         messages.push({ role: "assistant", content: payload.reply });
         renderMessage("assistant", payload.reply);
       } catch (error) {
-        renderMessage("assistant", `Sorry, I hit an error: ${error.message}`);
+        renderMessage("assistant", "Sorry, I couldn’t get a response right now. Please try again.");
       } finally {
         sendBtn.disabled = false;
         messageInput.focus();
