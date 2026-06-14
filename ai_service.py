@@ -18,7 +18,7 @@ def _is_model_not_found_error(error: ClientError) -> bool:
     status = getattr(error, "status", None)
     if status == 404:
         return True
-    if str(status).upper() == "NOT_FOUND":
+    if status is not None and str(status).upper() == "NOT_FOUND":
         return True
     return "not found" in str(error).lower()
 
@@ -87,4 +87,7 @@ class AIService:
                     continue
                 raise
 
-        raise RuntimeError("No supported Gemini model is available for this API key.") from last_error
+        attempted_models = ", ".join(FALLBACK_MODELS)
+        raise RuntimeError(
+            f"No supported Gemini model is available for this API key. Tried: {attempted_models}"
+        ) from last_error
