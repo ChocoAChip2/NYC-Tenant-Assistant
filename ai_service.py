@@ -12,6 +12,15 @@ FALLBACK_MODELS = (
 )
 
 
+def _is_model_not_found_error(error: ClientError) -> bool:
+    status = getattr(error, "status", None)
+    if status == 404:
+        return True
+    if str(status).upper() == "NOT_FOUND":
+        return True
+    return "not found" in str(error).lower()
+
+
 @dataclass
 class AIService:
     client: genai.Client | None
@@ -71,12 +80,11 @@ class AIService:
                 )
                 return (response.text or "").strip() or "I could not generate a response."
             except ClientError as exc:
-                status = str(getattr(exc, "status", "")).upper()
-                if status in {"404", "NOT_FOUND"} or "not found" in str(exc).lower():
+                if _is_model_not_found_error(exc):
                     last_error = exc
                     continue
                 raise
 
-        if last_error:
-            raise RuntimeError("No supported Gemini model is available for this API key.") from last_error
-        raise RuntimeError("No supported Gemini model is available.")
+        if not last_error:
+            raise RuntimeError("No supported Gemini model is available.")
+        raise RuntimeError("No supported Gemini model is available for this API key.") from last_error
