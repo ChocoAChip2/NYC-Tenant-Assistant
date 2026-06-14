@@ -85,6 +85,4 @@ class AIService:
                     continue
                 raise
 
-        if not last_error:
-            raise RuntimeError("No supported Gemini model is available.")
         raise RuntimeError("No supported Gemini model is available for this API key.") from last_error
