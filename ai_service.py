@@ -64,7 +64,7 @@ class AIService:
             config = types.GenerateContentConfig(system_instruction="\n".join(system_messages))
 
         response = self.client.models.generate_content(
-            model="gemini-1.5-flash-latest"
+            model="gemini-1.5-flash-latest",
             contents=contents,
             config=config,
         )
