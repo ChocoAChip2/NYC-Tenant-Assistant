@@ -122,8 +122,8 @@ def chat_message():
         return jsonify({"error": "No valid messages were provided."}), 400
     except RuntimeError:
         return jsonify({"error": "AI service is not configured yet."}), 503
-    except Exception as exc:
-        logger.exception("Failed to generate AI response: %s", exc)
+    except Exception:
+        logger.exception("Failed to generate AI response.")
         return jsonify({"error": "Failed to generate a response. Please try again."}), 500
 
 

@@ -131,7 +131,7 @@
 
   <form id="chat-form">
     <label for="message-input" class="sr-only">Message input</label>
-    <textarea id="message-input" placeholder="Message NYC Tenant Assistant" aria-label="Message input" required></textarea>
+    <textarea id="message-input" placeholder="Message NYC Tenant Assistant" required></textarea>
     <button id="send-btn" type="submit" title="{% if not ai_ready %}Configure GEMINI_API_KEY to enable chat{% else %}Send message{% endif %}" {% if not ai_ready %}disabled{% endif %}>Send</button>
   </form>
 

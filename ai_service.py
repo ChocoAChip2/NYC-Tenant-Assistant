@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 
 from google import genai
+from google.genai import types
 
 from config import Settings
 
@@ -55,20 +56,16 @@ class AIService:
                 }
             )
 
-        if system_messages:
-            contents.insert(
-                0,
-                {
-                    "role": "user",
-                    "parts": [{"text": "System instructions:\n" + "\n".join(system_messages)}],
-                },
-            )
-
         if not contents:
             raise ValueError("No valid messages were provided.")
+
+        config = None
+        if system_messages:
+            config = types.GenerateContentConfig(system_instruction="\n".join(system_messages))
 
         response = self.client.models.generate_content(
             model="gemini-1.5-flash",
             contents=contents,
+            config=config,
         )
         return (response.text or "").strip() or "I could not generate a response."
