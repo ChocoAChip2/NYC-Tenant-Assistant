@@ -1,7 +1,7 @@
 """HTTP routes for signup, login, chat, and logout pages.
 
 app.py registers this blueprint, and each route uses the shared SupabaseService
-stored in the Flask app config to handle authentication work.
+stored in the Flask app config to handle authentication and chat persistence.
 """
 
 from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, session, url_for
@@ -26,6 +26,25 @@ def get_ai_service() -> AIService:
     """Fetch the shared AI service object that app.py stored on the Flask app."""
 
     return current_app.config["AI_SERVICE"]
+
+
+def get_user_scoped_client():
+    """Build an RLS-scoped Supabase client from the session's access token.
+
+    Returns None if there is no token or the token is no longer valid, so
+    callers can send the visitor back to login instead of hitting Supabase
+    with a request that RLS will just reject anyway.
+    """
+
+    access_token = session.get("access_token")
+    if not access_token:
+        return None
+
+    try:
+        return get_supabase_service().build_user_scoped_client(access_token)
+    except Exception:
+        logger.exception("Failed to build user-scoped Supabase client.")
+        return None
 
 
 @main_bp.route("/", methods=["GET", "POST"])
@@ -77,10 +96,17 @@ def login():
             return render_template("login.html")
 
         try:
-            # Save the logged-in email in the Flask session so chat() can decide
-            # whether the visitor is allowed to see the protected page.
             auth_response = supabase_service.sign_in(email=email, password=password)
+
+            # Store both the identity and the Supabase session tokens: the chat
+            # routes need the access token to build an RLS-scoped client so
+            # conversation/message queries are enforced per-user by Postgres,
+            # not just by application code.
             session["user_email"] = auth_response.user.email
+            session["user_id"] = auth_response.user.id
+            session["access_token"] = auth_response.session.access_token
+            session["refresh_token"] = auth_response.session.refresh_token
+
             return redirect(url_for("main.chat"))
         except Exception as exc:
             flash(
@@ -93,30 +119,115 @@ def login():
 
 @main_bp.route("/chat")
 def chat():
-    """Render the chat page only for logged-in users."""
+    """Render the chat page: a conversation list plus the selected conversation."""
 
-    # login() stores the email in the session; if it is missing, the visitor is
-    # redirected back to the login page.
-    user_email = session.get("user_email")
-    if not user_email:
+    if not session.get("user_id"):
         return redirect(url_for("main.login"))
-    return render_template("chat.html", user_email=user_email, ai_ready=get_ai_service().is_ready())
+
+    user_client = get_user_scoped_client()
+    if not user_client:
+        session.clear()
+        flash("Your session expired. Please log in again.", "error")
+        return redirect(url_for("main.login"))
+
+    supabase_service = get_supabase_service()
+    conversations = supabase_service.list_conversations(user_client)
+
+    conversation_id = request.args.get("conversation_id")
+    messages = []
+
+    if conversation_id:
+        try:
+            supabase_service.ensure_conversation_for_user(user_client, conversation_id, session["user_id"])
+            messages = supabase_service.fetch_messages_for_conversation(user_client, conversation_id)
+        except ValueError:
+            flash("That conversation could not be found.", "error")
+            conversation_id = None
+
+    return render_template(
+        "chat.html",
+        user_email=session["user_email"],
+        ai_ready=get_ai_service().is_ready(),
+        conversations=conversations,
+        active_conversation_id=conversation_id,
+        messages=messages,
+    )
+
+
+@main_bp.route("/conversations", methods=["POST"])
+def create_conversation():
+    """Create a new named conversation and jump straight into it."""
+
+    if not session.get("user_id"):
+        return redirect(url_for("main.login"))
+
+    user_client = get_user_scoped_client()
+    if not user_client:
+        session.clear()
+        flash("Your session expired. Please log in again.", "error")
+        return redirect(url_for("main.login"))
+
+    title = request.form.get("title", "").strip() or "New conversation"
+
+    try:
+        conversation_id = get_supabase_service().create_conversation(user_client, session["user_id"], title)
+        return redirect(url_for("main.chat", conversation_id=conversation_id))
+    except Exception:
+        logger.exception("Failed to create conversation.")
+        flash("Could not start a new conversation. Please try again.", "error")
+        return redirect(url_for("main.chat"))
 
 
 @main_bp.route("/chat/message", methods=["POST"])
 def chat_message():
-    """Generate an AI reply for authenticated chat requests."""
+    """Persist a user message, generate an AI reply from the stored history, and persist that too."""
 
-    if not session.get("user_email"):
+    if not session.get("user_id"):
         return jsonify({"error": "Please log in first."}), 401
 
+    user_client = get_user_scoped_client()
+    if not user_client:
+        session.clear()
+        return jsonify({"error": "Your session expired. Please log in again."}), 401
+
     payload = request.get_json(silent=True) or {}
-    messages = payload.get("messages")
-    if not isinstance(messages, list):
-        return jsonify({"error": "Invalid request payload."}), 400
+    conversation_id = payload.get("conversation_id")
+    content = (payload.get("content") or "").strip()
+
+    if not conversation_id or not content:
+        return jsonify({"error": "A conversation and message are required."}), 400
+
+    supabase_service = get_supabase_service()
+    user_id = session["user_id"]
 
     try:
-        reply = get_ai_service().generate_reply(messages)
+        supabase_service.ensure_conversation_for_user(user_client, conversation_id, user_id)
+    except ValueError:
+        return jsonify({"error": "Conversation not found."}), 404
+
+    try:
+        supabase_service.insert_message(user_client, {
+            "conversation_id": conversation_id,
+            "user_id": user_id,
+            "role": "user",
+            "content": content,
+        })
+
+        # Read the history back from Supabase rather than trusting anything the
+        # client sent, so the model only ever sees turns that were actually
+        # persisted (and a client can't spoof prior "assistant" replies).
+        history = supabase_service.fetch_messages_for_conversation(user_client, conversation_id)
+        reply = get_ai_service().generate_reply(
+            [{"role": message["role"], "content": message["content"]} for message in history]
+        )
+
+        supabase_service.insert_message(user_client, {
+            "conversation_id": conversation_id,
+            "user_id": user_id,
+            "role": "assistant",
+            "content": reply,
+        })
+
         return jsonify({"reply": reply})
     except ValueError:
         return jsonify({"error": "No valid messages were provided."}), 400

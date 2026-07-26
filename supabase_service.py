@@ -70,9 +70,20 @@ class SupabaseService:
         if not self.client:
             raise RuntimeError("Supabase is not configured yet.")
 
-        auth_client = create_client(self.client.supabase_url, self.client.supabase_key)
+        auth_client = create_client(str(self.client.supabase_url), self.client.supabase_key)
         auth_client.postgrest.auth(access_token)
         return auth_client
+
+    def create_conversation(self, user_client: Client, user_id: str, title: str) -> str:
+        """Create a new conversation row for the authenticated user and return its id."""
+
+        response = (
+            user_client
+            .table("conversations")
+            .insert({"user_id": user_id, "title": title})
+            .execute()
+        )
+        return response.data[0]["id"]
 
     def ensure_conversation_for_user(self, user_client: Client, conversation_id: str, user_id: str) -> None:
         """Ensure the target conversation exists and belongs to the authenticated user."""

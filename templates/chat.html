@@ -18,12 +18,12 @@
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      min-height: 100vh;
+      height: 100vh;
       font-family: Inter, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
-      display: grid;
-      grid-template-rows: auto 1fr auto;
+      display: flex;
+      flex-direction: column;
     }
     header {
       display: flex;
@@ -34,20 +34,87 @@
       background: #2b2c32;
     }
     .meta { color: var(--muted); font-size: 14px; }
-    main {
-      width: min(900px, 100%);
-      margin: 0 auto;
-      padding: 20px;
+    .layout {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+    }
+    .sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      background: #202123;
+      padding: 16px;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
+    }
+    .new-chat-form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .new-chat-form input {
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #40414f;
+      color: var(--text);
+      font: inherit;
+    }
+    .new-chat-form button {
+      border: 0;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 10px;
+    }
+    .conversation-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .conversation-link {
+      display: block;
+      padding: 8px 10px;
+      border-radius: 8px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 14px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .conversation-link:hover { background: var(--panel-alt); }
+    .conversation-link.active { background: var(--panel); border: 1px solid var(--border); }
+    .empty-hint { color: var(--muted); font-size: 13px; }
+    .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+    main.empty-state {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
     }
     #chat-box {
+      width: min(900px, 100%);
+      margin: 0 auto;
       border: 1px solid var(--border);
       border-radius: 12px;
       background: #2d2f39;
-      min-height: 60vh;
-      overflow-y: auto;
+      min-height: calc(100% - 4px);
       padding: 14px;
     }
     .message {
@@ -60,7 +127,7 @@
     .message.user { background: var(--panel-alt); }
     .message.assistant { background: var(--panel); border: 1px solid var(--border); }
     .label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; }
-    form {
+    form#chat-form {
       width: min(900px, 100%);
       margin: 0 auto;
       padding: 14px 20px 20px;
@@ -125,71 +192,110 @@
     <p class="warning">GEMINI_API_KEY is not configured, so AI replies are currently disabled.</p>
   {% endif %}
 
-  <main>
-    <div id="chat-box"></div>
-  </main>
+  <div class="layout">
+    <aside class="sidebar">
+      <form class="new-chat-form" method="POST" action="{{ url_for('main.create_conversation') }}">
+        <input type="text" name="title" placeholder="New chat name (optional)">
+        <button type="submit">+ New chat</button>
+      </form>
 
-  <form id="chat-form">
-    <label for="message-input" class="sr-only">Message input</label>
-    <textarea id="message-input" placeholder="Message NYC Tenant Assistant" required></textarea>
-    <button id="send-btn" type="submit" title="{% if not ai_ready %}Configure GEMINI_API_KEY to enable chat{% else %}Send message{% endif %}" {% if not ai_ready %}disabled{% endif %}>Send</button>
-  </form>
+      <nav class="conversation-list">
+        {% for conversation in conversations %}
+          <a
+            class="conversation-link {% if conversation.id == active_conversation_id %}active{% endif %}"
+            href="{{ url_for('main.chat', conversation_id=conversation.id) }}"
+          >{{ conversation.title or "Untitled conversation" }}</a>
+        {% else %}
+          <p class="empty-hint">No conversations yet.</p>
+        {% endfor %}
+      </nav>
+    </aside>
+
+    <div class="chat-area">
+      {% if active_conversation_id %}
+        <main>
+          <div id="chat-box">
+            {% for message in messages %}
+              <div class="message {{ message.role }}">
+                <span class="label">{{ "You" if message.role == "user" else "Assistant" }}</span>
+                <div>{{ message.content }}</div>
+              </div>
+            {% endfor %}
+          </div>
+        </main>
+
+        <form id="chat-form" data-conversation-id="{{ active_conversation_id }}">
+          <label for="message-input" class="sr-only">Message input</label>
+          <textarea id="message-input" placeholder="Message NYC Tenant Assistant" required></textarea>
+          <button id="send-btn" type="submit" title="{% if not ai_ready %}Configure GEMINI_API_KEY to enable chat{% else %}Send message{% endif %}" {% if not ai_ready %}disabled{% endif %}>Send</button>
+        </form>
+      {% else %}
+        <main class="empty-state">
+          <p>Start a new chat on the left to begin.</p>
+        </main>
+      {% endif %}
+    </div>
+  </div>
 
   <script>
     const chatBox = document.getElementById("chat-box");
     const chatForm = document.getElementById("chat-form");
-    const messageInput = document.getElementById("message-input");
-    const sendBtn = document.getElementById("send-btn");
 
-    const messages = [];
-
-    function renderMessage(role, content) {
-      const wrapper = document.createElement("div");
-      wrapper.className = `message ${role}`;
-
-      const label = document.createElement("span");
-      label.className = "label";
-      label.textContent = role === "user" ? "You" : "Assistant";
-
-      const body = document.createElement("div");
-      body.textContent = content;
-
-      wrapper.appendChild(label);
-      wrapper.appendChild(body);
-      chatBox.appendChild(wrapper);
+    if (chatBox) {
       chatBox.scrollTop = chatBox.scrollHeight;
     }
 
-    chatForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
+    if (chatForm) {
+      const messageInput = document.getElementById("message-input");
+      const sendBtn = document.getElementById("send-btn");
+      const conversationId = chatForm.dataset.conversationId;
 
-      const text = messageInput.value.trim();
-      if (!text) return;
+      function renderMessage(role, content) {
+        const wrapper = document.createElement("div");
+        wrapper.className = `message ${role}`;
 
-      messages.push({ role: "user", content: text });
-      renderMessage("user", text);
-      messageInput.value = "";
-      sendBtn.disabled = true;
+        const label = document.createElement("span");
+        label.className = "label";
+        label.textContent = role === "user" ? "You" : "Assistant";
 
-      try {
-        const response = await fetch("{{ url_for('main.chat_message') }}", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages })
-        });
+        const body = document.createElement("div");
+        body.textContent = content;
 
-        const payload = await response.json();
-        if (!response.ok) throw new Error(payload.error || "Request failed.");
-
-        messages.push({ role: "assistant", content: payload.reply });
-        renderMessage("assistant", payload.reply);
-      } catch (error) {
-        renderMessage("assistant", "Sorry, I couldn’t get a response right now. Please try again.");
-      } finally {
-        sendBtn.disabled = false;
-        messageInput.focus();
+        wrapper.appendChild(label);
+        wrapper.appendChild(body);
+        chatBox.appendChild(wrapper);
+        chatBox.scrollTop = chatBox.scrollHeight;
       }
-    });
+
+      chatForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const text = messageInput.value.trim();
+        if (!text) return;
+
+        renderMessage("user", text);
+        messageInput.value = "";
+        sendBtn.disabled = true;
+
+        try {
+          const response = await fetch("{{ url_for('main.chat_message') }}", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ conversation_id: conversationId, content: text })
+          });
+
+          const payload = await response.json();
+          if (!response.ok) throw new Error(payload.error || "Request failed.");
+
+          renderMessage("assistant", payload.reply);
+        } catch (error) {
+          renderMessage("assistant", "Sorry, I couldn’t get a response right now. Please try again.");
+        } finally {
+          sendBtn.disabled = false;
+          messageInput.focus();
+        }
+      });
+    }
   </script>
 </body>
 </html>
