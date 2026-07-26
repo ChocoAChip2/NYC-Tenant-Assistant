@@ -1,0 +1,50 @@
+Deployment Summary — Chat Persistence + Named Conversations
+Date: 2026-07-26
+
+Wired up chat history persistence, which existed as unused schema/service
+code but was never connected to the live chat flow.
+
+Changes shipped (commit 0aec60d):
+- routes.py: login now stores access_token, refresh_token, and user_id in
+  the session (previously only email), which RLS-scoped Supabase calls
+  require. Added POST /conversations to create named conversations.
+  Rewired GET /chat to list conversations and load the selected one's
+  history. Rewired POST /chat/message to persist the user message, read
+  the full history back from Supabase as the source of truth, call
+  Gemini, then persist the assistant reply.
+- supabase_service.py: added create_conversation(). Fixed a bug in
+  build_user_scoped_client() — it passed a URL object where create_client()
+  required a string, so every RLS-scoped call crashed; this path had
+  never actually been exercised before this session.
+- templates/chat.html: added a conversation sidebar, new-chat form,
+  server-rendered message history; chat JS now sends
+  {conversation_id, content} per turn instead of a client-held array.
+- Cleanup: dropped unused profiles/items/test_connection tables from
+  Supabase (migration drop_unused_scaffold_tables) and removed unused
+  fastapi/uvicorn from requirements.txt.
+
+Verified via a disposable Supabase test account: signup, email
+confirmation via SQL, login, multi-conversation creation/switching,
+message send + Gemini reply, page-reload history reload from Supabase,
+and confirmed DB rows directly — then deleted the test account and data.
+
+Known simplifications not addressed yet:
+- No token-refresh on session expiry (forces re-login instead).
+- No conversation rename/delete UI (RLS policies already support it).
+
+Todos (next roadmap, from 2026-07-26 planning discussion):
+1. PDF handling: let the AI read and edit PDF tenant forms, pulling in
+   info the chatter previously submitted (stored in Supabase) so forms
+   can be pre-filled instead of re-asked.
+2. NYC penal code reference: find a way to connect the AI to a live/
+   current source of NYC penal codes so it can cite them accurately
+   when advising a chatter, rather than relying on model memory alone.
+3. Contextual advice: use the stored conversation history and any
+   reference data (penal codes, prior submissions) to give the chatter
+   advice that's grounded in their specific situation, not generic
+   chat replies.
+
+Next steps available on request: scope which specific forms to target
+first, decide where the penal code data will be sourced/synced from,
+and design how retrieved reference material gets fed into the model's
+context per message.
