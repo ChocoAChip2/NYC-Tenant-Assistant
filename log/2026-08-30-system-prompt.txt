@@ -1,0 +1,49 @@
+Deployment Summary — System Prompt + Legal Disclaimer
+Date: 2026-08-30
+
+Closed the largest gap in the app: chat requests carried no instructions at all,
+so the assistant answered tenant questions as a generic Gemini chatbot with no
+domain grounding, no scope limits, and no indication anywhere that it is not a
+lawyer.
+
+Changes shipped:
+- prompts.py (new): SYSTEM_PROMPT. Its own module because this text is the
+  product -- it will be edited far more often than the code that sends it, and
+  the retrieval and eval branches both need to import it.
+- ai_service.py: generate_reply() now always leads system_instruction with
+  SYSTEM_PROMPT. Applied unconditionally rather than passed by the caller, so no
+  code path can accidentally skip it. History system messages append after it.
+- templates/chat.html: persistent "This is not legal advice" notice directly
+  under the header, visible without scrolling on both the empty state and an
+  active conversation. Tightened under 600px so it does not eat a phone screen.
+- tests/: 7 new tests (24 total). Assert the prompt reaches every call including
+  after a model fallback, that history system messages append rather than
+  replace, that titling does NOT carry the tenant prompt, and that the prompt
+  itself still contains its non-negotiable clauses.
+
+Prompt design notes:
+- Scope is NYC residential tenancy only; off-topic questions are declined.
+- The accuracy section is written for an app with NO retrieval layer. The model
+  is forbidden from citing statutes, section numbers, filing deadlines, dollar
+  thresholds, or contact details, because anything recalled from memory may be
+  wrong and a bad citation can cost a tenant their case. It is told explicitly
+  that "I am not certain, and here is who would know" is a good answer.
+  THIS SECTION MUST BE REWRITTEN when feat/ai/housing-law-retrieval ships.
+- Urgent situations (no heat, illegal lockout, any court paper with a date,
+  immediate danger) are called out for early escalation toward real help.
+- Named resources are limited to agencies. Inventing phone numbers, URLs, or
+  addresses is explicitly forbidden.
+
+Verified: rendered the chat template with sample data and checked the disclaimer
+at 1280px and 375px. Not verified against the live Gemini API -- no key was
+available in this environment, so prompt adherence in practice is unconfirmed.
+That is what feat/ai/answer-evals exists to measure.
+
+Found but NOT fixed (out of scope, filed separately as fix/chat/mobile-layout):
+the chat page is unusable at mobile widths. .sidebar is a fixed 260px inside a
+flex row and never collapses, leaving roughly 100px for messages on a 375px
+screen. Pre-existing; predates this branch and the model-fallback branch.
+
+Constraint worth remembering: messages.role has a CHECK allowing only 'user' and
+'assistant'. The system prompt is injected at call time and never persisted, so
+this design is compatible -- but storing prompts as message rows would fail.

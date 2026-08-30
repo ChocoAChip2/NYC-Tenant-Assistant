@@ -70,6 +70,26 @@ Update `FALLBACK_MODELS` when Google retires a model.
 5. `routes.py` handles auth and chat requests, rendering templates from `templates/`.
 6. `wsgi.py` exposes the Flask app object for Render/Gunicorn.
 
+## System prompt
+
+`prompts.py` holds `SYSTEM_PROMPT`, which `AIService.generate_reply()` sends with
+every chat request. It is applied unconditionally rather than passed in by the
+caller, so no code path can accidentally answer a tenant as a generic chatbot.
+Any `system` messages in the conversation history are appended after it.
+
+The prompt sets the assistant's scope (NYC residential tenancy), requires it to
+state that it is not a lawyer, and tells it to escalate urgent situations — no
+heat, lockouts, court dates — toward real help.
+
+Its accuracy rules are written for the app **as it is today**, with no retrieval
+layer: the model is forbidden from citing statutes, section numbers, deadlines,
+or contact details, because anything it recalls from memory may be wrong and a
+bad citation can cost a tenant their case. **When law retrieval ships, that
+section must be rewritten** to allow citing retrieved text.
+
+Conversation titles do not carry this prompt — titling is a summarization task
+with its own short instruction.
+
 ## Conversation naming
 
 A conversation created without a title is named automatically from its first
