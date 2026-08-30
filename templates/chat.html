@@ -166,6 +166,27 @@
       border-radius: 8px;
       border: 1px solid #775126;
     }
+    /* Sits directly under the header so it is visible without scrolling, on
+       both the empty state and an active conversation. */
+    .disclaimer {
+      margin: 0;
+      padding: 10px 20px;
+      background: #2b2c32;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .disclaimer strong { color: var(--text); }
+    /* On a phone the full notice eats a third of the viewport, so tighten it.
+       The "not legal advice" lead stays at full size either way. */
+    @media (max-width: 600px) {
+      .disclaimer {
+        padding: 8px 14px;
+        font-size: 12px;
+        line-height: 1.45;
+      }
+    }
     a { color: #9cdcff; }
     .sr-only {
       position: absolute;
@@ -187,6 +208,13 @@
     </div>
     <a href="{{ url_for('main.logout') }}">Log out</a>
   </header>
+
+  <p class="disclaimer" role="note">
+    <strong>This is not legal advice.</strong> NYC Tenant Assistant provides
+    general information only and is not a lawyer. For anything involving a court
+    date, an eviction notice, or your legal rights, speak to a housing attorney —
+    free help is available to many New Yorkers. In an emergency, call 911.
+  </p>
 
   {% if not ai_ready %}
     <p class="warning">GEMINI_API_KEY is not configured, so AI replies are currently disabled.</p>

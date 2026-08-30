@@ -15,6 +15,7 @@ from google import genai
 from google.genai.errors import APIError, ClientError, ServerError
 
 from config import Settings
+from prompts import SYSTEM_PROMPT
 
 logger = logging.getLogger(__name__)
 
@@ -224,9 +225,11 @@ class AIService:
                 "parts": [{"text": content}],
             })
 
-        config = None
-        if system_instructions:
-            config = {"system_instruction": "\n".join(system_instructions)}
+        # SYSTEM_PROMPT leads unconditionally: the assistant must never answer a
+        # tenant as a generic chatbot, so this cannot depend on the caller
+        # remembering to pass it. Any system messages in the history are appended
+        # after it rather than replacing it.
+        config = {"system_instruction": "\n\n".join([SYSTEM_PROMPT, *system_instructions])}
 
         if not contents:
             raise ValueError("No messages were provided for content generation.")

@@ -17,6 +17,7 @@ from google.genai.errors import ClientError, ServerError
 import ai_service
 from ai_service import AIService, _clean_title, _is_model_unavailable, _is_quota_error
 from config import load_gemini_api_keys
+from prompts import SYSTEM_PROMPT
 
 
 def quota_error() -> ClientError:
@@ -35,13 +36,19 @@ class FakeModels:
     def __init__(self, behaviour):
         self.behaviour = behaviour
         self.calls = []
+        self.configs = []
 
     def generate_content(self, *, model, contents, config):
         self.calls.append(model)
+        self.configs.append(config)
         outcome = self.behaviour(model, len(self.calls))
         if isinstance(outcome, Exception):
             raise outcome
         return mock.Mock(text=outcome)
+
+    @property
+    def last_instruction(self) -> str:
+        return (self.configs[-1] or {}).get("system_instruction", "")
 
 
 class FakeClient:
@@ -143,6 +150,66 @@ class FallbackChainTests(unittest.TestCase):
         service = build_service(lambda model, n: "Mold In Bathroom")
         service.generate_title("There is mold", "")
         self.assertEqual(service.clients[0].models.calls[0], ai_service.TITLE_MODEL)
+
+
+class SystemPromptTests(unittest.TestCase):
+    """The assistant must never answer a tenant as a generic chatbot."""
+
+    def test_system_prompt_is_sent_with_every_reply(self):
+        service = build_service(lambda model, n: "ok")
+        service.generate_reply([{"role": "user", "content": "my heat is off"}])
+
+        self.assertEqual(service.clients[0].models.last_instruction, SYSTEM_PROMPT)
+
+    def test_system_prompt_is_sent_even_when_history_has_no_system_message(self):
+        service = build_service(lambda model, n: "ok")
+        service.generate_reply([
+            {"role": "user", "content": "hi"},
+            {"role": "assistant", "content": "hello"},
+            {"role": "user", "content": "my landlord changed the locks"},
+        ])
+
+        self.assertIn(SYSTEM_PROMPT, service.clients[0].models.last_instruction)
+
+    def test_history_system_messages_append_rather_than_replace(self):
+        service = build_service(lambda model, n: "ok")
+        service.generate_reply([
+            {"role": "system", "content": "EXTRA CONTEXT"},
+            {"role": "user", "content": "hi"},
+        ])
+
+        instruction = service.clients[0].models.last_instruction
+        self.assertTrue(instruction.startswith(SYSTEM_PROMPT))
+        self.assertIn("EXTRA CONTEXT", instruction)
+
+    def test_prompt_survives_a_fallback_to_another_model(self):
+        first = ai_service.FALLBACK_MODELS[0]
+        service = build_service(lambda model, n: not_found_error() if model == first else "ok")
+        service.generate_reply([{"role": "user", "content": "hi"}])
+
+        # Every attempt must carry it, not just the one that happened to succeed.
+        for config in service.clients[0].models.configs:
+            self.assertIn(SYSTEM_PROMPT, config["system_instruction"])
+
+    def test_titles_do_not_carry_the_tenant_prompt(self):
+        # Titling is a summarization task; sending the full prompt would waste
+        # tokens on every naming call and skew the summary.
+        service = build_service(lambda model, n: "Broken Heat Complaint")
+        service.generate_title("no heat since Tuesday", "sorry to hear that")
+
+        self.assertNotIn(SYSTEM_PROMPT, service.clients[0].models.last_instruction)
+        self.assertIn("titles", service.clients[0].models.last_instruction.lower())
+
+    def test_prompt_states_it_is_not_legal_advice(self):
+        self.assertIn("not a lawyer", SYSTEM_PROMPT.lower())
+        self.assertIn("not give legal advice", SYSTEM_PROMPT.lower())
+
+    def test_prompt_forbids_inventing_citations(self):
+        # There is no retrieval layer yet, so fabricated citations are the single
+        # most damaging failure mode this prompt has to prevent.
+        lowered = SYSTEM_PROMPT.lower()
+        self.assertIn("do not cite section numbers", lowered)
+        self.assertIn("do not make up phone numbers", lowered)
 
 
 class KeyLoadingTests(unittest.TestCase):
