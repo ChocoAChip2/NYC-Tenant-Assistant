@@ -12,6 +12,11 @@ Render and Supabase work together in this project when these are set correctly:
 - `GEMINI_API_KEY` (used to generate chat responses)
 - `FLASK_SECRET_KEY` (any strong random string)
 
+Optionally `GEMINI_API_KEY_2` through `GEMINI_API_KEY_10`, or a comma-separated
+list in `GEMINI_API_KEY`, to give the quota fallback somewhere to fall back to.
+Note that keys minted inside the *same* Google Cloud project share one quota
+pool, so extra keys only add capacity if they come from separate projects.
+
 Render start command:
 
 ```bash
@@ -34,11 +39,27 @@ If env vars are missing, the app starts but auth actions fail with clear message
 ├── wsgi.py               # WSGI entrypoint for Render/Gunicorn (imports app)
 ├── test.py               # Backward-compatible legacy entrypoint (imports app)
 ├── requirements.txt      # Python dependencies
-└── templates/
-    ├── signup.html       # Signup page
-    ├── login.html        # Login page
-    └── chat.html         # Post-login chat placeholder
+├── templates/
+│   ├── signup.html       # Signup page
+│   ├── login.html        # Login page
+│   └── chat.html         # Conversation sidebar + chat UI
+├── tests/                # Unit tests (python -m unittest discover -s tests)
+└── log/                  # Dated deployment summaries
 ```
+
+## Model fallback
+
+`ai_service.py` walks a chain of (model, API key) pairs so one retirement or one
+exhausted key cannot stop a reply:
+
+- **404 / NOT_FOUND** — the model is gone, so it is abandoned for every key.
+- **429 / RESOURCE_EXHAUSTED** — that key is spent, so the next key is tried,
+  then the next model. Free-tier limits apply per model as well as per key, so
+  moving down the chain helps even with a single key.
+- **5xx** — retried in place with exponential backoff.
+
+All of this is invisible to the user: `routes.py` gets text or one error.
+Update `FALLBACK_MODELS` when Google retires a model.
 
 ### How files connect
 
@@ -48,6 +69,15 @@ If env vars are missing, the app starts but auth actions fail with clear message
 4. `app.py` stores shared services in app config and registers routes from `routes.py`.
 5. `routes.py` handles auth and chat requests, rendering templates from `templates/`.
 6. `wsgi.py` exposes the Flask app object for Render/Gunicorn.
+
+## Conversation naming
+
+A conversation created without a title is named automatically from its first
+exchange: after the opening reply is stored, `ai_service.generate_title()` asks
+the cheapest model in the chain for a four-word summary, and `routes.py` saves
+it. The naming call is fire-and-forget — if it fails the chat is unaffected and
+the placeholder title stays. Titles the user typed themselves are never
+overwritten.
 
 ## Local run
 

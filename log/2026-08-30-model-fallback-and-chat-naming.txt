@@ -1,0 +1,71 @@
+Deployment Summary — Model Fallback + Automatic Chat Naming
+Date: 2026-08-30
+
+Two changes: make chat replies survive model retirements and key quota
+exhaustion, and name conversations automatically from their first exchange.
+
+Model selection (checked against Google's live model + pricing pages):
+- Was: gemini-2.5-flash -> gemini-2.5-flash-lite.
+- Now: every Flash/Flash-Lite model with no announced shutdown date, ordered
+  newest-and-cheapest first:
+    gemini-3.7-flash -> gemini-3.6-flash -> gemini-3.5-flash-lite ->
+    gemini-2.5-flash -> gemini-2.5-flash-lite -> gemini-3.5-flash
+- gemini-3.5-flash sits last because it costs 2x gemini-3.7-flash for an older
+  model; it is only ever reached if everything above it is exhausted.
+- gemini-3.1-flash-lite is deliberately excluded: hard shutdown 2027-05-07,
+  inside our support window. It is the only Flash model with a date attached.
+- Confirmed from Google docs: rate limits are per Google Cloud PROJECT, not per
+  API key, so extra keys only add capacity if minted in separate projects.
+  AI Studio allows 10 projects at a time. Whether each MODEL also has its own
+  quota bucket is not published — check aistudio.google.com/rate-limit.
+- The 2.5 family has no Gemini API shutdown date, but Vertex AI lists Oct 2026
+  and Google now names 3.6 Flash as the recommended replacement for 2.5 Flash,
+  so it was treated as on the way out.
+
+Changes shipped:
+- ai_service.py: rewritten around a (model x key) fallback chain. 404 retires a
+  model for all keys; 429 advances to the next key then the next model; 5xx
+  retries in place with exponential backoff. Added generate_title() and title
+  cleanup. Previously only 404 was handled and 429 surfaced to the user as a
+  generic outage.
+- config.py: gemini_api_key -> gemini_api_keys. Reads a comma-separated
+  GEMINI_API_KEY and/or GEMINI_API_KEY_2..10.
+- routes.py: chat_message() now bumps updated_at and, on the opening turn of an
+  unnamed conversation, generates and saves a title. Naming failures are
+  swallowed so they cannot break a successful chat turn.
+- supabase_service.py: ensure_conversation_for_user() returns the row instead of
+  None so the title can be checked without a second query. Added
+  update_conversation_title().
+- templates/chat.html: sidebar links carry data-conversation-id; the new title
+  is applied in place without a reload.
+- tests/: 17 unit tests covering error classification, the fallback chain,
+  title cleanup, and key loading. Fake clients raise real SDK error types; the
+  Gemini API is never contacted.
+
+Retracted mid-branch: an earlier review claimed list_conversations() sorted by
+an updated_at column that nothing maintained. Once the Supabase project came
+back up this was checked directly and is FALSE -- an AFTER INSERT trigger on
+messages, trg_bump_conversation_updated_at, has always bumped it, and every
+conversation row confirms updated_at == its last message timestamp. The
+touch_conversation() written against that claim was a redundant write on every
+chat turn and has been removed. update_conversation_title() no longer sets
+updated_at either; the trigger is the single owner of that column.
+
+Lesson for the branch plan: the bug was inferred from application code while
+the database was unreachable. Verify against the live schema before writing a
+fix for something the database may already handle.
+
+Not addressed (still open from the 2026-07-26 review):
+- No system prompt. ai_service has system_instruction plumbing but nothing
+  supplies one for the main chat, so replies are still ungrounded and carry no
+  "not legal advice" disclaimer. Highest-value remaining item.
+- FLASK_SECRET_KEY still defaults to a constant published in this repo.
+- Supabase access token still stored in a signed-but-unencrypted session cookie.
+- No CSRF protection on POST /conversations.
+- No rate limiting, no token refresh, unpinned dependencies, schema still not
+  version-controlled as migrations.
+
+Note: the Supabase project (Project Paradigm) was found auto-paused/RESTORING
+during this session, so the schema could not be verified live. touch_conversation
+assumes conversations.updated_at exists and is writable under RLS — confirm once
+the project is back up.

@@ -85,13 +85,17 @@ class SupabaseService:
         )
         return response.data[0]["id"]
 
-    def ensure_conversation_for_user(self, user_client: Client, conversation_id: str, user_id: str) -> None:
-        """Ensure the target conversation exists and belongs to the authenticated user."""
+    def ensure_conversation_for_user(self, user_client: Client, conversation_id: str, user_id: str) -> dict:
+        """Ensure the conversation exists and belongs to the user, and return it.
+
+        The row is returned rather than discarded so callers can check the
+        current title without spending a second round trip on it.
+        """
 
         response = (
             user_client
             .table("conversations")
-            .select("id")
+            .select("id,title")
             .eq("id", conversation_id)
             .eq("user_id", user_id)
             .limit(1)
@@ -100,6 +104,8 @@ class SupabaseService:
 
         if not response.data:
             raise ValueError("Conversation not found for this user.")
+
+        return response.data[0]
 
     def fetch_messages_for_conversation(self, user_client: Client, conversation_id: str) -> list[dict]:
         """Fetch full message history for a conversation, ordered oldest->newest."""
@@ -130,3 +136,18 @@ class SupabaseService:
             .execute()
         )
         return response.data or []
+
+    def update_conversation_title(self, user_client: Client, conversation_id: str, title: str) -> None:
+        """Rename a conversation. RLS keeps this scoped to the owner.
+
+        Deliberately does not touch updated_at: the trg_bump_conversation_updated_at
+        trigger owns that column, and a rename is not conversation activity.
+        """
+
+        (
+            user_client
+            .table("conversations")
+            .update({"title": title})
+            .eq("id", conversation_id)
+            .execute()
+        )

@@ -203,6 +203,7 @@
         {% for conversation in conversations %}
           <a
             class="conversation-link {% if conversation.id == active_conversation_id %}active{% endif %}"
+            data-conversation-id="{{ conversation.id }}"
             href="{{ url_for('main.chat', conversation_id=conversation.id) }}"
           >{{ conversation.title or "Untitled conversation" }}</a>
         {% else %}
@@ -288,6 +289,15 @@
           if (!response.ok) throw new Error(payload.error || "Request failed.");
 
           renderMessage("assistant", payload.reply);
+
+          // The server names an unnamed conversation from its first exchange.
+          // Patch the sidebar in place so the new title shows without a reload.
+          if (payload.title) {
+            const link = document.querySelector(
+              `.conversation-link[data-conversation-id="${conversationId}"]`
+            );
+            if (link) link.textContent = payload.title;
+          }
         } catch (error) {
           renderMessage("assistant", "Sorry, I couldn’t get a response right now. Please try again.");
         } finally {
