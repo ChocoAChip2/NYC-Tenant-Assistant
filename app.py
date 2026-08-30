@@ -42,7 +42,9 @@ def create_app() -> Flask:
     if not ai_service.is_ready():
         print(f"❌ {ai_service.initialization_error}", flush=True)
     else:
-        print("✅ Gemini client ready.", flush=True)
+        # Log the key count so it is obvious at boot whether the quota fallback
+        # actually has anywhere to fall back to.
+        print(f"✅ Gemini client ready ({ai_service.key_count()} key(s) configured).", flush=True)
 
     # Register the blueprint from routes.py so Flask knows about each page URL.
     app.register_blueprint(main_bp)

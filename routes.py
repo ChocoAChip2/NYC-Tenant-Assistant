@@ -15,6 +15,16 @@ from supabase_service import SupabaseService
 main_bp = Blueprint("main", __name__)
 logger = logging.getLogger(__name__)
 
+# Titles the user did not choose, so auto-naming may overwrite them. Anything
+# the user typed into the new-chat form is left alone.
+DEFAULT_TITLES = {"", "new conversation"}
+
+
+def _is_default_title(title: str | None) -> bool:
+    """True when a conversation still carries its placeholder name."""
+
+    return (title or "").strip().lower() in DEFAULT_TITLES
+
 
 def get_supabase_service() -> SupabaseService:
     """Fetch the shared service object that app.py stored on the Flask app."""
@@ -201,7 +211,7 @@ def chat_message():
     user_id = session["user_id"]
 
     try:
-        supabase_service.ensure_conversation_for_user(user_client, conversation_id, user_id)
+        conversation = supabase_service.ensure_conversation_for_user(user_client, conversation_id, user_id)
     except ValueError:
         return jsonify({"error": "Conversation not found."}), 404
 
@@ -228,7 +238,15 @@ def chat_message():
             "content": reply,
         })
 
-        return jsonify({"reply": reply})
+        supabase_service.touch_conversation(user_client, conversation_id)
+
+        # history holds only the message we just inserted on the opening turn,
+        # which is when an unnamed conversation earns its title.
+        title = None
+        if len(history) == 1 and _is_default_title(conversation.get("title")):
+            title = _auto_name_conversation(user_client, conversation_id, content, reply)
+
+        return jsonify({"reply": reply, "title": title})
     except ValueError:
         return jsonify({"error": "No valid messages were provided."}), 400
     except RuntimeError:
@@ -236,6 +254,32 @@ def chat_message():
     except Exception:
         logger.exception("Failed to generate AI response.")
         return jsonify({"error": "The AI service is currently unavailable. Please try again shortly."}), 500
+
+
+def _auto_name_conversation(user_client, conversation_id: str, user_message: str, reply: str) -> str | None:
+    """Summarize the opening exchange into a title and persist it.
+
+    Naming is a nice-to-have, so every failure here is swallowed: the user's
+    reply has already been generated and stored, and a placeholder title is a
+    far better outcome than a 500 on a successful chat turn.
+    """
+
+    try:
+        title = get_ai_service().generate_title(user_message, reply)
+    except Exception:
+        logger.exception("Failed to generate a title for conversation %s.", conversation_id)
+        return None
+
+    if not title:
+        return None
+
+    try:
+        get_supabase_service().update_conversation_title(user_client, conversation_id, title)
+    except Exception:
+        logger.exception("Failed to save the title for conversation %s.", conversation_id)
+        return None
+
+    return title
 
 
 @main_bp.route("/logout")
