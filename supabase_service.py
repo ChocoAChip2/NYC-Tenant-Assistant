@@ -5,7 +5,6 @@ can focus on request handling instead of client setup details.
 """
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
 
 from supabase import Client, create_client
 
@@ -139,27 +138,16 @@ class SupabaseService:
         return response.data or []
 
     def update_conversation_title(self, user_client: Client, conversation_id: str, title: str) -> None:
-        """Rename a conversation. RLS keeps this scoped to the owner."""
+        """Rename a conversation. RLS keeps this scoped to the owner.
 
-        (
-            user_client
-            .table("conversations")
-            .update({"title": title, "updated_at": datetime.now(timezone.utc).isoformat()})
-            .eq("id", conversation_id)
-            .execute()
-        )
-
-    def touch_conversation(self, user_client: Client, conversation_id: str) -> None:
-        """Bump updated_at so list_conversations sorts by real activity.
-
-        Inserting a message does not touch the parent row on its own, so without
-        this the sidebar stays frozen in creation order.
+        Deliberately does not touch updated_at: the trg_bump_conversation_updated_at
+        trigger owns that column, and a rename is not conversation activity.
         """
 
         (
             user_client
             .table("conversations")
-            .update({"updated_at": datetime.now(timezone.utc).isoformat()})
+            .update({"title": title})
             .eq("id", conversation_id)
             .execute()
         )

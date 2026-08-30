@@ -61,7 +61,7 @@ method the fallback branch hadn't introduced yet.
 - 404 retires a model for every key; 429 advances key then model; 5xx retries
   with backoff. All invisible to the user.
 - Auto-naming from the opening exchange, using the cheapest model in the chain.
-- Fixed: `list_conversations` sorted by `updated_at`, which nothing updated.
+- Schema verified live against Supabase after the project resumed.
 - 17 unit tests. Gemini API never contacted.
 
 ---
@@ -198,3 +198,6 @@ enough to fold into a related branch rather than justify its own.
 | No token refresh; expiry forces re-login | `fix/auth/session-token-storage` |
 | Unpinned dependencies; dev server in production | `chore/ops/pin-dependencies` |
 | Schema not version-controlled as migrations | `feat/data/usage-tracking` |
+| Leaked password protection disabled (one dashboard toggle) | `fix/auth/csrf-protection` |
+| `bump_conversation_updated_at` has a mutable `search_path` | `feat/data/usage-tracking` |
+| `conversations` / `messages` discoverable via GraphQL to `anon` | `fix/auth/csrf-protection` |

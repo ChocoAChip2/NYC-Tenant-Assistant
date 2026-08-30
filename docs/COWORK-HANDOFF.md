@@ -125,5 +125,11 @@ any change to chat or AI behavior.
   workflow file.
 - A read-only query may not reset the inactivity timer. Verify what Supabase
   counts as activity rather than assuming a `SELECT` is enough.
-- The Supabase project was auto-paused during recent work. Confirm it is running
-  before concluding the workflow failed.
+- The Supabase project was auto-paused during recent work. It is running again
+  and the schema has been verified; if a query fails, check the pause state
+  before assuming the workflow is broken.
+
+**Related, already known.** The Supabase security advisor reports that leaked
+password protection is disabled — one dashboard toggle that checks new passwords
+against HaveIBeenPwned. Not part of this task; listed in the `BRANCH-PLAN.md`
+security backlog.

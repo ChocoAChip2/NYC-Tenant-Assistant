@@ -35,16 +35,25 @@ Changes shipped:
   swallowed so they cannot break a successful chat turn.
 - supabase_service.py: ensure_conversation_for_user() returns the row instead of
   None so the title can be checked without a second query. Added
-  update_conversation_title() and touch_conversation().
+  update_conversation_title().
 - templates/chat.html: sidebar links carry data-conversation-id; the new title
   is applied in place without a reload.
 - tests/: 17 unit tests covering error classification, the fallback chain,
   title cleanup, and key loading. Fake clients raise real SDK error types; the
   Gemini API is never contacted.
 
-Bug fixed along the way: list_conversations() ordered by updated_at, but
-inserting a message never touched the parent row, so the sidebar was frozen in
-creation order. touch_conversation() fixes it.
+Retracted mid-branch: an earlier review claimed list_conversations() sorted by
+an updated_at column that nothing maintained. Once the Supabase project came
+back up this was checked directly and is FALSE -- an AFTER INSERT trigger on
+messages, trg_bump_conversation_updated_at, has always bumped it, and every
+conversation row confirms updated_at == its last message timestamp. The
+touch_conversation() written against that claim was a redundant write on every
+chat turn and has been removed. update_conversation_title() no longer sets
+updated_at either; the trigger is the single owner of that column.
+
+Lesson for the branch plan: the bug was inferred from application code while
+the database was unreachable. Verify against the live schema before writing a
+fix for something the database may already handle.
 
 Not addressed (still open from the 2026-07-26 review):
 - No system prompt. ai_service has system_instruction plumbing but nothing

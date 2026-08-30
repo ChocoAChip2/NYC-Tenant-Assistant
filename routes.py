@@ -238,8 +238,9 @@ def chat_message():
             "content": reply,
         })
 
-        supabase_service.touch_conversation(user_client, conversation_id)
-
+        # conversations.updated_at is bumped by the trg_bump_conversation_updated_at
+        # trigger on message insert, so the sidebar ordering needs nothing here.
+        #
         # history holds only the message we just inserted on the opening turn,
         # which is when an unnamed conversation earns its title.
         title = None
