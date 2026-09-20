@@ -20,6 +20,7 @@ CSS rule you don't recognise in these templates.**
 | [css-gotchas.md](css-gotchas.md) | Load-bearing CSS rules that look removable and are not |
 | [chat-page.md](chat-page.md) | `chat.html` — sidebar, composer, rename, suggestion chips, motion |
 | [auth-and-settings-pages.md](auth-and-settings-pages.md) | `login`, `signup`, `forgot_password`, `reset_password`, `settings` |
+| [branding-and-disclaimers.md](branding-and-disclaimers.md) | The product name, the ST mark, and the legal notices |
 
 For *why a feature exists* (as opposed to how it's built), see `log/` —
 one file per shipped branch, with the requirement it came from.

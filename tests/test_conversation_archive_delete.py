@@ -12,7 +12,7 @@ from unittest import mock
 import flask
 
 from routes import main_bp
-from tests.csrf_test_support import disable_csrf
+from tests.app_test_support import configure_test_app
 from supabase_service import SupabaseService
 import os
 
@@ -53,7 +53,7 @@ def _build_test_app(service):
     app.config["SUPABASE_SERVICE"] = service
     app.config["AI_SERVICE"] = FakeAIService()
     app.register_blueprint(main_bp)
-    disable_csrf(app)
+    configure_test_app(app)
     return app
 
 

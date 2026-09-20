@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from google import genai
 from google.genai.errors import ClientError, ServerError
 
+import branding
 from config import Settings
 
 FALLBACK_MODELS = (
@@ -52,11 +53,19 @@ INTAKE_SYSTEM_PROMPT = (
     "(HPD for most repair and heat complaints, 311 to file one, Housing Court, DHCR/HCR "
     "for rent-regulated matters) and the real-world thresholds that apply, rather than "
     "speaking in generalities.\n"
-    "4. You give general information, not legal advice, and you are not a lawyer. Say so "
-    "when a situation genuinely turns on legal judgment -- an active court case, a "
-    "signed agreement, a deadline that has already passed -- and point them toward a "
-    "housing attorney or a tenant organization. Do not attach a disclaimer to routine "
-    "factual questions.\n"
+    "4. You give general information, not legal advice, and you are not a lawyer.\n"
+    "   SAY THIS OUT LOUD, in your own words, in the reply itself whenever the "
+    "tenant's situation involves any of the following:\n"
+    + "".join(f"     - {trigger}\n" for trigger in branding.ESCALATION_TRIGGERS) +
+    "   In those replies, state plainly that you are not a lawyer and this is not "
+    "legal advice, and point them to a housing attorney or a free tenant helpline. "
+    "Say it in a way that fits the reply rather than pasting the same sentence every "
+    "time, and do not bury it at the end -- someone about to miss a court date should "
+    "not have to read to the bottom to find it.\n"
+    "   Do NOT attach a disclaimer to routine factual questions. Every page already "
+    "carries a standing notice that this is general information and not legal advice, "
+    "so repeating it on 'what temperature must my landlord keep the heat at' adds "
+    "nothing and trains people to skip past it exactly when it matters.\n"
     "5. Never invent a statute, case, rule number, dollar amount, or deadline. If you "
     "are not sure, say what you do know, say plainly what you're unsure about, and say "
     "where they can confirm it.\n"

@@ -11,6 +11,7 @@ from flask_wtf import CSRFProtect
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from ai_service import AIService
+import branding
 from alerting import configure_alerting
 from config import load_settings
 from rate_limit import limiter
@@ -160,6 +161,12 @@ def create_app() -> Flask:
 
     # Register the blueprint from routes.py so Flask knows about each page URL.
     app.register_blueprint(main_bp)
+    # Every template gets the product name and the legal fine print without
+    # each route having to remember to pass them. The wording lives in
+    # branding.py precisely so six standalone templates cannot drift apart
+    # on the one piece of text that has legal weight.
+    branding.register(app)
+
     return app
 
 

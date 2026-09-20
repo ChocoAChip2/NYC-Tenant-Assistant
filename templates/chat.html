@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>NYC Tenant Assistant | Chat</title>
+  <title>{{ product_name }} | Chat</title>
   <script>
 
     (function () {
@@ -563,6 +563,35 @@
     .char-count.is-visible { visibility: visible; }
     .char-count.near-limit { color: var(--warning); }
     .char-count.at-limit { color: var(--error); font-weight: 600; }
+    .legal-note {
+      width: min(720px, 100%);
+      margin: 0 auto;
+      padding: 0 24px 10px;
+      text-align: center;
+      font-size: 11.5px;
+      line-height: 1.4;
+      color: var(--muted);
+    }
+    .legal-note a { color: var(--muted); text-decoration: underline; }
+    .legal-note a:hover { color: var(--accent); }
+    header h1 a {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    header h1 .brand-mark {
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
 
     .conversation-link, .row-menu-trigger, .suggestion-chip, .user-menu-trigger, #send-btn {
       transition: background-color .15s ease, color .15s ease, border-color .15s ease, transform .12s ease;
@@ -653,7 +682,7 @@
 <body>
   <header>
     <div>
-      <h1><a href="{{ url_for('main.chat') }}">NYC Tenant Assistant</a></h1>
+      <h1><a href="{{ url_for('main.chat') }}"><span class="brand-mark" aria-hidden="true">{{ logo_monogram }}</span>{{ product_name }}</a></h1>
     </div>
     <div class="header-actions">
 
@@ -783,7 +812,7 @@
 
         <form id="chat-form" data-conversation-id="{{ active_conversation_id }}">
           <label for="message-input" class="sr-only">Message input</label>
-          <textarea id="message-input" placeholder="Message NYC Tenant Assistant" maxlength="{{ max_message_length }}" required></textarea>
+          <textarea id="message-input" placeholder="Message {{ product_name }}" maxlength="{{ max_message_length }}" required></textarea>
           <button id="send-btn" type="submit" aria-label="Send message" title="{% if not ai_ready %}Configure GEMINI_API_KEY to enable chat{% else %}Send message{% endif %}" {% if not ai_ready %}disabled{% endif %}>&#8593;</button>
         </form>
 
@@ -815,6 +844,7 @@
           </div>
         </main>
       {% endif %}
+      <p class="legal-note">{{ short_disclaimer }} <a href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a></p>
     </div>
   </div>
 

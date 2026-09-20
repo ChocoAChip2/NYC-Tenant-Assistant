@@ -1,0 +1,151 @@
+Deployment Summary — Renamed to SideKick Tidbit, ST monogram, standing legal
+disclaimer on every page, and a public Learn More / support page
+Date: 2026-09-20
+
+Requirements (from conversation):
+1. "We are going to name the site 'SideKick Tidbit' and ST is going to be
+   made into a logo."
+2. "Notice how some AI's give information but they also include a smaller
+   disclaimer. Please have disclaimer plugged in for things that we don't
+   want to be held liable for. But we should still explicitly say in our
+   actual responses, besides the smaller outline at the bottom, that
+   disclaims that we don't provide legal advice."
+3. "Put a pin in a 'Learn More' page which we can reference in our website
+   that leads directly to our support/info page."
+
+Two things were confirmed before building, because guessing either one
+wrong meant redoing the work:
+- How often the assistant itself should say "not legal advice" -> ONLY when
+  the stakes are real. This matters because it pulls directly against an
+  earlier instruction ("make responses dynamic, not the typical response"):
+  a disclaimer line on every single reply is exactly how boilerplate creeps
+  back in.
+- Whether to apply the rename now or wait for the logo -> apply now, with a
+  placeholder mark.
+
+Part 1 -- The rename (branding.py, all templates, routes.py):
+
+Every user-facing "NYC Tenant Assistant" is now "SideKick Tidbit": page
+titles, the auth-card brand line, the chat header, the composer
+placeholder, and the chat-history export header.
+
+The name is NOT written into any template. It comes from branding.py via a
+context processor, and a test asserts no template hardcodes it. The reason
+is this branch: the name was hardcoded in six files, and renaming it meant
+finding thirteen separate strings. The next rename is one edit.
+
+The ST mark reuses the accent-colored rounded square the auth pages already
+had, with the monogram as white text inside it. It is an interim mark, not
+a final logo -- swapping in real artwork means replacing one element rather
+than reworking a layout. Added to the chat header and the settings header
+too, which previously had no brand at all.
+
+Part 2 -- The standing disclaimer (branding.py + every template):
+
+Every page now carries, in small muted type:
+
+  "SideKick Tidbit gives general information, not legal advice. Learn more"
+
+Placement follows each page's shape: under the card on the auth pages, last
+in <main> on settings, and on the chat page under the composer below the
+character counter -- the placement ChatGPT and Claude both use, which is
+the convention the request was modelled on. On chat it sits outside the
+conversation/greeting branch so the greeting state shows it too.
+
+WHY THE WORDING LIVES IN PYTHON: this app has no shared layout; every
+template is standalone and repeats its own styling. That is a deliberate
+choice for CSS and a bad one for legal text. Six hand-copied disclaimers
+drift, and the one that drifts is the one that gets quoted back at you. So
+the words live in branding.py once, and a test asserts no template
+hardcodes the phrase "not legal advice" (learn_more.html excepted -- that
+phrase is its section heading).
+
+A second test asserts the disclaimer string actually contains "not legal
+advice", guarding against someone later softening it into something
+friendlier that no longer does the job it exists to do.
+
+Part 3 -- When the assistant says it out loud (ai_service.py):
+
+The footer is the standing notice. The assistant states it in its own reply
+only when the stakes are real. The triggers are defined in
+branding.ESCALATION_TRIGGERS and interpolated into the system prompt, so
+the product decision about WHEN sits beside the words themselves:
+
+  - an active or threatened court case, including an eviction proceeding
+  - a deadline that has passed or is about to
+  - a document they have already signed, or are being asked to sign
+  - anything involving money they could lose or owe
+  - a decision that is hard to reverse once made
+
+In those replies it must say plainly that it is not a lawyer, point to a
+housing attorney or free helpline, and NOT bury it at the end -- someone
+about to miss a court date should not have to read to the bottom.
+
+The prompt also explicitly keeps the other half: no disclaimer on routine
+factual questions. Both halves are tested. Stapling the same sentence onto
+"what temperature must my landlord keep the heat at" is what trains people
+to skip past it on the message where it actually matters, which is the
+failure mode this design is avoiding.
+
+Part 4 -- /learn-more (new route + template):
+
+Public on purpose, no login required. Someone deciding whether to trust
+this with their housing situation should be able to read what it claims to
+be before handing over an email address, and someone who has just been told
+something alarming should be able to find a lawyer without authenticating
+first.
+
+Contents, all driven from branding.py: the full four-paragraph disclaimer
+(not a law firm, no attorney-client relationship, the AI can be wrong,
+filled forms are drafts you remain responsible for); an explicit
+can/cannot list; five free or low-cost help resources (NYC Tenant Helpline,
+Housing Court Answers, NYC Right to Counsel, NY State HCR, HPD complaints);
+and a plain-language summary of the data handling already built. Outbound
+links use target="_blank" with rel="noopener noreferrer" so a tenant
+mid-conversation doesn't lose it by tapping a helpline.
+
+Part 5 -- A gap this surfaced in the test setup:
+
+Adding the context processor immediately broke a test, and the reason was
+worth more than the fix: create_app() registered the branding, but the ~10
+tests that build a bare Flask app around main_bp never call create_app().
+Those tests were rendering pages with an EMPTY product name and NO
+disclaimer, and would have stayed green about it -- the page still comes
+out, just unbranded.
+
+This is the same shape as the earlier csrf_token() problem, so it got the
+same fix: branding.register(app) is a shared function called by both
+create_app() and the test helper. The helper itself was renamed from
+csrf_test_support.disable_csrf to app_test_support.configure_test_app,
+because it now does two things and a name saying only "disable csrf" would
+be the sort of quiet lie this codebase's docs exist to prevent.
+
+New tests (252 total, up from 234 -- 18 new):
+- tests/test_branding_and_disclaimers.py (18): every page shows the product
+  name, the old name appears nowhere, the name is not hardcoded in any
+  template, the ST mark renders; every page carries the standing
+  disclaimer, the disclaimer really says "not legal advice", every page
+  except Learn More links to it, and the wording is not hardcoded;
+  /learn-more is reachable logged out, shows the full disclaimer, states
+  there is no attorney-client relationship, says the AI can be wrong, lists
+  every configured resource with an https URL, and opens them safely; and
+  the system prompt contains every escalation trigger, tells the assistant
+  to speak up when stakes are real, still suppresses boilerplate on routine
+  questions, and leaves the RA-81 JSON contract untouched.
+
+Verified:
+- python -m unittest discover -s tests -- 252/252.
+- HTML tag balance across all seven templates -- clean.
+- The no-comments-in-served-HTML rule still holds (learn_more.html was
+  written to it from the start).
+- Playwright, 20/20: the ST mark and the disclaimer render on all five
+  branded pages; on chat the note sits below the composer at 11.5px; the
+  "Learn more" link actually navigates; the Learn More page shows its
+  warning section, can/cannot columns, and all five resources; dark mode
+  and a 390px viewport both render without overflow. Zero console errors.
+- Looked at the rendered Learn More page and fixed the one spacing problem
+  it showed (the section lede ran into the first resource).
+
+Not done: the real ST logo artwork, which is the monogram's placeholder.
+Also still open from earlier: storing generated files (chat-history
+Markdown, completed PDFs) in Supabase with a panel to browse them later.
