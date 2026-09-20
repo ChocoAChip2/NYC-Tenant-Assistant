@@ -1,0 +1,102 @@
+2026-09-20 -- Legal corpus grounding: retrieval, the citation guard, and the ingest tool
+=========================================================================================
+
+BRANCHED FROM ChocoAChip2-patch-1-supabaselocalbaseIDEAONE
+
+That branch added one file: a migration creating pgvector, a
+`legal_documents` table, an HNSW index and a `match_legal_documents` RPC.
+It is kept intact here -- same file, same table name, same function name --
+and this branch builds the rest of the framework on top of it rather than
+replacing it.
+
+WHAT WAS ADDED ON TOP
+
+  20260921_legal_corpus_framework.sql
+    - legal_sources: authority, citation, title, official_url,
+      retrieved_at, content_hash. Provenance, so a citation resolves to
+      something a tenant can open.
+    - legal_documents gains source_id, heading_path, ordinal,
+      content_hash and a generated `fts` tsvector + GIN index.
+    - RLS on both tables, read-open / write-closed, plus explicit REVOKEs.
+    - search_legal_documents(): hybrid vector + full-text with reciprocal
+      rank fusion.
+
+  20260922_harden_search_paths.sql
+    - Moves pgvector out of `public` into `extensions`.
+    - Pins search_path on all three functions, including the pre-existing
+      bump_conversation_updated_at trigger.
+
+  citation_guard.py, retrieval_service.py, tools/ingest_corpus.py
+  docs/legal-grounding.md
+
+THE BUG THE PROPOSAL HAD, AND WHY THE GUARD LOOKS LIKE THIS
+
+The original design (docs/grounded-sources.md) checked that every citation
+marker pointed at a retrieved passage. docs/proposal-review.md found that
+this is not enough, with a worked example:
+
+  The assistant retrieves 27-2029 correctly and replies "Under 27-2029
+  your landlord must keep it at 70F overnight."
+
+Marker valid, section real, section retrieved -- and the overnight minimum
+is 62F. The citation makes the wrong answer MORE convincing than an
+uncited guess would have been. So the guard now also requires a verbatim
+quote from the cited passage, and requires every number-with-a-unit in a
+cited sentence to appear in that passage. The first test in
+tests/test_citation_guard.py is that exact reply.
+
+WHAT THE GUARD STILL DOES NOT DO
+
+Fix retrieval. A wrong section, quoted perfectly, still misleads. Saying
+otherwise would repeat the mistake this design was written to correct.
+
+REPORT MODE IS THE DEFAULT
+
+LEGAL_GUARD_MODE defaults to "report": log every violation, change
+nothing. A guard that rejects good replies makes the assistant quietly say
+less than it knows, and that failure looks like a dull model rather than a
+bug. Measure the false-rejection rate from the logs first, then enforce.
+
+THE WHOLE FEATURE IS OFF BY DEFAULT
+
+LEGAL_CORPUS_ENABLED gates retrieval entirely. With it unset -- which is
+the state on Render right now -- the chat path is byte-for-byte the
+behaviour it had before this branch, and a test asserts that.
+
+SECURITY FINDING FIXED ALONG THE WAY
+
+The 20260920 migration created legal_documents with no RLS. Every public
+table in Supabase is exposed through PostgREST, so that table was
+writable by anyone holding the anon key, which ships in the browser. For
+the store whose entire job is to be the thing the assistant trusts, that
+is a prompt-injection vector rather than an anti-hallucination measure.
+
+VERIFICATION
+
+- 313/313 unit tests (up from 308). 43 new across two files.
+- pglast (the real Postgres parser) parses all four migrations.
+- Migrations applied to the live Supabase project, in order.
+    * Applying caught a bug syntax checking could not: CREATE OR REPLACE
+      cannot change a function's return type. Fixed with DROP FUNCTION
+      IF EXISTS first, and the reason recorded in the migration.
+    * Hybrid search round-tripped against a seeded row inside a
+      rolled-back transaction: retrieval, provenance join and score all
+      correct, keyword-only hit correctly returned with NULL similarity.
+    * The extension move was dry-run in a rolled-back transaction before
+      being applied, since it changes operator resolution for both search
+      functions.
+- Live check: legal_documents and legal_sources both rowsecurity=true,
+  one read policy each, anon_can_insert=false, auth_can_update=false.
+- Supabase security advisors: both findings this work introduced or
+  touched (extension_in_public, function_search_path_mutable) now clear.
+
+STILL OPEN
+
+- The corpus is empty. tools/ingest_corpus.py needs the service-role key
+  and a JSON file of sections; nothing is ingested yet.
+- No UI for citation chips. The route returns a "sources" array on every
+  reply; chat.html does not render it.
+- Two advisor warnings remain and are not from this work: GraphQL schema
+  discoverability on all five public tables (RLS still protects the rows)
+  and leaked-password protection disabled in Supabase Auth, which is a
+  dashboard toggle.

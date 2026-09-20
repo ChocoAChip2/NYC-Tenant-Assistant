@@ -6,9 +6,12 @@ stored in the Flask app config to handle authentication and chat persistence.
 
 import json
 import logging
+import os
 from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, session, url_for, send_file
 
 import branding
+import citation_guard
+import retrieval_service
 from ai_service import AIService
 from markdown_service import render_markdown
 from login_lockout import format_duration, record_failure, record_success, seconds_until_unlocked
@@ -463,6 +466,71 @@ def delete_conversation(conversation_id):
     return redirect(url_for("main.chat"))
 
 
+def _ground_reply(user_client, question, history):
+    """Retrieve law, ask for a grounded answer, and check what comes back.
+
+    Returns (reply, source_chips). Falls back to an ordinary uncited reply
+    on any failure, because a tenant asking about heat should never see an
+    error because a vector index was not built.
+
+    The guard runs in REPORT mode by default: it records every violation
+    and changes nothing. A guard that silently rejects good replies makes
+    the assistant say less than it knows and nobody notices, so the
+    false-rejection rate gets measured from these logs BEFORE
+    LEGAL_GUARD_MODE is set to "enforce".
+    """
+    ai_service_instance = get_ai_service()
+
+    if not retrieval_service.is_enabled():
+        return ai_service_instance.generate_reply(history), []
+
+    retriever = retrieval_service.RetrievalService(
+        supabase_client=user_client,
+        gemini_client=getattr(ai_service_instance, "client", None),
+    )
+    passages = retriever.search(question)
+
+    if not passages:
+        # No sources cleared the relevance floor. An uncited answer is the
+        # honest outcome, not a failure.
+        return ai_service_instance.generate_reply(history), []
+
+    grounded_history = [
+        {"role": "system", "content": retrieval_service.format_for_prompt(passages)},
+        *history,
+    ]
+    reply = ai_service_instance.generate_reply(grounded_history)
+
+    result = citation_guard.check(reply, passages, user_message=question)
+
+    if not result.ok:
+        logger.warning(
+            "citation_guard: %d violation(s) [%s] mode=%s",
+            len(result.violations),
+            ", ".join(sorted(result.kinds)),
+            _guard_mode(),
+        )
+        for violation in result.violations:
+            logger.warning("citation_guard: %s -- %s", violation.kind, violation.detail)
+
+        if _guard_mode() == citation_guard.GuardMode.ENFORCE:
+            # The prose may still be useful; the authority it claimed is
+            # what it has not earned. Strip the markers and let it go out
+            # labelled as general information.
+            return citation_guard.strip_citations(reply), []
+
+    return reply, citation_guard.render_sources(passages, result)
+
+
+def _guard_mode():
+    raw = os.environ.get("LEGAL_GUARD_MODE", "").strip().lower()
+    return (
+        citation_guard.GuardMode.ENFORCE
+        if raw == citation_guard.GuardMode.ENFORCE.value
+        else citation_guard.GuardMode.REPORT
+    )
+
+
 @main_bp.route("/chat/message", methods=["POST"])
 @limiter.limit("20 per minute; 300 per day")
 def chat_message():
@@ -504,8 +572,10 @@ def chat_message():
         })
 
         history = supabase_service.fetch_messages_for_conversation(user_client, conversation_id)
-        reply = get_ai_service().generate_reply(
-            [{"role": message["role"], "content": message["content"]} for message in history]
+        reply, sources = _ground_reply(
+            user_client,
+            content,
+            [{"role": message["role"], "content": message["content"]} for message in history],
         )
 
         supabase_service.insert_message(user_client, {
@@ -539,7 +609,7 @@ def chat_message():
             # If it is not JSON, it is a normal chat response. Send it to the frontend.
             pass
 
-        return jsonify({"reply": reply, "reply_html": render_markdown(reply)})
+        return jsonify({"reply": reply, "reply_html": render_markdown(reply), "sources": sources})
 
     except ValueError:
         return jsonify({"error": "No valid messages were provided."}), 400
