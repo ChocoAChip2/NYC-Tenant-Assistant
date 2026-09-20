@@ -28,6 +28,30 @@ SHORT_DISCLAIMER = (
 # Shown next to the short disclaimer as the link out to the full page.
 LEARN_MORE_LABEL = "Learn more"
 
+# The banner across the top of the app. Longer and louder than
+# SHORT_DISCLAIMER on purpose: the footer note is the standing reminder,
+# this is the thing someone in real trouble should hit before they start
+# typing. Written by the product owner; reproduced as given except for
+# one spelling fix ("advise" -> "advice") and one em dash for readability.
+#
+# NOTE: this text makes a promise -- that asking the chatbot for legal help
+# produces a list of contacts. ai_service.py's system prompt is what keeps
+# that promise (see the referral rule there), and HELP_RESOURCES below is
+# the list it draws on. Change one and check the other two.
+TOP_DISCLAIMER = (
+    "Disclaimer: In the scenario in which you are actively seeking legal "
+    "assistance, please message our chatbot to let them know \u2014 they will "
+    f"provide a list of sources that you may contact in your area. {LOGO_MONOGRAM} "
+    "does NOT provide legal advice and should never be used for that "
+    "specific purpose. Thank you for your understanding."
+)
+
+# Sits under every single assistant reply. This one has to stay very short:
+# it repeats on every turn, and a paragraph repeated twenty times is a
+# paragraph nobody reads. Its job is to make sure no individual message can
+# be screenshotted or quoted without the qualifier attached to it.
+PER_MESSAGE_DISCLAIMER = "General information, not legal advice."
+
 # The full version, on /learn-more. This is the one that has to be
 # complete rather than brief.
 FULL_DISCLAIMER_PARAGRAPHS = [
@@ -121,5 +145,7 @@ def register(app) -> None:
             "product_name": PRODUCT_NAME,
             "logo_monogram": LOGO_MONOGRAM,
             "short_disclaimer": SHORT_DISCLAIMER,
+            "top_disclaimer": TOP_DISCLAIMER,
+            "per_message_disclaimer": PER_MESSAGE_DISCLAIMER,
             "learn_more_label": LEARN_MORE_LABEL,
         }

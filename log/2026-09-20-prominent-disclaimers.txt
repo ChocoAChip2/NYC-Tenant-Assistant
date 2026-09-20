@@ -1,0 +1,74 @@
+2026-09-20 -- Prominent disclaimers: top banner, per-message note, referral promise
+===================================================================================
+
+WHAT CHANGED
+
+1. A persistent amber banner under the header on /chat and /settings,
+   carrying branding.TOP_DISCLAIMER:
+
+     "Disclaimer: In the scenario in which you are actively seeking legal
+      assistance, please message our chatbot to let them know -- they will
+      provide a list of sources that you may contact in your area. ST does
+      NOT provide legal advice and should never be used for that specific
+      purpose. Thank you for your understanding."
+
+   Written by the product owner. Reproduced as given except for one
+   spelling fix ("advise" -> "advice") and one em dash for readability.
+
+2. branding.PER_MESSAGE_DISCLAIMER ("General information, not legal
+   advice.") under every assistant reply, on both render paths -- the
+   Jinja loop for stored history AND renderMessage() in JS for the reply
+   that just arrived. Updating only one would have meant the note appears
+   on reload but not on the message the tenant is actually reading.
+
+3. Rule 7 in ai_service.py's system prompt, interpolating
+   branding.HELP_RESOURCES in full with phone numbers, so that asking for
+   legal help produces the actual list rather than "consult an attorney".
+
+WHY 3 EXISTS AT ALL
+
+The banner makes a promise: say you need legal assistance and you will
+get a list of contacts. Nothing in the product previously guaranteed
+that. A banner promising something the product does not do is worse than
+no banner -- it is a reliance the site invited. So the prompt rule and a
+test class (ReferralPromiseTests) now hold the banner, the prompt and the
+resource list together; the tests fail if any one of them drifts.
+
+DESIGN NOTE -- VISUAL WEIGHT IS INVERTED AGAINST REPETITION
+
+The banner appears once and is loud: --warning on --warning-tint, a 4px
+left rule, a round "!" glyph. The per-message note repeats every turn and
+is deliberately quiet: 11px, --muted, italic, a small amber dot.
+
+This is the same concern that shaped the escalation triggers in the
+previous batch. Repetition is what destroys a disclaimer -- people stop
+seeing the thing they have scrolled past twenty times. Making the
+repeated layer quiet and the once-per-session layer loud is the way to
+have both without the loud one going stale.
+
+The banner is not dismissible, and a test asserts there is no close
+button inside it.
+
+VERIFICATION
+
+- 270/270 unit tests (up from 252). 18 new in
+  tests/test_prominent_disclaimers.py.
+- HTML tag balance clean across all 7 templates.
+- Playwright, 36/36 checks, zero console errors, light and dark:
+    * banner renders on /chat, /settings, and inside an open conversation
+    * computed contrast 5.04:1 light, 7.77:1 dark (WCAG AA for body text)
+    * 4px left rule present; background is tinted, not transparent
+    * exactly one per-message note per assistant message, zero on user
+      messages, each one inside its own .message.assistant wrapper
+    * per-message note computed font-size 11px and --muted colour
+    * footer legal-note still present alongside both new layers
+    * 390px viewport: no horizontal overflow, banner still visible
+- Screenshots reviewed by eye at 1280px and 390px, light and dark.
+
+NOT DONE
+
+- The banner is on /chat and /settings only, not the logged-out auth
+  pages. Its text tells the reader to message the chatbot, which someone
+  who has not signed up yet cannot do; those pages keep the footer note
+  and the Learn More link. Worth revisiting if the wording is ever made
+  independent of the chat.

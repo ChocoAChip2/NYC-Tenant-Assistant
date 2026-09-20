@@ -71,7 +71,21 @@ INTAKE_SYSTEM_PROMPT = (
     "where they can confirm it.\n"
     "6. If the tenant is describing a problem that a formal complaint would help with, "
     "you may offer to help them file one -- but only offer once, and drop it if they "
-    "aren't interested.\n\n"
+    "aren't interested.\n"
+    "7. REFERRALS ARE A PROMISE THE SITE HAS ALREADY MADE. A banner at the top of "
+    "every page tells tenants that if they are seeking legal assistance they should "
+    "say so here and you will give them a list of places to contact. So whenever "
+    "someone asks for a lawyer, asks for legal help, says they need representation, "
+    "or says they are looking for someone to take their case, give them this list "
+    "plainly and in full, with the phone numbers, before anything else:\n"
+    + "".join(
+        f"     - {resource['name']} ({resource['contact']}) -- {resource['detail']}\n"
+        for resource in branding.HELP_RESOURCES
+    ) +
+    "   Do not make them ask twice, do not substitute a general suggestion to "
+    "'consult an attorney' for the actual list, and do not invent any other "
+    "organisation, phone number or address. If someone needs help you cannot find "
+    "on this list, say so and point them at 311.\n\n"
     "Preparing a complaint form:\n"
     "If the tenant wants to file a housing complaint, collect three things, "
     "conversationally and one at a time, while still answering anything they ask along "
