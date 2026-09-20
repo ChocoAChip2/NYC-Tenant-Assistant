@@ -176,7 +176,43 @@ def is_enabled() -> bool:
 
 
 def is_encrypted(value: str | None) -> bool:
+    """Does this LOOK like an envelope we wrote?
+
+    A prefix test only. It is the right check for decrypt(), which has to
+    decide whether to attempt an unwrap at all, and the WRONG check for
+    deciding whether something still needs encrypting -- see
+    _is_our_ciphertext below.
+    """
     return isinstance(value, str) and value.startswith(ENVELOPE_PREFIX)
+
+
+def _is_our_ciphertext(value: str) -> bool:
+    """Is this genuinely something we encrypted, as opposed to text that
+    merely starts with "enc:"?
+
+    This distinction is load-bearing and was a real vulnerability.
+    encrypt() used to skip any value beginning with the envelope prefix, on
+    the reasonable-sounding grounds that it must already be wrapped. But
+    that prefix is four characters a user can simply type into the chat
+    box, so:
+
+      1. a message beginning with "enc:" was stored in PLAINTEXT, silently
+         defeating the encryption it was supposed to get; and
+      2. reading it back raised DecryptionError, which is not caught per
+         row, so the conversation failed to load -- and doing the same to a
+         conversation TITLE broke list_conversations(), which every /chat
+         render calls. One rename and the user was locked out of the whole
+         application with no way back through the UI.
+
+    The only trustworthy test for "we wrote this" is that it decrypts under
+    a key we hold. That costs one AES-GCM operation, and only for values
+    that start with the prefix at all.
+    """
+    try:
+        decrypt(value)
+        return True
+    except DecryptionError:
+        return False
 
 
 def encrypt(plaintext: str | None) -> str | None:
@@ -184,8 +220,10 @@ def encrypt(plaintext: str | None) -> str | None:
     not configured, so this is safe to deploy ahead of any key."""
     if plaintext is None or plaintext == "" or not is_enabled():
         return plaintext
-    if is_encrypted(plaintext):
-        return plaintext  # already wrapped; never double-encrypt
+    # Not `is_encrypted`: that is a prefix test on text the user controls.
+    # See _is_our_ciphertext for why the difference matters.
+    if is_encrypted(plaintext) and _is_our_ciphertext(plaintext):
+        return plaintext  # genuinely already wrapped; never double-encrypt
 
     algorithm = _ALGORITHMS[CURRENT_VERSION]
     payload = algorithm.encrypt(_KEYS[_ACTIVE_KEY_ID], plaintext)

@@ -358,3 +358,105 @@ class ChatRouteGroundingTests(unittest.TestCase):
 
         self.assertNotIn("[S1]", payload["reply"])
         self.assertEqual(payload["sources"], [])
+
+
+class GroundingFailureModeTests(ChatRouteGroundingTests):
+    """Every optional part of grounding must fail into an ordinary reply.
+
+    This subsystem is a bonus. A tenant asking about heat must never get an
+    error page because a vector index was not built, a row came back in an
+    odd shape, or the guard itself has a bug.
+    """
+
+    PASSAGE = Passage(marker="S1", text="at least 62 degrees Fahrenheit", citation="27-2029")
+
+    def test_retrieval_blowing_up_still_produces_a_reply(self):
+        app, client, ai = self._app(reply="Plain answer.")
+
+        with mock.patch.dict(os.environ, {"LEGAL_CORPUS_ENABLED": "1"}), mock.patch.object(
+            retrieval_service.RetrievalService, "search", side_effect=RuntimeError("boom")
+        ):
+            payload = self._post(client).get_json()
+
+        self.assertEqual(payload["reply"], "Plain answer.")
+        self.assertEqual(payload["sources"], [])
+
+    def test_prompt_formatting_blowing_up_still_produces_a_reply(self):
+        app, client, ai = self._app(reply="Plain answer.")
+
+        with mock.patch.dict(os.environ, {"LEGAL_CORPUS_ENABLED": "1"}), mock.patch.object(
+            retrieval_service.RetrievalService, "search", return_value=[self.PASSAGE]
+        ), mock.patch.object(
+            retrieval_service, "format_for_prompt", side_effect=RuntimeError("boom")
+        ):
+            payload = self._post(client).get_json()
+
+        self.assertEqual(payload["reply"], "Plain answer.")
+
+    def test_a_guard_crash_strips_citations_rather_than_trusting_them(self):
+        """A crash is not a violation -- it means nothing was verified, so
+        nothing has earned a citation. That holds in report mode too."""
+        import citation_guard
+
+        app, client, ai = self._app(reply="Under [S1] it is 62 degrees Fahrenheit.")
+
+        with mock.patch.dict(os.environ, {"LEGAL_CORPUS_ENABLED": "1"}), mock.patch.object(
+            retrieval_service.RetrievalService, "search", return_value=[self.PASSAGE]
+        ), mock.patch.object(citation_guard, "check", side_effect=RuntimeError("boom")):
+            payload = self._post(client).get_json()
+
+        self.assertNotIn("[S1]", payload["reply"])
+        self.assertEqual(payload["sources"], [])
+
+    def test_a_chip_rendering_crash_still_sends_the_reply(self):
+        import citation_guard
+
+        app, client, ai = self._app(reply='It is "at least 62 degrees Fahrenheit" [S1].')
+
+        with mock.patch.dict(os.environ, {"LEGAL_CORPUS_ENABLED": "1"}), mock.patch.object(
+            retrieval_service.RetrievalService, "search", return_value=[self.PASSAGE]
+        ), mock.patch.object(citation_guard, "render_sources", side_effect=RuntimeError("boom")):
+            payload = self._post(client).get_json()
+
+        self.assertIn("[S1]", payload["reply"])
+        self.assertEqual(payload["sources"], [])
+
+    def test_a_model_error_is_still_reported_as_a_model_error(self):
+        """The model call is deliberately NOT swallowed: chat_message maps
+        these to real status codes, and retrying would just spend a second
+        API call to fail again."""
+        app, client, ai = self._app()
+        ai.generate_reply = mock.Mock(side_effect=RuntimeError("Gemini is not configured yet."))
+
+        with mock.patch.dict(os.environ, {}, clear=True):
+            response = self._post(client)
+
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(ai.generate_reply.call_count, 1)
+
+
+class MalformedCorpusRowTests(unittest.TestCase):
+    """Rows come from Postgres through PostgREST, and the shapes below have
+    all been seen or are one client-version change away."""
+
+    def _search(self, rows):
+        service = retrieval_service.RetrievalService(FakeSupabase(rows))
+        with mock.patch.dict(os.environ, {"LEGAL_CORPUS_ENABLED": "1"}):
+            return service.search("q")
+
+    def test_similarity_arriving_as_a_string_does_not_raise(self):
+        """A numeric column can serialise as a string. Comparing that to a
+        float raises, which would turn a slightly odd corpus into a 500."""
+        self.assertEqual(len(self._search([dict(ROW, similarity="0.81")])), 1)
+
+    def test_an_uncoercible_similarity_is_treated_as_no_score(self):
+        self.assertEqual(len(self._search([dict(ROW, similarity="not a number")])), 1)
+
+    def test_a_row_that_is_not_an_object_is_skipped(self):
+        self.assertEqual(self._search(["surprise"]), [])
+
+    def test_rows_missing_text_are_skipped(self):
+        self.assertEqual(self._search([{"similarity": 0.9}, dict(ROW, text_content=None)]), [])
+
+    def test_unknown_extra_columns_are_ignored(self):
+        self.assertEqual(len(self._search([dict(ROW, some_new_column=object())])), 1)

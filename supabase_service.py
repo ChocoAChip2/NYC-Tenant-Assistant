@@ -17,6 +17,39 @@ from config import Settings
 logger = logging.getLogger(__name__)
 
 
+#: Shown in place of a row that will not decrypt. One unreadable row must
+#: not cost the user the other ninety-nine: decrypt() is strict on purpose
+#: (a failed authentication tag is a real signal and should not be
+#: swallowed silently), but the READ paths have to survive it. Without
+#: this, a single bad row raised out of list_conversations(), which every
+#: /chat render calls, and the whole application returned 500 -- no
+#: sidebar, no conversations, no way back through the UI.
+#:
+#: Realistically this happens when a key is dropped from
+#: DATA_ENCRYPTION_KEYS before the rows using it were re-wrapped. The
+#: placeholder makes that visible and recoverable (put the key back and
+#: the rows read again) instead of fatal.
+UNREADABLE_PLACEHOLDER = "[This content could not be decrypted.]"
+
+
+def _readable(value) -> bool:
+    """Can this row be decrypted at all? Guards the re-wrap paths, which
+    must never overwrite ciphertext they could not read."""
+    try:
+        crypto_service.decrypt(value)
+        return True
+    except crypto_service.DecryptionError:
+        return False
+
+
+def _safe_decrypt(value, *, what: str, row_id=None):
+    try:
+        return crypto_service.decrypt(value)
+    except crypto_service.DecryptionError:
+        logger.exception("Could not decrypt %s %s; showing a placeholder.", what, row_id or "")
+        return UNREADABLE_PLACEHOLDER
+
+
 @dataclass
 class SupabaseService:
     """Small service layer that owns the Supabase client and auth actions."""
@@ -199,10 +232,14 @@ class SupabaseService:
 
         stale_ids = [
             row["id"] for row in rows
-            if "id" in row and crypto_service.needs_rewrap(row.get("content"))
+            if "id" in row
+            and crypto_service.needs_rewrap(row.get("content"))
+            and _readable(row.get("content"))
         ]
         for message in rows:
-            message["content"] = crypto_service.decrypt(message.get("content"))
+            message["content"] = _safe_decrypt(
+                message.get("content"), what="message", row_id=message.get("id")
+            )
         if stale_ids:
             self._rewrap_messages(user_client, stale_ids, rows)
 
@@ -351,13 +388,21 @@ class SupabaseService:
         conversations = response.data or []
         for conversation in conversations:
             stored_title = conversation.get("title")
-            conversation["title"] = crypto_service.decrypt(stored_title)
+            conversation["title"] = _safe_decrypt(
+                stored_title, what="conversation title", row_id=conversation.get("id")
+            )
             # Opportunistic upgrade: a title still in plaintext, or sealed
             # under a retired key or an older algorithm, gets rewritten
             # under the current scheme as it is read. That is what makes a
             # rotation or an algorithm change migrate itself over normal
             # use rather than needing one big re-encryption pass.
-            if crypto_service.needs_rewrap(stored_title):
+            # Never re-wrap a row we could not read: sealing the placeholder
+            # would overwrite the original ciphertext and destroy any chance
+            # of recovering it once the missing key comes back.
+            if (
+                conversation["title"] != UNREADABLE_PLACEHOLDER
+                and crypto_service.needs_rewrap(stored_title)
+            ):
                 self._rewrap_conversation_title(user_client, conversation["id"], conversation["title"])
         return conversations
 

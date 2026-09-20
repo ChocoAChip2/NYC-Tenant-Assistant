@@ -229,3 +229,70 @@ class KeyLoadingTests(CryptoTestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class EnvelopeSpoofingTests(CryptoTestCase):
+    """A user can type "enc:" into the chat box.
+
+    encrypt() used to skip any value starting with the envelope prefix, on
+    the reasonable-sounding grounds that it must already be wrapped. But
+    that prefix is four characters of ordinary user input, which made it
+    two separate bugs at once:
+
+      1. a message beginning with "enc:" was stored in PLAINTEXT, silently
+         losing the encryption it was supposed to get;
+      2. reading it back raised DecryptionError -- and doing the same to a
+         conversation TITLE broke list_conversations(), which every /chat
+         render calls, so one rename locked the user out of the entire
+         application with no route back through the UI.
+
+    The only trustworthy test for "we wrote this" is that it decrypts.
+    """
+
+    SPOOFS = (
+        "enc:v1:nosuchkey:AAAA",
+        "enc:v1:k1:not-valid-base64!!!",
+        "enc:",
+        "enc:v99:k1:AAAA",
+        "enc:v1:k1:",
+        "enc:v1::AAAA",
+        "enc: my landlord will not fix the heat",
+    )
+
+    def test_spoofed_envelopes_are_encrypted_not_stored_verbatim(self):
+        with _configured(f"k1:{KEY_A}", "k1"):
+            crypto_service.reload_keys()
+            for spoof in self.SPOOFS:
+                with self.subTest(value=spoof):
+                    stored = crypto_service.encrypt(spoof)
+
+                    self.assertNotEqual(stored, spoof, "stored in plaintext")
+                    self.assertNotIn("nosuchkey", stored)
+                    self.assertEqual(crypto_service.decrypt(stored), spoof)
+
+    def test_a_spoofed_envelope_survives_a_full_round_trip(self):
+        """The user typed it, so the user must get it back verbatim."""
+        with _configured(f"k1:{KEY_A}", "k1"):
+            crypto_service.reload_keys()
+            hostile = "enc:v1:nosuchkey:AAAA"
+
+            self.assertEqual(crypto_service.decrypt(crypto_service.encrypt(hostile)), hostile)
+
+    def test_genuine_ciphertext_is_still_never_double_encrypted(self):
+        """The idempotency guard has to keep working -- it just has to be
+        based on decryptability rather than on a prefix."""
+        with _configured(f"k1:{KEY_A}", "k1"):
+            crypto_service.reload_keys()
+            once = crypto_service.encrypt("real content")
+
+            self.assertEqual(crypto_service.encrypt(once), once)
+            self.assertEqual(crypto_service.decrypt(once), "real content")
+
+    def test_a_spoof_is_left_alone_when_encryption_is_switched_off(self):
+        """With no keys configured everything is a pass-through, including
+        this. It must not raise on the way back out either."""
+        with mock.patch.dict(os.environ, {}, clear=True):
+            crypto_service.reload_keys()
+            hostile = "enc:v1:nosuchkey:AAAA"
+
+            self.assertEqual(crypto_service.encrypt(hostile), hostile)

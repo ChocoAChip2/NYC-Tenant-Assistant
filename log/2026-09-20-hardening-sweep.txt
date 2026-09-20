@@ -1,0 +1,123 @@
+2026-09-20 -- Extensive verification sweep, and the four bugs it found
+======================================================================
+
+WHAT WAS RUN
+
+- 353 unit tests (up from 346 before this sweep's additions)
+- Import + app-factory + route-table check across every module
+- Citation-guard adversarial fuzz: 15 crafted hallucinations that must be
+  caught, 27 legitimate replies that must not be, ReDoS probes to 355k
+  characters, and pathological input (nulls, BOM, RTL overrides, 200
+  markers, no sentence enders)
+- Retrieval fuzz: 8 malformed PostgREST row shapes, 1000 randomised
+  chunking runs, adversarial chunker input
+- XSS audit of the Markdown renderer: 31 payloads, audited by PARSING the
+  output (tag allowlist, event-handler attributes, href/src schemes)
+  rather than by pattern-matching the text
+- Encryption: round trip, tamper detection, key rotation, disabled
+  pass-through, and an envelope-spoofing attack
+- Live Supabase: cross-tenant RLS isolation, corpus write-protection, the
+  account purge end to end, cascade coverage, advisor state
+- Browser: 253 checks over 7 pages x light/dark x desktop/mobile, plus an
+  interactive send
+- node --check on all 10 inline script blocks
+
+BUG 1 -- CRITICAL: a user could lock themselves out of the whole app
+
+crypto_service.encrypt() skipped any value starting with the envelope
+prefix "enc:", on the reasonable-sounding grounds that it must already be
+wrapped. That prefix is four characters a user can type into the chat box.
+
+Two failures at once:
+
+  a) A message beginning with "enc:" was stored in PLAINTEXT. The
+     encryption it was supposed to get was silently skipped.
+  b) Reading it back raised DecryptionError. Nothing catches that per row,
+     so the conversation failed to load -- and doing the same to a
+     conversation TITLE broke list_conversations(), which every /chat
+     render calls. One rename to "enc:v1:x:y" and the user was locked out
+     of the entire application with no route back through the UI.
+
+Fix: the only trustworthy test for "we wrote this" is that it decrypts
+under a key we hold. encrypt() now confirms that before treating a value
+as already-wrapped, which keeps the idempotency guard and closes the
+bypass. Proven end to end before and after; 5 regression tests.
+
+BUG 2 -- one unreadable row took down every row beside it
+
+Related but separate, and it survives Bug 1's fix. decrypt() is strict on
+purpose: a failed authentication tag is a real signal and should not be
+swallowed. But the READ paths had no per-row handling, so a single
+undecryptable row -- the realistic cause being a key dropped from
+DATA_ENCRYPTION_KEYS before its rows were re-wrapped -- raised straight
+out of list_conversations() and returned 500 for the whole app.
+
+Fix: _safe_decrypt() substitutes a visible placeholder for the one bad
+row and logs it. Also: a row that could not be read is never re-wrapped,
+because sealing the placeholder would overwrite the original ciphertext
+and destroy any chance of recovery once the key came back.
+
+BUG 3 -- retrieval could 500 the chat turn instead of degrading
+
+retrieval_service promises that a broken corpus costs a citation, never
+the reply. It did not keep that promise:
+  - a `similarity` value arriving as a string (a numeric column can
+    serialise that way) raised TypeError on comparison;
+  - a row that was not an object raised AttributeError;
+  - _to_passages() sat outside the try block entirely.
+And in routes._ground_reply, the guard itself was unprotected -- a bug in
+citation_guard would have 500'd the chat turn.
+
+Fix: coerce defensively, skip non-object rows, move the conversion inside
+the try, and wrap every optional step in _ground_reply. A guard CRASH now
+strips citations in both modes, because a crash means nothing was
+verified, so nothing has earned a citation. The model call is still
+deliberately NOT wrapped: chat_message() maps its errors to real status
+codes and retrying would only spend a second API call to fail again.
+10 regression tests.
+
+BUG 4 -- the guard rejected six shapes of correct reply
+
+Fuzzing found the guard flagging replies that had done nothing wrong:
+markdown blockquotes, backtick spans, single quotes, nested quotes, a
+quote in the preceding sentence, and -- the most common of all -- the
+closing period placed inside the quotation marks, which is standard
+American style.
+
+This matters as much as a missed hallucination. In ENFORCE mode an
+unrecognised quote strips the citation off a CORRECT answer, and the
+failure looks like a dull model rather than a bug, so nobody investigates.
+
+Fix: recognise all five quotation forms, trim sentence punctuation from
+the span edges, and let a citation borrow a quote from the adjacent
+segment. Checked that widening created no false negatives: a fabricated
+number sitting next to a real quote is still caught, and a quote several
+lines away still does not rescue a citation. 12 regression tests.
+
+ALSO HARDENED (no bug, defence in depth)
+
+- render_sources() now emits https chip URLs only. Those values come from
+  a database row and will end up in an href, so a "javascript:" value
+  would be stored XSS the day the chips are rendered. Third lock on the
+  same door, and the cheapest.
+- ingest validate() type-checks fields instead of testing truthiness: a
+  citation that arrived as the number 27 would have passed and then been
+  stored as a citation nobody can look up.
+
+CONFIRMED HEALTHY (no change needed)
+
+- Markdown renderer: 31 XSS payloads, 0 produced dangerous HTML. The
+  escape-first ordering holds. An earlier pattern-matching probe reported
+  10 "unsafe" results; all 10 were escaped, inert text and the probe was
+  wrong, which is why the audit was rewritten to parse the output.
+- Cross-tenant RLS: user A sees 1 conversation and 1 message, 0 of user
+  B's. Neither anon nor authenticated can write to the legal corpus.
+- Account purge: seeded user's account, conversations, messages and
+  deletion request all removed; a second user untouched.
+- Live database: 0 tables without RLS, 0 functions with a mutable
+  search_path, 0 extensions in public, purge cron scheduled 03:15 daily.
+- RA-81 PDF: AcroForm preserved (60 fields), unique output path per call,
+  and complaint overflow is LABELLED "(continued in attached statement)"
+  rather than silently dropped -- the form physically has two ruled lines.
+- Login lockout escalates at 10 failures and clears on success.
+- Browser: 253/253, zero console errors, no horizontal overflow at 390px.

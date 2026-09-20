@@ -99,17 +99,41 @@ class RetrievalService:
                 },
             ).execute()
             rows = response.data or []
+            # _to_passages is inside the try on purpose. The promise this
+            # module makes is that a broken corpus costs a citation, never
+            # the reply -- and a row in an unexpected shape is exactly as
+            # capable of breaking that promise as a failed query is.
+            return self._to_passages(rows)
         except Exception:
             logger.exception("Legal corpus search failed; answering without retrieval.")
             return []
 
-        return self._to_passages(rows)
-
     @staticmethod
-    def _to_passages(rows: list[dict]) -> list[Passage]:
+    def _coerce_similarity(value) -> float | None:
+        """PostgREST does not always hand back a JSON number here.
+
+        A numeric column can arrive as a string depending on the column
+        type and client version, and comparing that to a float raises --
+        which would turn "the corpus is a bit odd" into a 500 for a tenant
+        asking about heat. Anything uncoercible is treated as "no score",
+        which routes the row through the keyword-hit path rather than
+        dropping it.
+        """
+        if value is None:
+            return None
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return None
+
+    @classmethod
+    def _to_passages(cls, rows) -> list[Passage]:
         passages: list[Passage] = []
-        for row in rows:
-            similarity = row.get("similarity")
+        for row in rows or []:
+            if not isinstance(row, dict):
+                logger.warning("Skipping a corpus row that is not an object: %r", type(row))
+                continue
+            similarity = cls._coerce_similarity(row.get("similarity"))
             # A row that arrived only through full-text search has no
             # similarity; keyword agreement is evidence in its own right,
             # so it is kept. A vector hit below the floor is dropped.
