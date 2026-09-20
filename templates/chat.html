@@ -574,6 +574,55 @@
     }
     .legal-note a { color: var(--muted); text-decoration: underline; }
     .legal-note a:hover { color: var(--accent); }
+    .top-disclaimer {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 0;
+      padding: 11px 20px;
+      border-bottom: 1px solid var(--warning);
+      border-left: 4px solid var(--warning);
+      background: var(--warning-tint);
+      color: var(--warning);
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 500;
+    }
+    .top-disclaimer .warn-icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      margin-top: 1px;
+      border-radius: 50%;
+      background: var(--warning);
+      color: var(--warning-tint);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 18px;
+      text-align: center;
+    }
+    .top-disclaimer strong { font-weight: 700; }
+    @media (max-width: 700px) {
+      .top-disclaimer { padding: 10px 14px; font-size: 12px; }
+    }
+    .message-disclaimer {
+      margin: 5px 0 0;
+      padding-left: 2px;
+      font-size: 11px;
+      line-height: 1.35;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .message-disclaimer::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      margin-right: 6px;
+      border-radius: 50%;
+      background: var(--warning);
+      vertical-align: middle;
+    }
     header h1 a {
       display: inline-flex;
       align-items: center;
@@ -694,6 +743,11 @@
     </div>
   </header>
 
+  <p class="top-disclaimer" role="note">
+    <span class="warn-icon" aria-hidden="true">!</span>
+    <span>{{ top_disclaimer }}</span>
+  </p>
+
   {% if not ai_ready %}
     <p class="warning">GEMINI_API_KEY is not configured, so AI replies are currently disabled.</p>
   {% endif %}
@@ -805,6 +859,9 @@
                 {% else %}
                   <div class="bubble">{{ message.content }}</div>
                 {% endif %}
+                {% if message.role == "assistant" %}
+                  <p class="message-disclaimer">{{ per_message_disclaimer }}</p>
+                {% endif %}
               </div>
             {% endfor %}
           </div>
@@ -850,6 +907,7 @@
 
   <script>
     const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
+    const PER_MESSAGE_DISCLAIMER = {{ per_message_disclaimer|tojson }};
     const chatBox = document.getElementById("chat-box");
     const chatForm = document.getElementById("chat-form");
 
@@ -1159,6 +1217,14 @@
 
         wrapper.appendChild(label);
         wrapper.appendChild(body);
+
+        if (role === "assistant") {
+          const note = document.createElement("p");
+          note.className = "message-disclaimer";
+          note.textContent = PER_MESSAGE_DISCLAIMER;
+          wrapper.appendChild(note);
+        }
+
         chatBox.appendChild(wrapper);
         scrollChatToBottom();
         return wrapper;

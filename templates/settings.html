@@ -254,6 +254,36 @@
     }
     .legal-note a { color: var(--muted); text-decoration: underline; }
     .legal-note a:hover { color: var(--accent); }
+    .top-disclaimer {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 0;
+      padding: 11px 20px;
+      border-bottom: 1px solid var(--warning);
+      border-left: 4px solid var(--warning);
+      background: var(--warning-tint);
+      color: var(--warning);
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 500;
+    }
+    .top-disclaimer .warn-icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      margin-top: 1px;
+      border-radius: 50%;
+      background: var(--warning);
+      color: var(--warning-tint);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 18px;
+      text-align: center;
+    }
+    @media (max-width: 700px) {
+      .top-disclaimer { padding: 10px 14px; font-size: 12px; }
+    }
   </style>
 </head>
 <body>
@@ -264,6 +294,11 @@
     </a>
     <a href="{{ url_for('main.chat') }}">&larr; Back to chat</a>
   </header>
+
+  <p class="top-disclaimer" role="note">
+    <span class="warn-icon" aria-hidden="true">!</span>
+    <span>{{ top_disclaimer }}</span>
+  </p>
 
   <main>
     {% with messages = get_flashed_messages(with_categories=true) %}
