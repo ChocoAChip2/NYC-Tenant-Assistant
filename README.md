@@ -71,6 +71,8 @@ from before this branch — errors only appear in logs.
 ├── branding.py           # Product name, ST monogram, and the legal disclaimer wording
 ├── config.py             # Environment configuration loader
 ├── crypto_service.py     # Encryption at rest (versioned + rotatable; see docs/data-encryption.md)
+├── citation_guard.py     # Checks a reply only claims what its cited sources say
+├── retrieval_service.py  # Hybrid search over the legal corpus (see docs/legal-grounding.md)
 ├── markdown_service.py   # Renders the assistant's Markdown safely (escape-first)
 ├── login_lockout.py      # Failed-login lockout with exponential backoff
 ├── rate_limit.py         # Shared Flask-Limiter instance (own module: avoids a circular import)
@@ -80,6 +82,7 @@ from before this branch — errors only appear in logs.
 ├── test.py               # Backward-compatible legacy entrypoint (imports app)
 ├── requirements.txt      # Python dependencies
 ├── docs/                 # data-encryption.md (threat model + key rotation), frontend/ (template rationale)
+├── tools/                # Offline scripts (ingest_corpus.py -- needs the service-role key)
 ├── tests/                # Unit tests (python -m unittest discover -s tests)
 ├── supabase/migrations/  # SQL applied to the Supabase project (account deletion + its pg_cron purge)
 ├── .github/workflows/
