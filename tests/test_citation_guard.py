@@ -199,3 +199,142 @@ class GuardModeTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class QuoteFormattingTests(unittest.TestCase):
+    """Every case here was a real false positive found by fuzzing the guard
+    against the shapes a model actually writes.
+
+    False positives matter as much as false negatives: in ENFORCE mode an
+    unrecognised quote strips the citation off a CORRECT answer, and the
+    failure looks like a dull model rather than a bug, so nobody
+    investigates. These lock in the fix.
+    """
+
+    QUOTE = "at least 62 degrees Fahrenheit shall be maintained"
+
+    def assertClean(self, reply):
+        result = guard.check(reply, [HEAT])
+        self.assertTrue(result.ok, [f"{v.kind}: {v.detail}" for v in result.violations])
+
+    def test_markdown_blockquote_after_a_colon_lead_in(self):
+        self.assertClean(f"According to [S1]:\n\n> an indoor temperature of {self.QUOTE}")
+
+    def test_blockquote_before_the_citation(self):
+        self.assertClean(f"> an indoor temperature of {self.QUOTE}\n\nThat is [S1].")
+
+    def test_backtick_span(self):
+        self.assertClean(f"The rule is `{self.QUOTE}` [S1].")
+
+    def test_single_quotes(self):
+        self.assertClean(f"The rule is '{self.QUOTE}' [S1].")
+
+    def test_quotes_nested_inside_quotes(self):
+        self.assertClean(f"He said \"she said '{self.QUOTE}'\" [S1].")
+
+    def test_quote_in_the_previous_sentence(self):
+        self.assertClean(f'The code is explicit. It says "{self.QUOTE}". See [S1].')
+
+    def test_closing_period_inside_the_quotation_marks(self):
+        """American style, and the single most common way this broke."""
+        self.assertClean(f'The rule is "{self.QUOTE}." [S1]')
+
+    def test_quote_broken_across_a_line(self):
+        self.assertClean('The rule: "an indoor temperature of at least 62 degrees\nFahrenheit shall be maintained" [S1].')
+
+    def test_markdown_bold_around_the_quote(self):
+        self.assertClean(f'The rule is **"{self.QUOTE}"** [S1].')
+
+
+class AdjacencyDoesNotLaunderFabricationTests(unittest.TestCase):
+    """Letting a citation borrow a quote from the neighbouring line is what
+    makes blockquotes work. It must not also let a fabricated claim ride
+    along on a real quote sitting next to it."""
+
+    def test_a_fabricated_number_beside_a_real_quote_is_still_caught(self):
+        reply = (
+            'The rule is "at least 62 degrees Fahrenheit shall be maintained" [S1]. '
+            "It must be 75 degrees by law [S1]."
+        )
+
+        self.assertIn("number_not_in_source", guard.check(reply, [HEAT]).kinds)
+
+    def test_a_fabrication_after_a_blockquote_is_still_caught(self):
+        reply = (
+            "> an indoor temperature of at least 62 degrees Fahrenheit shall be maintained\n\n"
+            "So [S1] requires 80 degrees."
+        )
+
+        self.assertIn("number_not_in_source", guard.check(reply, [HEAT]).kinds)
+
+    def test_a_quote_several_lines_away_does_not_rescue_the_citation(self):
+        reply = (
+            'The rule is "at least 62 degrees Fahrenheit shall be maintained".\n'
+            "Filler line one.\nFiller line two.\nTherefore [S1] applies."
+        )
+
+        self.assertIn("citation_without_quote", guard.check(reply, [HEAT]).kinds)
+
+
+class RobustnessTests(unittest.TestCase):
+    """The guard runs on model output, which is untrusted in shape if not in
+    intent. It must never raise and never blow up on length."""
+
+    def test_pathological_inputs_do_not_raise(self):
+        cases = {
+            "empty reply": "",
+            "no sentence enders": "a" * 5000 + " [S1] " + "b" * 5000,
+            "two hundred markers": " ".join(f"[S{i}]" for i in range(200)),
+            "control characters": "\x00﻿‮ quote “test” [S1] \U0001f600",
+            "only whitespace": "   \n\n\t  ",
+        }
+        for name, reply in cases.items():
+            with self.subTest(case=name):
+                self.assertIsInstance(guard.check(reply, [HEAT]).ok, bool)
+
+    def test_a_marker_with_no_passages_at_all_is_an_unknown_marker(self):
+        self.assertIn("unknown_marker", guard.check("Reply [S1].", []).kinds)
+
+    def test_a_long_reply_stays_fast_enough_to_run_inline(self):
+        """No catastrophic backtracking: this runs on every chat turn."""
+        import time
+
+        reply = ('The law says "' + "x" * 200 + '" [S1]. ') * 400
+        started = time.perf_counter()
+        guard.check(reply, [HEAT])
+        elapsed = time.perf_counter() - started
+
+        self.assertLess(elapsed, 2.0, f"guard took {elapsed:.2f}s on {len(reply)} chars")
+
+
+class ChipUrlSafetyTests(unittest.TestCase):
+    """Chip URLs come from a database row and will end up inside an href.
+    The corpus is write-protected and the ingest validator demands https,
+    so this is the third lock on the same door -- and the cheapest."""
+
+    def _chip_count(self, url):
+        passage = guard.Passage(
+            marker="S1", text=HEAT.text, citation="27-2029", authority="NYC", official_url=url
+        )
+        result = guard.check('See "shall be maintained" [S1].', [passage])
+        return len(guard.render_sources([passage], result))
+
+    def test_https_urls_render(self):
+        self.assertEqual(self._chip_count("https://example.gov/x"), 1)
+
+    def test_dangerous_schemes_never_render(self):
+        for url in (
+            "javascript:alert(1)",
+            "JavaScript:alert(1)",
+            "data:text/html;base64,PHNjcmlwdD4=",
+            "vbscript:msgbox(1)",
+            "  javascript:alert(1)  ",
+            "//evil.example/x",
+        ):
+            with self.subTest(url=url):
+                self.assertEqual(self._chip_count(url), 0)
+
+    def test_plain_http_does_not_render_either(self):
+        """Statute text fetched over http could have been tampered with in
+        transit, which is the one thing a citation must not be."""
+        self.assertEqual(self._chip_count("http://example.gov/x"), 0)

@@ -12,6 +12,7 @@ import unittest
 from unittest import mock
 
 import crypto_service
+import supabase_service
 from supabase_service import SupabaseService
 
 KEY_A = base64.b64encode(b"\x01" * 32).decode()
@@ -261,3 +262,111 @@ class EncryptionDisabledTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class UnreadableRowResilienceTests(unittest.TestCase):
+    """One row that will not decrypt must not cost the user the other
+    ninety-nine.
+
+    decrypt() is strict on purpose -- a failed authentication tag is a real
+    signal and should not be swallowed. But the READ paths have to survive
+    it, because a single bad row raised straight out of
+    list_conversations(), which every /chat render calls, and the whole app
+    returned 500: no sidebar, no conversations, no way back.
+
+    The realistic cause is operational: a key dropped from
+    DATA_ENCRYPTION_KEYS before the rows using it were re-wrapped.
+    """
+
+    UNREADABLE = "enc:v1:keythatisgone:AAAA"
+
+    class _Table:
+        def __init__(self, rows):
+            self.rows = rows
+            self.updates = []
+
+        def select(self, *a, **k):
+            return self
+
+        def eq(self, *a, **k):
+            return self
+
+        def order(self, *a, **k):
+            return self
+
+        def is_(self, *a, **k):
+            return self
+
+        def limit(self, *a, **k):
+            return self
+
+        @property
+        def not_(self):
+            return self
+
+        def update(self, payload):
+            self.updates.append(payload)
+            return self
+
+        def execute(self):
+            return type("R", (), {"data": self.rows})()
+
+    class _Client:
+        def __init__(self, table):
+            self._table = table
+
+        def table(self, name):
+            return self._table
+
+    def _service(self):
+        return supabase_service.SupabaseService.__new__(supabase_service.SupabaseService)
+
+    def _configured(self):
+        return mock.patch.dict(
+            os.environ,
+            {
+                "DATA_ENCRYPTION_KEYS": "k1:" + base64.b64encode(b"\x01" * 32).decode(),
+                "DATA_ENCRYPTION_ACTIVE_KEY_ID": "k1",
+            },
+            clear=False,
+        )
+
+    def test_one_unreadable_message_does_not_lose_the_conversation(self):
+        with self._configured():
+            crypto_service.reload_keys()
+            self.addCleanup(crypto_service.reload_keys)
+            table = self._Table([
+                {"id": "m1", "role": "user", "content": crypto_service.encrypt("readable one")},
+                {"id": "m2", "role": "user", "content": self.UNREADABLE},
+            ])
+
+            rows = self._service().fetch_messages_for_conversation(self._Client(table), "c1")
+
+            self.assertEqual(rows[0]["content"], "readable one")
+            self.assertEqual(rows[1]["content"], supabase_service.UNREADABLE_PLACEHOLDER)
+
+    def test_one_unreadable_title_does_not_break_the_whole_sidebar(self):
+        with self._configured():
+            crypto_service.reload_keys()
+            self.addCleanup(crypto_service.reload_keys)
+            table = self._Table([
+                {"id": "c1", "title": crypto_service.encrypt("Broken heat")},
+                {"id": "c2", "title": self.UNREADABLE},
+            ])
+
+            conversations = self._service().list_conversations(self._Client(table))
+
+            self.assertEqual(conversations[0]["title"], "Broken heat")
+            self.assertEqual(conversations[1]["title"], supabase_service.UNREADABLE_PLACEHOLDER)
+
+    def test_an_unreadable_row_is_never_rewrapped_from_its_placeholder(self):
+        """Sealing the placeholder would overwrite the original ciphertext
+        and destroy any chance of recovery once the key comes back."""
+        with self._configured():
+            crypto_service.reload_keys()
+            self.addCleanup(crypto_service.reload_keys)
+            table = self._Table([{"id": "c2", "title": self.UNREADABLE}])
+
+            self._service().list_conversations(self._Client(table))
+
+            self.assertEqual(table.updates, [])

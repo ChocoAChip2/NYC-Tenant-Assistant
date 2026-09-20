@@ -101,9 +101,25 @@ _STATUTE_PATTERNS = (
     re.compile(r"\b(?:admin(?:istrative)?\.?\s+code)\s*§?\s*\d+[\w\-.‑]*", re.I),
 )
 
-# A quoted span. Straight and curly doubles, plus the single-guillemet
-# forms some models emit.
-_QUOTE_RE = re.compile(r"[\"“«]([^\"”»]{8,400})[\"”»]")
+# A quoted span. Models mark a quotation in at least five ways and the
+# guard has to recognise all of them, because a quote it fails to see
+# becomes a "citation_without_quote" violation against a reply that did
+# nothing wrong -- and in ENFORCE mode that silently strips the citation
+# off a correct answer. Every pattern below was an observed false
+# positive before it was handled.
+_QUOTE_PATTERNS = (
+    re.compile(r"[\"“«]([^\"”»]{8,400})[\"”»]"),
+    re.compile(r"(?<![A-Za-z])['‘]([^'’]{8,400})['’](?![A-Za-z])"),
+    re.compile(r"`{1,3}([^`]{8,400})`{1,3}"),
+    re.compile(r"^[ \t]*>[ \t]?(.{8,400})$", re.M),
+)
+
+# Punctuation that belongs to the sentence, not to the quotation.
+# American style puts the closing period inside the quote marks, so
+# "... shall be maintained." is not a substring of a source that ends
+# its sentence elsewhere. Trimming the edges is the difference between
+# recognising that quote and rejecting a correct reply.
+_SPAN_EDGE_CHARS = " \t\n.,;:!?…\"'“”‘’*_"
 
 # Numbers that carry a claim: temperatures, deadlines, money, percentages.
 # A bare "3" in "three things you can do" is not one of these.
@@ -120,7 +136,11 @@ _NUMBER_RE = re.compile(
     re.I | re.X,
 )
 
-_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
+# Segments, not just sentences: a citation and the passage it refers to
+# are very often on different LINES (a lead-in ending in a colon, then a
+# markdown blockquote), and a splitter that knew only about sentence
+# enders treated those two as unrelated.
+_SEGMENT_SPLIT_RE = re.compile(r"(?<=[.!?])\s+|\n+")
 
 
 def normalize(text: str) -> str:
@@ -140,8 +160,22 @@ def normalize(text: str) -> str:
     return text.strip().lower()
 
 
-def _sentences(reply: str) -> list[str]:
-    return [part for part in _SENTENCE_SPLIT_RE.split(reply.strip()) if part.strip()]
+def _segments(reply: str) -> list[str]:
+    return [part for part in _SEGMENT_SPLIT_RE.split(reply.strip()) if part.strip()]
+
+
+def _clean_span(span: str) -> str:
+    return span.strip(_SPAN_EDGE_CHARS)
+
+
+def _quoted_spans(text: str) -> list[str]:
+    spans: list[str] = []
+    for pattern in _QUOTE_PATTERNS:
+        for match in pattern.finditer(text):
+            cleaned = _clean_span(match.group(1))
+            if len(cleaned) >= 8:
+                spans.append(cleaned)
+    return spans
 
 
 def _statute_strings(text: str) -> list[str]:
@@ -217,8 +251,9 @@ def check(
             Violation("ungrounded_statute", f"names {raw.strip()!r}, which is in no retrieved passage")
         )
 
-    # 3 and 4 apply per sentence, and only to sentences that cite.
-    for sentence in _sentences(reply):
+    # 3 and 4 apply per segment, and only to segments that cite.
+    segments = _segments(reply)
+    for index, sentence in enumerate(segments):
         markers = _MARKER_RE.findall(sentence)
         if not markers:
             continue
@@ -228,7 +263,15 @@ def check(
 
         cited_norm = " \n ".join(normalize(passage.text) for passage in known)
 
-        quotes = _QUOTE_RE.findall(sentence)
+        # The quote may sit in a neighbouring segment rather than this
+        # one: "According to [S1]:" followed by a blockquote is the most
+        # common way a model presents a source, and scoring only the
+        # citing sentence rejected every reply shaped like that.
+        # Joined, not scanned segment by segment: a quotation can run
+        # across a line break, and scoring the pieces separately means
+        # neither piece carries both quote marks.
+        neighbourhood = "\n".join(segments[max(index - 1, 0):index + 2])
+        quotes = _quoted_spans(neighbourhood)
         supported_quotes = [q for q in quotes if normalize(q) in cited_norm]
 
         if not quotes:
@@ -292,6 +335,13 @@ def render_sources(passages: list[Passage], result: GuardResult) -> list[dict[st
     for marker in result.cited_markers:
         passage = next((p for p in passages if p.marker == marker), None)
         if not passage or not passage.citation or not passage.official_url:
+            continue
+        # https only. These URLs come from a database row and end up in an
+        # href, so a "javascript:" or "data:" value would be stored XSS the
+        # day the chips are rendered. The corpus is write-protected and the
+        # ingest validator already requires https, which makes this the
+        # third lock on the same door -- and the cheapest one.
+        if not passage.official_url.strip().lower().startswith("https://"):
             continue
         chips.append(
             {

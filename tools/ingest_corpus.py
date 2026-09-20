@@ -100,9 +100,17 @@ def validate(sections: list[dict]) -> list[str]:
     problems = []
     seen = set()
     for index, section in enumerate(sections):
+        if not isinstance(section, dict):
+            problems.append(f"section {index}: not an object")
+            continue
         for field in REQUIRED_FIELDS:
-            if not str(section.get(field, "")).strip():
-                problems.append(f"section {index}: missing {field}")
+            value = section.get(field)
+            # Type-checked, not just truthiness: a citation that arrived as
+            # the number 27 instead of the string "27-2029" would pass a
+            # bare truthiness check and then be stored as a citation nobody
+            # can look up.
+            if not isinstance(value, str) or not value.strip():
+                problems.append(f"section {index}: missing or non-text {field}")
         key = (section.get("authority"), section.get("citation"))
         if key in seen:
             problems.append(f"section {index}: duplicate citation {key[1]}")

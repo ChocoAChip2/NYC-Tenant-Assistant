@@ -469,9 +469,12 @@ def delete_conversation(conversation_id):
 def _ground_reply(user_client, question, history):
     """Retrieve law, ask for a grounded answer, and check what comes back.
 
-    Returns (reply, source_chips). Falls back to an ordinary uncited reply
-    on any failure, because a tenant asking about heat should never see an
-    error because a vector index was not built.
+    Returns (reply, source_chips). Every step except the model call itself
+    is wrapped, because this whole subsystem is optional and a tenant
+    asking about heat should never see an error because a vector index was
+    not built. The model call is deliberately NOT wrapped: chat_message()
+    already maps its ValueError/RuntimeError to the right status codes, and
+    swallowing them here would only spend a second API call to fail again.
 
     The guard runs in REPORT mode by default: it records every violation
     and changes nothing. A guard that silently rejects good replies makes
@@ -481,45 +484,63 @@ def _ground_reply(user_client, question, history):
     """
     ai_service_instance = get_ai_service()
 
-    if not retrieval_service.is_enabled():
-        return ai_service_instance.generate_reply(history), []
-
-    retriever = retrieval_service.RetrievalService(
-        supabase_client=user_client,
-        gemini_client=getattr(ai_service_instance, "client", None),
-    )
-    passages = retriever.search(question)
+    passages = []
+    try:
+        if retrieval_service.is_enabled():
+            retriever = retrieval_service.RetrievalService(
+                supabase_client=user_client,
+                gemini_client=getattr(ai_service_instance, "client", None),
+            )
+            passages = retriever.search(question)
+    except Exception:
+        logger.exception("Legal retrieval failed; answering without sources.")
+        passages = []
 
     if not passages:
-        # No sources cleared the relevance floor. An uncited answer is the
-        # honest outcome, not a failure.
+        # Either grounding is off, or nothing cleared the relevance floor.
+        # An uncited answer is the honest outcome, not a failure.
         return ai_service_instance.generate_reply(history), []
 
-    grounded_history = [
-        {"role": "system", "content": retrieval_service.format_for_prompt(passages)},
-        *history,
-    ]
-    reply = ai_service_instance.generate_reply(grounded_history)
+    try:
+        sources_block = retrieval_service.format_for_prompt(passages)
+    except Exception:
+        logger.exception("Could not format retrieved sources; answering without them.")
+        return ai_service_instance.generate_reply(history), []
 
-    result = citation_guard.check(reply, passages, user_message=question)
+    reply = ai_service_instance.generate_reply(
+        [{"role": "system", "content": sources_block}, *history]
+    )
+
+    try:
+        result = citation_guard.check(reply, passages, user_message=question)
+    except Exception:
+        # A guard CRASH is not a guard violation: it means nothing was
+        # verified, so nothing has earned a citation. Strip them in both
+        # modes. Report mode's promise is not to act on violations, and
+        # this is not one.
+        logger.exception("Citation guard crashed; sending the reply without citations.")
+        return citation_guard.strip_citations(reply), []
 
     if not result.ok:
         logger.warning(
             "citation_guard: %d violation(s) [%s] mode=%s",
             len(result.violations),
             ", ".join(sorted(result.kinds)),
-            _guard_mode(),
+            _guard_mode().value,
         )
         for violation in result.violations:
             logger.warning("citation_guard: %s -- %s", violation.kind, violation.detail)
 
         if _guard_mode() == citation_guard.GuardMode.ENFORCE:
             # The prose may still be useful; the authority it claimed is
-            # what it has not earned. Strip the markers and let it go out
-            # labelled as general information.
+            # what it has not earned.
             return citation_guard.strip_citations(reply), []
 
-    return reply, citation_guard.render_sources(passages, result)
+    try:
+        return reply, citation_guard.render_sources(passages, result)
+    except Exception:
+        logger.exception("Could not render citation chips; sending the reply without them.")
+        return reply, []
 
 
 def _guard_mode():
