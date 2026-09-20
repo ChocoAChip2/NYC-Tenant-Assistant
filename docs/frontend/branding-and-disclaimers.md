@@ -2,8 +2,9 @@
 
 ## The name and the mark live in `branding.py`
 
-`product_name`, `logo_monogram`, `short_disclaimer` and `learn_more_label`
-are **not** written into any template. They come from `branding.py` through
+`product_name`, `logo_monogram`, `short_disclaimer`, `top_disclaimer`,
+`per_message_disclaimer` and `learn_more_label` are **not** written into any
+template. They come from `branding.py` through
 a context processor registered by `branding.register(app)`, which both
 `create_app()` and the test helper call.
 
@@ -21,7 +22,44 @@ That indirection is deliberate and there are tests enforcing it
 the accent-colored `.brand-mark` square that the auth pages already had, so
 replacing it with a real mark means changing one element, not a layout.
 
-## Where the disclaimer appears
+## Three layers, three jobs
+
+There are now three disclaimers, and they are not redundant — each one
+covers a gap the others leave open.
+
+| Layer | Constant | Where | Job |
+| --- | --- | --- | --- |
+| Banner | `TOP_DISCLAIMER` | Amber bar under the header, chat + settings | Catch someone who is actively looking for a lawyer, **before** they start typing, and tell them what to do about it |
+| Per-message | `PER_MESSAGE_DISCLAIMER` | Under every assistant reply | Make sure no single reply can be screenshotted, pasted or quoted without the qualifier attached to it |
+| Footer | `SHORT_DISCLAIMER` | Bottom of every page | The standing notice, unobtrusive, always true |
+
+The visual weight is deliberately inverted against the repetition: the
+banner appears once and is loud (`--warning` on `--warning-tint`, a 4px
+left rule, a round `!` glyph); the per-message note repeats on every turn
+and is deliberately quiet (11px, `--muted`, italic, a small amber dot).
+A paragraph repeated twenty times is a paragraph nobody reads.
+
+Measured contrast for the banner is 5.04:1 in light mode and 7.77:1 in
+dark — both above WCAG AA for body text. It is **not** dismissible, and a
+test asserts there is no close button in it: a legal notice with an X is a
+legal notice nobody sees.
+
+### The banner makes a promise
+
+The banner tells tenants that if they say they are seeking legal
+assistance, the chatbot will give them a list of places to contact. That
+promise is kept in `ai_service.py`, rule 7 of the system prompt, which
+interpolates `branding.HELP_RESOURCES` in full with phone numbers and
+forbids the assistant from inventing any other organisation or substituting
+a vague "consult an attorney".
+
+Three things have to stay in sync: the banner text, the prompt rule, and
+the resource list. `tests/test_prominent_disclaimers.py::ReferralPromiseTests`
+fails if the prompt loses the rule or a resource drops out of it — because
+a banner promising something the product does not do is worse than no
+banner.
+
+## Where the short disclaimer appears
 
 Every page carries the short version. Placement differs because the pages
 do:
