@@ -19,7 +19,7 @@ from unittest import mock
 import flask
 
 from routes import main_bp
-from tests.csrf_test_support import disable_csrf
+from tests.app_test_support import configure_test_app
 
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _EXPECTED_TEMPLATE_PATH = "templates/ra-81-fillable.pdf"
@@ -53,7 +53,7 @@ def _build_test_app(ai_reply):
     app.config["SUPABASE_SERVICE"] = FakeSupabaseService()
     app.config["AI_SERVICE"] = FakeAIService(ai_reply)
     app.register_blueprint(main_bp)
-    disable_csrf(app)
+    configure_test_app(app)
     return app
 
 

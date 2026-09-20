@@ -8,6 +8,7 @@ import json
 import logging
 from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, session, url_for, send_file
 
+import branding
 from ai_service import AIService
 from markdown_service import render_markdown
 from login_lockout import format_duration, record_failure, record_success, seconds_until_unlocked
@@ -549,6 +550,25 @@ def chat_message():
         return jsonify({"error": "The AI service is currently unavailable. Please try again shortly."}), 500
 
 
+@main_bp.route("/learn-more")
+def learn_more():
+    """Public support/info page: what this is, what it is not, where to get
+    real help.
+
+    Deliberately reachable without logging in. Someone deciding whether to
+    trust this thing with their housing situation should be able to read
+    what it does and does not claim to be *before* handing over an email
+    address, and someone who has already been given bad news by it should
+    be able to find a real lawyer without authenticating first.
+    """
+
+    return render_template(
+        "learn_more.html",
+        full_disclaimer_paragraphs=branding.FULL_DISCLAIMER_PARAGRAPHS,
+        help_resources=branding.HELP_RESOURCES,
+    )
+
+
 @main_bp.route("/settings")
 def settings():
     """Show the settings page: appearance, account, data export, deletion."""
@@ -739,7 +759,7 @@ def download_chat_history():
 def _render_conversations_as_markdown(conversations: list[dict]) -> str:
     """Turn a list of conversations (each with a "messages" list) into one Markdown document."""
 
-    lines = ["# NYC Tenant Assistant -- Chat History Export", ""]
+    lines = [f"# {branding.PRODUCT_NAME} -- Chat History Export", ""]
 
     if not conversations:
         lines.append("_No conversations yet._")

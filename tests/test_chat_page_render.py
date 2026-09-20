@@ -12,7 +12,7 @@ import unittest
 import flask
 
 from routes import main_bp
-from tests.csrf_test_support import disable_csrf
+from tests.app_test_support import configure_test_app
 
 _TEMPLATES_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "templates")
 
@@ -50,7 +50,7 @@ def _build_test_app(supabase_service, ai_service):
     app.config["SUPABASE_SERVICE"] = supabase_service
     app.config["AI_SERVICE"] = ai_service
     app.register_blueprint(main_bp)
-    disable_csrf(app)
+    configure_test_app(app)
     return app
 
 

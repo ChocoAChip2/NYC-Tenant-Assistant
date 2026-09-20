@@ -1,6 +1,6 @@
-# NYC Tenant Assistant
+# SideKick Tidbit
 
-NYC Tenant Assistant is a Flask web app with Supabase authentication and Gemini chat.  
+SideKick Tidbit (formerly NYC Tenant Assistant) is a Flask web app with Supabase authentication and Gemini chat.  
 Users sign up and log in first, then access the protected chat page.
 
 ## Render + Supabase confirmation
@@ -68,6 +68,7 @@ from before this branch — errors only appear in logs.
 ├── app.py                # Application factory + Flask app bootstrap
 ├── ai_service.py         # Gemini client setup + response generation
 ├── alerting.py           # Webhook logging handler (ALERT_WEBHOOK_URL)
+├── branding.py           # Product name, ST monogram, and the legal disclaimer wording
 ├── config.py             # Environment configuration loader
 ├── crypto_service.py     # Encryption at rest (versioned + rotatable; see docs/data-encryption.md)
 ├── markdown_service.py   # Renders the assistant's Markdown safely (escape-first)

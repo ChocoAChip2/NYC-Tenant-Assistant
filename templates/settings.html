@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NYC Tenant Assistant | Settings</title>
+  <title>{{ product_name }} | Settings</title>
   <script>
 
     (function () {
@@ -89,6 +89,26 @@
       background: var(--surface);
     }
     header h1 { margin: 0; font-size: 16px; font-weight: 600; }
+    header .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    header .brand-mark {
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
     header a { color: var(--muted); font-size: 13px; text-decoration: none; }
     header a:hover { color: var(--accent); }
     main {
@@ -225,11 +245,23 @@
     }
     .checkbox-row input { margin-top: 2px; accent-color: var(--error); }
     .confirm-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .legal-note {
+      margin: 0;
+      text-align: center;
+      font-size: 11.5px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+    .legal-note a { color: var(--muted); text-decoration: underline; }
+    .legal-note a:hover { color: var(--accent); }
   </style>
 </head>
 <body>
   <header>
-    <h1>Settings</h1>
+    <a class="brand" href="{{ url_for('main.chat') }}">
+      <span class="brand-mark" aria-hidden="true">{{ logo_monogram }}</span>
+      <h1>Settings</h1>
+    </a>
     <a href="{{ url_for('main.chat') }}">&larr; Back to chat</a>
   </header>
 
@@ -336,6 +368,7 @@
         </form>
       {% endif %}
     </section>
+    <p class="legal-note">{{ short_disclaimer }} <a href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a></p>
   </main>
 
   <script>
