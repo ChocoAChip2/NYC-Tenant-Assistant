@@ -117,8 +117,8 @@ python app.py
 ## Supabase keep-alive workflow
 
 `.github/workflows/keepalive.yml` runs every 6 days (cron `0 12 */6 * *`) and
-issues one authenticated, read-only `select id from conversations limit 1`
-against Supabase's REST API. This exists because Supabase pauses free-tier
+issues one read-only `select id from legal_sources limit 1` against
+Supabase's REST API. This exists because Supabase pauses free-tier
 projects after 7 days without database activity — it has already happened
 once and took the app down without anyone noticing. 6 days leaves a 1-day
 safety margin.
@@ -126,9 +126,14 @@ safety margin.
 It queries a real table rather than the bare API root, because a bare ping
 isn't documented as counting toward Supabase's "user database activity"
 check — see the comments at the top of the workflow file for the reasoning
-and links. RLS blocks the query from returning any rows (it carries no user
-JWT), which is expected: the point is that Postgres gets queried, not what it
-returns.
+and links.
+
+It targets `legal_sources` specifically. This used to ping `conversations`,
+which worked only because the `anon` role could select it and RLS returned
+nothing — a quiet coupling between an uptime check and a table of tenants'
+private data being publicly readable in principle. `anon`'s select has since
+been revoked on the user tables; `legal_sources` holds public law, is
+anon-readable on purpose, and cannot leak user data into a workflow log.
 
 **Setup:** add `SUPABASE_URL` and `SUPABASE_KEY` as **GitHub repository
 secrets** (Settings → Secrets and variables → Actions) — the same values used

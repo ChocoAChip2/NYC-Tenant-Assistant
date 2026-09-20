@@ -15,11 +15,23 @@ name: Supabase Keep-Alive
 # (`{url}/rest/v1/`) only returns PostgREST's generated OpenAPI schema and
 # is not documented as counting toward this check, so this workflow selects
 # from an actual table instead. That forces PostgREST to plan and execute a
-# real query against Postgres. RLS is enabled on every table and this key
-# carries no user JWT, so the query legitimately returns zero rows -- that's
-# expected and fine. The query executing is what counts, not what it
-# returns, and this also means the workflow log never contains real user
-# data.
+# real query against Postgres.
+#
+# WHY `legal_sources` AND NOT `conversations`:
+# This used to query `conversations`, which worked because the anon role
+# could SELECT it and RLS returned zero rows. That was a quiet coupling: a
+# keep-alive ping depended on a table full of tenants' private data being
+# readable, in principle, by the public key that ships in the browser.
+# Supabase's linter flagged those tables as discoverable in the generated
+# GraphQL schema for exactly that reason, and anon's SELECT has now been
+# revoked on all three of them (see
+# supabase/migrations/20260923_revoke_anon_read_on_user_tables.sql).
+#
+# `legal_sources` is the right target instead: it holds public law, it is
+# anon-readable ON PURPOSE (a citation should resolve without an account),
+# and it contains no user data at any point, so the workflow log cannot
+# leak anything even in principle. It may be empty until the corpus is
+# ingested -- that is fine, an empty result is still a real query.
 #
 # KNOWN LIMITATION -- READ THIS IF THE PROJECT PAUSES AGAIN:
 # GitHub automatically disables scheduled workflows after 60 days with no
@@ -72,7 +84,7 @@ jobs:
             --retry 3 --retry-delay 10 --retry-all-errors \
             -H "apikey: ${SUPABASE_KEY}" \
             -H "Authorization: Bearer ${SUPABASE_KEY}" \
-            "${SUPABASE_URL}/rest/v1/conversations?select=id&limit=1")
+            "${SUPABASE_URL}/rest/v1/legal_sources?select=id&limit=1")
 
           echo "HTTP status: ${http_status}"
           cat /tmp/keepalive_response.json
