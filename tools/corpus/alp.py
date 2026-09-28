@@ -50,13 +50,22 @@ OFFICIAL_URL = "https://codelibrary.amlegal.com/codes/newyorkcity/latest/NYCadmi
 
 # Elements seen inside PARAs in the real files. Anything else is reported.
 _KNOWN_INLINE = {"TAB", "HIGHLIGHTER", "LINK", "CHARFORMAT", "DESTINATION", "BOOKMARK"}
-_EDITORS_NOTE_STYLES = {"EdNoteSm"}
+# "EdNoteSm" is the usual note; "EdNote" is the larger one ALP uses for
+# "this section has been amended by L.L. ..., eff. <future date>" (seen on
+# § 27-2093.1 in the full zip, 2026-09-28).
+_EDITORS_NOTE_STYLES = {"EdNoteSm", "EdNote"}
 # Heading-path levels. "Normal Level" wraps a section's paragraphs; the
 # rest are the code's own hierarchy, most of them empty wrappers in ALP.
 _BODY_LEVEL = "Normal Level"
 _SECTION_LEVEL = "Section"
 
-_HEADING_RE = re.compile(r"^§\s*(?P<citation>\d+(?:-[0-9A-Za-z.]+)+?)\.?\s+(?P<title>.*)$", re.S)
+# Whitespace after the hyphen is tolerated because ALP really publishes it:
+# "§ 27- 2017.4. Violation for pests" and "§ 27- 2017.8 Integrated pest
+# management practices." (full zip, 2026-09-28). It is removed from the
+# citation, so the key is the same 27-2017.4 every cross-reference uses.
+_HEADING_RE = re.compile(r"^§\s*(?P<citation>\d+(?:-\s*[0-9A-Za-z.]+)+?)\.?\s+(?P<title>.*)$", re.S)
+# "§ 8-108 Reserved." is a numbered placeholder with no law in it.
+_RESERVED_TITLE_RE = re.compile(r"^Reserved\.?$", re.I)
 _REPEALED_RE = re.compile(r"\[\s*Repealed\s*\]", re.I)
 _WS_RE = re.compile(r"[ \t\r\n]+")
 
@@ -178,7 +187,7 @@ def _parse_section(level, path, source_key, authority, warnings) -> Section | No
         warnings.append(f"{source_key}: unrecognised section heading {heading!r} (record {record_id}), skipped")
         return None
 
-    citation = match.group("citation").rstrip(".")
+    citation = re.sub(r"\s+", "", match.group("citation")).rstrip(".")
     raw_title = match.group("title")
     repealed = bool(_REPEALED_RE.search(raw_title))
     title = _REPEALED_RE.sub("", raw_title)
@@ -216,6 +225,11 @@ def _parse_section(level, path, source_key, authority, warnings) -> Section | No
     # and describes a section that is very much in force. An empty section
     # without the marker is reported instead, and the refresh gates refuse
     # to load one.
+    if _RESERVED_TITLE_RE.match(title):
+        if not paragraphs:
+            # Nothing to cite: leave it out, like a heading with no section.
+            return None
+        warnings.append(f"§ {citation}: titled Reserved but has law text, kept")
     if not paragraphs and not repealed:
         warnings.append(f"§ {citation}: no law text and not marked repealed")
 
