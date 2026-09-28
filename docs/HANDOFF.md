@@ -4,6 +4,31 @@ For whoever continues this, most likely Claude Code running locally in
 `~/Desktop/Github/nyc-tenant-assistant-push-2`. Read this first, then
 `docs/legal-sources-catalog.md`.
 
+## 0. Where you're running changes what you can do (read first)
+
+**Cloud containers can't reach the law sources.** Tested 2026-09-28 from
+a cloud sandbox: `files.amlegal.com`, `www.nyc.gov`,
+`data.cityofnewyork.us` and `*.supabase.co` all blocked. Claude Code on
+the web runs in the same kind of container. Plan around it:
+
+| Task | Cloud container (Claude Code on the web) | Owner's Mac (Claude Code CLI in `~/Desktop/Github/nyc-tenant-assistant-push-2`) | GitHub Actions |
+|---|---|---|---|
+| Write/test the ALP parser | ✅ against `tests/fixtures/alp/` (real excerpts, see its README) | ✅ + full zip | ✅ |
+| Parse the **full** Admin Code zip | ❌ can't download it | ✅ (`~/Desktop/Github/sidekick-corpus-work/admin_xml.zip`, or re-download) | ✅ open internet |
+| Live NYC Open Data / GeoSearch checks | ❌ | ✅ | ✅ |
+| Apply Supabase migrations / load the library | only if a Supabase MCP connection is available | ✅ via Supabase dashboard SQL editor or CLI | ✅ once `CORPUS_INGEST_TOKEN` exists |
+| Push / PR | ✅ | ✅ | — |
+
+**Rule of thumb:** build and unit-test anywhere. Anything that needs the
+real full file, the live DB or live APIs happens on the Mac or in an
+Actions run (`workflow_dispatch` plus a `--dry-run` flag, then read the
+logs). **Never fake a live check.** If you can't reach it, say so and
+leave it for a machine that can.
+
+Real section counts in the current Admin Code, for sanity minimums: **HMC
+211, Rent Stabilization Law 25, Unlawful Eviction 9, Right to Counsel 6,
+Human Rights Law 37.** Set each source's minimum to ~90% of these.
+
 ## 1. The project
 
 - **SideKick Tidbit**: a free web app for **individual NYC tenants** (decided: tenant-first, not organizers). Flask + Supabase (Auth, Postgres, RLS) + Gemini. Hosted on Render (free tier).
@@ -33,7 +58,7 @@ Test suite: **465 passing** (`python -m unittest discover -s tests`). Tests neve
 
 **Goal:** load official, verbatim NYC (and later NYS) law into `legal_sources`/`legal_documents`, keep it current automatically (the owner asked for a check "every few months"), and put it to use: `/law/<citation>` pages, violation chips linking to the real text, and chat grounding.
 
-**Committed on the branch so far:** `tools/corpus/__init__.py`, `tools/corpus/model.py` (`Section`, content hash over law text only, whole-paragraph chunk packing, `latest_effective_date` from history lines), `docs/legal-sources-catalog.md`, this file.
+**Committed on the branch so far:** `tools/corpus/__init__.py`, `tools/corpus/model.py` (`Section`, content hash over law text only, whole-paragraph chunk packing, `latest_effective_date` from history lines; **not yet unit-tested**, so add tests alongside the parser), `tests/fixtures/alp/` (real ALP excerpts), `docs/legal-sources-catalog.md`, this file.
 
 ### Decisions already made (with evidence)
 
@@ -54,7 +79,7 @@ Test suite: **465 passing** (`python -m unittest discover -s tests`). Tests neve
 
 ### Next steps, in order
 
-1. `tools/corpus/alp.py`: parse the ALP XML per the catalog. **Test against the real file** (download it yourself; it's also at `~/Desktop/Github/sidekick-corpus-work/admin_xml.zip`). Cross-check HMC sections against the nyc.gov PDF text (`hmc.pdf` in the same folder); agreement on unchanged sections validates the extraction.
+1. `tools/corpus/alp.py`: parse the ALP XML per the catalog. **Unit-test against `tests/fixtures/alp/`** (real excerpts). Required: § 27-2029 text contains "sixty-two degrees" and no `[ALP S-` tags; its history holds the 2017/086 line and `last_amended == 2017-10-01`; editor's notes are excluded from the law text; repealed sections are flagged; the RTC `26-1301` heading's `*` is handled; section_keys are unique. Then, **on a machine with internet**, run it on the full zip and cross-check HMC sections against the nyc.gov PDF text (`hmc.pdf` in `~/Desktop/Github/sidekick-corpus-work/`).
 2. `tools/corpus/registry.py`: sources (HMC, RSL, UE, RTC, HRL Title 8 Ch 1, Rent Control), with anchors, minimums and file IDs. Add NYS sources behind `NYSENATE_API_KEY`, and **verify the Open Legislation response shape live before trusting the adapter**.
 3. Migration + RPCs. Test each in a rolled-back `BEGIN … ROLLBACK` against the live DB before `apply_migration`, then check `get_advisors`.
 4. `tools/corpus/refresh.py` CLI (`--dry-run`, `--source`, `--from-zip PATH`), plus tests with faked HTTP.

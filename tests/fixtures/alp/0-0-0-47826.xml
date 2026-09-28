@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="#!-- #STYLESHEETS:ALP.xsl --#"?>
+
+<DOCUMENT source-infobase-name="Admin" content-collection-id="NYCadmin" source-infobase-title="New York City Administrative Code" base-output-dir="D:\process\NFOProcess\codes\ny\newyorkcity\NYCadmin\output\NUTJZFARSAYSOXZT\" default-split-level="Chapter" makefile-filename="D:\process\NFOProcess\codes\ny\newyorkcity\NYCadmin\output\NUTJZFARSAYSOXZT\NYCadmin.mak" css-stylesheet-href="#!-- #ID=NYCadmin_css_id --#" xml-output-dir="D:\process\NFOProcess\codes\ny\newyorkcity\NYCadmin\output\NUTJZFARSAYSOXZT\XML\" css-stylesheet-name="NYCadmin_css" makefile-document-depth="2">
+	<LEVEL style-name="Chapter" style-name-escaped="Chapter" style-id="0-0-0-685" level-depth="2" toc-section="false">
+		<RECORD id="0-0-0-47826" number="61395" version="3">
+			<HEADING>Chapter 13: Provision of Legal Services in Eviction Proceedings*</HEADING>
+			<PARA>
+				<DESTINATION id="0-0-0-11699" name="T26C013" />Chapter 13: Provision of Legal Services in Eviction Proceedings*</PARA>
+		</RECORD>
+		<LEVEL style-name="Subchapter" style-name-escaped="Subchapter" style-id="0-0-0-688" level-depth="3" toc-section="false">
+			<LEVEL style-name="Appendix" style-name-escaped="Appendix" style-id="0-0-0-691" level-depth="4" toc-section="false">
+				<LEVEL style-name="Part" style-name-escaped="Part" style-id="0-0-0-694" level-depth="5" toc-section="false">
+					<LEVEL style-name="Article" style-name-escaped="Article" style-id="0-0-0-697" level-depth="6" toc-section="false">
+						<LEVEL style-name="Subarticle" style-name-escaped="Subarticle" style-id="0-0-0-700" level-depth="7" toc-section="false">
+							<LEVEL style-name="Subarticle - Part" style-name-escaped="Subarticle---Part" style-id="0-0-0-29474" level-depth="8" toc-section="false">
+								<LEVEL style-name="Section" style-name-escaped="Section" style-id="0-0-0-703" level-depth="9" toc-section="true">
+									<RECORD id="0-0-0-47828" number="61397" version="3">
+										<HEADING>§ 26-1301 Definitions.*</HEADING>
+										<PARA>
+											<DESTINATION id="0-0-0-11701" name="26-1301" />§ 26-1301 Definitions.*</PARA>
+									</RECORD>
+									<LEVEL style-name="Normal Level" style-name-escaped="Normal-Level" style-id="0-0-0-0" level-depth="0" toc-section="false">
+										<RECORD id="0-0-0-203061" number="61398" version="1907">
+											<PARA style-name="EdNoteSm" style-name-escaped="EdNoteSm" style-id="0-0-0-18">* <CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Editor's note:</CHARFORMAT> there are two sections designated as § 26-1301. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-017]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47830" number="61399" version="3">
+											<PARA>For the purposes of this chapter, the following terms have the following meanings: <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47831" number="61400" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Brief legal assistance.</CHARFORMAT> The term "brief legal assistance" means individualized legal assistance provided in a single consultation by a designated organization to a covered individual in connection with a covered proceeding. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47832" number="61401" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Coordinator.</CHARFORMAT> The term "coordinator" means the coordinator of the office of civil justice. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47833" number="61402" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Covered individual.</CHARFORMAT> The term "covered individual" means a tenant of a rental dwelling unit located in the city, including any tenant in a building operated by the New York city housing authority, who is a respondent in a covered proceeding. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47834" number="61403" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Covered proceeding.</CHARFORMAT> The term "covered proceeding" means any summary proceeding in housing court to evict a covered individual, including a summary proceeding to seek possession for the non-payment of rent or a holdover, or an administrative proceeding of the New York city housing authority for termination of tenancy. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47835" number="61404" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Designated citywide languages.</CHARFORMAT> The term "designated citywide languages" has the meaning ascribed to such term in section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="23-1101" destination-id="0-0-0-2113">23-1101</LINK>. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47836" number="61405" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Designated organization.</CHARFORMAT> The term "designated organization" means a not-for-profit organization or association that has the capacity to provide legal services and is designated by the coordinator pursuant to this chapter. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47837" number="61406" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Full legal representation.</CHARFORMAT> The term "full legal representation" means ongoing legal representation provided by a designated organization to an income-eligible individual and all legal advice, advocacy, and assistance associated with such representation. Full legal representation includes, but is not limited to, the filing of a notice of appearance on behalf of the income-eligible individual in a covered proceeding. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47838" number="61407" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Housing court.</CHARFORMAT> The term "housing court" means the housing part of the New York city civil court. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47839" number="61408" version="1907">
+											<PARA>
+												<TAB tab-count="1" />
+												<CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Income-eligible individual.</CHARFORMAT> The term "income-eligible individual" means a covered individual who is 60 years of age or older or whose annual gross household income is not in excess of 200 percent of the federal poverty guidelines as updated periodically in the federal register by the United States department of health and human services pursuant to subsection (2) of section 9902 of title 42 of the United States code. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-088]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47840" number="61409" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Legal services.</CHARFORMAT> The term "legal services" means brief legal assistance or full legal representation. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47841" number="61410" version="1907">
+											<PARA>(L.L. 2017/136, 8/11/2017, eff. 8/11/2017; Am. L.L. 2023/020, 2/19/2023, eff. 8/18/2023) <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-088]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+									</LEVEL>
+								</LEVEL>
+								<LEVEL style-name="Section" style-name-escaped="Section" style-id="0-0-0-703" level-depth="9" toc-section="true">
+									<RECORD id="0-0-0-47842" number="61411" version="3">
+										<HEADING>§ 26-1302 Provision of legal services.</HEADING>
+										<PARA>
+											<DESTINATION id="0-0-0-11703" name="26-1302" />§ 26-1302 Provision of legal services.</PARA>
+									</RECORD>
+									<LEVEL style-name="Normal Level" style-name-escaped="Normal-Level" style-id="0-0-0-0" level-depth="0" toc-section="false">
+										<RECORD id="0-0-0-47843" number="61412" version="924">
+											<PARA>
+												<TAB tab-count="1" />a.<TAB tab-count="1" />Subject to appropriation, the coordinator shall establish a program to provide access to legal services for covered individuals in covered proceedings in housing court and shall ensure that, no later than June 1, 2021: <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-061]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47844" number="61413" version="924">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />1.<TAB tab-count="1" />All covered individuals receive access to brief legal assistance no later than their first scheduled appearance in a covered proceeding in housing court, or as soon thereafter as is practicable; and <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-061]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47845" number="61414" version="924">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />2.<TAB tab-count="1" />All income-eligible individuals receive access to full legal representation no later than their first scheduled appearance in a covered proceeding in housing court, or as soon thereafter as is practicable. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-061]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47846" number="61415" version="924">
+											<PARA>
+												<TAB tab-count="1" />b.<TAB tab-count="1" />Subject to appropriation, no later than October 1, 2017, the coordinator shall establish a program to provide access to legal services in administrative proceedings of the New York city housing authority for tenants of buildings operated by the New York city housing authority who have been served with charges in such administrative proceedings for termination of tenancy and shall ensure that, no later than June 1, 2021, all such tenants receive access to such legal services no later than their first scheduled appearance in such administrative proceedings, or as soon thereafter as is practicable. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-061]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47847" number="61416" version="924">
+											<PARA>
+												<TAB tab-count="1" />c.<TAB tab-count="1" />The coordinator shall estimate annually the expenditures required for each year of implementation of the programs described by subdivisions a and b of this section. Beginning December 1, 2021 and no later than each December 1 thereafter, the coordinator shall publish a summary of any changes to such estimates for expenditures. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-061]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47848" number="61417" version="3">
+											<PARA>
+												<TAB tab-count="1" />d.<TAB tab-count="1" />The coordinator shall annually review the performance of designated organizations. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47849" number="61418" version="3">
+											<PARA>
+												<TAB tab-count="1" />e.<TAB tab-count="1" />The coordinator shall require each designated organization to identify the geographic areas for which such organization will provide legal services. For each such geographic area, the coordinator shall maintain a list of such organizations that provide such legal services. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47850" number="61419" version="3">
+											<PARA>
+												<TAB tab-count="1" />f.<TAB tab-count="1" />Any legal services performed by a designated organization pursuant to this chapter shall not supplant, replace, or satisfy any obligations or responsibilities of such designated organization pursuant to any other program, agreement, or contract. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47851" number="61420" version="3">
+											<PARA>
+												<TAB tab-count="1" />g.<TAB tab-count="1" />Nothing in this chapter or the administration or application thereof shall be construed to create a private right of action on the part of any person or entity against the city or any agency, official, or employee thereof. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47852" number="61421" version="924">
+											<PARA>(L.L. 2017/136, 8/11/2017, eff. 8/11/2017; Am. L.L. 2021/054, 5/11/2021, eff. 5/11/2021) <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-061]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+									</LEVEL>
+								</LEVEL>
+								<LEVEL style-name="Section" style-name-escaped="Section" style-id="0-0-0-703" level-depth="9" toc-section="true">
+									<RECORD id="0-0-0-47853" number="61422" version="3">
+										<HEADING>§ 26-1303 Public hearing.</HEADING>
+										<PARA>
+											<DESTINATION id="0-0-0-11705" name="26-1303" />§ 26-1303 Public hearing.</PARA>
+									</RECORD>
+									<LEVEL style-name="Normal Level" style-name-escaped="Normal-Level" style-id="0-0-0-0" level-depth="0" toc-section="false">
+										<RECORD id="0-0-0-47854" number="61423" version="3">
+											<PARA>
+												<TAB tab-count="1" />a.<TAB tab-count="1" />Following the establishment of the programs described by section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="26-1302" destination-id="0-0-0-11703">26-1302</LINK>, the coordinator shall hold one public hearing each year to receive recommendations and feedback about such programs. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47855" number="61424" version="3">
+											<PARA>
+												<TAB tab-count="1" />b.<TAB tab-count="1" />Such hearing shall be open to the public, and the coordinator shall provide notice of such hearing, no less than 30 days before such hearing, by: <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47856" number="61425" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />1.<TAB tab-count="1" />posting in the housing court in the designated citywide languages; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47857" number="61426" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />2.<TAB tab-count="1" />posting in public offices of the department of social services/human resources administration in the designated citywide languages; and <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47858" number="61427" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />3.<TAB tab-count="1" />outreach through local media and to each designated organization, local elected officials, the supervising judge of the housing court, and community-based organizations. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47859" number="61428" version="3">
+											<PARA>
+												<TAB tab-count="1" />c.<TAB tab-count="1" />At such hearing, written and oral testimony may be provided. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47860" number="61429" version="1811">
+											<PARA>
+												<TAB tab-count="1" />d.<TAB tab-count="1" />The coordinator shall cause a transcript of such hearing to be produced and shall post such transcript online no later than 45 days after the meeting. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47861" number="61430" version="712">
+											<PARA>(L.L. 2017/136, 8/11/2017, eff. 8/11/2017) <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+									</LEVEL>
+								</LEVEL>
+								<LEVEL style-name="Section" style-name-escaped="Section" style-id="0-0-0-703" level-depth="9" toc-section="true">
+									<RECORD id="0-0-0-47862" number="61431" version="3">
+										<HEADING>§ 26-1304 Reporting.</HEADING>
+										<PARA>
+											<DESTINATION id="0-0-0-11707" name="26-1304" />§ 26-1304 Reporting.</PARA>
+									</RECORD>
+									<LEVEL style-name="Normal Level" style-name-escaped="Normal-Level" style-id="0-0-0-0" level-depth="0" toc-section="false">
+										<RECORD id="0-0-0-47863" number="61432" version="3">
+											<PARA>
+												<TAB tab-count="1" />a.<TAB tab-count="1" />No later than September 1, 2018 and annually by each September 1 thereafter, the coordinator shall submit to the mayor and the speaker of the council, and post online, a review of the program established pursuant to subdivision a of section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="26-1302" destination-id="0-0-0-11703">26-1302</LINK> and information regarding its implementation, to the extent such information is available, including, but not limited to: <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47864" number="61433" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />1.<TAB tab-count="1" />the estimated number of covered individuals; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47865" number="61434" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />2.<TAB tab-count="1" />the number of individuals receiving legal services, disaggregated by the following characteristics of such individuals: <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47866" number="61435" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />i.<TAB tab-count="1" />borough and postal code of residence; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47867" number="61436" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />ii.<TAB tab-count="1" />age of head of household; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47868" number="61437" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />iii.<TAB tab-count="1" />household size; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47869" number="61438" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />iv.<TAB tab-count="1" />estimated length of tenancy; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47870" number="61439" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />v.<TAB tab-count="1" />approximate household income; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47871" number="61440" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />vi.<TAB tab-count="1" />receipt of ongoing public assistance at the time such legal services were initiated; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47872" number="61441" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />vii.<TAB tab-count="1" />tenancy in rent-regulated housing; and <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47873" number="61442" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />viii.<TAB tab-count="1" />tenancy in housing operated by the New York city housing authority; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47874" number="61443" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />3.<TAB tab-count="1" />outcomes immediately following the provision of full legal representation, as applicable and available, including, but not limited to, the number of: <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47875" number="61444" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />i.<TAB tab-count="1" />case dispositions allowing individuals to remain in their residence; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47876" number="61445" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />ii.<TAB tab-count="1" />case dispositions requiring individuals to be displaced from their residence; and <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47877" number="61446" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />iii.<TAB tab-count="1" />instances where the attorney was discharged or withdrew. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47878" number="61447" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />4.<TAB tab-count="1" />non-payment and holdover petitions filed in housing court, warrants of eviction issued in housing court, and residential evictions conducted by city marshals, disaggregated by borough. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47879" number="61448" version="3">
+											<PARA>
+												<TAB tab-count="1" />b.<TAB tab-count="1" />No later than September 1, 2018 and annually by each September 1 thereafter, the coordinator shall submit to the mayor and the speaker of the council, and post online, a review of the program established pursuant to subdivision b of section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="26-1302" destination-id="0-0-0-11703">26-1302</LINK> and information regarding its implementation, to the extent such information is available, including, but not limited to: <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47880" number="61449" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />1.<TAB tab-count="1" />the number of tenants of buildings operated by the New York City housing authority that received legal services pursuant to the program described in such subdivision, disaggregated: <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47881" number="61450" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />i.<TAB tab-count="1" />borough and postal code of residence; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47882" number="61451" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />ii.<TAB tab-count="1" />age of head of household; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47883" number="61452" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />iii.<TAB tab-count="1" />household size; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47884" number="61453" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />iv.<TAB tab-count="1" />estimated length of tenancy; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47885" number="61454" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />v.<TAB tab-count="1" />approximate household income; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47886" number="61455" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />vi.<TAB tab-count="1" />receipt of ongoing public assistance at the time such legal services were initiated; and <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47887" number="61456" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />vii.<TAB tab-count="1" />type of legal service provided. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47888" number="61457" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />2.<TAB tab-count="1" />the outcomes of the proceedings immediately following the provision of such legal services, subject to privacy and confidentiality restrictions, and without disclosing personally identifiable information, disaggregated by the type of legal service provided; and <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47889" number="61458" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />3.<TAB tab-count="1" />the expenditures for the program described by such subdivision. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47890" number="61459" version="924">
+											<PARA>
+												<TAB tab-count="1" />c.<TAB tab-count="1" />No later than December 1, 2022, and every December 1 thereafter, the coordinator shall submit to the speaker of the council, and post online, a report on community engagement and education conducted pursuant to section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="26-1306" destination-id="0-0-0-21026">26-1306</LINK> in the previous year. The report shall include metrics from designated community groups, including but not limited to the number of buildings in which outreach was conducted, the number of know your rights education sessions held, the number of attendees at those education sessions, the number of people referred to nonprofits and the number of community forums conducted. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-061]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-133132" number="61460" version="924">
+											<PARA>(L.L. 2017/136, 8/11/2017, eff. 8/11/2017; Am. L.L. 2021/053, 5/11/2021, eff. 11/7/2021) <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-061]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+									</LEVEL>
+								</LEVEL>
+								<LEVEL style-name="Section" style-name-escaped="Section" style-id="0-0-0-703" level-depth="9" toc-section="true">
+									<RECORD id="0-0-0-47891" number="61461" version="3">
+										<HEADING>§ 26-1305 Rules.</HEADING>
+										<PARA>
+											<DESTINATION id="0-0-0-11709" name="26-1305" />§ 26-1305 Rules.</PARA>
+									</RECORD>
+									<LEVEL style-name="Normal Level" style-name-escaped="Normal-Level" style-id="0-0-0-0" level-depth="0" toc-section="false">
+										<RECORD id="0-0-0-47892" number="61462" version="3">
+											<PARA>The coordinator may promulgate such rules as may be necessary to carry out the purposes of this chapter. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-47893" number="61463" version="924">
+											<PARA>(L.L. 2017/136, 8/11/2017, eff. 8/11/2017) <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-016]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+									</LEVEL>
+								</LEVEL>
+								<LEVEL style-name="Section" style-name-escaped="Section" style-id="0-0-0-703" level-depth="9" toc-section="true">
+									<RECORD id="0-0-0-133128" number="61464" version="924">
+										<HEADING>§ 26-1306 Community engagement.</HEADING>
+										<PARA>
+											<DESTINATION id="0-0-0-21026" name="26-1306" />§ 26-1306 Community engagement.</PARA>
+									</RECORD>
+									<LEVEL style-name="Normal Level" style-name-escaped="Normal-Level" style-id="0-0-0-0" level-depth="0" toc-section="false">
+										<RECORD id="0-0-0-203062" number="61465" version="1907">
+											<PARA>
+												<TAB tab-count="1" />a.<TAB tab-count="1" />For purposes of this section, the term "designated community group" means a not-for-profit organization that has the capacity to conduct tenant outreach, engagement, education and information provision, as determined by the civil justice coordinator. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-061]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-133131" number="61466" version="1907">
+											<PARA>
+												<TAB tab-count="1" />b.<TAB tab-count="1" />Subject to appropriation, the coordinator shall work with designated community groups, including groups that primarily serve persons 60 years of age or older, to make efforts to educate and inform tenants about their rights in housing court, including but not limited to holding know your rights education sessions, distributing written information to tenants and facilitating referrals of tenants to designated community groups. Such education and information shall be available in any designated citywide language as defined in section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="23-1101" destination-id="0-0-0-2113">23-1101</LINK>. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-088]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-133129" number="61467" version="1907">
+											<PARA>(L.L. 2021/053, 5/11/2021, eff. 11/7/2021; Am. L.L. 2023/020, 2/19/2023, eff. 8/18/2023) <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-088]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+									</LEVEL>
+								</LEVEL>
+							</LEVEL>
+						</LEVEL>
+					</LEVEL>
+				</LEVEL>
+			</LEVEL>
+		</LEVEL>
+	</LEVEL>
+</DOCUMENT>
