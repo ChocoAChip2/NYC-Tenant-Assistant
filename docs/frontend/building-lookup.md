@@ -37,6 +37,20 @@ first one 1-5) is the only thing that makes that safe, and the query
 functions refuse to run without it. A geocode result carrying a malformed
 BBL is skipped, not queried. There are tests for exactly this.
 
+### `bbl` alone misses whole buildings
+
+Measured on the live dataset: `bbl` is filled on 99.88% of open
+violations, and the gaps are not a lag. They **cluster by building**. At
+4601 Henry Hudson Parkway not one violation had a `bbl`, so a `bbl`-only
+query showed **0 open violations. There were 138, including 9 Class C.**
+HPD's own `boroid`/`block`/`lot` are filled on 100% of rows, so the filter
+is `(bbl=X OR (boroid, block, lot) = X's)`. That's strictly additive:
+normal buildings return exactly what they did before (verified live, 65 =
+65 and 140 = 140).
+
+**Residual gap:** a condo unit HPD recorded under its own unit lot, with
+no `bbl`, still can't be matched from the building's base lot.
+
 Three calls per building: the open list (capped at 1000), an aggregate
 count of open by class, and an aggregate for the last two years. **The
 counts at the top come from the aggregates, not the capped list**, so they
@@ -65,6 +79,30 @@ to GeoSearch (tested).
   Class A 90 days, Class B 30 days, most Class C 24 hours with named
   21-day exceptions. Anything less clear-cut links out instead of
   paraphrasing a legal deadline.
+
+## Citation labels come from real data, not idealised strings
+
+The first parser was written against 2014-era violation text. Run against
+5,000 **current** open violations, it put a **false "NYC Admin Code"
+label on 1,348 of them**. It labeled city *rules* (`28 RCNY § 11-06`) as
+the statute. HPD writes the legal basis in at least 42 different shapes.
+
+The rule now: **label a citation only when its source is unambiguous, and
+drop it otherwise.** A missing chip costs nothing; a mislabeled one is a
+false statement about the law.
+
+- `27-2xxx`: Housing Maintenance Code, identified by the number itself.
+- Any other `NN-NN`: Admin Code only when the text says HMC or ADM CODE
+  right after it, and RCNY only when it says RCNY. "28 RCNY" keeps its
+  title; a bare "RCNY" doesn't get one guessed.
+- Multiple Dwelling Law: bare section numbers, **only inside the leading
+  citation clause, and only when that clause names the MDL**. Never from
+  the body, which is full of numbers like "APT 5" and "3rd STORY".
+- Fire Code: deliberately left unlabeled (out of scope).
+
+`tests/fixtures/hpd_violation_descriptions.json` holds 135 real
+descriptions covering every clause shape in the sample. The tests hold the
+parser to zero false labels and zero leftover punctuation on all of them.
 
 ## Status labels
 

@@ -112,12 +112,57 @@ CLASS_INFO = {
 }
 
 _BBL_RE = re.compile(r"^[1-5]\d{9}$")
-_ADMIN_CODE_RE = re.compile(r"§\s*(\d+(?:-\d+)+(?:\.\d+)?)")
-_MDL_RE = re.compile(r"\b(\d+[A-Z]?)\s*M/?D\s*LAW\b", re.I)
-_LEADING_CITATION_CLAUSE_RE = re.compile(
-    r"^\s*§\s*[\d\-.]+\s*(?:ADM(?:IN)?\.?\s*CODE)?(?:\s*(?:&|AND|,)\s*[\d\-.]+\s*[A-Z/ .]*?LAW)?\s*",
-    re.I,
-)
+# Citation parsing for HPD violation text.
+#
+# Measured against 5,000 real open violations (Sept 2026): HPD writes the
+# legal basis in at least forty different shapes -- "§ 27-2005 ADM CODE",
+# "§ 27-2005 HMC:", "HMC ADM CODE: § 27-2017.4", "§ 27-2005(B)(2)(B) HMC,
+# § 11-52, § 11-53 RCNY", "§ 301, § 302; § 309 (1) ( C) MDL AND DEPT. RULES
+# AND REGULATIONS.", "28 RCNY § 25-101; & 30 (2)(B) MDL; NYC FIRE CODE ..."
+# -- and the description BODY cites further rules of its own.
+#
+# The first version of this labelled every "§ NN-NN" it found as the NYC
+# Administrative Code. On real data that put a FALSE statute citation on
+# 1,348 of 5,000 violations: "28 RCNY § 11-06" (a city rule) shown as
+# "NYC Admin Code § 11-06". On a site whose whole point is not making false
+# citations, the rule is now: label a citation only when its source is
+# unambiguous, and drop it otherwise. A missing chip costs nothing; a
+# mislabelled one is a false statement about the law.
+#
+#   Housing Maintenance Code  27-2001 .. 27-2199: unambiguous by number --
+#                             nothing else in these texts is numbered 27-2xxx.
+#   Rules of the City of NY   only when the text itself says RCNY next to
+#                             the number; "28 RCNY" keeps its title, a bare
+#                             "RCNY" does not get one guessed.
+#   Multiple Dwelling Law     bare 1-3 digit sections, and only inside the
+#                             leading citation clause, and only when that
+#                             clause names the MDL. Never from the body,
+#                             which is full of bare numbers ("APT 5", "3rd").
+_HMC_RE = re.compile(r"\b(27-2\d{3}(?:\.\d+)?)")
+_RCNY_TITLED_RE = re.compile(r"\b(\d{1,2})\s*RCNY\s*(?:§+\s*)?((?:\d+-\d+(?:\.\d+)?)(?:\s*(?:,|and|&)\s*§*\s*\d+-\d+(?:\.\d+)?)*)", re.I)
+# A run of section numbers: the first carries §, later ones may not
+# ("§ 12-06, 12-10 RCNY"), and any may carry subdivisions ("(B)(5)").
+_SECTION_RUN = r"§+\s*\d{1,2}-\d+(?:\.\d+)?(?:\s*\([^)]*\))*(?:\s*(?:,|and|&)\s*§*\s*\d{1,2}-\d+(?:\.\d+)?(?:\s*\([^)]*\))*)*"
+_RCNY_TRAILING_RE = re.compile(r"(" + _SECTION_RUN + r")\s*,?\s*RCNY\b", re.I)
+# The text naming the Administrative Code right after the numbers makes a
+# non-HMC section (e.g. "§ 26-1103 ADMIN. CODE:") unambiguous too.
+_ADMIN_TRAILING_RE = re.compile(r"(" + _SECTION_RUN + r")\s*,?\s*(?:HMC|ADM(?:IN)?\.?\s*CODE)\b", re.I)
+_SECTION_NUMBER_IN_RE = re.compile(r"\d+-\d+(?:\.\d+)?")
+_MDL_MARKER_RE = re.compile(r"M\s*/\s*D\s*LAW|\bM/D\b|\bMDL\b|MULTIPLE\s+DWELLING", re.I)
+_MDL_SECTION_RE = re.compile(r"(?<![\d\-.])§*\s*(\d{1,3}(?:-[A-Z])?)(?![\d\-.])(?!\s*RCNY)(?!\s*(?:ST|ND|RD|TH)\b)", re.I)
+_CONTROL_RE = re.compile(r"[\x00-\x08\x0b-\x1f\x7f]")
+
+# Words that belong to the citation clause rather than the description.
+_CLAUSE_WORDS = {
+    "§", "§§", "ADM", "ADM.", "ADMIN", "ADMIN.", "CODE", "CODE:", "CODE.", "HMC", "HMC:", "HMC,",
+    "M/D", "LAW", "LAW:", "LAW.", "MDL", "MDL:", "MDL;", "RCNY", "RCNY:", "RCNY;", "AND", "&",
+    "DEPT", "DEPT.", "DEPARTMENT", "RULES", "REGULATIONS", "REGULATIONS.", "REGS", "REGS.",
+    "NYC", "FIRE", "OF", "-", "–", "—", ":", ";", ",",
+}
+# A clause token: section numbers and punctuation, optionally carrying
+# glued subdivisions like "§27-2045(B)(5)," or "(7)(B)" -- short
+# parenthesised groups, never a parenthesised WORD.
+_CLAUSE_TOKEN_RE = re.compile(r"^[§\d\-.,;:()&/]*(?:\([A-Z0-9]{1,3}\)[§\d\-.,;:()&/]*)*$|^\(?[A-Z]\)?[,;:]?$")
 _UNIT_TOKEN_RE = re.compile(r"\b(?=[a-z]*\d)(?=\d*[a-z])[a-z\d]{1,4}\b")
 _ORDINAL_RE = re.compile(r"^\d+(st|nd|rd|th)$")
 
@@ -227,37 +272,87 @@ def is_valid_bbl(value: str | None) -> bool:
 # ---------------------------------------------------------------------------
 
 
-def extract_citations(description: str) -> list[str]:
-    """The laws a violation was issued under, as a tenant would read them.
+def _split_clause(description: str) -> tuple[str, str]:
+    """Split HPD text into (leading citation clause, description body)."""
+    text = _CONTROL_RE.sub(" ", description or "")
+    text = re.sub(r"\s+", " ", text).strip()
+    tokens = text.split(" ")
+    i = 0
+    while i < len(tokens):
+        token = tokens[i]
+        bare = token.upper().strip()
+        if bare in _CLAUSE_WORDS or _CLAUSE_TOKEN_RE.match(bare):
+            i += 1
+            continue
+        # "ADM" glued to punctuation, "CODE:-" and similar.
+        if re.sub(r"[^A-Z/]", "", bare) in {"ADM", "ADMIN", "CODE", "HMC", "MD", "M/D", "LAW", "MDL", "RCNY", "DEPT", "REGS", "REGULATIONS", "RULES"}:
+            i += 1
+            continue
+        break
+    clause = " ".join(tokens[:i])
+    body = " ".join(tokens[i:])
+    return clause, body
 
-    HPD's own records cite the statute up front: '§ 27-2005 ADM CODE & 309
-    M/D LAW ...'. That is the NYC Administrative Code (the Housing
-    Maintenance Code lives in Title 27) and the state Multiple Dwelling
-    Law. The Admin Code numbers are the same ones the legal corpus and the
-    citation guard use, so a violation and the law it cites can be joined
-    once the corpus is populated.
-    """
-    text = description or ""
-    found = [f"NYC Admin Code § {n}" for n in _ADMIN_CODE_RE.findall(text)]
-    found += [f"Multiple Dwelling Law § {n.upper()}" for n in _MDL_RE.findall(text)]
+
+def extract_citations(description: str) -> list[str]:
+    """The laws and rules a violation cites, labelled only when unambiguous."""
+    text = _CONTROL_RE.sub(" ", description or "")
+    clause, _ = _split_clause(text)
+    found: list[str] = []
+
+    for number in _HMC_RE.findall(text):
+        found.append(f"NYC Admin Code § {number}")
+    for group in _ADMIN_TRAILING_RE.findall(text):
+        for number in _SECTION_NUMBER_IN_RE.findall(group):
+            found.append(f"NYC Admin Code § {number}")
+
+    for title, numbers in _RCNY_TITLED_RE.findall(text):
+        for number in _SECTION_NUMBER_IN_RE.findall(numbers):
+            found.append(f"{int(title)} RCNY § {number}")
+    for group in _RCNY_TRAILING_RE.findall(text):
+        for number in _SECTION_NUMBER_IN_RE.findall(group):
+            if _HMC_RE.fullmatch(number):
+                continue
+            label = f"NYC Rules (RCNY) § {number}"
+            if not any(existing.endswith(f"RCNY § {number}") for existing in found):
+                found.append(label)
+
+    if _MDL_MARKER_RE.search(clause):
+        scrubbed = _HMC_RE.sub(" ", clause)
+        scrubbed = re.sub(r"\b\d{1,2}\s*RCNY\b.*?(?:;|$)", " ", scrubbed, flags=re.I)
+        scrubbed = re.sub(r"FIRE\s+CODE.*?(?:;|$)", " ", scrubbed, flags=re.I)
+        scrubbed = re.sub(r"\([^)]*\)", " ", scrubbed)
+        for number in _MDL_SECTION_RE.findall(scrubbed):
+            found.append(f"Multiple Dwelling Law § {number.upper()}")
+
     return list(dict.fromkeys(found))
 
 
+_KEEP_UPPER = {"hpd", "nyc", "dob", "dep", "fdny", "ecb", "hmc", "mdl", "rcny", "c/o", "co", "hvac", "gfci"}
+
+
 def readable_description(description: str) -> str:
-    """HPD writes violations in capitals with the citation up front. Keep
-    the words, drop the shouting and the citation clause (shown separately
-    as a chip), and keep unit identifiers like 4B upper-case."""
-    text = (description or "").strip()
+    """HPD writes violations in capitals with the legal basis up front.
+    Keep the words, drop the shouting and the citation clause (shown
+    separately as chips), keep unit identifiers like 4B and a few agency
+    acronyms upper-case, and never leave leading punctuation behind."""
+    clause, body = _split_clause(description)
+    text = body or clause
+    text = re.sub(r"^[\s\-–—:;,.]+", "", text).strip()
     if not text:
         return ""
-    body = _LEADING_CITATION_CLAUSE_RE.sub("", text).strip() or text
-    lowered = body.lower()
+    lowered = text.lower()
 
     def restore_unit(match: re.Match) -> str:
         token = match.group(0)
         return token if _ORDINAL_RE.match(token) else token.upper()
 
     lowered = _UNIT_TOKEN_RE.sub(restore_unit, lowered)
+    lowered = re.sub(
+        r"\b(" + "|".join(re.escape(w) for w in _KEEP_UPPER) + r")\b",
+        lambda m: m.group(0).upper(),
+        lowered,
+    )
     return lowered[:1].upper() + lowered[1:]
 
 
@@ -431,6 +526,27 @@ def dataset_as_of() -> date | None:
     return as_of
 
 
+def _building_where(bbl: str) -> str:
+    """SoQL filter matching every violation HPD recorded for this lot.
+
+    `bbl` alone is not enough. Measured on the live dataset (Sept 2026):
+    bbl is populated on 99.88% of open violations, and the gaps are not a
+    lag that fills in later -- they cluster by BUILDING. One sampled
+    building had no bbl on any of its violations at all, so a bbl-only
+    query told that tenant "no open violations on record". HPD's own
+    boroid/block/lot fields are populated on 100% of rows, so they are
+    OR-ed in. That is strictly additive: no building can lose results.
+
+    Residual gap, stated honestly: a condo UNIT recorded under its own unit
+    lot (e.g. lot 1102) with no bbl still cannot be matched from the
+    building's base lot. docs/frontend/building-lookup.md records this.
+    """
+    if not is_valid_bbl(bbl):
+        raise ValueError(f"Refusing to query a malformed BBL: {bbl!r}")
+    boroid, block, lot = bbl[0], str(int(bbl[1:6])), str(int(bbl[6:10]))
+    return f"(bbl='{bbl}' OR (boroid='{boroid}' AND block='{block}' AND lot='{lot}'))"
+
+
 def _fetch_open(bbl: str) -> list[dict]:
     if not is_valid_bbl(bbl):
         # BBL is interpolated into a SoQL string below. This check is what
@@ -446,7 +562,7 @@ def _fetch_open(bbl: str) -> list[dict]:
                     "rentimpairing",
                 ]
             ),
-            "$where": f"bbl='{bbl}' AND violationstatus='Open'",
+            "$where": f"{_building_where(bbl)} AND violationstatus='Open'",
             "$order": "inspectiondate DESC",
             "$limit": str(MAX_OPEN_VIOLATIONS),
         },
@@ -463,7 +579,7 @@ def _fetch_counts(bbl: str, where_extra: str) -> dict[str, int]:
         VIOLATIONS_URL,
         {
             "$select": "class, count(*) AS n",
-            "$where": f"bbl='{bbl}' AND {where_extra}",
+            "$where": f"{_building_where(bbl)} AND {where_extra}",
             "$group": "class",
         },
     )

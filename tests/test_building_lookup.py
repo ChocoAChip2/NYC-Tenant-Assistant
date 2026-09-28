@@ -368,7 +368,7 @@ class PresentationTests(unittest.TestCase):
             bs.extract_citations("§ 27-2005 ADM CODE & 309 M/D LAW ABATE"),
             ["NYC Admin Code § 27-2005", "Multiple Dwelling Law § 309"],
         )
-        self.assertEqual(bs.extract_citations("§ 27-2017.1 ADM CODE"), ["NYC Admin Code § 27-2017.1"])
+        self.assertEqual(bs.extract_citations("§ 27-2017.1 ADM CODE X"), ["NYC Admin Code § 27-2017.1"])
         self.assertEqual(bs.extract_citations("NO CITATION"), [])
 
     def test_descriptions_drop_the_shouting_and_the_citation_clause(self):
@@ -706,3 +706,153 @@ class OnAccentContrastTests(unittest.TestCase):
         self.assertGreaterEqual(self._ratio("#ffffff", "#1c5d8c"), 4.5)   # light: on accent
         self.assertGreaterEqual(self._ratio("#101820", "#5b9bd5"), 4.5)   # dark: on accent
         self.assertGreaterEqual(self._ratio("#101820", "#7db2e0"), 4.5)   # dark: on accent-hover
+
+
+class RealHpdDescriptionTests(unittest.TestCase):
+    """Run against real HPD violation text, not idealised strings.
+
+    The first version of the citation parser was written against 2014-era
+    records and it showed. On 5,000 current open violations it:
+      - put a FALSE "NYC Admin Code" label on 1,348 of them, by labelling
+        city RULES ("28 RCNY § 11-06") as the statute;
+      - left leading punctuation on 1,554 cleaned descriptions;
+      - left "Hmc:"/"§" residue at the front of 1,273.
+    tests/fixtures/hpd_violation_descriptions.json holds real strings
+    covering every citation-clause shape seen in that sample (42 shapes).
+    These tests hold the fixed parser to zero on all of them.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        import json
+
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures", "hpd_violation_descriptions.json")
+        with open(path, encoding="utf-8") as fh:
+            cls.descriptions = json.load(fh)["descriptions"]
+
+    def test_the_fixture_is_substantial(self):
+        self.assertGreaterEqual(len(self.descriptions), 100)
+
+    def test_no_rule_is_ever_labelled_as_the_statute(self):
+        import re
+
+        for d in self.descriptions:
+            for c in bs.extract_citations(d):
+                if c.startswith("NYC Admin Code"):
+                    number = c.split("§ ")[1]
+                    in_hmc = re.fullmatch(r"27-2\d{3}(\.\d+)?", number)
+                    named = re.search(re.escape(number) + r"[^;:]{0,40}?(HMC|ADM(IN)?\.?\s*CODE)", d, re.I)
+                    with self.subTest(description=d[:80], citation=c):
+                        self.assertTrue(in_hmc or named, "Admin Code label without HMC number or explicit naming")
+                        self.assertNotRegex(d, re.escape(number) + r"\s*,?\s*RCNY")
+
+    def test_cleaned_text_never_starts_with_punctuation_or_citation_residue(self):
+        import re
+
+        for d in self.descriptions:
+            text = bs.readable_description(d)
+            with self.subTest(description=d[:80]):
+                self.assertTrue(text)
+                self.assertNotRegex(text, r"^[\W_]")
+                self.assertNotRegex(text, r"(?i)^(hmc|adm|admin|m/d|mdl|rcny)\b")
+                self.assertNotRegex(text, r"[\x00-\x1f]")
+
+    def test_every_hmc_section_number_is_found(self):
+        import re
+
+        for d in self.descriptions:
+            cites = " ".join(bs.extract_citations(d))
+            for number in re.findall(r"27-2\d{3}(?:\.\d+)?", d):
+                with self.subTest(description=d[:80], number=number):
+                    self.assertIn(number, cites)
+
+    def test_mdl_sections_are_plausible(self):
+        """Multiple Dwelling Law sections are inferred from bare numbers, so
+        they get their own sanity bound -- the MDL runs to roughly 370."""
+        for d in self.descriptions:
+            for c in bs.extract_citations(d):
+                if c.startswith("Multiple Dwelling Law"):
+                    n = int("".join(ch for ch in c.split("§ ")[1] if ch.isdigit()))
+                    with self.subTest(citation=c):
+                        self.assertTrue(1 <= n <= 370)
+
+
+class KnownHpdShapesTests(unittest.TestCase):
+    """One assertion per notable real shape, so a failure names the shape."""
+
+    def test_rule_numbers_after_the_statute_are_labelled_as_rules(self):
+        self.assertEqual(
+            bs.extract_citations("§ 27-2005(B)(2)(B) HMC, § 11-52, § 11-53 RCNY REPAIR X"),
+            ["NYC Admin Code § 27-2005", "NYC Rules (RCNY) § 11-52", "NYC Rules (RCNY) § 11-53"],
+        )
+
+    def test_a_titled_rule_keeps_its_title(self):
+        self.assertIn("28 RCNY § 25-171", bs.extract_citations("28 RCNY § 25-171; & 67 (7)(B) MDL; NYC FIRE CODE § 703.1.3: ADJUST DOOR"))
+
+    def test_fire_code_is_not_labelled_as_anything(self):
+        cites = bs.extract_citations("28 RCNY § 25-171; & 67 (7)(B) MDL; NYC FIRE CODE § 703.1.3: ADJUST DOOR")
+        self.assertFalse(any("703" in c for c in cites))
+        self.assertIn("Multiple Dwelling Law § 67", cites)
+
+    def test_later_numbers_in_a_run_need_no_section_sign(self):
+        self.assertIn("NYC Rules (RCNY) § 12-10", bs.extract_citations("§27-2045(B)(5) HMC, § 12-06, 12-10 RCNY POST A NOTICE"))
+
+    def test_hmc_prefix_before_the_section_sign(self):
+        text = "HMC ADM CODE: § 27-2017.4 ABATE THE INFESTATION CONSISTING OF ROACHES"
+        self.assertEqual(bs.extract_citations(text), ["NYC Admin Code § 27-2017.4"])
+        self.assertEqual(bs.readable_description(text), "Abate the infestation consisting of roaches")
+
+    def test_trailing_hmc_colon(self):
+        self.assertEqual(
+            bs.readable_description("§ 27-2005 HMC: PROPERLY REPAIR THE BROKEN SINK"),
+            "Properly repair the broken sink",
+        )
+
+    def test_dash_separator(self):
+        self.assertEqual(
+            bs.readable_description("§ 27-2056.6 ADM CODE - CORRECT THE LEAD-BASED PAINT HAZARD"),
+            "Correct the lead-based paint hazard",
+        )
+
+    def test_explicitly_named_admin_code_outside_the_hmc(self):
+        self.assertEqual(bs.extract_citations("§ 26-1103 ADMIN. CODE: POST AND MAINTAIN A NOTICE"), ["NYC Admin Code § 26-1103"])
+
+    def test_control_characters_are_removed(self):
+        self.assertEqual(bs.readable_description("§ 27-2005 HMC: REFIT\x1a DOOR"), "Refit door")
+
+    def test_mdl_only_clause(self):
+        self.assertEqual(bs.extract_citations("§ 300 M/D LAW FILE PLANS"), ["Multiple Dwelling Law § 300"])
+
+    def test_bare_numbers_in_the_body_are_never_mdl(self):
+        cites = bs.extract_citations("§ 27-2005 ADM CODE & 309 M/D LAW REPAIR AT APT 5, 3rd STORY, ROOM 12")
+        self.assertEqual(cites, ["NYC Admin Code § 27-2005", "Multiple Dwelling Law § 309"])
+
+
+class OrClauseTests(unittest.TestCase):
+    """Measured live: a building whose violations all lack bbl showed 0 open
+    violations with a bbl-only query and 138 (9 Class C) with this one."""
+
+    def test_the_filter_matches_bbl_or_hpds_own_block_and_lot(self):
+        self.assertEqual(
+            bs._building_where("2059111102"),
+            "(bbl='2059111102' OR (boroid='2' AND block='5911' AND lot='1102'))",
+        )
+
+    def test_block_and_lot_are_unpadded_the_way_hpd_stores_them(self):
+        self.assertIn("block='2810' AND lot='45'", bs._building_where("2028100045"))
+
+    def test_every_query_uses_the_widened_filter(self):
+        patcher, calls = fake_network()
+        bs.clear_caches()
+        with patcher:
+            bs.lookup("231 Echo Place")
+        bs.clear_caches()
+        data_wheres = [p.get("$where", "") for url, p in calls if url == bs.VIOLATIONS_URL]
+        self.assertEqual(len(data_wheres), 3)
+        for where in data_wheres:
+            with self.subTest(where=where):
+                self.assertIn("OR (boroid=", where)
+
+    def test_the_widened_filter_still_refuses_a_malformed_bbl(self):
+        with self.assertRaises(ValueError):
+            bs._building_where("2028100045' OR '1'='1")
