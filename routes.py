@@ -10,6 +10,7 @@ import os
 from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, session, url_for, send_file
 
 import branding
+import building_service
 import citation_guard
 import password_safety
 import retrieval_service
@@ -654,6 +655,76 @@ def chat_message():
     except Exception:
         logger.exception("Failed to generate AI response.")
         return jsonify({"error": "The AI service is currently unavailable. Please try again shortly."}), 500
+
+
+@main_bp.route("/building")
+@limiter.limit("30 per minute")
+def building_lookup():
+    """Public: what the City of New York already knows about a building.
+
+    Deliberately reachable without logging in. This is the first thing on
+    the site that a general chatbot cannot do, so it is the front door --
+    a tenant should see real value before being asked for an email address.
+
+    GET with the address in the query string on purpose: the result is a
+    shareable link ("look up our building"), and the lookup changes no
+    state. The address is a building, not a person; the optional apartment
+    is the most personal thing here, and it is never stored.
+
+    Every failure renders this same page with a plain-language message.
+    The city's API having a bad afternoon must not look like this site
+    being broken -- but the status code still tells the truth (503 when
+    the city's service is down), so monitoring can.
+    """
+    address = (request.args.get("address") or "").strip()
+    apt = (request.args.get("apt") or "").strip()
+    report = None
+    error = error_title = None
+    status = 200
+
+    if address:
+        try:
+            report = building_service.lookup(address, apt)
+        except building_service.InvalidAddress as exc:
+            error_title, error = "Check the address", str(exc)
+            status = 400
+        except building_service.AddressNotFound:
+            error_title = "We couldn't find that building"
+            error = (
+                "No NYC building matched that address. Check the house number, "
+                "and try adding the borough or ZIP code."
+            )
+            status = 404
+        except building_service.LookupUnavailable:
+            logger.warning("Building lookup unavailable for a request.", exc_info=True)
+            error_title = "The city's data service didn't respond"
+            error = "This is usually brief. Please try again in a minute."
+            status = 503
+        except Exception:
+            logger.exception("Unexpected failure in building lookup.")
+            error_title = "Something went wrong"
+            error = "We couldn't complete that lookup. Please try again."
+            status = 500
+
+    chat_prompt = building_service.chat_prompt(report) if report else ""
+    chat_title = (report.match.label.split(",")[0].title() if report else "")[:80]
+
+    return render_template(
+        "building.html",
+        address=address,
+        apt=apt,
+        report=report,
+        error=error,
+        error_title=error_title,
+        chat_prompt=chat_prompt,
+        chat_title=chat_title,
+        logged_in=bool(session.get("user_id")),
+        max_address_length=building_service.MAX_ADDRESS_LENGTH,
+        max_apartment_length=building_service.MAX_APARTMENT_LENGTH,
+        max_per_class=60,
+        hpd_clear_violations_url=building_service.HPD_CLEAR_VIOLATIONS_URL,
+        dataset_url=building_service.HPD_VIOLATIONS_DATASET_URL,
+    ), status
 
 
 @main_bp.route("/learn-more")

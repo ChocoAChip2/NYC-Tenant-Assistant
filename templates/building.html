@@ -1,0 +1,477 @@
+<!doctype html>
+{# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. See docs/frontend/building-lookup.md for why this page is public, why it queries by BBL, and why "certified" is shown separately from "open". #}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ product_name }} | {% if report %}{{ report.match.label }}{% else %}Look up your building{% endif %}</title>
+  <meta name="description" content="See every open NYC housing violation HPD has on record for your building. Free, no account needed.">
+  <script>
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem("theme"); } catch (e) {}
+      if (saved === "light" || saved === "dark") {
+        document.documentElement.setAttribute("data-theme", saved);
+      }
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #eef1f5;
+      --surface: #ffffff;
+      --border: #d7dde5;
+      --text: #1c2733;
+      --muted: #5b6b7c;
+      --accent: #1c5d8c;
+      --accent-hover: #164a70;
+      --accent-tint: #dce8f2;
+      --on-accent: #ffffff;
+      --warning: #8a5a1f;
+      --warning-tint: #f7ecd9;
+      --error: #a3312a;
+      --error-tint: #fbe9e7;
+      --success: #1b7f3b;
+      --success-tint: #e6f4ea;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #101820;
+        --surface: #16212c;
+        --border: #2a3846;
+        --text: #e8edf2;
+        --muted: #93a3b3;
+        --accent: #5b9bd5;
+        --accent-hover: #7db2e0;
+        --accent-tint: #1f3547;
+        --on-accent: #101820;
+        --warning: #e8c27a;
+        --warning-tint: #3a2f18;
+        --error: #e28a83;
+        --error-tint: #3a2320;
+        --success: #7fcf9b;
+        --success-tint: #1f3327;
+      }
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #101820;
+      --surface: #16212c;
+      --border: #2a3846;
+      --text: #e8edf2;
+      --muted: #93a3b3;
+      --accent: #5b9bd5;
+      --accent-hover: #7db2e0;
+      --accent-tint: #1f3547;
+      --on-accent: #101820;
+      --warning: #e8c27a;
+      --warning-tint: #3a2f18;
+      --error: #e28a83;
+      --error-tint: #3a2320;
+      --success: #7fcf9b;
+      --success-tint: #1f3327;
+    }
+    [hidden] { display: none !important; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: var(--on-accent);
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .brand-name { font-size: 15px; font-weight: 600; }
+    nav { display: flex; gap: 16px; align-items: center; font-size: 13px; }
+    nav a { color: var(--muted); text-decoration: none; }
+    nav a:hover { color: var(--accent); }
+    nav a.primary {
+      color: var(--on-accent);
+      background: var(--accent);
+      padding: 7px 12px;
+      border-radius: 7px;
+      font-weight: 600;
+    }
+    nav a.primary:hover { background: var(--accent-hover); color: var(--on-accent); }
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+    h1 { font-size: 26px; line-height: 1.25; margin: 0; }
+    .lede { color: var(--muted); font-size: 15px; margin: 6px 0 0; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .lookup-form { display: grid; gap: 12px; }
+    .field-row { display: grid; gap: 12px; }
+    @media (min-width: 620px) {
+      .field-row { grid-template-columns: 1fr 140px; }
+    }
+    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+    label .optional { font-weight: 400; color: var(--muted); }
+    input[type="text"] {
+      width: 100%;
+      font: inherit;
+      font-size: 16px;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+    }
+    input[type="text"]:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
+      border-color: var(--accent);
+    }
+    .hint { font-size: 12.5px; color: var(--muted); margin: 0; }
+    button, .button {
+      font: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      border: 0;
+      border-radius: 8px;
+      padding: 11px 18px;
+      cursor: pointer;
+      background: var(--accent);
+      color: var(--on-accent);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s ease;
+    }
+    button:hover, .button:hover { background: var(--accent-hover); }
+    button:disabled { opacity: 0.6; cursor: wait; }
+    .button.secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--border);
+    }
+    .button.secondary:hover { background: var(--accent-tint); }
+    .alert {
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 14px;
+      border: 1px solid;
+    }
+    .alert.error { background: var(--error-tint); border-color: var(--error); color: var(--error); }
+    .alert.warning { background: var(--warning-tint); border-color: var(--warning); color: var(--warning); }
+    .alert.success { background: var(--success-tint); border-color: var(--success); color: var(--success); }
+    .alert strong { display: block; margin-bottom: 3px; }
+    .alert p { margin: 0; }
+    .alert a { color: inherit; font-weight: 600; }
+    .match-label { font-size: 22px; font-weight: 700; margin: 0; line-height: 1.3; }
+    .match-meta { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+    .match-meta a { color: var(--muted); }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+    @media (min-width: 620px) {
+      .stats { grid-template-columns: repeat(4, 1fr); }
+    }
+    .stat {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      background: var(--bg);
+    }
+    .stat-value { font-size: 26px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+    .stat-label { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
+    .stat.class-c .stat-value { color: var(--error); }
+    .stat.class-b .stat-value { color: var(--warning); }
+    .history { font-size: 13.5px; color: var(--muted); margin: 14px 0 0; }
+    .cta { display: grid; gap: 12px; }
+    .cta h2 { margin: 0; font-size: 17px; }
+    .cta p { margin: 0; font-size: 14px; color: var(--muted); }
+    .cta-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .cta-actions form { margin: 0; }
+    .class-group h2 { margin: 0; font-size: 17px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .class-pill {
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 2px 10px;
+      border: 1px solid;
+    }
+    .class-pill.C { color: var(--error); border-color: var(--error); background: var(--error-tint); }
+    .class-pill.B { color: var(--warning); border-color: var(--warning); background: var(--warning-tint); }
+    .class-pill.A, .class-pill.I { color: var(--muted); border-color: var(--border); background: var(--bg); }
+    .class-deadline { font-size: 13px; color: var(--muted); margin: 6px 0 14px; }
+    .violation {
+      border-top: 1px solid var(--border);
+      padding: 14px 0;
+    }
+    .violation:last-of-type { padding-bottom: 0; }
+    .violation-desc { margin: 0; font-size: 14.5px; overflow-wrap: anywhere; }
+    .violation-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      margin-top: 7px;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .chip {
+      font-size: 11.5px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: var(--accent-tint);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .badge {
+      font-size: 11.5px;
+      padding: 1px 7px;
+      border-radius: 5px;
+      font-weight: 700;
+    }
+    .badge.certified { background: var(--warning-tint); color: var(--warning); }
+    .badge.rent { background: var(--error-tint); color: var(--error); }
+    .more { font-size: 13px; color: var(--muted); margin: 12px 0 0; }
+    .more a { color: var(--accent); }
+    .source-note { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+    .source-note p { margin: 0 0 6px; }
+    .source-note a { color: var(--muted); }
+    footer {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 20px 40px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+    footer a { color: var(--muted); text-decoration: underline; }
+    footer a:hover { color: var(--accent); }
+    @media (max-width: 480px) {
+      h1 { font-size: 22px; }
+      .match-label { font-size: 19px; }
+      nav .hide-narrow { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="{{ url_for('main.building_lookup') }}">
+      <span class="brand-mark" aria-hidden="true">{{ logo_monogram }}</span>
+      <span class="brand-name">{{ product_name }}</span>
+    </a>
+    <nav aria-label="Site">
+      <a class="hide-narrow" href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a>
+      {% if logged_in %}
+        <a class="primary" href="{{ url_for('main.chat') }}">Open chat</a>
+      {% else %}
+        <a href="{{ url_for('main.login') }}">Log in</a>
+        <a class="primary" href="{{ url_for('main.signup') }}">Sign up free</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main>
+    {% if not report %}
+      <div>
+        <h1>What does the city already know about your building?</h1>
+        <p class="lede">Type your address to see every open housing violation NYC HPD has on record. Free, and no account needed.</p>
+      </div>
+    {% endif %}
+
+    <form class="card lookup-form" method="GET" action="{{ url_for('main.building_lookup') }}" role="search" data-lookup-form>
+      <div class="field-row">
+        <div>
+          <label for="address">Building address</label>
+          <input type="text" id="address" name="address" value="{{ address }}" placeholder="231 Echo Place, Bronx" autocomplete="street-address" maxlength="{{ max_address_length }}" required>
+        </div>
+        <div>
+          <label for="apt">Apartment <span class="optional">(optional)</span></label>
+          <input type="text" id="apt" name="apt" value="{{ apt }}" placeholder="4B" maxlength="{{ max_apartment_length }}" autocomplete="off">
+        </div>
+      </div>
+      <p class="hint">Include the house number. Adding the borough or ZIP code helps.</p>
+      <div><button type="submit">Look up</button></div>
+    </form>
+
+    {% if error %}
+      <div class="alert error" role="alert">
+        <strong>{{ error_title }}</strong>
+        <p>{{ error }}</p>
+      </div>
+    {% endif %}
+
+    {% if report %}
+      <section class="card" aria-labelledby="match-label">
+        <p class="match-label" id="match-label">{{ report.match.label }}</p>
+        <p class="match-meta">
+          {% if report.data_as_of %}City data as of {{ report.data_as_of.strftime("%B") }} {{ report.data_as_of.day }}, {{ report.data_as_of.year }}.{% else %}The city's last-update date is unavailable right now.{% endif %}
+          Not your building? Add the borough or ZIP code and search again.
+        </p>
+
+        <div class="stats">
+          <div class="stat class-c">
+            <div class="stat-value">{{ report.open_counts.get("C", 0) }}</div>
+            <div class="stat-label">Open Class C<br>immediately hazardous</div>
+          </div>
+          <div class="stat class-b">
+            <div class="stat-value">{{ report.open_counts.get("B", 0) }}</div>
+            <div class="stat-label">Open Class B<br>hazardous</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">{{ report.open_counts.get("A", 0) }}</div>
+            <div class="stat-label">Open Class A<br>non-hazardous</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">{{ report.open_total }}</div>
+            <div class="stat-label">Open in total</div>
+          </div>
+        </div>
+
+        {% if report.history_total %}
+          <p class="history">{{ report.history_total }} violation{{ "" if report.history_total == 1 else "s" }} issued at this building in the last two years{% if report.rent_impairing_open %}, and {{ report.rent_impairing_open }} open one{{ "" if report.rent_impairing_open == 1 else "s" }} the city classifies as <strong>rent impairing</strong>{% endif %}.</p>
+        {% endif %}
+      </section>
+
+      {% if report.open_total == 0 %}
+        <div class="alert success">
+          <strong>No open violations on record.</strong>
+          <p>That means none are currently recorded, not that nothing is wrong. If there's a problem in your home, call 311 or <a href="https://portal.311.nyc.gov/" target="_blank" rel="noopener noreferrer">file online</a> to request an HPD inspection.</p>
+        </div>
+      {% endif %}
+
+      {% if report.certified_open %}
+        <div class="alert warning">
+          <strong>{{ report.certified_open }} of these {{ "has" if report.certified_open == 1 else "have" }} been certified by the landlord as fixed.</strong>
+          <p>A certification is the owner telling HPD the problem is corrected. HPD says tenants are notified when this happens and can challenge a certification, which triggers a re-inspection. If the problem is still there, <a href="{{ hpd_clear_violations_url }}" target="_blank" rel="noopener noreferrer">here's how HPD handles it</a>.</p>
+        </div>
+      {% endif %}
+
+      {% if report.apartment %}
+        <section class="card class-group" aria-labelledby="apt-heading">
+          <h2 id="apt-heading">In apartment {{ report.apartment }}</h2>
+          {% if report.apartment_violations %}
+            <p class="class-deadline">{{ report.apartment_violations|length }} open violation{{ "" if report.apartment_violations|length == 1 else "s" }} recorded for your unit.</p>
+            {% for v in report.apartment_violations %}
+              {% include "_violation.html" %}
+            {% endfor %}
+          {% else %}
+            <p class="class-deadline">No open violations are recorded for apartment {{ report.apartment }}. Building-wide problems, like the boiler, hallways or the roof, are listed below and can still affect you.</p>
+          {% endif %}
+        </section>
+      {% endif %}
+
+      <section class="card cta" aria-labelledby="cta-heading">
+        <h2 id="cta-heading">What do these mean for you?</h2>
+        <p>{{ product_name }} can explain what's on this record, what your landlord is supposed to do, and how to push for it, starting from exactly what's listed here.</p>
+        <div class="cta-actions">
+          {% if logged_in %}
+            <form method="POST" action="{{ url_for('main.create_conversation') }}" data-new-chat-form>
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="title" value="{{ chat_title }}">
+              <button type="submit" data-prompt="{{ chat_prompt }}" data-title="{{ chat_title }}">Talk this through</button>
+            </form>
+          {% else %}
+            <a class="button" href="{{ url_for('main.signup') }}" data-prompt="{{ chat_prompt }}" data-title="{{ chat_title }}">Create a free account to talk this through</a>
+            <a class="button secondary" href="{{ url_for('main.login') }}" data-prompt="{{ chat_prompt }}" data-title="{{ chat_title }}">Log in</a>
+          {% endif %}
+          <a class="button secondary" href="https://portal.311.nyc.gov/" target="_blank" rel="noopener noreferrer">Report a new problem to 311</a>
+        </div>
+      </section>
+
+      {% for cls, info, items in report.open_by_class() %}
+        <section class="card class-group" aria-labelledby="class-{{ cls }}">
+          <h2 id="class-{{ cls }}"><span class="class-pill {{ cls }}">{{ info.short }}</span> {{ info.name }} <span class="stat-label">({{ report.open_counts.get(cls, items|length) }} open)</span></h2>
+          <p class="class-deadline">{{ info.deadline }}</p>
+          {% for v in items[:max_per_class] %}
+            {% include "_violation.html" %}
+          {% endfor %}
+          {% if report.open_counts.get(cls, items|length) > max_per_class %}
+            <p class="more">Showing the {{ max_per_class }} most recent of {{ report.open_counts.get(cls) }}. The full list is on <a href="{{ dataset_url }}" target="_blank" rel="noopener noreferrer">NYC Open Data</a>.</p>
+          {% endif %}
+        </section>
+      {% endfor %}
+
+      <div class="source-note">
+        <p>Source: NYC Department of Housing Preservation and Development, <a href="{{ dataset_url }}" target="_blank" rel="noopener noreferrer">Housing Maintenance Code Violations</a> on NYC Open Data. The city updates it daily.</p>
+        <p>New violations can take time to appear after an inspection. A violation that is no longer open was not necessarily re-inspected; many close when the owner certifies the repair.</p>
+        {% if report.list_truncated %}<p>This building has more open violations than can be listed here; the counts above are complete.</p>{% endif %}
+      </div>
+    {% endif %}
+  </main>
+
+  <footer>
+    <p>{{ short_disclaimer }} <a href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a></p>
+  </footer>
+
+  <script>
+    (function () {
+      var form = document.querySelector("[data-lookup-form]");
+      if (form) {
+        form.addEventListener("submit", function () {
+          var button = form.querySelector("button");
+          if (button) {
+            button.disabled = true;
+            button.textContent = "Looking up…";
+          }
+        });
+      }
+      document.querySelectorAll("[data-prompt]").forEach(function (el) {
+        el.addEventListener("click", function () {
+          try {
+            sessionStorage.setItem("pendingChatPrompt", el.dataset.prompt);
+            sessionStorage.setItem("pendingChatTitle", el.dataset.title || "");
+          } catch (error) {}
+        });
+      });
+      document.querySelectorAll("[data-new-chat-form]").forEach(function (f) {
+        f.addEventListener("submit", function () {
+          var b = f.querySelector("button");
+          if (b) b.disabled = true;
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

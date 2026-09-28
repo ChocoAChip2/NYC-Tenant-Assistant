@@ -1,0 +1,15 @@
+{# One violation row, included by building.html; expects `v`. Rationale in docs/frontend/building-lookup.md -- no HTML comments here, this is served. #}
+<div class="violation">
+  <p class="violation-desc">{{ v.description or v.raw_description }}</p>
+  {% if v.citations %}
+    <div class="chips">{% for c in v.citations %}<span class="chip">{{ c }}</span>{% endfor %}</div>
+  {% endif %}
+  <div class="violation-meta">
+    {% if v.inspection_date %}<span>Inspected {{ v.inspection_date.strftime("%b") }} {{ v.inspection_date.day }}, {{ v.inspection_date.year }}</span>{% endif %}
+    {% if v.apartment %}<span>Apt {{ v.apartment }}</span>{% endif %}
+    {% if v.story %}<span>Floor {{ v.story }}</span>{% endif %}
+    <span>{{ v.status }}</span>
+    {% if v.certified %}<span class="badge certified">Certified by landlord</span>{% endif %}
+    {% if v.rent_impairing %}<span class="badge rent">Rent impairing</span>{% endif %}
+  </div>
+</div>
