@@ -98,17 +98,18 @@ ALP_SOURCES: tuple[AlpSource, ...] = (
         name="NYC Human Rights Law (Admin Code Title 8, Chapter 1)",
         file_id="0-0-0-4607",
         anchors=("8-101", "8-107"),
-        real_count=37,
+        # 37 headings in the full zip, two of them "Reserved." placeholders
+        # (§§ 8-108, 8-110) that the parser leaves out.
+        real_count=35,
     ),
     AlpSource(
-        # File ID verified (catalog); section count not yet measured. Set
-        # real_count from the first full-zip parse, then enable.
+        # Measured on the full zip, 2026-09-28: 22 sections, two of them
+        # repealed (§§ 26-403.1, 26-403.2), no parser warnings.
         key="nyc-rent-control",
         name="Rent Control (Admin Code Title 26, Chapter 3)",
         file_id="0-0-0-228764",
-        anchors=("26-401",),
-        real_count=None,
-        enabled=False,
+        anchors=("26-401", "26-403", "26-408"),
+        real_count=22,
     ),
 )
 

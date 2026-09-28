@@ -347,3 +347,78 @@ class ZipTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FullZipShapesTests(unittest.TestCase):
+    """Markup the fixtures never showed but the full zip did (2026-09-28).
+
+    Each test takes a real fixture and changes it into the exact shape the
+    full-zip dry run reported, quoted in the test.
+    """
+
+    def _section_level(self, root, citation):
+        for level in root.iter("LEVEL"):
+            if level.get("style-name") != "Section":
+                continue
+            heading = level.find("RECORD/HEADING")
+            if heading is not None and "".join(heading.itertext()).strip().startswith(f"\u00a7 {citation} "):
+                return level
+        raise AssertionError(citation)
+
+    def test_space_after_the_hyphen_in_a_heading(self):
+        # Real: "§ 27- 2017.4. Violation for pests" (record 0-0-0-60278) and
+        # "§ 27- 2017.8 Integrated pest management practices." (0-0-0-60305).
+        # Both the HEADING and its echo carry the space.
+        data = _raw(UE).replace("\u00a7 26-529 ".encode(), "\u00a7 26- 529 ".encode())
+        result = parse_chapter(data, source_key="src", authority="x")
+        self.assertEqual([s.citation for s in result.sections][-1], "26-529")
+        self.assertEqual(result.warnings, [])
+
+    def test_space_after_the_hyphen_with_a_trailing_period(self):
+        data = _raw(UE).replace("\u00a7 26-529 ".encode(), "\u00a7 26- 529. ".encode())
+        result = parse_chapter(data, source_key="src", authority="x")
+        section = result.sections[-1]
+        self.assertEqual((section.citation, section.title), ("26-529", "Remedies and penalties"))
+
+    def test_large_editors_note_style_is_a_note(self):
+        # Real (§ 27-2093.1): <PARA style-name="EdNote">Editor's note: this
+        # section has been amended by L.L. 2026/138, 9/12/2026, eff. 4/15/2027.
+        # It is publisher commentary about a future change, not law.
+        root = ET.fromstring(_raw(UE))
+        body = next(r for r in root.iter("RECORD") if r.get("id") == "0-0-0-47506")
+        body.find("PARA").set("style-name", "EdNote")
+        result = parse_chapter(ET.tostring(root), source_key="src", authority="x")
+        first = result.sections[0]
+        self.assertFalse(first.text.startswith("a. It shall be unlawful"))
+        self.assertTrue(any(n.startswith("a. It shall be unlawful") for n in first.notes))
+        self.assertEqual(result.warnings, [])
+
+    def _make_reserved(self, keep_body):
+        root = ET.fromstring(_raw(UE))
+        level = self._section_level(root, "26-529")
+        record = level.find("RECORD")
+        record.find("HEADING").text = "\u00a7 26-529 Reserved."
+        echo = record.find("PARA")
+        for child in list(echo):
+            echo.remove(child)
+        echo.text = "\u00a7 26-529 Reserved."
+        if not keep_body:
+            # Real (§§ 8-108, 8-110): the body is one EdNoteSm pointing at
+            # Appendix A, and no law text.
+            for body in level.findall("LEVEL"):
+                for rec in body.findall("RECORD"):
+                    body.remove(rec)
+                note = ET.SubElement(ET.SubElement(body, "RECORD"), "PARA", {"style-name": "EdNoteSm"})
+                note.text = "Editor's note: For related unconsolidated provisions, see Appendix A."
+        return parse_chapter(ET.tostring(root), source_key="src", authority="x")
+
+    def test_reserved_placeholder_is_left_out_quietly(self):
+        result = self._make_reserved(keep_body=False)
+        self.assertNotIn("26-529", [s.citation for s in result.sections])
+        self.assertEqual(len(result.sections), 8)
+        self.assertEqual(result.warnings, [])
+
+    def test_reserved_title_with_law_text_is_kept_and_reported(self):
+        result = self._make_reserved(keep_body=True)
+        self.assertIn("26-529", [s.citation for s in result.sections])
+        self.assertEqual(result.warnings, ["\u00a7 26-529: titled Reserved but has law text, kept"])

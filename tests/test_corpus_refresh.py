@@ -141,7 +141,8 @@ class RegistryTests(unittest.TestCase):
         self.assertEqual(mins["nyc-rsl"], 22)
         self.assertEqual(mins["nyc-ue"], 8)
         self.assertEqual(mins["nyc-rtc"], 5)
-        self.assertEqual(mins["nyc-hrl"], 33)
+        self.assertEqual(mins["nyc-hrl"], 31)
+        self.assertEqual(mins["nyc-rent-control"], 19)
 
     def test_file_ids_match_the_catalog(self):
         ids = {s.key: s.file_id for s in ALP_SOURCES}
@@ -156,10 +157,11 @@ class RegistryTests(unittest.TestCase):
         for key in keys:
             self.assertRegex(key, r"^[a-z0-9-]{2,40}$")
 
-    def test_unmeasured_and_nys_sources_are_not_enabled(self):
+    def test_measured_sources_enabled_and_nys_sources_not(self):
+        # Rent Control was enabled once the full zip measured it (22).
         enabled = [s.key for s in alp_sources()]
-        self.assertNotIn("nyc-rent-control", enabled)
-        self.assertEqual(enabled, ["nyc-hmc", "nyc-rsl", "nyc-ue", "nyc-rtc", "nyc-hrl"])
+        self.assertEqual(enabled, ["nyc-hmc", "nyc-rsl", "nyc-ue", "nyc-rtc", "nyc-hrl", "nyc-rent-control"])
+        self.assertTrue(all(s.real_count for s in ALP_SOURCES if s.enabled))
         self.assertTrue(all(not s.enabled for s in NYS_SOURCES))
 
     def test_anchors_exist_in_the_real_chapters_we_have_whole(self):
