@@ -29,6 +29,7 @@
       --accent: #1c5d8c;
       --accent-hover: #164a70;
       --accent-tint: #dce8f2;
+      --on-accent: #ffffff;
       --warning: #8a5a1f;
       --warning-tint: #f7ecd9;
       --error: #a3312a;
@@ -47,6 +48,7 @@
         --accent: #5b9bd5;
         --accent-hover: #7db2e0;
         --accent-tint: #1f3547;
+        --on-accent: #101820;
         --warning: #e8c27a;
         --warning-tint: #3a2f18;
         --error: #e28a83;
@@ -65,6 +67,7 @@
       --accent: #5b9bd5;
       --accent-hover: #7db2e0;
       --accent-tint: #1f3547;
+      --on-accent: #101820;
       --warning: #e8c27a;
       --warning-tint: #3a2f18;
       --error: #e28a83;
@@ -131,7 +134,7 @@
       text-decoration: none;
       white-space: nowrap;
     }
-    .ref-link:hover { background: var(--accent); color: #fff; }
+    .ref-link:hover { background: var(--accent); color: var(--on-accent); }
     @media (max-width: 700px) {
       .ref-links span.label { display: none; }
     }
@@ -169,7 +172,7 @@
       border: 0;
       border-radius: 8px;
       background: var(--accent);
-      color: #fff;
+      color: var(--on-accent);
       font-weight: 600;
       font-size: 13px;
       cursor: pointer;
@@ -319,6 +322,15 @@
     .greeting-sub { margin: 0 0 22px; color: var(--muted); font-size: 14px; line-height: 1.5; }
     .suggestions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 
+    .continue-form { margin: 0 0 14px; display: flex; justify-content: center; }
+    .suggestion-chip.continue-chip {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--on-accent);
+      font-weight: 600;
+    }
+    .suggestion-chip.continue-chip:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: var(--on-accent); }
+    a.suggestion-chip { text-decoration: none; display: inline-flex; align-items: center; }
     .suggestion-chip {
       border: 1px solid var(--border);
       background: var(--surface);
@@ -368,7 +380,7 @@
       height: 26px;
       border-radius: 50%;
       background: var(--accent);
-      color: #fff;
+      color: var(--on-accent);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -539,7 +551,7 @@
       border: 0;
       border-radius: 50%;
       background: var(--accent);
-      color: #fff;
+      color: var(--on-accent);
       font-size: 16px;
       line-height: 1;
       display: flex;
@@ -633,7 +645,7 @@
       height: 24px;
       border-radius: 7px;
       background: var(--accent);
-      color: #fff;
+      color: var(--on-accent);
       font-size: 11px;
       font-weight: 700;
       display: inline-flex;
@@ -881,7 +893,13 @@
             <p class="greeting-eyebrow" id="greeting-date"></p>
             <h1 class="greeting-title" id="greeting-text">Welcome{% if user_email %}, {{ user_email.split("@")[0]|capitalize }}{% endif %}</h1>
             <p class="greeting-sub">Ask about repairs, evictions, deposits, or anything else about your tenancy in NYC -- or pick up a previous conversation on the left.</p>
+            <form class="continue-form" method="POST" action="{{ url_for('main.create_conversation') }}" data-new-chat-form data-continue-form hidden>
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="title" value="My building" data-continue-title>
+              <button type="submit" class="suggestion-chip continue-chip" data-continue-button>Continue with your building</button>
+            </form>
             <div class="suggestions">
+              <a class="suggestion-chip" href="{{ url_for('main.building_lookup') }}">Look up my building's violations</a>
               <form method="POST" action="{{ url_for('main.create_conversation') }}" data-new-chat-form>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="title" value="Repairs and heat">
@@ -1103,6 +1121,38 @@
       });
     });
 
+    (function () {
+      const continueForm = document.querySelector("[data-continue-form]");
+      let pending = null;
+      let pendingTitle = "";
+      try {
+        pending = sessionStorage.getItem("pendingChatPrompt");
+        pendingTitle = sessionStorage.getItem("pendingChatTitle") || "";
+      } catch (error) {
+        pending = null;
+      }
+      if (continueForm && pending) {
+        const titleInput = continueForm.querySelector("[data-continue-title]");
+        const button = continueForm.querySelector("[data-continue-button]");
+        if (pendingTitle) {
+          if (titleInput) titleInput.value = pendingTitle.slice(0, 80);
+          if (button) button.textContent = "Continue: " + pendingTitle.slice(0, 60);
+        }
+        continueForm.hidden = false;
+      }
+    })();
+
+    document.querySelectorAll(".new-chat-form").forEach((form) => {
+      form.addEventListener("submit", () => {
+        try {
+          sessionStorage.removeItem("pendingChatPrompt");
+          sessionStorage.removeItem("pendingChatTitle");
+        } catch (error) {
+
+        }
+      });
+    });
+
     document.querySelectorAll(".suggestion-chip[data-prompt]").forEach((chip) => {
       chip.addEventListener("click", () => {
         try {
@@ -1317,6 +1367,7 @@
         try {
           pendingPrompt = sessionStorage.getItem("pendingChatPrompt");
           sessionStorage.removeItem("pendingChatPrompt");
+          sessionStorage.removeItem("pendingChatTitle");
         } catch (error) {
           pendingPrompt = null;
         }

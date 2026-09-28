@@ -153,6 +153,20 @@
     }
     .footer-link a { color: var(--accent); font-weight: 600; text-decoration: none; }
     .footer-link a:hover { text-decoration: underline; }
+    .lookup-callout {
+      display: block;
+      margin: -8px 0 22px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--accent-tint);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.45;
+      text-decoration: none;
+    }
+    .lookup-callout strong { color: var(--accent); }
+    .lookup-callout:hover { border-color: var(--accent); }
     .legal-note {
       margin: 16px auto 0;
       max-width: 400px;
@@ -175,6 +189,7 @@
 
     <h1>Log in</h1>
     <p class="subtitle">Use your confirmed account to continue.</p>
+    <a class="lookup-callout" href="{{ url_for('main.building_lookup') }}"><strong>Not ready to sign up?</strong> Look up your building's open housing violations first. No account needed.</a>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}

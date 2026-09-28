@@ -12,6 +12,7 @@ Render and Supabase work together in this project when these are set correctly:
 - `GEMINI_API_KEY` (used to generate chat responses)
 - `FLASK_SECRET_KEY` (any strong random string — **required, no default**; see below)
 - `ALERT_WEBHOOK_URL` (optional; see [Error alerting](#error-alerting))
+- `NYC_OPEN_DATA_APP_TOKEN` (optional; a free Socrata app token gives the building lookup its own rate limit instead of the shared public pool)
 - `PASSWORD_BREACH_CHECK` (optional; set to `off` to disable the breached-password check on a deployment with no outbound network access)
 
 Render start command:
@@ -70,6 +71,7 @@ from before this branch — errors only appear in logs.
 ├── ai_service.py         # Gemini client setup + response generation
 ├── alerting.py           # Webhook logging handler (ALERT_WEBHOOK_URL)
 ├── branding.py           # Product name, ST monogram, and the legal disclaimer wording
+├── building_service.py   # Public building lookup: GeoSearch -> BBL -> HPD violations (NYC Open Data)
 ├── config.py             # Environment configuration loader
 ├── crypto_service.py     # Encryption at rest (versioned + rotatable; see docs/data-encryption.md)
 ├── citation_guard.py     # Checks a reply only claims what its cited sources say

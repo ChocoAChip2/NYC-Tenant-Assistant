@@ -1,0 +1,100 @@
+2026-09-28 -- Public building lookup (HPD violations), plus two site-wide fixes
+===============================================================================
+
+WHAT IT IS
+
+/building: type an address, see every open housing violation HPD has on
+record for that building. Public -- no account needed -- and linked from
+the signup page, the login page and the chat empty state.
+
+It is the first thing on the site a general chatbot structurally cannot
+do. That is why it exists and why it is the front door.
+
+  address --GeoSearch--> BBL --NYC Open Data wvxf-dwi5--> violations
+
+Both APIs are free and keyless; both were verified against real responses
+before any code was written. GeoSearch returned BBL 2028100045 for "231
+echo pl bx", and that is the exact BBL on the HPD record for 231 ECHO
+PLACE -- so the chain is confirmed end to end, abbreviations included.
+
+DECISIONS WORTH KNOWING
+
+- Query by BBL, never by street name. HPD writes "ECHO PLACE"; tenants
+  write "Echo Pl". A string match finds nothing -- silently -- which would
+  tell a tenant in a dangerous building that it was clean.
+- The BBL goes into a SoQL WHERE clause, so is_valid_bbl() is a security
+  boundary. Query functions refuse to run without it; a geocode result with
+  a malformed BBL is skipped, never queried. Tested with injection strings.
+- The counts come from aggregate queries, not the capped list, so they stay
+  exact for the worst buildings in the city.
+- The "as of" date is the city's (rowsUpdatedAt). Unavailable means the page
+  says so. It never falls back to today, which would overstate freshness.
+- Certified is shown apart from open. A certification is the LANDLORD saying
+  it's fixed; HPD says tenants can challenge one, which triggers a
+  re-inspection. The page tells them.
+- Zero open violations is described as "none currently recorded", not as
+  "nothing wrong", with a pointer to 311.
+- Deadlines only where HPD states them plainly (A: 90 days, B: 30, most C:
+  24 hours with named 21-day exceptions). The rest links out.
+- The chat hand-off is a VISIBLE first message the tenant sends as their
+  own, not hidden context. They see exactly what the assistant was told.
+- Every failure renders the page with a plain message and an honest status:
+  400 bad input, 404 no such building, 503 city service down, 500
+  unexpected -- never a traceback, and the search form is always there.
+
+BUGS FOUND AND FIXED ALONG THE WAY
+
+1. "NOV SENT OUT" rendered as "Nov Sent Out" -- beside an inspection date,
+   where it reads as the month of November. NOV is Notice of Violation.
+   Found by looking at the rendered screenshot, not by any test. Known
+   statuses now map to plain English; unknown ones spell NOV out. The
+   first version of that fallback lowercased BEFORE matching "NOV", so it
+   still produced "nov" for exactly the unknown statuses it existed for --
+   caught by checking its output rather than trusting it.
+
+2. A stored-but-unused chat prompt would auto-send into the NEXT unrelated
+   conversation, including one started with a plain "+ New chat". Latent
+   before; the building page made it much more likely. "+ New chat" now
+   clears pending prompts. Browser-tested both ways.
+
+3. SITE-WIDE: white text on the dark-mode accent measured 2.96:1, under
+   WCAG AA's 4.5:1 -- every filled button, the send button, the avatar and
+   the ST mark on every themed page. Also found from a screenshot. New
+   --on-accent token (white in light, near-black in dark: 6.05:1), applied
+   to all 14 affected rules across chat, settings, learn_more and building.
+   A test fails if hardcoded white returns; a browser audit measured all 30
+   accent-filled text elements in both themes at >= 4.5:1.
+
+4. The existing template-invariant tests caught two mistakes in the new
+   templates before anything shipped: the product name hardcoded in body
+   copy, and the partial missing its docs pointer. Those tests did their
+   job.
+
+VERIFICATION
+
+- 445 unit tests (up from 379); 66 new. No test touches the network --
+  fixtures are shaped exactly like captured real responses.
+- Browser journey, 61/61: signup page -> lookup link -> search -> report ->
+  "create a free account" stores the prompt -> log in -> continue chip
+  appears named for the building -> click -> conversation created with the
+  building's title -> first message is the summary -> the AI actually
+  received the statute citations -> reply rendered with its disclaimer ->
+  prompt consumed. Plus the stale-prompt case and the logged-in CTA.
+- Light/dark x desktop/390px: no horizontal overflow, themed, footer
+  disclaimer present, chat banner absent.
+- Re-ran every earlier suite after the site-wide token change: 253/253
+  site-wide, 36/36 disclaimers, 10 inline scripts clean, 9 templates
+  balanced, zero console errors anywhere.
+
+NOT DONE
+
+- The site root is still the signup page. Making /building the root would
+  be the stronger front door, but Supabase's email-confirmation redirect
+  may point at "/", so it is a decision to make deliberately, not a
+  side effect of this change.
+- The AI does not yet read the violation data server-side; it gets what the
+  tenant's first message says. Grounding the chat on the live record (and
+  joining the cited Admin Code sections to the corpus once it's populated)
+  is the natural next step.
+- No live call was made from the build sandbox (its proxy blocks both
+  APIs). Worth one real lookup on Render after deploy.

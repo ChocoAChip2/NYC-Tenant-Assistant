@@ -21,6 +21,7 @@ CSS rule you don't recognise in these templates.**
 | [chat-page.md](chat-page.md) | `chat.html` — sidebar, composer, rename, suggestion chips, motion |
 | [auth-and-settings-pages.md](auth-and-settings-pages.md) | `login`, `signup`, `forgot_password`, `reset_password`, `settings` |
 | [branding-and-disclaimers.md](branding-and-disclaimers.md) | The product name, the ST mark, and the legal notices |
+| [building-lookup.md](building-lookup.md) | `/building`: the public violation lookup, its honesty rules, and the chat hand-off |
 
 For *why a feature exists* (as opposed to how it's built), see `log/` —
 one file per shipped branch, with the requirement it came from.
@@ -37,8 +38,13 @@ missed one.
 **Design tokens.** A cool-neutral, civic-blue palette — one accent color
 reused everywhere, chosen to sit in the same register as nyc.gov / ny.gov
 without copying them. `--bg`, `--surface`, `--border`, `--text`, `--muted`,
-`--accent`, `--accent-hover`, `--accent-tint`, plus `--error`/`--warning`/
-`--success` and their `-tint` pairs.
+`--accent`, `--accent-hover`, `--accent-tint`, `--on-accent`, plus
+`--error`/`--warning`/`--success` and their `-tint` pairs.
+
+**Text on an accent fill uses `--on-accent`, never `#fff`.** White on the
+dark-mode accent is 2.96:1, which fails WCAG AA. `--on-accent` is white in
+light mode and near-black in dark. A test fails if hardcoded white comes
+back on a themed page. See [building-lookup.md](building-lookup.md#--on-accent).
 
 **Theming.** `chat.html` and `settings.html` support dark mode; the auth
 pages are light-only. Both themed pages carry an inline `<script>` in
