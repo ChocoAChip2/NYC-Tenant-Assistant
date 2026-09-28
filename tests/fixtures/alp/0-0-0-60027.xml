@@ -1,0 +1,1062 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="#!-- #STYLESHEETS:ALP.xsl --#"?>
+
+<DOCUMENT source-infobase-name="Admin" content-collection-id="NYCadmin" source-infobase-title="New York City Administrative Code" base-output-dir="D:\process\NFOProcess\codes\ny\newyorkcity\NYCadmin\output\NUTJZFARSAYSOXZT\" default-split-level="Chapter" makefile-filename="D:\process\NFOProcess\codes\ny\newyorkcity\NYCadmin\output\NUTJZFARSAYSOXZT\NYCadmin.mak" css-stylesheet-href="#!-- #ID=NYCadmin_css_id --#" xml-output-dir="D:\process\NFOProcess\codes\ny\newyorkcity\NYCadmin\output\NUTJZFARSAYSOXZT\XML\" css-stylesheet-name="NYCadmin_css" makefile-document-depth="2">
+	<LEVEL style-name="Chapter" style-name-escaped="Chapter" style-id="0-0-0-685" level-depth="2" toc-section="false">
+		<RECORD id="0-0-0-60027" number="74318" version="3">
+			<HEADING>Chapter 2: Housing Maintenance Code</HEADING>
+			<PARA>
+				<DESTINATION id="0-0-0-2369" name="T27C002" />Chapter 2: Housing Maintenance Code</PARA>
+		</RECORD>
+		<LEVEL style-name="Subchapter" style-name-escaped="Subchapter" style-id="0-0-0-688" level-depth="3" toc-section="true">
+			<RECORD id="0-0-0-60028" number="74319" version="3">
+				<HEADING>Subchapter 1: General Provisions</HEADING>
+				<PARA>Subchapter 1: General Provisions</PARA>
+			</RECORD>
+			<LEVEL style-name="Appendix" style-name-escaped="Appendix" style-id="0-0-0-691" level-depth="4" toc-section="false">
+				<LEVEL style-name="Part" style-name-escaped="Part" style-id="0-0-0-694" level-depth="5" toc-section="false">
+					<LEVEL style-name="Article" style-name-escaped="Article" style-id="0-0-0-697" level-depth="6" toc-section="true">
+						<RECORD id="0-0-0-60029" number="74320" version="3">
+							<HEADING>Article 1: General Provisions</HEADING>
+							<PARA>Article 1: General Provisions</PARA>
+						</RECORD>
+						<LEVEL style-name="Subarticle" style-name-escaped="Subarticle" style-id="0-0-0-700" level-depth="7" toc-section="false">
+							<LEVEL style-name="Subarticle - Part" style-name-escaped="Subarticle---Part" style-id="0-0-0-29474" level-depth="8" toc-section="false">
+								<LEVEL style-name="Section" style-name-escaped="Section" style-id="0-0-0-703" level-depth="9" toc-section="true">
+									<RECORD id="0-0-0-60030" number="74321" version="3">
+										<HEADING>§ 27-2001 Short title. </HEADING>
+										<PARA>
+											<DESTINATION id="0-0-0-13599" name="27-2001" />§ 27-2001 <CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Short title. </CHARFORMAT>
+										</PARA>
+									</RECORD>
+									<LEVEL style-name="Normal Level" style-name-escaped="Normal-Level" style-id="0-0-0-0" level-depth="0" toc-section="false">
+										<RECORD id="0-0-0-60031" number="74322" version="3">
+											<PARA>This chapter shall be known and may be cited as the "housing maintenance code."</PARA>
+										</RECORD>
+									</LEVEL>
+								</LEVEL>
+								<LEVEL style-name="Section" style-name-escaped="Section" style-id="0-0-0-703" level-depth="9" toc-section="true">
+									<RECORD id="0-0-0-60039" number="74330" version="3">
+										<HEADING>§ 27-2004 Definitions. </HEADING>
+										<PARA>
+											<DESTINATION id="0-0-0-2989" name="27-2004" />§ 27-2004 <CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Definitions. </CHARFORMAT>
+										</PARA>
+									</RECORD>
+									<LEVEL style-name="Normal Level" style-name-escaped="Normal-Level" style-id="0-0-0-0" level-depth="0" toc-section="false">
+										<RECORD id="0-0-0-226619" number="74331" version="2081">
+											<PARA>
+												<TAB tab-count="1" />a.<TAB tab-count="1" />The following terms, as used in this chapter, shall have the following meanings:</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60041" number="74332" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />1.<TAB tab-count="1" />The term department shall mean the department, bureau, division or other agency charged with the enforcement of this title.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60042" number="74333" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />2.<TAB tab-count="1" />Wherever the word or words occupied, is occupied, used, or is used appear, such word or words shall be construed as if followed by the words "or is intended, arranged or designed to be used or occupied".</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60043" number="74334" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />3.<TAB tab-count="1" />A dwelling is any building or structure or portion thereof which is occupied in whole or in part as the home, residence or sleeping place of one or more human beings.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60044" number="74335" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />4.<TAB tab-count="1" />A family is:</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60045" number="74336" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(a)<TAB tab-count="1" />A single person occupying a dwelling unit and maintaining a common household with not more than two boarders, roomers or lodgers; or</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60046" number="74337" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(b)<TAB tab-count="1" />Two or more persons related by blood, adoption, legal guardianship, marriage or domestic partnership; occupying a dwelling unit and maintaining a common household with not more than two boarders, roomers or lodgers; or</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60047" number="74338" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(c)<TAB tab-count="1" />Not more than three unrelated persons occupying a dwelling unit and maintaining a common household; or</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60048" number="74339" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(d)<TAB tab-count="1" />Not more than three unrelated persons occupying a dwelling unit in a congregate housing or shared living arrangement and maintaining a common household; or</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60049" number="74340" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(e)<TAB tab-count="1" />Members of a group home; or</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60050" number="74341" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(f)<TAB tab-count="1" />Foster children placed in accordance with provisions of the New York state social services law, their foster parents, and other persons related to the foster parents by blood, marriage or domestic partnership; where all residents occupy and maintain a common household with not more than two boarders, roomers or lodgers; or</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60051" number="74342" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(g)<TAB tab-count="1" />Up to seven unrelated students enrolled at a single accredited college or university occupying a student apartment, as such term is defined in the New York city building code, and maintaining a common household pursuant to a lease, sublease, or occupancy agreement directly with such college or university, provided that:</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60052" number="74343" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(i)<TAB tab-count="1" />The entire structure in which the dwelling unit is located is fully sprinklered in accordance with chapter 9 of the New York city building code; and</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60053" number="74344" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(ii)<TAB tab-count="1" />Such occupancy does not exceed the maximums contained in subdivision a of section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="27-2075" destination-id="0-0-0-13605">27-2075</LINK>; and</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60054" number="74345" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(iii)<TAB tab-count="1" />Prior to commencement of such occupancy, and on an annual basis thereafter such college or university has submitted a fire safety plan containing fire safety and evacuation procedures for such dwelling unit that is acceptable to the fire commissioner and in compliance with any rules promulgated by the fire commissioner; and</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60055" number="74346" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(iv)<TAB tab-count="1" />The dwelling unit complies with additional occupancy and construction requirements as may be established by rule by the department of housing preservation and development or its successor.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60056" number="74347" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />A common household is deemed to exist if every member of the family has access to all parts of the dwelling unit. Lack of access to all parts of the dwelling unit establishes a rebuttable presumption that no common household exists.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60057" number="74348" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />5.<TAB tab-count="1" />"Person," for the purposes of article four of subchapter three of this chapter, means any adult or child over the age of four years. The term "person" as used in subchapters four and five of this code shall include the owner, mortgagee or vendee in possession, assignee of rents, receiver, executor, trustee, lessee, agent or any other person, firm or corporation directly or indirectly in control of a dwelling or part thereof. Whenever a multiple dwelling shall have been declared a public nuisance to any extent pursuant to section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="27-2114" destination-id="0-0-0-13607">27-2114</LINK> of article one of subchapter five of this chapter and such declaration shall have been filed as therein provided, the term "person" shall be deemed to include, in addition to those mentioned hereinabove, all the officers, directors and persons having an interest in more than ten percent of the issued and outstanding stock of the owner as herein defined, as holder or beneficial owner thereof, if such person be a corporation other than a banking organization as defined in section two of the banking law, a national banking association, a federal savings and loan association, the mortgage facilities corporation, savings banks life insurance fund, the savings banks retirement system, an authorized insurer as defined in section one hundred seven of the insurance law, or a trust company or other corporation organized under the laws of this state all the capital stock of which is owned by at least twenty savings banks or by at least twenty savings and loan associations or a subsidiary corporation all of the capital stock of which is owned by such trust company or other corporation.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60058" number="74349" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />6.<TAB tab-count="1" />A private dwelling is any building or structure designed and occupied for residential purposes by not more than two families. Private dwellings shall also be deemed to include a series of one-family or two-family dwelling units each of which faces or is accessible to a legal street or public thoroughfare, if each such dwelling unit is equipped as a separate dwelling unit with all essential services, and if each such unit is arranged so that it may be approved as a legal one-family or two-family dwelling.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60059" number="74350" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />7.<TAB tab-count="1" />A multiple dwelling is a dwelling which is either rented, leased, let or hired out, to be occupied, or is occupied, as the residence or home of three or more families living independently of each other. A multiple dwelling shall also include residential quarters for members or personnel of any hospital staff which are not located in any building used primarily for hospital use, but any building which was erected, altered or converted prior to July first, nineteen hundred fifty-five, to be occupied by such members or personnel or is so occupied on such date shall not be subject to the requirements of this code only so long as it continues to be so occupied if there are local laws applicable to such building and such building is in compliance with such local laws. A multiple dwelling does not include (i) a hospital, convent, monastery, asylum or public institution; or (ii) a fireproof building used wholly for commercial purposes except for not more than one janitor's apartment and not more than one penthouse occupied by not more than two families. For the purposes of this chapter, multiple dwellings are divided into two classes: "class A" and "class B."</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60060" number="74351" version="1812">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />8.<TAB tab-count="1" />(a)<TAB tab-count="1" />A class A multiple dwelling is a multiple dwelling that is occupied for permanent residence purposes. This class shall include tenements, flat houses, maisonette apartments, apartment houses, apartment hotels, bachelor apartments, studio apartments, duplex apartments, kitchenette apartments, garden-type maisonette dwelling projects, and all other multiple dwellings except class B multiple dwellings. A class A multiple dwelling shall only be used for permanent residence purposes. For the purposes of this subparagraph, "permanent residence purposes" shall consist of occupancy of a dwelling unit by the same natural person or family for thirty consecutive days or more, and a natural person or family so occupying a dwelling unit shall be referred to herein as the permanent occupants of such dwelling unit. The following uses of a dwelling unit by the permanent occupants thereof shall not be deemed to be inconsistent with occupancy of such dwelling unit for permanent residence purposes:</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60061" number="74352" version="1812">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(1)<TAB tab-count="1" />(A)<TAB tab-count="1" />occupancy of such dwelling unit for fewer than thirty consecutive days by other natural persons living within the household of the permanent occupant such as house guests or lawful boarders, roomers or lodgers; or</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60062" number="74353" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(B)<TAB tab-count="1" />incidental and occasional occupancy of such dwelling unit for fewer than thirty consecutive days by other natural persons when the permanent occupants are temporarily absent for personal reasons such as vacation or medical treatment, provided that there is no monetary compensation paid to the permanent occupants for such occupancy.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60063" number="74354" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(2)<TAB tab-count="1" />In a class A multiple dwelling owned by an accredited not-for-profit college or university or leased by such a college or university under a net lease for a term of forty-nine years or more, the use of designated dwelling units for occupancy for fewer than thirty consecutive days shall not be inconsistent with the occupancy of such multiple dwelling for permanent residence purposes if:</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60064" number="74355" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(A)<TAB tab-count="1" />No more than five percent of the dwelling units in such multiple dwelling but not less than one dwelling unit, are designated for such use and the designation of a unit once made may not be changed to another unit;</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60065" number="74356" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(B)<TAB tab-count="1" />A list of the designated dwelling units certified by an authorized representative of the college or university is kept on the premises by the owner or net lessee and made available upon request for inspection by the department or the fire department of such city;</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60066" number="74357" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(C)<TAB tab-count="1" />Only designated dwelling units on the certified list are used for occupancy for fewer than thirty consecutive days and only by (i) natural persons, other than persons whose only relationship with the college or university is as a student, for whom the college or university has undertaken to provide housing accommodations such as visiting professors and academics, graduate students with research or teaching fellowships, researchers and persons presenting academic papers, interviewing for positions of employment or having other similar business with the college or university, or (ii) natural persons for whom a hospital affiliated with such college or university has undertaken to provide housing accommodations such as patients, patients' families and/or accompanying escorts, medical professionals and healthcare consultants or persons having other similar business with such hospital. A log shall be maintained on the premises of the names and addresses of such persons and the duration and reason for their stay. Such log shall be accessible upon request for inspection by the department and the fire department of such municipality;</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60067" number="74358" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(D)<TAB tab-count="1" />No rent or other payment is collected for such occupancy; and</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60068" number="74359" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(E)<TAB tab-count="1" />The fire department of such city shall require the filing of a fire safety plan or other appropriate fire safety procedure.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60069" number="74360" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(b)<TAB tab-count="1" />A garden-type maisonette dwelling project is a series of attached, detached or semi-detached dwelling units which are provided as a group collectively with all essential services such as, but not limited to, water supply and house sewers, and which units are located on a site or plot not less than twenty thousand square feet in area under common ownership and erected under plans filed with the department on or after April eighteenth, nineteen hundred fifty-four, and which units together and in their aggregate are arranged or designed to provide three or more apartments.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60070" number="74361" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />9.<TAB tab-count="1" />A class B multiple dwelling is a multiple dwelling which is occupied, as a rule, transiently, as the more or less temporary abode of individuals or families who are lodged with or without meals. This class includes hotels, lodging houses, rooming houses, boarding houses, boarding schools, furnished room houses, lodgings, club houses, and college and school dormitories.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60071" number="74362" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />10.<TAB tab-count="1" />A converted dwelling is a dwelling (i) erected before April eighteenth, nineteen hundred twenty-nine, to be occupied by one or two families living independently of each other and subsequently occupied as a multiple dwelling or (ii) a dwelling three stories or less in height erected after April eighteenth, nineteen hundred twenty-nine, to be occupied by one or two families living independently of each other and subsequently occupied by not more than three families in all, with a maximum occupancy of two families on each floor in a two story building and one family on each floor in a three story building. A converted dwelling occupied as a class A multiple dwelling is a class A converted dwelling; every other converted dwelling is a class B converted dwelling.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60072" number="74363" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />11.<TAB tab-count="1" />A tenement is any building or structure or any portion thereof, erected before April eighteenth, nineteen hundred twenty-nine, which is occupied, wholly or in part, as the residence of three families or more living independently of each other and doing their cooking upon the premises and includes apartment houses, flat houses and all other houses so erected and occupied, except that a tenement shall not be deemed to include any converted dwelling. An old law tenement is a tenement existing before April twelfth, nineteen hundred one, and recorded as such in the tenement house department before April eighteenth, nineteen hundred twenty-nine, except that it shall not be deemed to include any converted dwelling.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60073" number="74364" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />12.<TAB tab-count="1" />A hotel is an inn having thirty or more sleeping rooms.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60074" number="74365" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />13.<TAB tab-count="1" />Dwelling unit shall mean any residential accommodation in a multiple dwelling or private dwelling.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60075" number="74366" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />14.<TAB tab-count="1" />Apartment shall mean one or more living rooms, arranged to be occupied as a unit separate from all other rooms within a dwelling, with lawful sanitary facilities and a lawful kitchen or kitchenette for the exclusive use of the family residing in such unit.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60076" number="74367" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />15.<TAB tab-count="1" />Rooming unit shall mean one or more living rooms arranged to be occupied as a unit separate from all other living rooms, and which does not have both lawful sanitary facilities and lawful cooking facilities for the exclusive use of the family residing in such unit. It may be located either within an apartment or within any class A or class B multiple dwelling. A rooming unit shall not include a living room in a class B hotel or any other dwelling complying with section sixty-seven of the multiple dwelling law and so classified and recorded in the department.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60077" number="74368" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />16.<TAB tab-count="1" />Rooming house shall mean a class B converted dwelling with more than half of the rooms in rooming units.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60078" number="74369" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />17.<TAB tab-count="1" />Single room occupancy is the occupancy by one or two persons of a single room, or of two or more rooms which are joined together, separated from all other rooms within an apartment in a multiple dwelling, so that the occupant or occupants thereof reside separately and independently of the other occupant or occupants of the same apartment. When a class A multiple dwelling is used wholly or in part for single room occupancy, it remains a class A multiple dwelling.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60079" number="74370" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />18.<TAB tab-count="1" />A lodging house is a multiple dwelling, other than a hotel, a rooming house or a furnished room house, in which persons are housed for hire for a single night, or for less than a week at one time, or any part of which is let for any person to sleep in for any term less than a week.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60080" number="74371" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />19.<TAB tab-count="1" />Public hall shall mean a hall, corridor or passageway within a building but outside of all apartments and suites of private rooms.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60081" number="74372" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />20.<TAB tab-count="1" />Public part of a dwelling includes a public hall and any space used in common by the occupants of two or more apartments or rooms, or by persons who are not tenants, or exclusively for mechanical equipment of such dwelling or for storage purposes.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60082" number="74373" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />21.<TAB tab-count="1" />Living room shall mean any room within a dwelling unit except a dining space, kitchenette, bathroom or water closet compartment, foyer or private hall, corridor or passageway.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60083" number="74374" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />22.<TAB tab-count="1" />The floor area is the clear area of the floor contained within the partitions or walls enclosing any room, space, foyer, hall or passageway of any dwelling.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60084" number="74375" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />23.<TAB tab-count="1" />Dining space shall mean a space with fifty-five square feet or less of floor area, which has such permanent fittings as the department requires, located off a living room, foyer or kitchen. A dining space includes a dining bay, dining recess or dinette.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60085" number="74376" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />24.<TAB tab-count="1" />Foyer shall mean a space within a dwelling unit in a multiple dwelling used as an entrance hall from the public hall, which is not a living room when its floor area does not exceed either: (a) ten percent of the total floor area of the dwelling unit; or (b) twenty percent of such floor area, if every living room is at least twenty percent larger than the required minimum room size.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60086" number="74377" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />25.<TAB tab-count="1" />Kitchen shall mean a living room used for cooking with eighty square feet or more of floor area.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60087" number="74378" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />26.<TAB tab-count="1" />Kitchenette shall mean a space used for cooking with less than eighty square feet of floor area.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60088" number="74379" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />27.<TAB tab-count="1" />Dormitory shall mean a space occupied for sleeping purposes by three or more persons who are not members of a family maintaining a common household in: </PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60089" number="74380" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />a.<TAB tab-count="1" />A lodging house, except for an apartment occupied solely by an owner, janitor or superintendent; or</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60090" number="74381" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />b.<TAB tab-count="1" />A college or school dormitory legally recorded and classified in the department prior to May fifteenth, nineteen hundred fifty-four, or converted to such use prior to April thirtieth, nineteen hundred fifty-six; or</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60091" number="74382" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />c.<TAB tab-count="1" />A dwelling owned and operated by a religious, charitable or educational organization for the purposes enumerated in section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="27-2077" destination-id="0-0-0-13609">27-2077</LINK> of article four of subchapter three of this chapter; or</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60092" number="74383" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />d.<TAB tab-count="1" />A dwelling owned, operated or used for the purposes enumerated in section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="27-2077" destination-id="0-0-0-13609">27-2077</LINK> of article four of subchapter three of this chapter.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60093" number="74384" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />28.<TAB tab-count="1" />Premises shall mean land and improvements or appurtenances or any part thereof.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60094" number="74385" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />29.<TAB tab-count="1" />Structure shall mean a building or construction of any kind.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60095" number="74386" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />30.<TAB tab-count="1" />Alteration, as applied to a building or structure, shall mean any change or rearrangement in the structural parts or in the existing facilities of any such building or structure, or any enlargement thereof, whether by extension on any side or by any increase in height, or the moving of such building or structure from one location or position to another.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60096" number="74387" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />31.<TAB tab-count="1" />A multiple dwelling is fireproof if the walls and structural members thereof meet the fire-resistive standards set forth in subdivision twenty-five of section four of the multiple dwelling law. Any other multiple dwelling is nonfireproof. A part of a dwelling is fireproof if it meets the standard set forth in the multiple dwelling law for the corresponding part of a fireproof dwelling.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60097" number="74388" version="1793">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />32.<TAB tab-count="1" />Fire-retarded shall mean either covered with metal lath plastered with two or more coats of mortar or otherwise protected against fire in a manner approved by the department with materials of standard fire-resistive ratings of at least one hour. Fireproofing shall always be accepted as meeting any requirement for fire-retarding.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60098" number="74389" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />33.<TAB tab-count="1" />A rear yard is an open space on the same lot with a dwelling between the extreme rear line of the lot and the extreme rear wall of the dwelling. A side yard is a continuous open space on the same lot with a dwelling between the wall of a dwelling and a line of the lot from the street to a rear yard or rear line of a lot.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60099" number="74390" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />34.<TAB tab-count="1" />A court is an open space other than a side or rear yard, on the same lot as a dwelling. A court not extending to the street or rear yard is an inner court. A court extending to the street or rear yard is an outer court.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60100" number="74391" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />35.<TAB tab-count="1" />A story is a space between the level of one finished floor and the level of the next higher finished floor, or, if the top story, the space between the level of the highest finished floor and the top of the highest roof beams, or, if the first story, the space between the level of the finished floor and the finished ceiling immediately above. For the purpose of measuring height by stories in multiple dwellings erected after April eighteenth, nineteen hundred twenty-nine, one additional story shall be added for each twelve feet or fraction thereof that the first story exceeds fifteen feet in height, and for each twelve feet or fraction thereof that any story above the first story exceeds twelve feet in height.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60101" number="74392" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />36.<TAB tab-count="1" />Except as otherwise provided, the curb level, for the purpose of measuring the height of any portion of a building, is the level of the curb at the center of the front of the building; except that where a building faces on more than one street, the curb level is the average of the levels of the curbs at the center of each front. Where no curb elevation has been established the mean level of the land immediately adjacent to the building prior to any excavation or fill shall be considered the curb level, unless the city engineer shall establish such curb level or its equivalent.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60102" number="74393" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />37.<TAB tab-count="1" />A cellar in a dwelling is an enclosed space having more than one-half of its height below the curb level. A cellar shall not be counted as a story.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60103" number="74394" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />38.<TAB tab-count="1" />A basement is a story partly below the curb level but having at least one-half of its height above the curb level. A basement shall be counted as a story.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60104" number="74395" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />39.<TAB tab-count="1" />A shaft is an enclosed space extending through one or more stories of a building connecting a series of openings therein, or any story or stories and the roof, and includes exterior and interior shafts whether for air, light, elevator, dumbwaiter or any other purpose.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60105" number="74396" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />40.<TAB tab-count="1" />A stair is a flight or flights of steps together with any landings and parts of public halls through which it is necessary to pass in going from one level thereof to another.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60106" number="74397" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />41.<TAB tab-count="1" />A firestair is a fireproof stair, enclosed in fireproof walls, within the body of the building which it serves, to which access may be had only through self-closing fireproof doors.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60107" number="74398" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />42.<TAB tab-count="1" />A firetower is a fireproof stair, enclosed in fireproof walls, without access to the building from which it affords egress other than by a fireproof self-closing door opening on a communicating balcony or other outside platform at each floor level.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60108" number="74399" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />43.<TAB tab-count="1" />A fire escape is a combination of outside balconies and stairs providing an unobstructed means of egress from rooms or spaces in a building.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60109" number="74400" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />44.<TAB tab-count="1" />Window dimensions shall always be taken between stop beads or, if there are no stop beads, between the sides, head and sill of the sash opening.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60110" number="74401" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />45.<TAB tab-count="1" />The term "owner" shall mean and include the owner or owners of the freehold of the premises or lesser estate therein, a mortgagee or vendee in possession, assignee of rents, receiver, executor, trustee, lessee, agent, or any other person, firm or corporation, directly or indirectly in control of a dwelling. Whenever a multiple dwelling shall have been declared a public nuisance to any extent pursuant to section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="27-2114" destination-id="0-0-0-13607">27-2114</LINK> of article one of subchapter five of this chapter and such declaration shall have been filed, as therein provided, and for the purposes of section 27-198 of article nineteen of subchapter one and section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="27-2093" destination-id="0-0-0-13611">27-2093</LINK> of article one of subchapter four of this code, the term "owner" shall be deemed to include, in addition to those mentioned hereinabove, all the officers, directors and persons having an interest in more than ten per cent of the issued and outstanding stock of the owner as herein defined, as holder or beneficial owner thereof, if such owner be a corporation other than a banking organization as defined in section two of the banking law, a national banking association, a federal savings and loan association, the mortgage facilities corporation, savings banks life insurance fund, the savings banks retirement system, an authorized insurer as defined in section one hundred seven of the insurance law, or a trust company or other corporation organized under the laws of this state all the capital stock of which is owned by at least twenty savings banks or by at least twenty savings and loan associations or a subsidiary corporation all of the capital stock of which is owned by such trust company or other corporation.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60111" number="74402" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />46.<TAB tab-count="1" />Summer resort dwelling shall mean a dwelling, located in a summer resort community, which is occupied in whole or in part for living purposes only for a seasonal period of the year between June first and September thirtieth, other than by the family of the owner or the family of a caretaker.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60112" number="74403" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />47.<TAB tab-count="1" />This code shall mean the housing maintenance code.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60113" number="74404" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />48.<TAB tab-count="1" />Except where otherwise provided, the term "harassment" shall mean any act or omission by or on behalf of an owner that (i) causes or is intended to cause any person lawfully entitled to occupancy of a dwelling unit to vacate such dwelling unit or to surrender or waive any rights in relation to such occupancy, and (ii) includes one or more of the following acts or omissions, provided that there shall be a rebuttable presumption that such acts or omissions were intended to cause such person to vacate such dwelling unit or to surrender or waive any rights in relation to such occupancy, except that such presumption shall not apply to such acts or omissions with respect to a private dwelling, as defined in paragraph six of subdivision a of section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="27-2004" destination-id="0-0-0-2989">27-2004</LINK>: <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-022]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60114" number="74405" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />a.<TAB tab-count="1" />using force against, or making express or implied threats that force will be used against, any person lawfully entitled to occupancy of such dwelling unit;</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60115" number="74406" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />a-1.<TAB tab-count="1" />knowingly providing to any person lawfully entitled to occupancy of a dwelling unit false or misleading information relating to the occupancy of such unit; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-024]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60116" number="74407" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />a-2.<TAB tab-count="1" />making a false statement or misrepresentation as to a material fact regarding the current occupancy or the rent stabilization status of a building or dwelling unit on any application or construction documents for a permit for work which is to be performed in the building containing the dwelling unit of any person lawfully entitled to occupancy of such dwelling unit if such building is governed by the New York city construction codes; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-024]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60117" number="74408" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />b.<TAB tab-count="1" />repeated interruptions or discontinuances of essential services, or an interruption or discontinuance of an essential service for an extended duration or of such significance as to substantially impair the habitability of such dwelling unit;</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60118" number="74409" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />b-1.<TAB tab-count="1" />an interruption or discontinuance of an essential service that (i) affects such dwelling unit and (ii) occurs in a building where repeated interruptions or discontinuances of essential services have occurred; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-020]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60119" number="74410" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />b-2.<TAB tab-count="1" />repeated failures to correct hazardous or immediately hazardous violations of this code or major or immediately hazardous violations of the New York city construction codes, relating to the dwelling unit or the common areas of the building containing such dwelling unit, within the time required for such corrections; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-024]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60120" number="74411" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />b-3.<TAB tab-count="1" />repeated false certifications that a violation of this code or the New York city construction codes, relating to the building containing such dwelling unit, has been corrected; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-024]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60121" number="74412" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />b-4.<TAB tab-count="1" />engaging in repeated conduct within the building in violation of section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="28-105.1" destination-id="0-0-0-13613">28-105.1</LINK> of the New York city construction codes; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-024]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60122" number="74413" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />c.<TAB tab-count="1" />failing to comply with the provisions of subdivision c of section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="27-2140" destination-id="0-0-0-13615">27-2140</LINK> of this chapter;</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60123" number="74414" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />d.<TAB tab-count="1" />commencing repeated baseless or frivolous court proceedings against any person lawfully entitled to occupancy of such dwelling unit;</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60124" number="74415" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />d-1.<TAB tab-count="1" />commencing a baseless or frivolous court proceeding against a person lawfully entitled to occupancy of such dwelling unit if repeated baseless or frivolous court proceedings have been commenced against other persons lawfully entitled to occupancy in the building containing such dwelling unit; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-020]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60125" number="74416" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />e.<TAB tab-count="1" />removing the possessions of any person lawfully entitled to occupancy of such dwelling unit;</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60126" number="74417" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />f.<TAB tab-count="1" />removing the door at the entrance to an occupied dwelling unit; removing, plugging or otherwise rendering the lock on such entrance door inoperable; or changing the lock on such entrance door without supplying a key to the new lock to the persons lawfully entitled to occupancy of such dwelling unit; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-001]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60127" number="74418" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />f-1.<TAB tab-count="1" />contacting any person lawfully entitled to occupancy of such dwelling unit, or any relative of such person, to offer money or other valuable consideration to induce such person to vacate such dwelling unit or to surrender or waive any rights in relation to such occupancy, for 180 days after the owner has been notified, in writing, that such person does not wish to receive any such offers, except that the owner may contact such person regarding such an offer if given express permission by a court of competent jurisdiction or if notified in writing by such person of an interest in receiving such an offer; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-001]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60128" number="74419" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />f-2.<TAB tab-count="1" />contacting any person lawfully entitled to occupancy of such dwelling unit to offer money or other valuable consideration to induce such person to vacate such dwelling unit or to surrender or waive any rights in relation to such occupancy, unless such owner discloses to such person in writing (i) at the time of the initial contact, and (ii) in the event that contacts continue more than 180 days after the prior written disclosure, at the time of the first contact occurring more than 180 days after the prior written disclosure: <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-001]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60129" number="74420" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(1)<TAB tab-count="1" />the purpose of such contact, <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-001]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60130" number="74421" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(2)<TAB tab-count="1" />that such person may reject any such offer and may continue to occupy such dwelling unit, <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-001]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60131" number="74422" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(3)<TAB tab-count="1" />that such person may seek the guidance of an attorney regarding any such offer and may, for information on accessing legal services, refer to The ABCs of Housing guide on the department's website, <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-001]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60132" number="74423" version="204">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(4)<TAB tab-count="1" />that such contact is made by or on behalf of such owner, <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-042]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60133" number="74424" version="204">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(5)<TAB tab-count="1" />that such person may, in writing, refuse any such contact and such refusal would bar such contact for 180 days, except that the owner may contact such person regarding such an offer if given express permission by a court of competent jurisdiction or if notified in writing by such person of an interest in receiving such an offer, <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-042]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60134" number="74425" version="204">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(6)<TAB tab-count="1" />(i)<TAB tab-count="1" />the median asking rent for a dwelling unit in the same community district, provided that the department has reported such data pursuant to section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="27-2096.2" destination-id="0-0-0-19167">27-2096.2</LINK>, within the previous twelve-month period; or <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-042]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-113432" number="74426" version="204">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(ii)<TAB tab-count="1" />the median asking rent for a dwelling unit in the same community district with the same number of bedrooms, provided that the department has reported such data, pursuant to section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="27-2096.2" destination-id="0-0-0-19167">27-2096.2</LINK>, within the previous twelve-month period, <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-042]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-113431" number="74427" version="204">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(7)<TAB tab-count="1" />that there is no guarantee that such person will be able to rent a dwelling unit in the same community district with the same number of bedrooms as the dwelling unit that such person is currently lawfully entitled to occupancy of, for the same rent such person is paying at the time of such contact, and <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-042]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-113430" number="74428" version="204">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(8)<TAB tab-count="1" />that additional factors may impact the ability of such person to rent a dwelling unit, including, but not limited to, the current employment and credit history of such person; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-042]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-113429" number="74429" version="204">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />f-3.<TAB tab-count="1" />offering money or other valuable consideration to a person lawfully entitled to occupancy of such dwelling unit to induce such person to vacate such dwelling unit or to surrender or waive any rights in relation to such occupancy while engaging in any of the following types of conduct: <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-001]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60135" number="74430" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(1)<TAB tab-count="1" />threatening, intimidating or using obscene language; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-001]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60136" number="74431" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(2)<TAB tab-count="1" />initiating communication with such frequency, at such unusual hours or in such a manner as can reasonably be expected to abuse or harass such person; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-001]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60137" number="74432" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(3)<TAB tab-count="1" />initiating communication at the place of employment of such person without the prior written consent of such person; or <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-001]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60138" number="74433" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(4)<TAB tab-count="1" />knowingly falsifying or misrepresenting any information provided to such person; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-020]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60139" number="74434" version="375">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />f-4.<TAB tab-count="1" />repeatedly contacting or visiting any person lawfully entitled to occupancy of such unit (i) on Saturdays, Sundays or legal holidays, (ii) at times other than the hours between 9 a.m. and 5 p.m. or (iii) in such a manner as can reasonably be expected to abuse or harass such person, provided that if such person has notified such owner in writing that such person consents to being contacted or visited at specified hours or in a specified manner, such owner may also contact or visit such person during such specified hours and in such specified manner, and provided further that an owner may contact or visit such person for reasons specifically authorized or mandated by law or rule; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-049]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60140" number="74435" version="1956">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />f-5.<TAB tab-count="1" />threatening any person lawfully entitled to occupancy of such dwelling unit based on such person's actual or perceived age, race, creed, color, national origin, gender, disability, marital status, partnership status, caregiver status, uniformed service, height, weight, sexual orientation, immigration or citizenship status, status as a victim of domestic violence or as a victim of sex offenses or stalking, lawful source of income or because children are, may be or would be residing in such dwelling unit, as such terms are defined in sections <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="8-102" destination-id="0-0-0-2043">8-102</LINK> and <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="8-107.1" destination-id="0-0-0-2065">8-107.1</LINK> of the code; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-091]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60141" number="74436" version="2252">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />f-6.<TAB tab-count="1" />requesting identifying documentation for any person lawfully entitled to occupancy of such dwelling unit that would disclose the citizenship status of such person, when such person has provided the owner with a current form of government-issued personal identification, as such term is defined in section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="21-908" destination-id="0-0-0-9677">21-908</LINK>, unless such documentation is otherwise required by law or is requested for a specific and limited purpose not inconsistent with this paragraph; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-114]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60142" number="74437" version="1762">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />f-7.<TAB tab-count="1" />threatening any person lawfully entitled to occupancy of such dwelling unit based on such person's actual or perceived status as an essential employee, status as a person impacted by COVID-19, or receipt of a rent concession or forbearance for any rent owed during the COVID-19 period; provided that for the purposes of this subparagraph: <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-049]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-124057" number="74438" version="1765">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(1)<TAB tab-count="1" />the term "COVID-19" means the 2019 novel coronavirus or 2019-nCoV; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-049]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-124056" number="74439" version="1765">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(2)<TAB tab-count="1" />the term "COVID-19 period" means March 7, 2020 through the later of (i) the end of the first month that commences after the expiration of the moratorium on enforcement of evictions of any tenant residential or commercial set forth in executive order number 202.8, as issued by the governor on March 20, 2020 and extended thereafter or (ii) September 30, 2020, inclusive; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-049]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-124055" number="74440" version="1765">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(3)<TAB tab-count="1" />the term "essential employee" means a person employed by or permitted to work at or for a business classified as an essential business by the New York state department of economic development in accordance with executive order number 202.6, as issued by the governor on March 18, 2020 and extended thereafter; and <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-049]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-124054" number="74441" version="1765">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(4)<TAB tab-count="1" />the term "person impacted by COVID-19" means a person who has experienced one or more of the following: <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-049]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-124053" number="74442" version="375">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(i)<TAB tab-count="1" />such person was diagnosed with COVID-19 or is experiencing symptoms of COVID-19 and seeking a medical diagnosis; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-049]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-124052" number="74443" version="1762">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(ii)<TAB tab-count="1" />a member of such person's household was diagnosed with COVID-19; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-049]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-124051" number="74444" version="1762">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(iii)<TAB tab-count="1" />such person was providing care for a family member or a member of such person's household who was diagnosed with COVID-19; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-049]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-124050" number="74445" version="375">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(iv)<TAB tab-count="1" />such person became unemployed, partially unemployed, or could not commence employment as a direct result of COVID-19 or the state disaster emergency declared in executive order number 202, as issued by the governor on March 7, 2020; or <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-049]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-124049" number="74446" version="375">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(v)<TAB tab-count="1" />such person became primarily responsible for providing financial support for the household of such person because the previous head of the household died as a direct result of COVID-19; <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-049]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-124047" number="74447" version="2252">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />g.<TAB tab-count="1" />other repeated acts or omissions of such significance as to substantially interfere with or disturb the comfort, repose, peace or quiet of any person lawfully entitled to occupancy of such dwelling unit and that cause or are intended to cause such person to vacate such dwelling unit or to surrender or waive any rights in relation to such occupancy, including improperly requiring such person to seek, receive or refrain from submitting to medical treatment in violation of subdivision b of section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="26-1201" destination-id="0-0-0-11695">26-1201</LINK>; or <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-114]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60143" number="74448" version="2252">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />h.<TAB tab-count="1" />any conduct in violation of section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="26-521" destination-id="0-0-0-9483">26-521</LINK>. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-114]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-234959" number="74449" version="2252">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />49.<TAB tab-count="1" />The term "self-closing door" means a door equipped with a device that will ensure the door, when opened and released, returns to the closed position and self-latches shut. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-075]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-154682" number="74450" version="2081">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />50.<TAB tab-count="1" />The term “unoccupied dwelling unit” means a dwelling unit that is not occupied for permanent residence or temporary residence purposes. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-100]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-228457" number="74451" version="2081">
+											<PARA>
+												<TAB tab-count="1" />b.<TAB tab-count="1" />Except as otherwise provided herein, all terms used in this chapter shall be construed in a manner consistent with their use in the multiple dwelling law.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60144" number="74452" version="2252">
+											<PARA>(Am. L.L. 2015/081, 9/3/2015, eff. 12/2/2015; Am. L.L. 2015/082, 9/3/2015, eff. 12/2/2015; Am. L.L. 2015/083, 9/3/2015, eff. 12/2/2015; Am. L.L. 2017/015, 2/15/2017, eff. 5/16/2017; Am. L.L. 2017/162, 8/30/2017, eff. 12/28/2017; Am. L.L. 2017/163, 8/30/2017, eff. 12/28/2017; Am. L.L. 2017/164, 8/30/2017, eff. 12/28/2017; Am. L.L. 2017/184, 10/8/2017, eff. 2/5/2018; Am. L.L. 2018/024, 12/31/2017, eff. 4/30/2018; Am. L.L. 2018/048, 1/11/2018, eff. 5/11/2018; Am. L.L. 2019/101, 6/8/2019, eff. 10/15/2019; Am. L.L. 2020/056, 5/26/2020, eff. 5/26/2020; Am. L.L. 2022/062, 6/1/2022, eff. 7/16/2022; Am. L.L. 2023/061, 5/26/2023, eff. 11/22/2023; Am. L.L. 2024/001, 1/6/2024, eff. 8/3/2024; Am. L.L. 2025/114, 10/25/2025, eff. 10/25/2025) <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-114]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60145" number="74453" version="2279">
+											<PARA style-name="EdNoteSm" style-name-escaped="EdNoteSm" style-id="0-0-0-18">
+												<CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Editor's note:</CHARFORMAT> For related unconsolidated provisions, see Appendix A at <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="L.L. 1998/027" destination-id="0-0-0-25818">L.L. 1998/027</LINK>, <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="L.L. 2008/008" destination-id="0-0-0-25004">L.L. 2008/008</LINK>, <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="L.L. 2015/081" destination-id="0-0-0-20625">L.L. 2015/081</LINK>, <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="L.L. 2015/082" destination-id="0-0-0-20627">L.L. 2015/082</LINK>, <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="L.L. 2015/083" destination-id="0-0-0-20629">L.L. 2015/083</LINK>, and <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="L.L. 2025/144" destination-id="0-0-0-28418">L.L. 2025/144</LINK>. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-114]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+									</LEVEL>
+								</LEVEL>
+							</LEVEL>
+						</LEVEL>
+					</LEVEL>
+				</LEVEL>
+			</LEVEL>
+		</LEVEL>
+		<LEVEL style-name="Subchapter" style-name-escaped="Subchapter" style-id="0-0-0-688" level-depth="3" toc-section="true">
+			<RECORD id="0-0-0-130441" number="74454" version="655">
+				<HEADING>Subchapter 2: Maintenance, Services, and Utilities</HEADING>
+				<PARA>Subchapter 2: Maintenance, Services, and Utilities</PARA>
+			</RECORD>
+			<LEVEL style-name="Appendix" style-name-escaped="Appendix" style-id="0-0-0-691" level-depth="4" toc-section="false">
+				<LEVEL style-name="Part" style-name-escaped="Part" style-id="0-0-0-694" level-depth="5" toc-section="false">
+					<LEVEL style-name="Article" style-name-escaped="Article" style-id="0-0-0-697" level-depth="6" toc-section="true">
+						<RECORD id="0-0-0-60146" number="74455" version="808">
+							<HEADING>Article 1: Obligations of Owner and Tenant: Duty to Repair</HEADING>
+							<PARA>Article 1: Obligations of Owner and Tenant: Duty to Repair</PARA>
+						</RECORD>
+						<LEVEL style-name="Subarticle" style-name-escaped="Subarticle" style-id="0-0-0-700" level-depth="7" toc-section="false">
+							<LEVEL style-name="Subarticle - Part" style-name-escaped="Subarticle---Part" style-id="0-0-0-29474" level-depth="8" toc-section="false">
+								<LEVEL style-name="Section" style-name-escaped="Section" style-id="0-0-0-703" level-depth="9" toc-section="true">
+									<RECORD id="0-0-0-60147" number="74456" version="199">
+										<HEADING>§ 27-2005 Duties of owner.</HEADING>
+										<PARA>
+											<DESTINATION id="0-0-0-10733" name="27-2005" />§ 27-2005 <CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Duties of owner.</CHARFORMAT>
+										</PARA>
+									</RECORD>
+									<LEVEL style-name="Normal Level" style-name-escaped="Normal-Level" style-id="0-0-0-0" level-depth="0" toc-section="false">
+										<RECORD id="0-0-0-226620" number="74457" version="2081">
+											<PARA>
+												<TAB tab-count="1" />a.<TAB tab-count="1" />The owner of a multiple dwelling shall keep the premises in good repair.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60149" number="74458" version="3">
+											<PARA>
+												<TAB tab-count="1" />b.<TAB tab-count="1" />The owner of a multiple dwelling, in addition to the duty imposed upon such owner by subdivision a of this section, shall be responsible for compliance with the requirements of this code, except insofar as responsibility for compliance is imposed upon the tenant alone.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60150" number="74459" version="3">
+											<PARA>
+												<TAB tab-count="1" />c.<TAB tab-count="1" />The owner of a one- or two-family dwelling shall keep the premises in good repair, and shall be responsible for compliance with the provisions of this code, except to the extent otherwise agreed between such owner and any tenant of such dwelling by lease or other contract in writing, or except insofar as responsibility for compliance with this code is imposed upon the tenant alone.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60151" number="74460" version="3">
+											<PARA>
+												<TAB tab-count="1" />d.<TAB tab-count="1" />The owner of a dwelling shall not harass any tenants or persons lawfully entitled to occupancy of such dwelling as set forth in paragraph 48 of subdivision a of section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="27-2004" destination-id="0-0-0-2989">27-2004</LINK> of this chapter.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60152" number="74461" version="3">
+											<PARA>
+												<TAB tab-count="1" />e.<TAB tab-count="1" />1.<TAB tab-count="1" />The owner of a multiple dwelling shall provide lawful occupants of such multiple dwelling with notice prior to making repairs, or performing other work, that will cause an interruption of any heat, hot water, cold water, gas or electricity service expected to last for two or more hours. The department shall by rule prescribe the form, timing and placement of the notice, provided that the notice shall be publicly posted in a prominent place within the multiple dwelling at least twenty-four hours before the interruption of such service is expected to commence and shall remain posted until such interruption ends. Where the owner expects that an interruption of any heat, hot water, cold water, gas or electricity service will last for less than two hours or where such interruption is due to emergency repairs or work, as defined by department rule, advance notice need not be posted, provided that where such interruption lasts for two or more hours, notice shall be posted as soon as practicable after the commencement of such interruption. Such notice shall identify the service to be interrupted, the type of work to be performed, the expected start and end dates of the service interruption. The notice shall be updated as needed. Such notice shall be posted in English, Spanish and such other languages as the department may provide by rule. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-008]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60153" number="74462" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />2.<TAB tab-count="1" />Repairs made pursuant to section <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="27-2125" destination-id="0-0-0-11673">27-2125</LINK> of this code shall be exempt from the provisions of this subdivision. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-008]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60154" number="74463" version="3">
+											<PARA>
+												<TAB tab-count="1" />f.<TAB tab-count="1" />The owner of a dwelling shall deliver or cause to be delivered to each tenant and prospective tenant of such dwelling, along with the lease or lease renewal form for such tenant or prospective tenant, and shall post and maintain in a common area of the building containing such dwelling, a notice, in a form developed or approved by the department, regarding the procedures that should be followed when a gas leak is suspected. Such notice may be combined with any existing required notices and shall instruct tenants to first call 911 and then call the relevant gas service provider, whose name and emergency phone number shall be set forth on such notice, before contacting such owner or an agent thereof when a gas leak is suspected. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-014]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60156" number="74464" version="199">
+											<PARA>
+												<TAB tab-count="1" />g.<TAB tab-count="1" />The owner of a multiple dwelling shall obtain for each dwelling unit, where available, the previous four years of rent amounts from the New York state division of housing and community renewal, and provide such rent amounts to the current tenant of such dwelling unit. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-042]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-113418" number="74465" version="2081">
+											<PARA>
+												<TAB tab-count="1" />h.<TAB tab-count="1" />The owner of a multiple dwelling shall keep all unoccupied dwelling units in such multiple dwelling in good repair. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-100]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-228458" number="74466" version="2081">
+											<PARA>(Am. L.L. 2015/047, 6/2/2015, eff. 9/30/2015; Am. L.L. 2016/153, 12/6/2016, eff. 6/4/2017; Am. L.L. 2019/113, 6/8/2019, eff. 10/6/2019; Am. L.L. 2024/001, 1/6/2024, eff. 8/3/2024) <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-100]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+									</LEVEL>
+								</LEVEL>
+								</LEVEL>
+						</LEVEL>
+					</LEVEL>
+					<LEVEL style-name="Article" style-name-escaped="Article" style-id="0-0-0-697" level-depth="6" toc-section="true">
+						<RECORD id="0-0-0-60211" number="74534" version="3">
+							<HEADING>Article 3: Painting</HEADING>
+							<PARA>Article 3: Painting</PARA>
+						</RECORD>
+						<LEVEL style-name="Subarticle" style-name-escaped="Subarticle" style-id="0-0-0-700" level-depth="7" toc-section="false">
+							<LEVEL style-name="Subarticle - Part" style-name-escaped="Subarticle---Part" style-id="0-0-0-29474" level-depth="8" toc-section="false">
+								<LEVEL style-name="Section" style-name-escaped="Section" style-id="0-0-0-703" level-depth="9" toc-section="true">
+									<RECORD id="0-0-0-60212" number="74535" version="3">
+										<HEADING>§ 27-2013 Painting of public parts and within dwellings. </HEADING>
+										<PARA>
+											<DESTINATION id="0-0-0-13639" name="27-2013" />§ 27-2013 <CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Painting of public parts and within dwellings. </CHARFORMAT>
+										</PARA>
+									</RECORD>
+									<LEVEL style-name="Normal Level" style-name-escaped="Normal-Level" style-id="0-0-0-0" level-depth="0" toc-section="false">
+										<RECORD id="0-0-0-60213" number="74536" version="3">
+											<PARA>
+												<TAB tab-count="1" />a.<TAB tab-count="1" />In the public parts of a multiple dwelling, and in a tenant-occupied dwelling unit in a one- or two-family dwelling, the owner shall: </PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60214" number="74537" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(1)<TAB tab-count="1" />Paint or cover the walls and ceilings with wallpaper or other acceptable wall covering; and</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60215" number="74538" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(2)<TAB tab-count="1" />Repaint or re-cover the walls and ceilings with wallpaper or other acceptable wall covering whenever necessary in the judgement of the department to keep such surfaces sanitary.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60216" number="74539" version="3">
+											<PARA>
+												<TAB tab-count="1" />b.<TAB tab-count="1" />In occupied dwelling units in a multiple dwelling, the owner shall:</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60217" number="74540" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(1)<TAB tab-count="1" />Paint or cover the walls and ceilings with wallpaper or other acceptable wall covering; and</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60218" number="74541" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(2)<TAB tab-count="1" />Repaint or re-cover the walls and ceilings with wallpaper or other acceptable wall covering every three years, and more often when required by contract or other provisions of law.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60219" number="74542" version="3">
+											<PARA>
+												<TAB tab-count="1" />c.<TAB tab-count="1" />The department may require a tenant of a dwelling unit in a multiple dwelling to repaint or re-cover the interior walls and ceilings of such tenant's dwelling unit with wallpaper or other acceptable wall covering if such walls and ceilings become unsanitary at any time within three years from the date of the last refinishing by the owner. However, if the tenant can show, to the satisfaction of the department, that the walls and ceilings have become unsanitary through no act or neglect of his or her own or of such tenant's family or guests, the department may require the owner to repaint or re-cover the same. This subdivision does not relieve the owner from his or her duties under paragraph two of subdivision b of this section.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60220" number="74543" version="3">
+											<PARA>
+												<TAB tab-count="1" />d.<TAB tab-count="1" />The owner and tenant of any dwelling unit in a multiple dwelling may, by voluntary agreement, provide that the owner need not repaint in such unit as required by paragraph two of subdivision b of this section for such additional period, not to exceed two years, as may be agreed upon. Such an agreement to extend the time for repainting shall not be valid unless it has been entered into not earlier than one month prior to the expiration of the three-year period, and shall not form part of any agreement of lease. The department may prescribe the form of such agreements, require them to be filed, and may make such other regulations as may be necessary to avoid abuse, and to further the purposes of this article. Notwithstanding any agreement, the department may, during the period for which repainting is deferred by agreement order repainting by the owner in any dwelling unit when deemed necessary to keep the walls and ceilings of such unit sanitary. This subdivision shall not affect the applicability of subdivision c of this section during the three years after any repainting or re-covering.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60221" number="74544" version="3">
+											<PARA>
+												<TAB tab-count="1" />e.<TAB tab-count="1" />Neither the owner nor a tenant of a dwelling unit shall place wallpaper or wall covering upon a wall or ceiling in the public or tenant-occupied parts of a dwelling unless existing wallpaper or wall covering is first removed and such wall or ceiling is cleaned and repaired. However, if wallpaper or wall covering is in good condition, free from vermin and a coat of acceptable paint or sizing is applied, one additional layer of wallpaper or wall covering may be applied.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60222" number="74545" version="3">
+											<PARA>
+												<TAB tab-count="1" />f.<TAB tab-count="1" />Nothing contained in this section shall be deemed to require the owner of a dwelling to cover with wallpaper or other acceptable covering any wall or ceiling not previously so covered by such owner. When a wall or ceiling of a dwelling unit has been decorated with paper, wood paneling, or other material over which paint normally is not applied, the owner shall be relieved of his or her obligation to repaint or recover such wall or ceiling so long as the same remains in a sanitary condition, in the judgment of the department. When the department requires redecoration of such wall or ceiling, the tenant shall remove any paper, wall covering, wood paneling or other material which such tenant has applied before the owner is required to clean and repair and repaint or re-cover. However, if the owner or a former tenant has applied paper, wall covering, wood paneling or other material, the owner shall be responsible for its removal before redecoration.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60223" number="74546" version="3">
+											<PARA>
+												<TAB tab-count="1" />g.<TAB tab-count="1" />The owner of a multiple dwelling shall keep and maintain records relating to the refinishing of public parts and dwelling units showing when such parts were last painted or papered or covered with acceptable material and who performed the work. Such records shall be open to inspection by the department, and shall be submitted to the department upon request.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60225" number="74547" version="1535">
+											<PARA style-name="EdNoteSm" style-name-escaped="EdNoteSm" style-id="0-0-0-18">
+												<CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">
+													<BOOKMARK id="0-0-0-24542" name="" />Editor's note:</CHARFORMAT> For related unconsolidated provisions, see Appendix A at <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="L.L. 1999/038" destination-id="0-0-0-25706">L.L. 1999/038</LINK>. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-084]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+									</LEVEL>
+								</LEVEL>
+								</LEVEL>
+						</LEVEL>
+					</LEVEL>
+					<LEVEL style-name="Article" style-name-escaped="Article" style-id="0-0-0-697" level-depth="6" toc-section="true">
+						<RECORD id="0-0-0-60239" number="74562" version="3">
+							<HEADING>Article 4: Control of Pests and Other Asthma Allergen Triggers</HEADING>
+							<PARA>Article 4: Control of Pests and Other Asthma Allergen Triggers</PARA>
+						</RECORD>
+						<LEVEL style-name="Subarticle" style-name-escaped="Subarticle" style-id="0-0-0-700" level-depth="7" toc-section="false">
+							<LEVEL style-name="Subarticle - Part" style-name-escaped="Subarticle---Part" style-id="0-0-0-29474" level-depth="8" toc-section="false">
+								<LEVEL style-name="Section" style-name-escaped="Section" style-id="0-0-0-703" level-depth="9" toc-section="true">
+									<RECORD id="0-0-0-60347" number="74670" version="3">
+										<HEADING>§ 27-2018 Rodent and insect eradication; mandatory extermination. [Repealed]</HEADING>
+										<PARA>
+											<DESTINATION id="0-0-0-13665" name="27-2018" />§ 27-2018 <CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Rodent and insect eradication; mandatory extermination. [Repealed]</CHARFORMAT>
+										</PARA>
+									</RECORD>
+									<LEVEL style-name="Normal Level" style-name-escaped="Normal-Level" style-id="0-0-0-0" level-depth="0" toc-section="false">
+										<RECORD id="0-0-0-60348" number="74671" version="17">
+											<PARA>(Repealed L.L. 2018/055, 1/19/2018, eff. 1/19/2019) <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-032]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+									</LEVEL>
+								</LEVEL>
+								</LEVEL>
+						</LEVEL>
+					</LEVEL>
+					<LEVEL style-name="Article" style-name-escaped="Article" style-id="0-0-0-697" level-depth="6" toc-section="true">
+						<RECORD id="0-0-0-60405" number="74728" version="2309">
+							<HEADING>Article 8: Heat, Cooling, and Hot Water</HEADING>
+							<PARA>Article 8: Heat, Cooling, and Hot Water</PARA>
+						</RECORD>
+						<LEVEL style-name="Subarticle" style-name-escaped="Subarticle" style-id="0-0-0-700" level-depth="7" toc-section="false">
+							<LEVEL style-name="Subarticle - Part" style-name-escaped="Subarticle---Part" style-id="0-0-0-29474" level-depth="8" toc-section="false">
+								<LEVEL style-name="Section" style-name-escaped="Section" style-id="0-0-0-703" level-depth="9" toc-section="true">
+									<RECORD id="0-0-0-60410" number="74734" version="3">
+										<HEADING>§ 27-2029 Minimum temperature to be maintained. </HEADING>
+										<PARA>
+											<DESTINATION id="0-0-0-13691" name="27-2029" />§ 27-2029 <CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Minimum temperature to be maintained. </CHARFORMAT>
+										</PARA>
+									</RECORD>
+									<LEVEL style-name="Normal Level" style-name-escaped="Normal-Level" style-id="0-0-0-0" level-depth="0" toc-section="false">
+										<RECORD id="0-0-0-60411" number="74735" version="3">
+											<PARA>
+												<TAB tab-count="1" />a.<TAB tab-count="1" />During the period from October first through May thirty-first, centrally-supplied heat, in any dwelling in which such heat is required to be provided, shall be furnished so as to maintain, in every portion of such dwelling used or occupied for living purposes: </PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60412" number="74736" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(1)<TAB tab-count="1" />between the hours of six a.m. and ten p.m., a temperature of at least sixty-eight degrees Fahrenheit whenever the outside temperature falls below fifty-five degrees; and</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60413" number="74737" version="3">
+											<PARA>
+												<TAB tab-count="1" />
+												<TAB tab-count="1" />(2)<TAB tab-count="1" />between the hours of ten p.m. and six a.m., a temperature of at least sixty-two degrees Fahrenheit. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-017]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60414" number="74738" version="3">
+											<PARA>
+												<TAB tab-count="1" />b.<TAB tab-count="1" />During the period from October first through May thirty-first, all central heating systems required under this article shall be maintained free of any device which shall cause or which is capable of causing an otherwise operable central heating system to become incapable of providing the minimum requirements of heat or hot water as required by this article for any period of time. This subdivision shall not apply to any safety device required by law, or by a rule or regulation of any city agency, to be used in conjunction with a central heating system.</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60415" number="74739" version="3">
+											<PARA>(Am. L.L. 2017/086, 5/30/2017, eff. 10/1/2017) <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-017]</HIGHLIGHTER>
+											</PARA>
+										</RECORD>
+									</LEVEL>
+								</LEVEL>
+								<LEVEL style-name="Section" style-name-escaped="Section" style-id="0-0-0-703" level-depth="9" toc-section="true">
+									<RECORD id="0-0-0-236495" number="74804" version="2309">
+										<HEADING>§ 27-2031 Supply of hot water; when required. </HEADING>
+										<PARA>
+											<DESTINATION id="0-0-0-13695" name="27-2031" />§ 27-2031 <CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Supply of hot water; when required. </CHARFORMAT>
+										</PARA>
+									</RECORD>
+									<LEVEL style-name="Normal Level" style-name-escaped="Normal-Level" style-id="0-0-0-0" level-depth="0" toc-section="false">
+										<RECORD id="0-0-0-60418" number="74805" version="3">
+											<PARA>Except as otherwise provided in this article, every bath, shower, washbasin and sink in any dwelling unit in a multiple dwelling or tenant-occupied one-family or two-family dwelling shall be supplied at all times between the hours of six a.m. and midnight with hot water at a constant minimum temperature of one hundred twenty degrees Fahrenheit from a central source of supply constructed in accordance with the provisions of the building code and the regulations of the department, provided however that baths and showers equipped with balanced-pressure mixing valves, thermostatic mixing valves or combination pressure balancing/thermostatic valves may produce a discharge temperature less than one hundred twenty degrees Fahrenheit but in no event less than one hundred ten degrees Fahrenheit. Gas or electric water heaters may, if approved by the department, be utilized in lieu of a central source of supply of hot water if such heaters: </PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60419" number="74806" version="3">
+											<PARA>
+												<TAB tab-count="1" />(1)<TAB tab-count="1" />are lawfully in use on July fourteenth, nineteen hundred sixty-seven; or</PARA>
+										</RECORD>
+										<RECORD id="0-0-0-60420" number="74807" version="3">
+											<PARA>
+												<TAB tab-count="1" />(2)<TAB tab-count="1" />are approved by the appropriate city agencies having jurisdiction and are installed in a structure or building erected, converted, substantially rehabilitated, or completely vacated after July fourteenth, nineteen hundred sixty-seven.</PARA>
+										</RECORD>
+									</LEVEL>
+								</LEVEL>
+								</LEVEL>
+						</LEVEL>
+					</LEVEL>
+					</LEVEL>
+			</LEVEL>
+		</LEVEL>
+		</LEVEL>
+</DOCUMENT>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml-stylesheet type="text/xsl" href="#!-- #STYLESHEETS:ALP.xsl --#"?>
+
+<DOCUMENT source-infobase-name="Admin" content-collection-id="NYCadmin" source-infobase-title="New York City Administrative Code" base-output-dir="D:\process\NFOProcess\codes\ny\newyorkcity\NYCadmin\output\NUTJZFARSAYSOXZT\" default-split-level="Chapter" makefile-filename="D:\process\NFOProcess\codes\ny\newyorkcity\NYCadmin\output\NUTJZFARSAYSOXZT\NYCadmin.mak" css-stylesheet-href="#!-- #ID=NYCadmin_css_id --#" xml-output-dir="D:\process\NFOProcess\codes\ny\newyorkcity\NYCadmin\output\NUTJZFARSAYSOXZT\XML\" css-stylesheet-name="NYCadmin_css" makefile-document-depth="2">
+	<LEVEL style-name="Title" style-name-escaped="Title" style-id="0-0-0-682" level-depth="1" toc-section="false">
+		<RECORD id="0-0-0-4606" number="5931" version="3">
+			<HEADING>Title 8: Civil Rights</HEADING>
+			<PARA>
+				<DESTINATION id="0-0-0-2039" name="T08" />Title 8: Civil Rights</PARA>
+		</RECORD>
+		<LEVEL style-name="Chapter" style-name-escaped="Chapter" style-id="0-0-0-685" level-depth="2" toc-section="false">
+			<RECORD id="0-0-0-4607" number="5932" version="3">
+				<HEADING>Chapter 1: Commission on Human Rights</HEADING>
+				<PARA>
+					<DESTINATION id="0-0-0-2041" name="T08C001" />Chapter 1: Commission on Human Rights</PARA>
+			</RECORD>
+			<LEVEL style-name="Subchapter" style-name-escaped="Subchapter" style-id="0-0-0-688" level-depth="3" toc-section="false">
+				<LEVEL style-name="Appendix" style-name-escaped="Appendix" style-id="0-0-0-691" level-depth="4" toc-section="false">
+					<LEVEL style-name="Part" style-name-escaped="Part" style-id="0-0-0-694" level-depth="5" toc-section="false">
+						<LEVEL style-name="Article" style-name-escaped="Article" style-id="0-0-0-697" level-depth="6" toc-section="false">
+							<LEVEL style-name="Subarticle" style-name-escaped="Subarticle" style-id="0-0-0-700" level-depth="7" toc-section="false">
+								<LEVEL style-name="Subarticle - Part" style-name-escaped="Subarticle---Part" style-id="0-0-0-29474" level-depth="8" toc-section="false">
+									<LEVEL style-name="Section" style-name-escaped="Section" style-id="0-0-0-703" level-depth="9" toc-section="true">
+										<RECORD id="0-0-0-4608" number="5933" version="2245">
+											<HEADING>§ 8-101 Policy. </HEADING>
+											<PARA>
+												<DESTINATION id="0-0-0-919" name="8-101" />§ 8-101 <CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Policy. </CHARFORMAT>
+											</PARA>
+										</RECORD>
+										<LEVEL style-name="Normal Level" style-name-escaped="Normal-Level" style-id="0-0-0-0" level-depth="0" toc-section="false">
+											<RECORD id="0-0-0-221767" number="5934" version="1956">
+												<PARA>In the city of New York, with its great cosmopolitan population, there is no greater danger to the health, morals, safety and welfare of the city and its inhabitants than the existence of groups prejudiced against one another and antagonistic to each other because of their actual or perceived differences, including those based on race, color, creed, age, national origin, immigration or citizenship status, gender, sexual orientation, disability, marital status, partnership status, caregiver status, sexual and reproductive health decisions, uniformed service, height, weight, any lawful source of income, status as a victim of domestic violence or as a victim of sex offenses or stalking, whether children are, may be or would be residing with a person or conviction or arrest record. The council hereby finds and declares that prejudice, intolerance, bigotry, and discrimination, bias-related violence or harassment and disorder occasioned thereby threaten the rights and proper privileges of its inhabitants and menace the institutions and foundation of a free democratic state. The council further finds and declares that gender-based harassment threatens the terms, conditions and privileges of employment. A city agency is hereby created with power to eliminate and prevent discrimination from playing any role in actions relating to employment, public accommodations, and housing and other real estate, and to take other actions against prejudice, intolerance, bigotry, discrimination, sexual harassment and bias-related violence or harassment as herein provided; and the commission established hereunder is hereby given general jurisdiction and power for such purposes. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-091]</HIGHLIGHTER>
+												</PARA>
+											</RECORD>
+											<RECORD id="0-0-0-4611" number="5935" version="1956">
+												<PARA>(Am. L.L. 2016/001, 1/5/2016, eff. 5/4/2016; Am. L.L. 2017/119, 7/22/2017, eff. 11/19/2017; Am. L.L. 2018/099, 5/9/2018, eff. 5/9/2018; Am. L.L. 2019/020, 1/20/2019, eff. 5/20/2019; Am. L.L. 2020/058, 6/29/2020, eff. 8/28/2020; Am. L.L. 2023/061, 5/26/2023, eff. 11/22/2023) <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-091]</HIGHLIGHTER>
+												</PARA>
+											</RECORD>
+											<RECORD id="0-0-0-128439" number="5936" version="1673">
+												<PARA style-name="EdNoteSm" style-name-escaped="EdNoteSm" style-id="0-0-0-18">
+													<CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">
+														<BOOKMARK id="0-0-0-24542" name="" />Editor's note:</CHARFORMAT> For related unconsolidated provisions, see Appendix A at <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="L.L. 1991/039" destination-id="0-0-0-26706">L.L. 1991/039</LINK> and <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="L.L. 2008/010" destination-id="0-0-0-25000">L.L. 2008/010</LINK>. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-085]</HIGHLIGHTER>
+												</PARA>
+											</RECORD>
+										</LEVEL>
+									</LEVEL>
+									<LEVEL style-name="Section" style-name-escaped="Section" style-id="0-0-0-703" level-depth="9" toc-section="true">
+										<RECORD id="0-0-0-226885" number="6069" version="1994">
+											<HEADING>§ 8-103 Commission on human rights. [Repealed]</HEADING>
+											<PARA>
+												<DESTINATION id="0-0-0-2049" name="8-103" />§ 8-103 <CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Commission on human rights. [Repealed]</CHARFORMAT>
+											</PARA>
+										</RECORD>
+										<LEVEL style-name="Normal Level" style-name-escaped="Normal-Level" style-id="0-0-0-0" level-depth="0" toc-section="false">
+											<RECORD id="0-0-0-4698" number="6070" version="3">
+												<PARA>(Repealed L.L. 2018/063, 1/19/2018, eff. 10/16/2018) <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-030]</HIGHLIGHTER>
+												</PARA>
+											</RECORD>
+											<RECORD id="0-0-0-4699" number="6071" version="1673">
+												<PARA style-name="EdNoteSm" style-name-escaped="EdNoteSm" style-id="0-0-0-18">
+													<CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Editor's note:</CHARFORMAT> For related unconsolidated provisions, see Appendix A at <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="L.L. 1991/039" destination-id="0-0-0-26706">L.L. 1991/039</LINK>. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-085]</HIGHLIGHTER>
+												</PARA>
+											</RECORD>
+										</LEVEL>
+									</LEVEL>
+									<LEVEL style-name="Section" style-name-escaped="Section" style-id="0-0-0-703" level-depth="9" toc-section="true">
+										<RECORD id="0-0-0-219876" number="6072" version="1673">
+											<HEADING>§ 8-104 Functions. [Repealed]</HEADING>
+											<PARA>
+												<DESTINATION id="0-0-0-2051" name="8-104" />§ 8-104 <CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Functions. [Repealed]</CHARFORMAT>
+											</PARA>
+										</RECORD>
+										<LEVEL style-name="Normal Level" style-name-escaped="Normal-Level" style-id="0-0-0-0" level-depth="0" toc-section="false">
+											<RECORD id="0-0-0-4700" number="6073" version="3">
+												<PARA>(Repealed L.L. 2018/063, 1/19/2018, eff. 10/16/2018) <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-030]</HIGHLIGHTER>
+												</PARA>
+											</RECORD>
+											<RECORD id="0-0-0-4701" number="6074" version="1673">
+												<PARA style-name="EdNoteSm" style-name-escaped="EdNoteSm" style-id="0-0-0-18">
+													<CHARFORMAT bold="1" italic="0" underline="0" strike-out="0" hidden="0">Editor's note:</CHARFORMAT> For related unconsolidated provisions, see Appendix A at <LINK style-name="Jump" style-name-escaped="Jump" style-id="0-0-0-23" type="Jump" destination-name="L.L. 1991/039" destination-id="0-0-0-26706">L.L. 1991/039</LINK>. <HIGHLIGHTER style="ALP" style-name-escaped="ALP" name="ALP" id="0-0-0-25">[ALP S-085]</HIGHLIGHTER>
+												</PARA>
+											</RECORD>
+										</LEVEL>
+									</LEVEL>
+									</LEVEL>
+							</LEVEL>
+						</LEVEL>
+					</LEVEL>
+				</LEVEL>
+			</LEVEL>
+		</LEVEL>
+	</LEVEL>
+</DOCUMENT>
