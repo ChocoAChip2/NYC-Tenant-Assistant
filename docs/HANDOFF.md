@@ -58,7 +58,7 @@ Test suite: **465 passing** (`python -m unittest discover -s tests`). Tests neve
 
 **Goal:** load official, verbatim NYC (and later NYS) law into `legal_sources`/`legal_documents`, keep it current automatically (the owner asked for a check "every few months"), and put it to use: `/law/<citation>` pages, violation chips linking to the real text, and chat grounding.
 
-**Committed on the branch so far:** `tools/corpus/__init__.py`, `tools/corpus/model.py` (`Section`, content hash over law text only, whole-paragraph chunk packing, `latest_effective_date` from history lines; **not yet unit-tested**, so add tests alongside the parser), `tests/fixtures/alp/` (real ALP excerpts), `docs/legal-sources-catalog.md`, this file.
+**Committed on the branch so far:** `tools/corpus/model.py` (now tested; hash normalizes ASCII whitespace only, to match the DB), `tools/corpus/alp.py` (parser), `tools/corpus/registry.py`, `tools/corpus/refresh.py` (CLI), `supabase/migrations/20260929_legal_library.sql` (**written, NOT applied**), `supabase/checks/20260929_legal_library_checks.sql` (the rolled-back live verification), `tests/fixtures/alp/`, tests for all of it (562 passing), `docs/legal-sources-catalog.md`, this file.
 
 ### Decisions already made (with evidence)
 
@@ -79,12 +79,30 @@ Test suite: **465 passing** (`python -m unittest discover -s tests`). Tests neve
 
 ### Next steps, in order
 
-1. `tools/corpus/alp.py`: parse the ALP XML per the catalog. **Unit-test against `tests/fixtures/alp/`** (real excerpts). Required: § 27-2029 text contains "sixty-two degrees" and no `[ALP S-` tags; its history holds the 2017/086 line and `last_amended == 2017-10-01`; editor's notes are excluded from the law text; repealed sections are flagged; the RTC `26-1301` heading's `*` is handled; section_keys are unique. Then, **on a machine with internet**, run it on the full zip and cross-check HMC sections against the nyc.gov PDF text (`hmc.pdf` in `~/Desktop/Github/sidekick-corpus-work/`).
-2. `tools/corpus/registry.py`: sources (HMC, RSL, UE, RTC, HRL Title 8 Ch 1, Rent Control), with anchors, minimums and file IDs. Add NYS sources behind `NYSENATE_API_KEY`, and **verify the Open Legislation response shape live before trusting the adapter**.
-3. Migration + RPCs. Test each in a rolled-back `BEGIN … ROLLBACK` against the live DB before `apply_migration`, then check `get_advisors`.
-4. `tools/corpus/refresh.py` CLI (`--dry-run`, `--source`, `--from-zip PATH`), plus tests with faked HTTP.
-5. Initial load from the laptop, then verify row counts, spot-check § 27-2029 in the DB, and run a full-text query through `search_legal_documents`.
-6. Workflow + `/law` page + chip links + docs + log entry. Ship.
+Done in the cloud session of 2026-09-28 (items 1-4 of the old list, minus everything that needs the internet):
+
+- ✅ `alp.py` meets every item-1 requirement, tested on the fixtures. Unknown markup is kept and reported in `warnings`, never silently dropped. Repeal comes only from ALP's `[Repealed]` heading marker, because "(Repealed and added L.L. …)" is a real form for a section in force.
+- ✅ `registry.py`: minimums are 90% of the real counts (HMC 189, RSL 22, UE 8, RTC 5, HRL 33). Rent Control is disabled until its count is measured. NYS sources are listed as data only, with no adapter until the API shape is seen live.
+- ✅ `refresh.py`: `--dry-run`, `--source`, `--from-zip`, `--dump DIR`, `--summary PATH`, `--new-token`. Exit codes: 0 ok, 1 write failed partway, 2 usage/credentials, 3 gate failed (nothing written).
+- ✅ Migration + RPCs written. They were smoke-tested on a **local** PostgreSQL 16 + pgvector that mimics Supabase, rolled back; every check passes and six deliberate breakages are each caught. That is **not** the live check.
+
+**Needs a machine with internet (the Mac, or an Actions run), in this order:**
+
+0. **Get this branch onto GitHub.** The cloud container's push was refused (403), same as the earlier sandbox.
+1. **Full-zip dry run:** `python -m tools.corpus.refresh --dry-run --from-zip ~/Desktop/Github/sidekick-corpus-work/admin_xml.zip --dump /tmp/lib`. Expect exit 0 and parsed counts HMC 211, RSL 25, UE 9, RTC 6, HRL 37 (288 total). **Read every parser warning**, because they mark markup the fixtures never showed. Also:
+   - Run it once without `--from-zip`, to prove the download path works.
+   - Run `--dry-run --from-zip … --source nyc-rent-control`. It fails the gate by design but prints the parsed count. Set `real_count` from it and enable the source.
+   - Check § 27-2031's history line in the full zip. The fixture `0-0-0-60027.xml` is exactly 100,000 bytes, and its § 27-2031 has no history line, so the excerpt may be truncated. If the real one has a history line, re-cut the fixture.
+2. **Cross-check against nyc.gov:** compare HMC sections in `/tmp/lib/nyc-hmc.json` with the DOB PDF (`hmc.pdf`), at least § 27-2029 (62°F), § 27-2031 and § 27-2005. No comparison tool exists yet. The PDF's text layout has not been seen, so write the comparer where the PDF is.
+3. **Migration, rolled back on the live DB:** in the SQL editor run `BEGIN;` + the whole migration + the whole checks file + `ROLLBACK;`. "No rows returned" with no error means every check passed. Then `apply_migration` and `get_advisors`. Expect lints for the anon-executable SECURITY DEFINER `corpus_*` functions; that is by design (token-checked).
+4. **Ingest token:** `python -m tools.corpus.refresh --new-token` on the Mac. Run the printed INSERT, which carries only the hash, and paste the token into GitHub secret `CORPUS_INGEST_TOKEN`.
+5. **Initial load from the Mac:** set `SUPABASE_URL`, `SUPABASE_KEY` (anon) and `CORPUS_INGEST_TOKEN`, then run `python -m tools.corpus.refresh --from-zip …`. Expect 288 added. Then verify:
+   - row counts per `source_key`
+   - `nyc-hmc:27-2029` `full_text` says sixty-two and `last_amended = 2017-10-01`
+   - `search_legal_documents(NULL, 'sixty-two degrees')` returns § 27-2029
+   - `legal_refresh_runs` shows `succeeded`
+   - a second identical run reports 0 changes
+6. Workflow + `/law` page + chip links + docs + log entry. Ship. **Delete or rewrite `tools/ingest_corpus.py`**: after the migration its `on_conflict="authority,citation"` upsert has no matching constraint and it never sets `section_key`, so it will fail.
 
 ## 4. What the owner needs to do
 
