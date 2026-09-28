@@ -7,6 +7,7 @@ guard's verbatim check can find a quoted subdivision intact), and the
 "last amended" date is read from the history, never guessed.
 """
 
+import hashlib
 import os
 import unittest
 
@@ -15,6 +16,7 @@ from tools.corpus.model import (
     MAX_CHUNK_CHARS,
     Section,
     latest_effective_date,
+    law_hash,
     pack_paragraphs,
 )
 
@@ -72,6 +74,14 @@ class ContentHashTests(unittest.TestCase):
         old = _section(paragraphs=["(2) ... at least fifty-five degrees Fahrenheit whenever ..."])
         new = _section(paragraphs=["(2) ... at least sixty-two degrees Fahrenheit."])
         self.assertNotEqual(old.content_hash, new.content_hash)
+
+    def test_only_ascii_whitespace_is_normalized(self):
+        # Must match corpus_law_hash() in the 20260929 migration, which the
+        # database uses to reject any write whose hash disagrees. U+00A0 is
+        # the publisher's character, not formatting.
+        self.assertEqual(law_hash(" a \t\n\x0b\x0c\r b "), law_hash("a b"))
+        self.assertNotEqual(law_hash("a\u00a0b"), law_hash("a b"))
+        self.assertEqual(law_hash("a b"), hashlib.sha256(b"a b").hexdigest())
 
     def test_hash_is_sha256_hex(self):
         digest = _section().content_hash

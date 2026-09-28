@@ -45,8 +45,7 @@ class Section:
         """Hash of the LAW TEXT only. History lines and editor's notes are
         excluded, so a publisher re-wording a note is not reported as the
         law changing -- and an amendment always is."""
-        normalized = re.sub(r"\s+", " ", self.text).strip()
-        return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+        return law_hash(self.text)
 
     @property
     def last_amended(self) -> str | None:
@@ -72,6 +71,19 @@ class Section:
             "content_hash": self.content_hash,
             "chunks": [{"ordinal": i, "text": c} for i, c in enumerate(self.chunks())],
         }
+
+
+# ASCII whitespace only, spelled out. The database recomputes this hash
+# (corpus_law_hash in supabase/migrations/20260929_legal_library.sql) and
+# rejects any write where the two disagree, so both sides must mean the
+# same characters. Python's \s would also match U+00A0 and friends, which
+# Postgres's does not.
+_HASH_WS_RE = re.compile(r"[ \t\n\x0b\x0c\r]+")
+
+
+def law_hash(text: str) -> str:
+    normalized = _HASH_WS_RE.sub(" ", text).strip(" ")
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
 
 def pack_paragraphs(paragraphs: list[str], limit: int = MAX_CHUNK_CHARS) -> list[str]:
