@@ -109,7 +109,9 @@ def _split_long(text: str, limit: int) -> list[str]:
         if cut < limit // 2:
             cut = rest.rfind(" ", 0, limit)
         if cut <= 0:
-            cut = limit
+            # No break point at all: hard cut, and keep it within the limit
+            # (cut + 1 below would otherwise take limit + 1 characters).
+            cut = limit - 1
         out.append(rest[: cut + 1].strip())
         rest = rest[cut + 1 :].strip()
     if rest:
