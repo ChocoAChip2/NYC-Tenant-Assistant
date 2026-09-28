@@ -11,6 +11,7 @@ from flask import Blueprint, current_app, flash, jsonify, redirect, render_templ
 
 import branding
 import citation_guard
+import password_safety
 import retrieval_service
 from ai_service import AIService
 from markdown_service import render_markdown
@@ -98,6 +99,13 @@ def signup():
 
         if not email or not password:
             flash("Please provide both email and password.", "error")
+            return render_template("signup.html")
+
+        # Checked against public breach corpora (see password_safety.py).
+        # Fails open by design: an unreachable API must never stop someone
+        # making an account.
+        if password_safety.is_breached(password):
+            flash(password_safety.MESSAGE, "error")
             return render_template("signup.html")
 
         try:
@@ -244,6 +252,13 @@ def reset_password():
 
         if len(new_password) < 6:
             flash("Password must be at least 6 characters.", "error")
+            return render_template("reset_password.html")
+
+        # Checked against public breach corpora (see password_safety.py).
+        # Fails open by design: an unreachable API must never stop someone
+        # making an account.
+        if password_safety.is_breached(new_password):
+            flash(password_safety.MESSAGE, "error")
             return render_template("reset_password.html")
 
         try:
@@ -806,6 +821,13 @@ def update_account():
 
     if new_password and len(new_password) < 6:
         flash("Password must be at least 6 characters.", "error")
+        return redirect(url_for("main.settings"))
+
+    # Checked against public breach corpora (see password_safety.py).
+    # Fails open by design: an unreachable API must never stop someone
+    # changing their password.
+    if new_password and password_safety.is_breached(new_password):
+        flash(password_safety.MESSAGE, "error")
         return redirect(url_for("main.settings"))
 
     try:

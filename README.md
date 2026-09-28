@@ -12,6 +12,7 @@ Render and Supabase work together in this project when these are set correctly:
 - `GEMINI_API_KEY` (used to generate chat responses)
 - `FLASK_SECRET_KEY` (any strong random string — **required, no default**; see below)
 - `ALERT_WEBHOOK_URL` (optional; see [Error alerting](#error-alerting))
+- `PASSWORD_BREACH_CHECK` (optional; set to `off` to disable the breached-password check on a deployment with no outbound network access)
 
 Render start command:
 
@@ -75,6 +76,7 @@ from before this branch — errors only appear in logs.
 ├── retrieval_service.py  # Hybrid search over the legal corpus (see docs/legal-grounding.md)
 ├── markdown_service.py   # Renders the assistant's Markdown safely (escape-first)
 ├── login_lockout.py      # Failed-login lockout with exponential backoff
+├── password_safety.py    # Refuses breached passwords via HIBP k-anonymity (free; no API key)
 ├── rate_limit.py         # Shared Flask-Limiter instance (own module: avoids a circular import)
 ├── supabase_service.py   # Supabase client setup + auth service methods
 ├── routes.py             # Signup/login/chat/logout HTTP routes (uses services)
