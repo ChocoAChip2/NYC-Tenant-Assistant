@@ -1,0 +1,22 @@
+2026-09-28  Legal library: full-zip dry run, nyc.gov cross-check, live rolled-back migration test
+
+What ran
+- The refresh CLI ran on the owner's Mac against the real ALP Admin Code zip, both the local copy and a fresh download (Last-Modified 23 Sep 2026).
+- The first run failed its gates and found three shapes the fixtures never had:
+    "§ 27- 2017.4." and "§ 27- 2017.8": a space after the hyphen. Both pest sections were being skipped.
+    PARA style "EdNote" (§ 27-2093.1): an editor's note about a future amendment was being kept as law text.
+    "§ 8-108 Reserved." and "§ 8-110 Reserved.": empty placeholders failed the empty-text gate.
+- Fixed in tools/corpus/alp.py, with 5 new tests. Rent Control was measured at 22 sections and is now enabled. HRL real_count is 35.
+- After the fix: exit 0, zero warnings. HMC 211, RSL 25, UE 9, RTC 6, HRL 35, Rent Control 22 = 308 sections.
+
+Cross-check against nyc.gov (DOB HMC PDF, 2026-04-17)
+- All 211 HMC sections are present in both sources.
+- §§ 27-2029 (62°F overnight), 27-2031 and 27-2005 match word for word.
+- The other differences are PDF artifacts: line-break hyphenation and page headers.
+- § 27-2115(5) is missing a section number in BOTH sources ("pursuant to section shall be subject to"). The PDF also drops the rest of that sentence, so ALP is the more complete of the two.
+
+Live DB, rolled back
+- The migration and the checks ran in one transaction on project lwskfyxmcuowexehbqig: ALL CHECKS PASSED.
+- After the rollback, no new tables exist and legal_sources is still empty.
+
+Suite: 567 passing.
