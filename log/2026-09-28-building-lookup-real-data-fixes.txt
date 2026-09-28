@@ -1,0 +1,46 @@
+2026-09-28 -- Building lookup: two live bugs found by testing against real data
+===============================================================================
+
+Both were in PR #32, shipped the same day. Both were invisible to its 445
+tests because those tests used fixtures shaped like 2014-era records.
+
+1. A FALSE "NO VIOLATIONS" FOR SOME BUILDINGS
+
+A research pass reported that the HPD violations dataset has no `bbl`
+column. It does -- earlier tests saw values -- but the claim prompted a
+measurement: bbl is filled on 99.88% of open violations, and the gaps are
+not a lag (0.12% in the last week, 0.10% over a year). They cluster BY
+BUILDING.
+
+4601 Henry Hudson Parkway, Bronx: bbl-only query 0 open violations;
+widened query 138, including 9 Class C (immediately hazardous). A tenant
+there would have been told "No open violations on record."
+
+Fix: match `bbl` OR HPD's own boroid+block+lot (filled on 100% of rows).
+Strictly additive -- verified live that normal buildings are unchanged
+(231 Echo Place 65 = 65; 1520 Sheridan Ave 140 = 140). Residual: condo
+units recorded under their own unit lot with no bbl still cannot be
+matched from the base lot; documented.
+
+2. FALSE STATUTE CITATIONS ON 27% OF VIOLATIONS
+
+Against 5,000 current open violations the citation parser:
+  - put a false "NYC Admin Code" label on 1,348 -- city RULES such as
+    "28 RCNY § 11-06" shown as the statute;
+  - left leading punctuation on 1,554 cleaned descriptions;
+  - left "Hmc:" / "§" residue on 1,273;
+  - passed through control characters ("REFIT\x1a DOOR").
+
+HPD writes the legal basis in at least 42 shapes. Rewritten so a citation
+is labelled only when its source is unambiguous (HMC by its 27-2xxx number;
+anything else only when the text names HMC/ADM CODE or RCNY beside it; MDL
+only from the leading clause and only when the clause names the MDL). After:
+zero false labels, zero punctuation/residue, every HMC section found, every
+inferred MDL section within the law's real range, on all 5,000.
+
+VERIFIED
+
+- Live, from a machine with normal internet, running the real module
+  against the real GeoSearch + NYC Open Data APIs on three buildings.
+- 465 unit tests (up from 445), including 135 real descriptions across all
+  42 clause shapes as a permanent fixture.
