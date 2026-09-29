@@ -40,4 +40,4 @@ real zip:
 
 The checks file was mutation-tested: each rule, when disabled, is caught.
 
-Suite: 581 passing.
+Suite: 580 passing.
