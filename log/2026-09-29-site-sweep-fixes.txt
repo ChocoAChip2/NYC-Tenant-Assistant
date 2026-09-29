@@ -37,4 +37,4 @@ It did find eight defects, all fixed here:
 Known and not changed here: the "[S1]" citation markers in replies still
 have no UI (log/2026-09-20-legal-grounding.txt).
 
-Suite: 590 passing (23 new in tests/test_site_sweep_fixes.py).
+Suite: 591 passing (24 new in tests/test_site_sweep_fixes.py). Also: the suite is now hermetic -- it had been calling the real HIBP API, which failed 5 tests on a machine with internet.
