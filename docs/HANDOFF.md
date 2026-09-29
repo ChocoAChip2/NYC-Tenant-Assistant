@@ -66,7 +66,8 @@ Test suite: **465 passing** (`python -m unittest discover -s tests`). Tests neve
 2. **Standard library only** (`xml.etree`, `urllib`, `hashlib`), so it runs on the laptop and in Actions with no installs.
 3. **Least-privilege writes, not the service-role key.** Plan: a private `corpus_ingest_tokens` table (RLS on, no policies) storing the **sha256** of a 256-bit token, and `SECURITY DEFINER` RPCs (`search_path` pinned `public, extensions, pg_temp`, using `extensions.digest`) that check the token, callable by anon. A leaked token can touch only the library.
    - `corpus_upsert_sections(p_token, p_run_id, p_sections jsonb)`: **recompute the hash server-side**. New section → insert + log `added`. Changed → replace text/chunks + log `amended`. Unchanged → bump `last_checked_at`. Cap batch size and text length.
-   - `corpus_finalize_source(p_token, p_run_id, p_source_key, p_seen_keys text[])`: mark unseen active sections `missing_from_source` (**never delete**, since old citations reference them). **Raise if seen < 80% of the active count** (a broken parse must not wipe the library).
+   - `corpus_preflight_source(p_token, p_run_id, p_source_key, p_seen_keys text[])`: called **before** a source's upserts. It raises if the parse covers < 80% of the sections active right now, so a bad parse is refused while the library is untouched. Added 2026-09-29.
+   - `corpus_finalize_source(p_token, p_run_id, p_source_key, p_seen_keys text[])`: mark unseen active sections `missing_from_source` (**never delete**, since old citations reference them). **Raise if seen < 80% of the sections active before the run.** Rows this run added or restored don't count, so padding with new keys can't get past it. It also raises if the seen list leaves out a section this run wrote. Before the 2026-09-29 fix it counted after the upserts, so 5 real + 20 junk sections passed as 25/30.
    - Optional `corpus_set_embeddings(p_token, items)` to backfill vectors later.
    - Generate the token **on the owner's machine** and store only its hash via SQL, so the token never appears in a chat transcript. The owner pastes it into GitHub secret `CORPUS_INGEST_TOKEN`.
 4. **Schema changes needed** (new migration): on `legal_sources` add `section_key text unique` (`<source_key>:<citation>`, needed because §26-1301 is duplicated), `source_key`, `heading_path`, `full_text`, `history jsonb`, `notes jsonb`, `repealed bool`, `last_amended date`, `last_checked_at timestamptz`, `status text default 'active'`. **Drop the old `UNIQUE(authority, citation)`** (table is empty). Add a `legal_source_changes` table (section_key, change_type, old_hash, new_hash, detected_at, run_id; public read) and a private `legal_refresh_runs`. Make `search_legal_documents` **exclude non-active sources**. The table currently has 0 rows, so this is safe.
@@ -83,7 +84,13 @@ Done in the cloud session of 2026-09-28 (items 1-4 of the old list, minus everyt
 
 - ✅ `alp.py` meets every item-1 requirement, tested on the fixtures. Unknown markup is kept and reported in `warnings`, never silently dropped. Repeal comes only from ALP's `[Repealed]` heading marker, because "(Repealed and added L.L. …)" is a real form for a section in force.
 - ✅ `registry.py`: minimums are 90% of the real counts (HMC 189, RSL 22, UE 8, RTC 5, HRL 33). Rent Control is disabled until its count is measured. NYS sources are listed as data only, with no adapter until the API shape is seen live.
-- ✅ `refresh.py`: `--dry-run`, `--source`, `--from-zip`, `--dump DIR`, `--summary PATH`, `--new-token`. Exit codes: 0 ok, 1 write failed partway, 2 usage/credentials, 3 gate failed (nothing written).
+- ✅ `refresh.py`: `--dry-run`, `--source`, `--from-zip`, `--dump DIR`, `--summary PATH`, `--new-token`. Exit codes:
+  - 0: ok
+  - 1: write failed (the summary says whether anything was written and lists only what was)
+  - 2: could not start: usage, credentials, download or state read failed; nothing written
+  - 3: gate failed; nothing written
+
+  Timeouts, resets and HTTP 502/503/504 are retried twice. Every failure ends in a summary, never a traceback, and a started run is always closed.
 - ✅ Migration + RPCs written. They were smoke-tested on a **local** PostgreSQL 16 + pgvector that mimics Supabase, rolled back; every check passes and six deliberate breakages are each caught. That is **not** the live check.
 
 **Needs a machine with internet (the Mac, or an Actions run), in this order:**
@@ -92,6 +99,17 @@ Done in the cloud session of 2026-09-28 (items 1-4 of the old list, minus everyt
 1. ✅ **Full-zip dry run (2026-09-28, on the Mac).** The first run found three real shapes the fixtures never showed, fixed in `fix/legal-library-full-zip`: `"§ 27- 2017.4."` / `"§ 27- 2017.8"` (space after the hyphen; both pest sections were being skipped), PARA style `EdNote` on § 27-2093.1 (a note about L.L. 2026/138, eff. 4/15/2027, was being kept as law), and `"§ 8-108 Reserved."` / `"§ 8-110 Reserved."` (placeholders, now left out). After the fix, both `--from-zip` and the live download (ALP `Last-Modified: Wed, 23 Sep 2026`) give **exit 0, zero warnings: HMC 211, RSL 25, UE 9, RTC 6, HRL 35, Rent Control 22 = 308**. Rent Control is enabled with `real_count=22`. § 27-2031 has no history line in the full zip either, so the fixture is not truncated there.
 2. ✅ **Cross-check against nyc.gov** (DOB PDF dated 2026-04-17). All 211 HMC sections appear in both. §§ 27-2029, 27-2031 and 27-2005 match word for word. The other differences are PDF line-break hyphenation (`high-efficiency` split across lines) and page headers. One real finding: § 27-2115(5) reads "the rules established pursuant to section shall be subject to…" in **both** sources (the section number is missing in the official text itself), and the PDF also drops the rest of that sentence. The ALP text is the more complete of the two.
 3. ✅ **Migration, rolled back on the live DB** (2026-09-28, via the Supabase connector). The whole migration plus the checks ran in one transaction and returned "ALL CHECKS PASSED" (10 sections in the transaction). Afterwards `corpus_ingest_tokens` did not exist and `legal_sources` was still empty, so the rollback held. The run used small synthetic payloads with Python-computed hashes instead of the long real ones in the checks file. Real-text hash parity is proven by step 5 anyway: the server recomputes the hash for every one of the 308 sections and rejects any mismatch. **Next:** `apply_migration`, then `get_advisors`.
+3b. ✅ **End-to-end load, locally (2026-09-29).**
+   - **Setup:** local PostgreSQL 16 with pgvector, pgcrypto and Supabase's roles and default grants, plus a small stand-in for PostgREST that runs every call as `anon` with anon's 3 s statement timeout. The real CLI loaded the real zip through it.
+   - **Initial load:** 308 added, in about 1 s. The server recomputed and accepted every section's hash, so real-text parity holds.
+   - **Second run:** 0 changes, `changed=false`.
+   - **Old heat rule planted:** reported as **amended** (§ 27-2029, chunks replaced).
+   - **Extra section planted:** marked **missing**, kept, and no longer searchable.
+   - **Wrong token:** exit 1, "nothing was written".
+   - **Server down:** exit 2 with a summary.
+   - **Anon search for "sixty-two degrees Fahrenheit":** § 27-2029, with the official URL.
+   - **Known retrieval gap:** there are no embeddings yet, so search is full-text only, and every word must match. "landlord changed the locks" finds nothing, because § 26-521 says "owner" and "lock".
+   - `supabase/checks/…` now covers preflight, padding and seen-list consistency. It was mutation-tested: each of the three rules, when disabled, makes it fail.
 4. **Ingest token:** `python -m tools.corpus.refresh --new-token` on the Mac. Run the printed INSERT, which carries only the hash, and paste the token into GitHub secret `CORPUS_INGEST_TOKEN`.
 5. **Initial load from the Mac:** set `SUPABASE_URL`, `SUPABASE_KEY` (anon) and `CORPUS_INGEST_TOKEN`, then run `python -m tools.corpus.refresh --from-zip …`. Expect 308 added. Then verify:
    - row counts per `source_key`

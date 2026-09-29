@@ -58,10 +58,15 @@ class _Response(io.BytesIO):
 class FakeNetwork:
     """ALP + a Supabase that keeps legal_sources in memory like the RPCs do."""
 
-    def __init__(self, zip_bytes=None, rows=None, fail_rpc=None):
+    def __init__(self, zip_bytes=None, rows=None, fail_rpc=None, failures=None, fail_after=None):
         self.zip_bytes = zip_bytes
         self.rows = rows if rows is not None else {}  # section_key -> {content_hash, status, source_key}
         self.fail_rpc = fail_rpc
+        # name -> list of exceptions raised by successive calls, then success
+        self.failures = {k: list(v) for k, v in (failures or {}).items()}
+        # (name, n): the n-th call (1-based) of `name` and every later one fail with HTTP 500
+        self.fail_after = fail_after
+        self.counts = {}
         self.calls = []
 
     def __call__(self, request, timeout=None):
@@ -70,6 +75,8 @@ class FakeNetwork:
         body = json.loads(request.data) if request.data else None
         self.calls.append((method, url, body, dict(request.header_items())))
         if url == ALP_ADMIN_ZIP_URL:
+            if self.failures.get("download"):
+                raise self.failures["download"].pop(0)
             if self.zip_bytes is None:
                 raise AssertionError("unexpected download")
             return _Response(self.zip_bytes, {"Last-Modified": "Wed, 23 Sep 2026 10:00:00 GMT"})
@@ -77,17 +84,33 @@ class FakeNetwork:
             raise AssertionError(f"unexpected URL {url}")
         path = url[len(SUPABASE_URL):]
         if method == "GET" and path.startswith("/rest/v1/legal_sources?"):
+            if self.failures.get("state"):
+                raise self.failures["state"].pop(0)
             source = re.search(r"source_key=eq\.([^&]+)", path).group(1)
             rows = [dict(section_key=k, **{f: v[f] for f in ("content_hash", "status")})
                     for k, v in self.rows.items() if v["source_key"] == source]
             return _Response(json.dumps(rows).encode())
         name = path.rsplit("/", 1)[-1]
+        self.counts[name] = self.counts.get(name, 0) + 1
         if name == self.fail_rpc:
             raise urllib.error.HTTPError(url, 400, "Bad Request", {}, io.BytesIO(b'{"message":"boom"}'))
+        if self.fail_after and name == self.fail_after[0] and self.counts[name] >= self.fail_after[1]:
+            raise urllib.error.HTTPError(url, 500, "Server Error", {}, io.BytesIO(b'{"message":"down"}'))
+        if self.failures.get(name):
+            raise self.failures[name].pop(0)
         return _Response(json.dumps(getattr(self, "rpc_" + name)(**body)).encode())
 
     def rpc_corpus_begin_run(self, p_token, p_trigger):
         return "11111111-2222-3333-4444-555555555555"
+
+    def rpc_corpus_preflight_source(self, p_token, p_run_id, p_source_key, p_seen_keys):
+        # Mirrors the SQL: coverage of what was ACTIVE before any upsert.
+        active = {k for k, v in self.rows.items() if v["source_key"] == p_source_key and v["status"] == "active"}
+        covered = len(active & set(p_seen_keys))
+        if active and covered < -(-8 * len(active) // 10):
+            raise urllib.error.HTTPError("x", 400, "Bad Request", {},
+                                         io.BytesIO(b'{"message":"refusing to write"}'))
+        return {"active": len(active), "covered": covered}
 
     def rpc_corpus_upsert_sections(self, p_token, p_run_id, p_sections):
         out = []
@@ -319,8 +342,10 @@ class WriteTests(RefreshTestCase):
         output = os.path.join(self.tmp.name, "gh_output")
         code, out, net = self.run_refresh(self.args(), env=dict(ENV, GITHUB_OUTPUT=output))
         self.assertEqual(code, 0, out)
-        self.assertEqual(net.rpc_names(), ["corpus_begin_run", "corpus_upsert_sections", "corpus_finalize_source",
-                                           "corpus_upsert_sections", "corpus_finalize_source", "corpus_finish_run"])
+        self.assertEqual(net.rpc_names(), ["corpus_begin_run",
+                                           "corpus_preflight_source", "corpus_upsert_sections", "corpus_finalize_source",
+                                           "corpus_preflight_source", "corpus_upsert_sections", "corpus_finalize_source",
+                                           "corpus_finish_run"])
         self.assertEqual(len(net.rows), 15)
         self.assertIn("| nyc-ue | 9 | 9 | 0 | 0 | 0 | 0 |", out)
         self.assertIn("(live)", out)
@@ -377,6 +402,125 @@ class WriteTests(RefreshTestCase):
         self.assertEqual(len(finish), 1)
         self.assertEqual(finish[0]["p_status"], "failed")
         self.assertIn("HTTP 400", finish[0]["p_summary"]["error"])
+
+
+class FailureTests(RefreshTestCase):
+    """Every failure ends in a summary and a clean exit code, never a traceback,
+    and a started run is always closed. From the 2026-09-29 review."""
+
+    def setUp(self):
+        super().setUp()
+        patcher = mock.patch.object(refresh, "_sleep", lambda s: self.sleeps.append(s))
+        self.sleeps = []
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def ue_rtc(self):
+        return ["--from-zip", self.zip_path, "--source", "nyc-ue", "--source", "nyc-rtc"]
+
+    def test_transient_errors_are_retried_then_succeed(self):
+        net = FakeNetwork(failures={"corpus_upsert_sections": [
+            TimeoutError("timed out"),
+            urllib.error.HTTPError("x", 503, "Unavailable", {}, io.BytesIO(b"")),
+        ]})
+        code, out, _ = self.run_refresh(self.ue_rtc(), net, ENV)
+        self.assertEqual(code, 0, out)
+        self.assertEqual(self.sleeps, list(refresh.RETRY_DELAYS))
+        self.assertEqual(len(net.rows), 15)
+
+    def test_a_timeout_that_persists_closes_the_run_as_failed(self):
+        net = FakeNetwork(failures={"corpus_upsert_sections": [TimeoutError("timed out")] * 3})
+        code, out, _ = self.run_refresh(self.ue_rtc(), net, ENV)
+        self.assertEqual(code, 1)
+        self.assertIn("### Write failed partway", out)
+        self.assertIn("timed out", out)
+        self.assertNotIn("Gates failed", out)
+        finish = [b for _, url, b, _ in net.calls if url.endswith("corpus_finish_run")]
+        self.assertEqual([f["p_status"] for f in finish], ["failed"])
+
+    def test_a_refused_token_says_nothing_was_written(self):
+        net = FakeNetwork(fail_rpc="corpus_begin_run")
+        code, out, _ = self.run_refresh(self.ue_rtc(), net, ENV)
+        self.assertEqual(code, 1)
+        self.assertIn("### Write failed before anything was written", out)
+        self.assertNotIn("partway", out)
+        self.assertEqual(net.rows, {})
+
+    def test_http_400_is_not_retried(self):
+        net = FakeNetwork(fail_rpc="corpus_upsert_sections")
+        code, _, _ = self.run_refresh(self.ue_rtc(), net, ENV)
+        self.assertEqual(code, 1)
+        self.assertEqual(self.sleeps, [])
+        self.assertEqual(net.counts["corpus_upsert_sections"], 1)
+
+    def test_partial_failure_reports_only_what_was_written(self):
+        # nyc-ue is written in full, nyc-rtc's first batch fails, nyc-rtc gets nothing.
+        output = os.path.join(self.tmp.name, "gh_output")
+        net = FakeNetwork(fail_after=("corpus_upsert_sections", 2))
+        code, out, _ = self.run_refresh(self.ue_rtc(), net, dict(ENV, GITHUB_OUTPUT=output))
+        self.assertEqual(code, 1)
+        self.assertIn("| nyc-ue | 9 | 9 | 0 | 0 | 0 | 0 |", out)
+        self.assertIn("| nyc-rtc | 6 | 0 | 0 | 0 | 0 | stopped partway |", out)
+        self.assertEqual(sorted(k for k in net.rows if k.startswith("nyc-rtc")), [])
+        self.assertIn("\n### Added\n", out)
+        self.assertIn("§ 26-521]", out)
+        self.assertNotIn("§ 26-1301]", out)  # planned but never written: not listed
+        with open(output, encoding="utf-8") as handle:
+            self.assertEqual(handle.read(), "changed=true\n")
+
+    def test_a_source_not_reached_is_marked_not_attempted(self):
+        net = FakeNetwork(fail_after=("corpus_preflight_source", 2))
+        code, out, _ = self.run_refresh(self.ue_rtc(), net, ENV)
+        self.assertEqual(code, 1)
+        self.assertIn("| nyc-rtc | 6 | not attempted | not attempted |", out)
+
+    def test_server_preflight_refuses_before_any_upsert(self):
+        # The library holds 10 active UE sections the parse does not contain
+        # (0 of 10 covered). The client gate is stubbed out to stand in for a
+        # client bug, so only the server's preflight stands in the way.
+        rows = {f"nyc-ue:26-9{n}": {"content_hash": "0" * 64, "status": "active", "source_key": "nyc-ue"}
+                for n in range(10)}
+        net = FakeNetwork(rows=rows)
+        with mock.patch.object(refresh, "gate", lambda *a: []):  # simulate a client gate bug
+            code, out, _ = self.run_refresh(["--from-zip", self.zip_path, "--source", "nyc-ue"], net, ENV)
+        self.assertEqual(code, 1)
+        self.assertEqual(net.counts.get("corpus_upsert_sections", 0), 0)
+        self.assertTrue(all(v["status"] == "active" for v in net.rows.values()))
+        self.assertIn("refusing to write", out)
+
+    def test_download_failure_exits_2_with_a_summary(self):
+        net = FakeNetwork(failures={"download": [urllib.error.URLError("name resolution failed")]})
+        code, out, _ = self.run_refresh(["--dry-run", "--source", "nyc-ue"], net)
+        self.assertEqual(code, 2)
+        self.assertIn("### Could not run: nothing was written", out)
+        self.assertIn("name resolution failed", out)
+
+    def test_missing_migration_exits_2_and_names_the_likely_cause(self):
+        net = FakeNetwork(failures={"state": [urllib.error.HTTPError(
+            "x", 400, "Bad Request", {}, io.BytesIO(b'{"message":"column legal_sources.section_key does not exist"}'))]})
+        code, out, _ = self.run_refresh(["--from-zip", self.zip_path, "--source", "nyc-ue"], net, ENV)
+        self.assertEqual(code, 2)
+        self.assertIn("20260929 migration", out)
+        self.assertEqual(net.rpc_names(), [])
+
+    def test_corrupt_zip_fails_the_gate(self):
+        with open(self.zip_path, "wb") as handle:
+            handle.write(b"not a zip")
+        code, out, _ = self.run_refresh(["--dry-run", "--from-zip", self.zip_path, "--source", "nyc-ue"])
+        self.assertEqual(code, 3)
+        self.assertIn("cannot read the zip", out)
+
+    def test_missing_local_zip_exits_2(self):
+        code, out, _ = self.run_refresh(["--dry-run", "--from-zip", "/nonexistent/XML.zip"])
+        self.assertEqual(code, 2)
+        self.assertIn("no such file", out)
+
+    def test_github_output_is_written_even_when_nothing_could_run(self):
+        output = os.path.join(self.tmp.name, "gh_output")
+        net = FakeNetwork(failures={"download": [OSError("reset")] })
+        self.run_refresh(["--source", "nyc-ue"], net, dict(ENV, GITHUB_OUTPUT=output))
+        with open(output, encoding="utf-8") as handle:
+            self.assertEqual(handle.read(), "changed=false\n")
 
 
 class CliTests(RefreshTestCase):

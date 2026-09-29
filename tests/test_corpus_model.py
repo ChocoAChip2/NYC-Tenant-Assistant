@@ -153,6 +153,11 @@ class LatestEffectiveDateTests(unittest.TestCase):
     def test_falls_back_to_enactment_date_without_eff(self):
         self.assertEqual(latest_effective_date(["(Am. L.L. 1991/039, 6/18/1991)"]), "1991-06-18")
 
+    def test_an_impossible_date_is_skipped_not_sent(self):
+        # The server casts last_amended with ::date; 2/30 would reject the batch.
+        self.assertEqual(latest_effective_date(["(Am. L.L. 2017/086, 5/30/2017, eff. 2/30/2017)"]), "2017-05-30")
+        self.assertIsNone(latest_effective_date(["(Am. L.L. 2017/086, 13/45/2017, eff. 2/30/2017)"]))
+
     def test_none_when_no_date_is_named(self):
         self.assertIsNone(latest_effective_date([]))
         self.assertIsNone(latest_effective_date(["(Added by charter revision)"]))
