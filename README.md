@@ -92,7 +92,7 @@ from before this branch — errors only appear in logs.
 ├── .github/workflows/
 │   └── keepalive.yml     # Supabase keep-alive cron (see below)
 └── templates/
-    ├── signup.html       # Signup page
+    ├── signup.html       # Signup page (/signup; / is the building lookup)
     ├── login.html        # Login page
     └── chat.html         # Post-login chat placeholder
 ```

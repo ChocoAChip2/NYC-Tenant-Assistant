@@ -108,7 +108,32 @@ def favicon():
     return response
 
 
+# One budget for the lookup at both of its URLs. Each lookup costs several
+# calls to the city's APIs, so "/" and "/building" must not be two separate
+# 30-a-minute allowances.
+_building_lookup_limit = limiter.shared_limit("30 per minute", scope="building_lookup", methods=["GET"])
+
+
 @main_bp.route("/", methods=["GET", "POST"])
+@_building_lookup_limit
+def home():
+    """The front door is the building lookup, not a signup form.
+
+    It needs no account and it's the part of the site a general chatbot
+    can't do, so a first-time visitor sees real value before being asked
+    for an email address. /building keeps working (shared lookup links
+    use it), and signup moved to /signup.
+
+    A POST here can only come from a signup form rendered before the move,
+    left open in a tab. 307 keeps the method and body, so it still works
+    (and is still rate limited, at /signup).
+    """
+    if request.method == "POST":
+        return redirect(url_for("main.signup"), code=307)
+    return _render_building_lookup()
+
+
+@main_bp.route("/signup", methods=["GET", "POST"])
 @limiter.limit("10 per minute", methods=["POST"])
 def signup():
     """Show the signup page and create a new account on form submission."""
@@ -135,7 +160,15 @@ def signup():
             # docstring in supabase_service.py) -- either way, we must not
             # tell the visitor to "check your email" for an account that
             # already exists and never got a new confirmation email.
-            created = supabase_service.sign_up(email=email, password=password)
+            # The confirmation email's link lands on /login, where the
+            # confirmed tenant can sign in, rather than on Supabase's Site
+            # URL (the site root, which is now the building lookup). The
+            # URL must also be in Supabase's Redirect URLs allowlist.
+            created = supabase_service.sign_up(
+                email=email,
+                password=password,
+                email_redirect_to=url_for("main.login", _external=True),
+            )
             if not created:
                 return render_template("signup.html", existing_account_email=email)
 
@@ -689,7 +722,7 @@ def chat_message():
 
 
 @main_bp.route("/building")
-@limiter.limit("30 per minute")
+@_building_lookup_limit
 def building_lookup():
     """Public: what the City of New York already knows about a building.
 
@@ -707,6 +740,10 @@ def building_lookup():
     being broken -- but the status code still tells the truth (503 when
     the city's service is down), so monitoring can.
     """
+    return _render_building_lookup()
+
+
+def _render_building_lookup():
     address = (request.args.get("address") or "").strip()
     apt = (request.args.get("apt") or "").strip()
     report = None

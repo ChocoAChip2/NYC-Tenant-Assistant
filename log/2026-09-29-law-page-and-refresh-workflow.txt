@@ -31,3 +31,10 @@ Not verified here (cloud container, no Supabase): the page against the
 live library, which is empty until the migration is applied and loaded.
 The workflow has not run on GitHub yet; its shell logic was exercised with
 a stubbed python.
+
+Follow-up branch feat/building-home (owner's decision, 2026-09-29): / is
+now the building lookup and signup moved to /signup. The two lookup URLs
+share one 30/min budget (checked in the real app: 20 hits on / then 10
+more allowed on /building). A POST to / (a signup tab open from before the
+move) gets a 307 to /signup. Signup sends email_redirect_to=/login, which
+needs /login in Supabase's Redirect URLs allowlist (owner step).

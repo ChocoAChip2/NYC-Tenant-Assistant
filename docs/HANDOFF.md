@@ -135,7 +135,7 @@ Done in the cloud session of 2026-09-28 (items 1-4 of the old list, minus everyt
 7. ✅ **`/law/<citation>` page + building-page chip links** (`law_service.py`, `templates/law.html`, docs in `docs/frontend/law-page.md`):
    - Shows repealed and missing sections with a notice.
    - Chips link only when the number is unambiguous in the library.
-   - The page returns 503 and chips stay plain until the library is loaded.
+   - The page returns 503 and chips stay plain whenever the library can't be read. The library is now loaded (#39), so both work once this branch is merged.
    - Rendered and checked in Chromium, light and dark, at 390 px.
    - **Still to do after the load:** open a real `/law/27-2029` and a real building page on Render. Then set `LEGAL_CORPUS_ENABLED=1`, keep the guard in `report`, and watch the logs.
 
@@ -145,7 +145,8 @@ Done in the cloud session of 2026-09-28 (items 1-4 of the old list, minus everyt
 - [ ] Add GitHub secrets: `CORPUS_INGEST_TOKEN` (generated in section 3, step 4), optionally `GEMINI_API_KEY` (embeddings) and `NYSENATE_API_KEY`. `SUPABASE_URL` and `SUPABASE_KEY` already exist for the keep-alive.
 - [ ] After the library loads: set `LEGAL_CORPUS_ENABLED=1` on Render.
 - [ ] Post-deploy checks on Render: sign up with password `password` (should be refused by the HIBP check), and look up one real building on `/building`.
-- [ ] Decide whether `/building` becomes the site root. Check Supabase's email-confirmation redirect first; it may point at `/`.
+- [x] Decided 2026-09-29: `/building` is the site root; signup is at `/signup` (branch `feat/building-home`).
+- [ ] **Add `https://<your Render host>/login` to Supabase → Authentication → URL Configuration → Redirect URLs.** Without it, Supabase ignores the new `email_redirect_to` and confirmation links fall back to the Site URL, which is now the building lookup.
 
 ## 5. Roadmap after the library
 

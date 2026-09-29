@@ -12,9 +12,23 @@ open. That needs live public data.
 
 ## Why it's public
 
-It's the front door. The site used to ask for an email address before
-showing anything useful; this shows real value first. The signup and login
-pages both link to it, and so does the chat empty state.
+It's the front door, literally: since 2026-09-29 it is what `/` serves,
+and signup moved to `/signup`. The site used to ask for an email address
+before showing anything useful; this shows real value first. `/building`
+still works (shared lookup links and the form use it), the signup and
+login pages both link here, and so does the chat empty state.
+
+- **One rate limit, two URLs.** `/` and `/building` share one 30-a-minute
+  budget (`limiter.shared_limit`, scope `building_lookup`), because every
+  lookup costs several calls to the city's APIs. Both views call the plain
+  `_render_building_lookup()`, so a lookup is never counted twice.
+- **Old signup tabs.** A POST to `/` can only be a signup form rendered
+  before the move; it is answered with a 307 to `/signup`, which keeps
+  the method and body.
+- **Confirmation emails land on `/login`.** Signup passes
+  `email_redirect_to` so the link doesn't drop a new tenant on the lookup
+  (the Supabase Site URL). Supabase only honours it if that URL is in
+  Authentication -> URL Configuration -> Redirect URLs.
 
 The top disclaimer banner is **not** on this page, on purpose. The banner
 tells people to message the chatbot, which a logged-out visitor can't do.
