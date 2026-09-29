@@ -1,0 +1,284 @@
+{
+ "_about": "Questions phrased the way tenants type them, with the Admin Code sections that answer them. A question is a hit when ANY listed citation is in the top results. 'tuning' was used to choose synonyms; 'held_out' was written afterwards and never tuned on. 'noise' should ideally return nothing. Run: python -m tools.corpus.eval_search (see its docstring).",
+ "tuning": [
+  {
+   "q": "no heat at night how cold can it get",
+   "any_of": [
+    "27-2029"
+   ]
+  },
+  {
+   "q": "my apartment has no heat",
+   "any_of": [
+    "27-2028",
+    "27-2029"
+   ]
+  },
+  {
+   "q": "super not turning on the heat in winter",
+   "any_of": [
+    "27-2028",
+    "27-2029"
+   ]
+  },
+  {
+   "q": "there's no hot water",
+   "any_of": [
+    "27-2031"
+   ]
+  },
+  {
+   "q": "my landlord changed the locks",
+   "any_of": [
+    "26-521"
+   ]
+  },
+  {
+   "q": "landlord locked me out of my apartment",
+   "any_of": [
+    "26-521"
+   ]
+  },
+  {
+   "q": "can my landlord evict me without going to court",
+   "any_of": [
+    "26-521"
+   ]
+  },
+  {
+   "q": "landlord shut off my electricity to make me leave",
+   "any_of": [
+    "26-521"
+   ]
+  },
+  {
+   "q": "landlord is harassing me to move out",
+   "any_of": [
+    "27-2004",
+    "27-2005",
+    "27-2115"
+   ]
+  },
+  {
+   "q": "mold in my bathroom",
+   "any_of": [
+    "27-2017",
+    "27-2017.1",
+    "27-2017.3"
+   ]
+  },
+  {
+   "q": "roaches and mice in my apartment",
+   "any_of": [
+    "27-2017.4",
+    "27-2017.8",
+    "27-2018"
+   ]
+  },
+  {
+   "q": "bed bugs",
+   "any_of": [
+    "27-2018.1",
+    "27-2018.2"
+   ]
+  },
+  {
+   "q": "lead paint and my child is 3",
+   "any_of": [
+    "27-2056.2",
+    "27-2056.3",
+    "27-2056.4",
+    "27-2056.5",
+    "27-2056.6",
+    "27-2056.7"
+   ]
+  },
+  {
+   "q": "who is responsible for repairs",
+   "any_of": [
+    "27-2005"
+   ]
+  },
+  {
+   "q": "window guards for my kid",
+   "any_of": [
+    "27-2043.1"
+   ]
+  },
+  {
+   "q": "smoke detector not working",
+   "any_of": [
+    "27-2045",
+    "27-2046"
+   ]
+  },
+  {
+   "q": "free lawyer for housing court",
+   "any_of": [
+    "26-1301",
+    "26-1302",
+    "26-1303"
+   ]
+  },
+  {
+   "q": "right to counsel eviction lawyer",
+   "any_of": [
+    "26-1301",
+    "26-1302",
+    "26-1303"
+   ]
+  },
+  {
+   "q": "is my apartment rent controlled",
+   "any_of": [
+    "26-401",
+    "26-403"
+   ]
+  },
+  {
+   "q": "rent stabilized lease renewal",
+   "any_of": [
+    "26-504",
+    "26-510",
+    "26-511"
+   ]
+  },
+  {
+   "q": "landlord won't accept my section 8 voucher",
+   "any_of": [
+    "8-102",
+    "8-107"
+   ]
+  },
+  {
+   "q": "sixty-two degrees",
+   "any_of": [
+    "27-2029"
+   ]
+  },
+  {
+   "q": "hot water temperature",
+   "any_of": [
+    "27-2031"
+   ]
+  }
+ ],
+ "held_out": [
+  {
+   "q": "it's freezing in my apartment and the landlord ignores me",
+   "any_of": [
+    "27-2028",
+    "27-2029"
+   ]
+  },
+  {
+   "q": "owner turned off the gas and heat so we would leave",
+   "any_of": [
+    "26-521"
+   ]
+  },
+  {
+   "q": "what temperature does the heat have to be during the day",
+   "any_of": [
+    "27-2029"
+   ]
+  },
+  {
+   "q": "my radiator doesn't work",
+   "any_of": [
+    "27-2028",
+    "27-2029"
+   ]
+  },
+  {
+   "q": "rats in the building hallway",
+   "any_of": [
+    "27-2017.4",
+    "27-2017.8",
+    "27-2018"
+   ]
+  },
+  {
+   "q": "black mold on the wall",
+   "any_of": [
+    "27-2017",
+    "27-2017.3"
+   ]
+  },
+  {
+   "q": "does my landlord have to install window guards",
+   "any_of": [
+    "27-2043.1"
+   ]
+  },
+  {
+   "q": "carbon monoxide detector",
+   "any_of": [
+    "27-2045",
+    "27-2046",
+    "27-2046.1"
+   ]
+  },
+  {
+   "q": "landlord removed my belongings and changed the door lock",
+   "any_of": [
+    "26-521"
+   ]
+  },
+  {
+   "q": "illegal eviction penalty",
+   "any_of": [
+    "26-521",
+    "26-523"
+   ]
+  },
+  {
+   "q": "can I get a free attorney if I'm being evicted",
+   "any_of": [
+    "26-1301",
+    "26-1302",
+    "26-1303"
+   ]
+  },
+  {
+   "q": "refused to rent to me because of my disability",
+   "any_of": [
+    "8-107"
+   ]
+  },
+  {
+   "q": "my rent stabilized lease is up for renewal",
+   "any_of": [
+    "26-504",
+    "26-510",
+    "26-511"
+   ]
+  },
+  {
+   "q": "peeling paint and a toddler at home",
+   "any_of": [
+    "27-2056.2",
+    "27-2056.3",
+    "27-2056.4",
+    "27-2056.5",
+    "27-2056.6",
+    "27-2056.8"
+   ]
+  },
+  {
+   "q": "who do I pay rent to, landlord's name and address",
+   "any_of": [
+    "27-2097",
+    "27-2098",
+    "27-2105"
+   ]
+  }
+ ],
+ "noise": [
+  "what is the capital of france",
+  "how do I file my taxes",
+  "hello",
+  "thanks!",
+  "what's the weather tomorrow"
+ ]
+}

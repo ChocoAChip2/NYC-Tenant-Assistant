@@ -75,7 +75,11 @@ BEGIN
     SELECT count(*) INTO n FROM public.legal_source_changes
     WHERE section_key = 'nyc-hmc:27-2029' AND change_type = 'amended' AND run_id = run;
     ASSERT n = 1, 'amendment should be logged and publicly readable';
-    SELECT count(*) INTO n FROM public.search_legal_documents(NULL, 'sixty-two degrees Fahrenheit', 6, 60);
+    -- Checked on the chunks themselves, not through search: since the
+    -- 20260930 tenant-phrased search, a query also finds sections that
+    -- share most (not all) of its words, and the amended text still says
+    -- "degrees Fahrenheit".
+    SELECT count(*) INTO n FROM public.legal_documents WHERE text_content LIKE '%sixty-two%';
     ASSERT n = 0, 'old chunks should be gone after an amendment';
 
     -- A tampered hash is rejected.
