@@ -33,14 +33,18 @@ Human Rights Law 37.** Set each source's minimum to ~90% of these.
 
 - **SideKick Tidbit**: a free web app for **individual NYC tenants** (decided: tenant-first, not organizers). Flask + Supabase (Auth, Postgres, RLS) + Gemini. Hosted on Render (free tier).
 - Repo `ChocoAChip2/NYC-Tenant-Assistant`, branch `main`. Supabase project "Project Paradigm", ref `lwskfyxmcuowexehbqig`.
-- **Pushing:** the earlier cloud sandbox could not push (proxy 403), so everything went through `git bundle` → laptop → PR. **Locally you can push directly.** Keep one-branch-per-change and PR → merge.
+- **Pushing:** the earlier cloud sandbox could not push (proxy 403), so everything went through `git bundle` → laptop → PR. **Locally you can push directly.** Keep one-branch-per-change and PR → merge. Claude Code on the web can push only a branch, not `main`: open a PR and the owner merges it.
 - Commit trailer: `Co-Authored-By: Claude …` plus the session link. PR bodies end with the Claude Code line. `gh secret/auth/api/config` were blocked in that setup, so GitHub secrets must be added by the owner in the web UI.
 
-## 2. State of `main` (as of PR #33)
+## 2. State of `main` (as of PR #37, 2026-09-29)
 
-Shipped, in order: SideKick Tidbit rename + ST mark + disclaimers (#25), prominent amber banner + per-message note + referral prompt rule (#26), legal-corpus framework on pgvector (#28), 4-bug hardening sweep (#29), anon-read revoke + keep-alive retarget (#30), **HIBP breached-password check** (#31), **public `/building` lookup** (#32), **real-data fixes to the lookup** (#33).
+Shipped, in order: SideKick Tidbit rename + ST mark + disclaimers (#25), prominent amber banner + per-message note + referral prompt rule (#26), legal-corpus framework on pgvector (#28), 4-bug hardening sweep (#29), anon-read revoke + keep-alive retarget (#30), **HIBP breached-password check** (#31), **public `/building` lookup** (#32), **real-data fixes to the lookup** (#33), **legal-library parser/CLI/migration** (#34, #35), **refresh hardening + preflight RPC** (#36), **site-sweep fixes: branded error pages, reset-link retry, hand-off arming, contrast, favicon, hermetic tests** (#37).
 
-Test suite: **465 passing** (`python -m unittest discover -s tests`). Tests never touch the network.
+Test suite: **591 passing** (`python -m unittest discover -s tests`). Tests never touch the network: `tests/__init__.py` turns the HIBP check off (it used to call the real API, which failed 5 tests on a machine with internet).
+
+The legal-library migration (`20260929_legal_library.sql`) is **still not applied** to the live project, so the library is empty and grounding is off.
+
+**Branches:** every branch is merged into `main`. The two superseded AI branches are preserved as `archive/*` tags. A repository rule blocks branch deletion, so old branch refs stay on GitHub as history. Local clones were cleaned on 2026-09-29.
 
 ### Things that are true and easy to break
 
