@@ -87,20 +87,63 @@ BEGIN
         IF SQLERRM NOT LIKE '%content_hash mismatch%' THEN RAISE; END IF;
     END;
 
-    -- Whole Unlawful Eviction chapter, then finalize having "seen" only 8.
+    -- Whole Unlawful Eviction chapter (first load of this source).
+    PERFORM public.corpus_preflight_source(tok, run, 'nyc-ue', ARRAY(
+        SELECT 'nyc-ue:26-52' || g FROM generate_series(1, 9) g));
     res := public.corpus_upsert_sections(tok, run, ue);
     ASSERT jsonb_array_length(res) = 9, 'nine UE sections';
     SELECT count(*) INTO n FROM public.search_legal_documents(NULL, '"in addition to any other remedies"', 20, 60)
     WHERE citation = '26-529';
     ASSERT n = 1, '26-529 should be searchable while active';
+
+    -- A seen list that leaves out sections this run just wrote is refused.
     BEGIN
         PERFORM public.corpus_finalize_source(tok, run, 'nyc-ue', ARRAY['nyc-ue:26-521']);
-        RAISE EXCEPTION 'CHECK FAILED: finalize accepted 1 of 9 (< 80%%)';
+        RAISE EXCEPTION 'CHECK FAILED: finalize accepted a seen list missing 8 sections written this run';
     EXCEPTION WHEN raise_exception THEN
-        IF SQLERRM NOT LIKE '%refusing to finalize%' THEN RAISE; END IF;
+        IF SQLERRM NOT LIKE '%not in the seen list; refusing to finalize%' THEN RAISE; END IF;
     END;
     fin := public.corpus_finalize_source(tok, run, 'nyc-ue', ARRAY(
-        SELECT 'nyc-ue:26-52' || g FROM generate_series(1, 8) g));
+        SELECT 'nyc-ue:26-52' || g FROM generate_series(1, 9) g));
+    ASSERT fin->'missing' = '[]'::jsonb, 'first load marks nothing missing: ' || fin::text;
+    PERFORM public.corpus_finish_run(tok, run, 'succeeded', '{}'::jsonb);
+
+    -- Second run: the preflight refuses a parse covering 1 of 9, before any upsert.
+    run := public.corpus_begin_run(tok, 'rollback-check-2');
+    BEGIN
+        PERFORM public.corpus_preflight_source(tok, run, 'nyc-ue', ARRAY['nyc-ue:26-521']);
+        RAISE EXCEPTION 'CHECK FAILED: preflight accepted 1 of 9 (< 80%%)';
+    EXCEPTION WHEN raise_exception THEN
+        IF SQLERRM NOT LIKE '%refusing to write%' THEN RAISE; END IF;
+    END;
+
+    -- Padding with new keys cannot get a bad parse past finalize: 4 real
+    -- sections plus 20 invented ones is still 4 of 9 of what was there.
+    PERFORM public.corpus_upsert_sections(tok, run, (
+        SELECT jsonb_agg(jsonb_set(jsonb_set(jsonb_set(ue->0,
+                   '{section_key}', to_jsonb('nyc-ue:99-' || g)),
+                   '{citation}', to_jsonb('99-' || g)),
+                   '{official_url}', to_jsonb('https://example.org/' || g))
+               ) FROM generate_series(1, 20) g));
+    BEGIN
+        PERFORM public.corpus_finalize_source(tok, run, 'nyc-ue', ARRAY(
+            SELECT 'nyc-ue:26-52' || g FROM generate_series(1, 4) g
+            UNION ALL SELECT 'nyc-ue:99-' || g FROM generate_series(1, 20) g));
+        RAISE EXCEPTION 'CHECK FAILED: finalize accepted 4 of 9 padded with 20 new keys';
+    EXCEPTION WHEN raise_exception THEN
+        IF SQLERRM NOT LIKE '%only 4 of 9 active sections seen%' THEN RAISE; END IF;
+    END;
+    PERFORM public.corpus_finish_run(tok, run, 'failed', '{}'::jsonb);
+
+    -- Third run: 26-529 is gone from the source; 8 of 9 seen passes, and
+    -- only 26-529 is marked missing.
+    run := public.corpus_begin_run(tok, 'rollback-check-3');
+    PERFORM public.corpus_preflight_source(tok, run, 'nyc-ue', ARRAY(
+        SELECT 'nyc-ue:26-52' || g FROM generate_series(1, 8) g
+        UNION ALL SELECT 'nyc-ue:99-' || g FROM generate_series(1, 20) g));
+    fin := public.corpus_finalize_source(tok, run, 'nyc-ue', ARRAY(
+        SELECT 'nyc-ue:26-52' || g FROM generate_series(1, 8) g
+        UNION ALL SELECT 'nyc-ue:99-' || g FROM generate_series(1, 20) g));
     ASSERT fin->'missing' = '["nyc-ue:26-529"]'::jsonb, 'only 26-529 should be missing: ' || fin::text;
 
     -- Missing is kept (never deleted) but no longer searchable.
@@ -134,7 +177,7 @@ BEGIN
     EXCEPTION WHEN insufficient_privilege THEN NULL;
     END;
     SELECT count(*) INTO n FROM public.legal_sources;
-    ASSERT n = 10, 'anon should read all 10 sections, got ' || n;
+    ASSERT n = 30, 'anon should read all 30 sections (10 real + 20 padding), got ' || n;
 END $$;
 
 RESET ROLE;

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+from datetime import date
 from dataclasses import dataclass, field
 
 # Chunks are what retrieval ranks and what the model is shown. A section is
@@ -135,6 +136,22 @@ _EFF_DATE_RE = re.compile(r"eff\.\s*(\d{1,2})/(\d{1,2})/(\d{4})", re.I)
 _LL_DATE_RE = re.compile(r"L\.L\.\s*\d{4}/\d+,\s*(\d{1,2})/(\d{1,2})/(\d{4})", re.I)
 
 
+def _valid_dates(found) -> list[str]:
+    """ISO dates for (month, day, year) triples, skipping impossible ones.
+
+    A typo like 2/30/2017 in the publisher's history must not reach the
+    database, whose ::date cast would reject the whole batch. It is skipped,
+    never guessed; the line then falls back to its enactment date.
+    """
+    out = []
+    for month, day, year in found:
+        try:
+            out.append(date(int(year), int(month), int(day)).isoformat())
+        except ValueError:
+            continue
+    return out
+
+
 def latest_effective_date(history: list[str]) -> str | None:
     """Most recent effective date named in the amendment history.
 
@@ -144,7 +161,6 @@ def latest_effective_date(history: list[str]) -> str | None:
     """
     dates = []
     for line in history:
-        found = _EFF_DATE_RE.findall(line) or _LL_DATE_RE.findall(line)
-        for month, day, year in found:
-            dates.append(f"{int(year):04d}-{int(month):02d}-{int(day):02d}")
+        found = _valid_dates(_EFF_DATE_RE.findall(line)) or _valid_dates(_LL_DATE_RE.findall(line))
+        dates.extend(found)
     return max(dates) if dates else None

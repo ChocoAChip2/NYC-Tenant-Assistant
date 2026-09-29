@@ -1,0 +1,43 @@
+2026-09-29  Legal library: review fixes before the first live load
+
+A review of PR #34's refresh pipeline found four defects. None could leak
+the token or let a caller without a token write, but they made failures
+messy or weakened a safety rule. All four are fixed before the migration's
+first apply.
+
+1. Network errors (timeout, reset, DNS), a corrupt zip, a failed download,
+   or a failed state read escaped as tracebacks. A started run was then left
+   "running" forever.
+   Fix: transient errors are retried twice; everything else ends in a
+   summary and a clean exit code (2 = could not start, 1 = write failed),
+   and the run is always closed.
+
+2. A partial write printed "Gates failed: nothing was written" and listed
+   sections that were never sent as "Added".
+   Fix: the summary now shows only what was written. Each source is marked
+   done, "stopped partway" or "not attempted", and changed=true reflects the
+   writes that actually landed.
+
+3. The server's 80% rule counted rows after the upserts, so 5 real sections
+   plus 20 junk ones passed as 25 of 30.
+   Fix: a new corpus_preflight_source checks coverage BEFORE any upsert.
+   corpus_finalize_source now counts only rows that were active before the
+   run, and it refuses a seen list that leaves out a section this run wrote.
+
+4. One impossible history date (e.g. 2/30) would have failed a whole batch
+   at the server's ::date cast.
+   Fix: impossible dates are skipped, falling back to the enactment date.
+   The real zip has 0 of them.
+
+Verified with a local Supabase-like Postgres and the real CLI loading the
+real zip:
+- initial load: 308 added
+- second run: 0 changes
+- planted old heat rule: amended
+- planted extra section: missing
+- wrong token: nothing written
+- server down: exit 2
+
+The checks file was mutation-tested: each rule, when disabled, is caught.
+
+Suite: 580 passing.

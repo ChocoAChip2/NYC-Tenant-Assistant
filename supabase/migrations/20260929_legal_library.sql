@@ -22,8 +22,13 @@
 --
 --   * Sections are never deleted. One that disappears from the source is
 --     marked `missing_from_source`, because old citations still point at
---     it, and finalizing refuses outright if fewer than 80% of the active
---     sections were seen -- a broken parse must not empty the library.
+--     it. A broken parse must not empty the library, so a source is
+--     refused if its parse covers fewer than 80% of the sections that were
+--     active BEFORE the run: once up front (corpus_preflight_source, before
+--     any upsert touches the library) and again at finalize, where rows
+--     this run added or restored are left out of the count so they cannot
+--     pad it. (Fixed 2026-09-29 before first apply: finalize used to count
+--     after the upserts, so 5 real sections + 20 junk ones passed as 25/30.)
 --
 --   * The content hash is recomputed here, not trusted from the client,
 --     and a mismatch rejects the batch. That catches text mangled in
@@ -369,6 +374,34 @@ BEGIN
 END;
 $$;
 
+-- Before any section of a source is upserted: refuse a parse that covers
+-- fewer than 80% of the sections active right now. Read-only.
+CREATE FUNCTION public.corpus_preflight_source(p_token text, p_run_id uuid, p_source_key text, p_seen_keys text[])
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, extensions, pg_temp
+AS $$
+DECLARE
+    v_active  int;
+    v_covered int;
+BEGIN
+    PERFORM public.corpus_check_token(p_token);
+    IF NOT EXISTS (SELECT 1 FROM public.legal_refresh_runs WHERE id = p_run_id AND status = 'running') THEN
+        RAISE EXCEPTION 'run % is not running', p_run_id;
+    END IF;
+    SELECT count(*), count(*) FILTER (WHERE section_key = ANY (coalesce(p_seen_keys, ARRAY[]::text[])))
+    INTO v_active, v_covered
+    FROM public.legal_sources
+    WHERE source_key = p_source_key AND status = 'active';
+    IF v_active > 0 AND v_covered < ceil(0.8 * v_active) THEN
+        RAISE EXCEPTION '%: parse covers only % of % active sections (< 80%%); refusing to write',
+            p_source_key, v_covered, v_active;
+    END IF;
+    RETURN jsonb_build_object('source_key', p_source_key, 'active', v_active, 'covered', v_covered);
+END;
+$$;
+
 -- After every section of a source has been upserted: mark the active
 -- sections that were NOT seen as missing_from_source. Never deletes.
 CREATE FUNCTION public.corpus_finalize_source(p_token text, p_run_id uuid, p_source_key text, p_seen_keys text[])
@@ -378,9 +411,10 @@ SECURITY DEFINER
 SET search_path = public, extensions, pg_temp
 AS $$
 DECLARE
-    v_active  int;
-    v_seen    int;
-    v_missing text[];
+    v_active   int;
+    v_seen     int;
+    v_unlisted int;
+    v_missing  text[];
 BEGIN
     PERFORM public.corpus_check_token(p_token);
 
@@ -388,15 +422,36 @@ BEGIN
         RAISE EXCEPTION 'run % is not running', p_run_id;
     END IF;
 
-    SELECT count(*) INTO v_active
-    FROM public.legal_sources WHERE source_key = p_source_key AND status = 'active';
+    -- Count only sections that were active BEFORE this run: rows this run
+    -- added or restored are excluded, so new keys cannot pad the count.
+    WITH prior AS (
+        SELECT ls.section_key
+        FROM public.legal_sources ls
+        WHERE ls.source_key = p_source_key
+          AND ls.status = 'active'
+          AND NOT EXISTS (
+              SELECT 1 FROM public.legal_source_changes c
+              WHERE c.run_id = p_run_id AND c.section_key = ls.section_key
+                AND c.change_type IN ('added', 'restored'))
+    )
+    SELECT count(*), count(*) FILTER (WHERE section_key = ANY (coalesce(p_seen_keys, ARRAY[]::text[])))
+    INTO v_active, v_seen
+    FROM prior;
 
-    SELECT count(DISTINCT k) INTO v_seen
-    FROM unnest(coalesce(p_seen_keys, ARRAY[]::text[])) AS k
-    JOIN public.legal_sources ls ON ls.section_key = k AND ls.source_key = p_source_key;
+    -- Every section this run wrote must be in the seen list; otherwise the
+    -- client's key list is inconsistent and "missing" would be wrong.
+    SELECT count(*) INTO v_unlisted
+    FROM public.legal_source_changes c
+    JOIN public.legal_sources ls ON ls.section_key = c.section_key AND ls.source_key = p_source_key
+    WHERE c.run_id = p_run_id AND c.change_type IN ('added', 'amended', 'restored')
+      AND NOT (c.section_key = ANY (coalesce(p_seen_keys, ARRAY[]::text[])));
+    IF v_unlisted > 0 THEN
+        RAISE EXCEPTION '%: % sections written in this run are not in the seen list; refusing to finalize',
+            p_source_key, v_unlisted;
+    END IF;
 
     -- A broken parse must not empty the library.
-    IF v_seen < ceil(0.8 * v_active) THEN
+    IF v_active > 0 AND v_seen < ceil(0.8 * v_active) THEN
         RAISE EXCEPTION '%: only % of % active sections seen (< 80%%); refusing to finalize',
             p_source_key, v_seen, v_active;
     END IF;
@@ -447,11 +502,13 @@ REVOKE ALL ON FUNCTION public.corpus_law_hash(text)                             
 REVOKE ALL ON FUNCTION public.corpus_check_token(text)                            FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION public.corpus_begin_run(text, text)                        FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION public.corpus_upsert_sections(text, uuid, jsonb)           FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.corpus_preflight_source(text, uuid, text, text[])   FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION public.corpus_finalize_source(text, uuid, text, text[])    FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION public.corpus_finish_run(text, uuid, text, jsonb)          FROM PUBLIC, anon, authenticated;
 
 GRANT EXECUTE ON FUNCTION public.corpus_begin_run(text, text)                     TO anon;
 GRANT EXECUTE ON FUNCTION public.corpus_upsert_sections(text, uuid, jsonb)        TO anon;
+GRANT EXECUTE ON FUNCTION public.corpus_preflight_source(text, uuid, text, text[]) TO anon;
 GRANT EXECUTE ON FUNCTION public.corpus_finalize_source(text, uuid, text, text[]) TO anon;
 GRANT EXECUTE ON FUNCTION public.corpus_finish_run(text, uuid, text, jsonb)       TO anon;
 

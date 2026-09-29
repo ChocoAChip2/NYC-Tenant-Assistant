@@ -24,8 +24,14 @@ and to --summary PATH. When anything changed, `changed=true` is written to
 $GITHUB_OUTPUT so the workflow can open an issue.
 
 Exit codes: 0 ok, 1 a write failed partway (batches already sent stay
-written; they are idempotent, and nothing was marked missing), 2 bad
-usage or missing credentials, 3 a gate failed (nothing written).
+written; they are idempotent, and nothing was marked missing for a source
+that did not finish), 2 could not start (bad usage, missing credentials,
+or the download / the library's current state could not be read; nothing
+written), 3 a gate failed (nothing written).
+
+Transient network failures (timeouts, resets, HTTP 502/503/504) are
+retried a couple of times; every other failure becomes a clean exit with
+a summary, never a traceback, and a started run is always closed.
 
 Standard library only, like the rest of tools/corpus.
 """
@@ -39,9 +45,11 @@ import os
 import secrets
 import sys
 import tempfile
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import zipfile
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
@@ -53,7 +61,10 @@ MAX_ZIP_BYTES = 250 * 1024 * 1024  # the real file is ~65 MB
 DOWNLOAD_TIMEOUT = 300
 RPC_TIMEOUT = 120
 BATCH_SIZE = 25  # the RPC refuses more than 50
-MIN_SEEN_FRACTION = 0.8  # same threshold corpus_finalize_source enforces
+MIN_SEEN_FRACTION = 0.8  # same threshold corpus_preflight/finalize_source enforce
+RETRY_DELAYS = (2, 5)  # seconds; then give up
+RETRY_HTTP_CODES = {502, 503, 504}
+_sleep = time.sleep  # tests replace this
 
 
 class RefreshError(RuntimeError):
@@ -67,6 +78,22 @@ class RefreshError(RuntimeError):
 def download_zip(url: str, dest, opener=urllib.request.urlopen) -> str | None:
     """Stream the bulk zip into `dest` (a binary file). Returns Last-Modified."""
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    try:
+        return _stream(request, dest, opener)
+    except RefreshError:
+        raise
+    except urllib.error.HTTPError as exc:
+        raise RefreshError(f"download {url} -> HTTP {exc.code}") from exc
+    except (urllib.error.URLError, OSError) as exc:
+        raise RefreshError(f"download {url} failed: {_reason(exc)}") from exc
+
+
+def _reason(exc: BaseException) -> str:
+    reason = getattr(exc, "reason", None)
+    return str(reason if reason is not None else exc) or type(exc).__name__
+
+
+def _stream(request, dest, opener) -> str | None:
     with opener(request, timeout=DOWNLOAD_TIMEOUT) as response:
         total = 0
         while True:
@@ -102,13 +129,30 @@ class Supabase:
                 "User-Agent": USER_AGENT,
             },
         )
+        where = f"{method} {path.split('?')[0]}"
+        for attempt in range(len(RETRY_DELAYS) + 1):
+            last = attempt == len(RETRY_DELAYS)
+            try:
+                with self.opener(request, timeout=RPC_TIMEOUT) as response:
+                    raw = response.read()
+                break
+            except urllib.error.HTTPError as exc:
+                detail = exc.read().decode("utf-8", "replace")[:500]
+                if exc.code in RETRY_HTTP_CODES and not last:
+                    _sleep(RETRY_DELAYS[attempt])
+                    continue
+                raise RefreshError(f"{where} -> HTTP {exc.code}: {detail}") from exc
+            except (urllib.error.URLError, OSError) as exc:
+                # Timeouts, resets, DNS. Every call here is safe to repeat:
+                # an upsert of text already written reports "unchanged".
+                if not last:
+                    _sleep(RETRY_DELAYS[attempt])
+                    continue
+                raise RefreshError(f"{where} failed: {_reason(exc)}") from exc
         try:
-            with self.opener(request, timeout=RPC_TIMEOUT) as response:
-                raw = response.read()
-        except urllib.error.HTTPError as exc:
-            detail = exc.read().decode("utf-8", "replace")[:500]
-            raise RefreshError(f"{method} {path.split('?')[0]} -> HTTP {exc.code}: {detail}") from exc
-        return json.loads(raw) if raw.strip() else None
+            return json.loads(raw) if raw.strip() else None
+        except (ValueError, UnicodeDecodeError) as exc:
+            raise RefreshError(f"{where} returned something that is not JSON") from exc
 
     def current_state(self, source_key: str) -> dict[str, dict]:
         query = urllib.parse.urlencode({
@@ -173,6 +217,7 @@ class SourceReport:
         "added": [], "amended": [], "restored": [], "unchanged": [], "missing_from_source": [],
     })
     compared: bool = False
+    write_state: str = ""  # "", "not attempted", "partial", "done"
 
     @property
     def changed(self) -> bool:
@@ -206,7 +251,12 @@ def render_summary(reports: list[SourceReport], *, origin: str, mode: str, today
         "|---|---|---|---|---|---|---|",
     ]
     for r in reports:
-        if r.compared:
+        if r.write_state in ("not attempted", "partial"):
+            label = "not attempted" if r.write_state == "not attempted" else "stopped partway"
+            done = " | ".join(str(len(r.changes[k])) for k in ("added", "amended", "restored", "unchanged"))
+            counts = (" | ".join([label] * 5) if r.write_state == "not attempted"
+                      else f"{done} | {label}")
+        elif r.compared:
             counts = " | ".join(str(len(r.changes[k])) for k in
                                 ("added", "amended", "restored", "unchanged", "missing_from_source"))
         else:
@@ -214,7 +264,16 @@ def render_summary(reports: list[SourceReport], *, origin: str, mode: str, today
         lines.append(f"| {r.source.key} | {len(r.result.sections)} | {counts} |")
 
     problems = [p for r in reports for p in r.problems]
-    if problems:
+    if mode == "write failed" and all(r.write_state == "not attempted" for r in reports):
+        lines += ["", "### Write failed before anything was written", ""] + [f"- {p}" for p in problems]
+    elif mode == "write failed":
+        lines += ["", "### Write failed partway", "",
+                  "Sections listed below WERE written. Sources marked \"not attempted\" were not "
+                  "touched, and nothing was marked missing for a source that did not finish. "
+                  "Re-running is safe.", ""] + [f"- {p}" for p in problems]
+    elif mode == "could not run":
+        lines += ["", "### Could not run: nothing was written", ""] + [f"- {p}" for p in problems]
+    elif problems:
         lines += ["", "### Gates failed: nothing was written", ""] + [f"- {p}" for p in problems]
 
     # A write (even one that failed partway) reports what happened; a dry
@@ -296,36 +355,55 @@ def main(argv=None, *, opener=urllib.request.urlopen, env=None, out=None) -> int
         return 2
     db = Supabase(url, key, opener) if url and key else None
 
+    origin = f"local file `{os.path.basename(args.from_zip)}`" if args.from_zip else ALP_ADMIN_ZIP_URL
+    reports: list[SourceReport] = []
+    fatal: list[str] = []
     with tempfile.TemporaryDirectory() as tmp:
-        if args.from_zip:
-            zip_path, origin = args.from_zip, f"local file `{os.path.basename(args.from_zip)}`"
-        else:
+        zip_path = args.from_zip
+        if not zip_path:
             zip_path = os.path.join(tmp, "XML.zip")
-            with open(zip_path, "wb") as handle:
-                last_modified = download_zip(ALP_ADMIN_ZIP_URL, handle, opener)
-            origin = f"{ALP_ADMIN_ZIP_URL} (Last-Modified: {last_modified or 'not given'})"
-
-        reports: list[SourceReport] = []
-        for source in sources:
             try:
-                result = parse_chapter(
-                    read_chapter_from_zip(zip_path, source.file_id),
-                    source_key=source.key,
-                    authority=source.authority,
-                )
-            except AlpParseError as exc:
-                result = ParseResult(sections=[])
-                report = SourceReport(source, result, problems=[f"{source.key}: {exc}"])
-                reports.append(report)
-                continue
-            reports.append(SourceReport(source, result))
+                with open(zip_path, "wb") as handle:
+                    last_modified = download_zip(ALP_ADMIN_ZIP_URL, handle, opener)
+                origin = f"{ALP_ADMIN_ZIP_URL} (Last-Modified: {last_modified or 'not given'})"
+            except RefreshError as exc:
+                fatal.append(str(exc))
+        elif not os.path.isfile(zip_path):
+            fatal.append(f"--from-zip: no such file {zip_path}")
 
-    for report in reports:
-        current = db.current_state(report.source.key) if db else None
-        if not report.problems:
-            report.problems = gate(report.source, report.result, current)
-        if current is not None:
-            plan_changes(report, current)
+        if not fatal:
+            for source in sources:
+                try:
+                    result = parse_chapter(
+                        read_chapter_from_zip(zip_path, source.file_id),
+                        source_key=source.key,
+                        authority=source.authority,
+                    )
+                except (AlpParseError, zipfile.BadZipFile, OSError) as exc:
+                    reports.append(SourceReport(source, ParseResult(sections=[]),
+                                                problems=[f"{source.key}: cannot read the zip: {exc}"]))
+                    continue
+                reports.append(SourceReport(source, result))
+
+    if not fatal:
+        for report in reports:
+            try:
+                current = db.current_state(report.source.key) if db else None
+            except RefreshError as exc:
+                fatal.append(f"{report.source.key}: could not read the library's current state "
+                             f"(is the 20260929 migration applied?): {exc}")
+                break
+            if not report.problems:
+                report.problems = gate(report.source, report.result, current)
+            if current is not None:
+                plan_changes(report, current)
+
+    if fatal:
+        for report in reports:
+            report.compared = False
+        reports = reports or [SourceReport(s, ParseResult(sections=[])) for s in sources]
+        reports[0].problems = fatal + reports[0].problems
+        return _finish(reports, origin, "could not run", 2, args, env, out)
 
     if args.dump:
         os.makedirs(args.dump, exist_ok=True)
@@ -334,25 +412,28 @@ def main(argv=None, *, opener=urllib.request.urlopen, env=None, out=None) -> int
             with open(path, "w", encoding="utf-8") as handle:
                 json.dump([s.as_payload() for s in report.result.sections], handle, ensure_ascii=False, indent=1)
 
-    failed = any(r.problems for r in reports)
-    mode = "dry run" if args.dry_run else ("gates failed" if failed else "live")
-    exit_code = 0
+    if any(r.problems for r in reports):
+        mode = "dry run" if args.dry_run else "gates failed"
+        return _finish(reports, origin, mode, 3, args, env, out)
+    if args.dry_run:
+        return _finish(reports, origin, "dry run", 0, args, env, out)
 
-    if not args.dry_run and not failed:
-        try:
-            _write(db, token, reports, args.trigger)
-        except RefreshError as exc:
-            mode = "write failed"
-            exit_code = 1
-            reports[0].problems.append(f"write failed: {exc}")
+    try:
+        _write(db, token, reports, args.trigger)
+    except Exception as exc:  # noqa: BLE001 -- any failure must still produce a summary
+        message = str(exc) if isinstance(exc, RefreshError) else f"{type(exc).__name__}: {exc}"
+        reports[0].problems.append(f"write failed: {message}")
+        return _finish(reports, origin, "write failed", 1, args, env, out)
+    return _finish(reports, origin, "live", 0, args, env, out)
 
-    if failed:
-        exit_code = 3
 
+def _finish(reports, origin, mode, exit_code, args, env, out) -> int:
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     summary = render_summary(reports, origin=origin, mode=mode, today=today)
     _emit(summary, args.summary, env, out)
-    changed = exit_code == 0 and not args.dry_run and any(r.changed for r in reports)
+    # "changed" reflects what was actually written, so a run that failed
+    # partway still opens an issue for the amendments that did land.
+    changed = mode in ("live", "write failed") and any(r.changed for r in reports)
     if env.get("GITHUB_OUTPUT"):
         with open(env["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
             handle.write(f"changed={'true' if changed else 'false'}\n")
@@ -360,11 +441,21 @@ def main(argv=None, *, opener=urllib.request.urlopen, env=None, out=None) -> int
 
 
 def _write(db: Supabase, token: str, reports: list[SourceReport], trigger: str) -> None:
+    # From here on the report shows what WAS written, not the plan.
+    for report in reports:
+        for kind in report.changes:
+            report.changes[kind] = []
+        report.compared = False
+        report.write_state = "not attempted"
     run_id = db.rpc("corpus_begin_run", p_token=token, p_trigger=trigger)
     try:
         for report in reports:
-            for kind in report.changes:
-                report.changes[kind] = []
+            keys = [s.section_key for s in report.result.sections]
+            # The server checks coverage BEFORE anything is upserted, so a
+            # bad parse is refused while the library is still untouched.
+            db.rpc("corpus_preflight_source", p_token=token, p_run_id=run_id,
+                   p_source_key=report.source.key, p_seen_keys=keys)
+            report.write_state = "partial"
             report.compared = True
             payloads = [s.as_payload() for s in report.result.sections]
             for start in range(0, len(payloads), BATCH_SIZE):
@@ -373,12 +464,12 @@ def _write(db: Supabase, token: str, reports: list[SourceReport], trigger: str) 
                 for item in results or []:
                     report.changes[item["change"]].append(item["section_key"])
             final = db.rpc("corpus_finalize_source", p_token=token, p_run_id=run_id,
-                           p_source_key=report.source.key,
-                           p_seen_keys=[s.section_key for s in report.result.sections])
+                           p_source_key=report.source.key, p_seen_keys=keys)
             report.changes["missing_from_source"] = list((final or {}).get("missing") or [])
+            report.write_state = "done"
         summary = {r.source.key: {k: len(v) for k, v in r.changes.items()} for r in reports}
         db.rpc("corpus_finish_run", p_token=token, p_run_id=run_id, p_status="succeeded", p_summary=summary)
-    except RefreshError as exc:
+    except Exception as exc:
         try:
             db.rpc("corpus_finish_run", p_token=token, p_run_id=run_id, p_status="failed",
                    p_summary={"error": str(exc)[:1000]})
