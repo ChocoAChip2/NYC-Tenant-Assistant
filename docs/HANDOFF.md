@@ -17,7 +17,7 @@ the web runs in the same kind of container. Plan around it:
 | Parse the **full** Admin Code zip | ❌ can't download it | ✅ (`~/Desktop/Github/sidekick-corpus-work/admin_xml.zip`, or re-download) | ✅ open internet |
 | Live NYC Open Data / GeoSearch checks | ❌ | ✅ | ✅ |
 | Apply Supabase migrations / load the library | only if a Supabase MCP connection is available | ✅ via Supabase dashboard SQL editor or CLI | ✅ once `CORPUS_INGEST_TOKEN` exists |
-| Push / PR | ✅ | ✅ | — |
+| Push / PR | ⚠️ only if the Claude GitHub App can write to the repo (2026-09-28/29 sessions got 403: the connected account had no write access) | ✅ | — |
 
 **Rule of thumb:** build and unit-test anywhere. Anything that needs the
 real full file, the live DB or live APIs happens on the Mac or in an
@@ -25,9 +25,10 @@ Actions run (`workflow_dispatch` plus a `--dry-run` flag, then read the
 logs). **Never fake a live check.** If you can't reach it, say so and
 leave it for a machine that can.
 
-Real section counts in the current Admin Code, for sanity minimums: **HMC
-211, Rent Stabilization Law 25, Unlawful Eviction 9, Right to Counsel 6,
-Human Rights Law 37.** Set each source's minimum to ~90% of these.
+Real section counts in the current Admin Code (full-zip parse, 2026-09-28):
+**HMC 211, Rent Stabilization Law 25, Unlawful Eviction 9, Right to
+Counsel 6, Human Rights Law 35 (37 minus two "Reserved" placeholders),
+Rent Control 22 = 308.** Each source's minimum is 90% of its count.
 
 ## 1. The project
 
@@ -40,7 +41,7 @@ Human Rights Law 37.** Set each source's minimum to ~90% of these.
 
 Shipped, in order: SideKick Tidbit rename + ST mark + disclaimers (#25), prominent amber banner + per-message note + referral prompt rule (#26), legal-corpus framework on pgvector (#28), 4-bug hardening sweep (#29), anon-read revoke + keep-alive retarget (#30), **HIBP breached-password check** (#31), **public `/building` lookup** (#32), **real-data fixes to the lookup** (#33), **legal-library parser/CLI/migration** (#34, #35), **refresh hardening + preflight RPC** (#36), **site-sweep fixes: branded error pages, reset-link retry, hand-off arming, contrast, favicon, hermetic tests** (#37).
 
-Test suite: **591 passing** (`python -m unittest discover -s tests`). Tests never touch the network: `tests/__init__.py` turns the HIBP check off (it used to call the real API, which failed 5 tests on a machine with internet).
+Test suite: **604 passing on main as of #38** (`python -m unittest discover -s tests`). Tests never touch the network: `tests/__init__.py` turns the HIBP check off (it used to call the real API, which failed 5 tests on a machine with internet).
 
 **The legal library is live (2026-09-29).**
 - **Migration:** `20260929_legal_library.sql` was applied after a rolled-back live test of the current version passed. `get_advisors` shows only expected findings: the token-checked anon `corpus_*` functions, RLS with no policies on the two private tables, and public law being visible to GraphQL.
@@ -67,11 +68,11 @@ Test suite: **591 passing** (`python -m unittest discover -s tests`). Tests neve
 - Violation citation chips are labeled **only when unambiguous** (#33). The old parser put a false "NYC Admin Code" label on 27% of real violations. `tests/fixtures/hpd_violation_descriptions.json` holds 135 real strings across 42 shapes.
 - `LEGAL_CORPUS_ENABLED` (grounding on/off) and `LEGAL_GUARD_MODE` (`report` default, `enforce` later) are Render env vars. **Grounding is currently OFF, and the corpus is EMPTY.**
 
-## 3. In progress: the legal library (branch `wip/legal-library`)
+## 3. In progress: the legal library (code on `main`; database not yet set up)
 
 **Goal:** load official, verbatim NYC (and later NYS) law into `legal_sources`/`legal_documents`, keep it current automatically (the owner asked for a check "every few months"), and put it to use: `/law/<citation>` pages, violation chips linking to the real text, and chat grounding.
 
-**Committed on the branch so far:** `tools/corpus/model.py` (now tested; hash normalizes ASCII whitespace only, to match the DB), `tools/corpus/alp.py` (parser), `tools/corpus/registry.py`, `tools/corpus/refresh.py` (CLI), `supabase/migrations/20260929_legal_library.sql` (**written, NOT applied**), `supabase/checks/20260929_legal_library_checks.sql` (the rolled-back live verification), `tests/fixtures/alp/`, tests for all of it (562 passing), `docs/legal-sources-catalog.md`, this file.
+**On `main`:** `tools/corpus/model.py` (now tested; hash normalizes ASCII whitespace only, to match the DB), `tools/corpus/alp.py` (parser), `tools/corpus/registry.py`, `tools/corpus/refresh.py` (CLI), `supabase/migrations/20260929_legal_library.sql` (**written, NOT applied**), `supabase/checks/20260929_legal_library_checks.sql` (the rolled-back live verification), `tests/fixtures/alp/`, tests for all of it, `docs/legal-sources-catalog.md`, this file.
 
 ### Decisions already made (with evidence)
 
@@ -84,7 +85,7 @@ Test suite: **591 passing** (`python -m unittest discover -s tests`). Tests neve
    - Optional `corpus_set_embeddings(p_token, items)` to backfill vectors later.
    - Generate the token **on the owner's machine** and store only its hash via SQL, so the token never appears in a chat transcript. The owner pastes it into GitHub secret `CORPUS_INGEST_TOKEN`.
 4. **Schema changes needed** (new migration): on `legal_sources` add `section_key text unique` (`<source_key>:<citation>`, needed because §26-1301 is duplicated), `source_key`, `heading_path`, `full_text`, `history jsonb`, `notes jsonb`, `repealed bool`, `last_amended date`, `last_checked_at timestamptz`, `status text default 'active'`. **Drop the old `UNIQUE(authority, citation)`** (table is empty). Add a `legal_source_changes` table (section_key, change_type, old_hash, new_hash, detected_at, run_id; public read) and a private `legal_refresh_runs`. Make `search_legal_documents` **exclude non-active sources**. The table currently has 0 rows, so this is safe.
-5. **Sanity gates in the client before any write:** a minimum section count per source (HMC ≥ 150), required anchors present (e.g. HMC `27-2001, 27-2029, 27-2031`; RSL `26-501, 26-511`; UE `26-521`), no empty non-repealed sections, and ≥ 80% of the current active count. Fail loudly and write nothing.
+5. **Sanity gates in the client before any write:** a minimum section count per source (90% of the real count: HMC ≥ 189), required anchors present (e.g. HMC `27-2001, 27-2029, 27-2031`; RSL `26-501, 26-511`; UE `26-521`), no empty non-repealed sections, and ≥ 80% of the current active count. Fail loudly and write nothing.
 6. **Quarterly refresh**: `.github/workflows/refresh-legal-library.yml`, cron `0 9 1 1,4,7,10 *` plus `workflow_dispatch`. Downloads the ALP zip, parses, gates, upserts, finalizes, writes a Markdown change summary to `$GITHUB_STEP_SUMMARY`, and **opens a GitHub issue when anything changed** (`permissions: issues: write`). A failed run emails the owner by default. Note that GitHub disables scheduled workflows after 60 days with no repo activity (same caveat as the keep-alive).
 7. **Use it:**
    - public `/law/<citation>` page: verbatim text, heading path, amendment history, "verified current as of <last_checked_at>", link to ALP
@@ -130,12 +131,13 @@ Done in the cloud session of 2026-09-28 (items 1-4 of the old list, minus everyt
    - `search_legal_documents(NULL, 'sixty-two degrees')` returns § 27-2029
    - `legal_refresh_runs` shows `succeeded`
    - a second identical run reports 0 changes
-6. Workflow + `/law` page + chip links + docs + log entry. Ship. **Delete or rewrite `tools/ingest_corpus.py`**: after the migration its `on_conflict="authority,citation"` upsert has no matching constraint and it never sets `section_key`, so it will fail.
+6. ✅ **Workflow** `.github/workflows/refresh-legal-library.yml` (cron 09:00 UTC on Jan/Apr/Jul/Oct 1, plus manual runs that default to dry run). Until `CORPUS_INGEST_TOKEN` exists it does a parse-and-gate dry run without touching Supabase, so the 2026-10-01 run won't fail just because the library isn't set up yet. It opens an issue when the law changed and fails the job on any non-zero exit. ✅ **`tools/ingest_corpus.py` retired**, and its docs repointed to `tools/corpus/`.
+7. `/law/<citation>` page + building-page chip links + log entry. Ship.
 
 ## 4. What the owner needs to do
 
 - [ ] Register a free **NY Senate Open Legislation API key** (legislation.nysenate.gov), needed for RPL/RPAPL/GOL/MDL/Good Cause.
-- [ ] Add GitHub secrets: `CORPUS_INGEST_TOKEN` (generated in step 3 above), optionally `GEMINI_API_KEY` (embeddings) and `NYSENATE_API_KEY`. `SUPABASE_URL` and `SUPABASE_KEY` already exist for the keep-alive.
+- [ ] Add GitHub secrets: `CORPUS_INGEST_TOKEN` (generated in section 3, step 4), optionally `GEMINI_API_KEY` (embeddings) and `NYSENATE_API_KEY`. `SUPABASE_URL` and `SUPABASE_KEY` already exist for the keep-alive.
 - [ ] After the library loads: set `LEGAL_CORPUS_ENABLED=1` on Render.
 - [ ] Post-deploy checks on Render: sign up with password `password` (should be refused by the HIBP check), and look up one real building on `/building`.
 - [ ] Decide whether `/building` becomes the site root. Check Supabase's email-confirmation redirect first; it may point at `/`.

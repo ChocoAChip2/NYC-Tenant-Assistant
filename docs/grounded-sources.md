@@ -200,8 +200,9 @@ cited the old text.
 
 1. Migration: `create extension vector`, the two tables, RLS, the search
    function.
-2. `tools/ingest_corpus.py` — fetch, split by section, embed, upsert.
-   Run offline, not from the web app.
+2. The loader — fetch, split by section, embed, upsert. Built as
+   `tools/corpus/` (reads the official ALP XML; see docs/HANDOFF.md);
+   the first draft, `tools/ingest_corpus.py`, was retired.
 3. `retrieval_service.py` — hybrid query, relevance floor, returns chunks
    with their source rows.
 4. `citation_guard.py` — the validator, unit-tested against deliberately
