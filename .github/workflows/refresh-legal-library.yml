@@ -1,0 +1,97 @@
+name: Refresh Legal Library
+
+# Quarterly check of the legal library against the official source: the
+# NYC Admin Code bulk XML from American Legal Publishing. Downloads it,
+# parses it, runs the sanity gates, and loads whatever changed through the
+# token-checked corpus_* RPCs (tools/corpus/refresh.py; design in
+# docs/HANDOFF.md section 3). When the law changed, it opens an issue with
+# the list of amended sections, so a person looks at every amendment.
+#
+# SECRETS
+#   SUPABASE_URL, SUPABASE_KEY  already set for the keep-alive (anon key)
+#   CORPUS_INGEST_TOKEN         from `python -m tools.corpus.refresh --new-token`
+#
+# Until CORPUS_INGEST_TOKEN exists (i.e. before the 20260929 migration is
+# applied and the token is created), a scheduled run does a DRY RUN of the
+# parse and gates only, without touching Supabase, and says so in the
+# summary. That keeps the first scheduled date from failing just because
+# the library is not set up yet, while still proving the source parses.
+#
+# A failed run (a gate refused the parse, or a write failed) fails the job,
+# which emails the repo owner by default. Nothing is written when a gate
+# fails.
+#
+# Same caveat as the keep-alive: GitHub disables scheduled workflows after
+# 60 days without repository activity. Check the Actions tab for a
+# "This scheduled workflow is disabled" banner after a quiet period.
+
+on:
+  schedule:
+    # 09:00 UTC on the 1st of January, April, July and October.
+    - cron: "0 9 1 1,4,7,10 *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Parse and gate only; write nothing"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: refresh-legal-library
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # tools/corpus is standard library only, so there is no install step, on purpose.
+      - name: Refresh the library
+        id: refresh
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          CORPUS_INGEST_TOKEN: ${{ secrets.CORPUS_INGEST_TOKEN }}
+          REQUESTED_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+          TRIGGER: ${{ github.event_name }}
+        run: |
+          set +e
+          args=(--summary "$RUNNER_TEMP/summary.md" --trigger "$TRIGGER")
+          if [ -z "${CORPUS_INGEST_TOKEN:-}" ]; then
+            echo "::notice::CORPUS_INGEST_TOKEN is not set, so this is a parse-and-gate dry run that does not touch Supabase. See docs/HANDOFF.md."
+            # Without the migration the state read fails, so leave Supabase out entirely.
+            unset SUPABASE_URL SUPABASE_KEY
+            args+=(--dry-run)
+          elif [ "$REQUESTED_DRY_RUN" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          python -m tools.corpus.refresh "${args[@]}"
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Open an issue for what changed
+        if: steps.refresh.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Legal library: the law changed ($(date -u +%Y-%m-%d))" \
+            --body-file "$RUNNER_TEMP/summary.md"
+
+      - name: Fail the job if the refresh failed
+        if: steps.refresh.outputs.exit_code != '0'
+        run: |
+          echo "::error::tools.corpus.refresh exited ${{ steps.refresh.outputs.exit_code }} (1 write failed, 2 could not run, 3 a gate refused the parse). The run summary above says why."
+          exit 1

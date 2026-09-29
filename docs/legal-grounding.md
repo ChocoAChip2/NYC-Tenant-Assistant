@@ -22,7 +22,9 @@ nothing to check against.
 | `supabase/migrations/20260922_harden_search_paths.sql` | Moves pgvector out of `public`, pins every function's `search_path` |
 | `retrieval_service.py` | Embed the question, call the hybrid search, apply the relevance floor |
 | `citation_guard.py` | Check markers, statutes, quotes and numbers |
-| `tools/ingest_corpus.py` | Offline loader (needs the service-role key) |
+| `supabase/migrations/20260929_legal_library.sql` | One row per section, change log, token-checked `corpus_*` write RPCs |
+| `tools/corpus/` | ALP XML parser and the refresh CLI that loads and updates the library |
+| `.github/workflows/refresh-legal-library.yml` | Quarterly refresh; opens an issue when the law changed |
 
 ## Why the guard checks four things
 
@@ -107,26 +109,31 @@ turns the anti-hallucination corpus into a prompt-injection vector.
 
 Now: read open (it is public law, and `/learn-more` is public), writes
 closed to `anon` and `authenticated` both by RLS and by an explicit
-`REVOKE`. Ingestion runs offline under the service role, which the web app
-deliberately does not hold.
+`REVOKE`. The library is loaded only through the token-checked
+`SECURITY DEFINER` `corpus_*` functions (20260929 migration), called with
+the anon key plus an ingest token whose hash alone is stored. No one,
+including the loader, holds the service-role key.
 
 Verified against the live database: RLS on, one read policy each,
 `anon_can_insert = false`, and Supabase's security linter clean of every
 finding this work introduced.
 
-## Running the ingest
+## Loading and refreshing the library
+
+`tools/ingest_corpus.py` (hand-made JSON, service-role key) was retired in
+favour of `tools/corpus/`, which reads the official American Legal
+Publishing bulk XML directly:
 
 ```bash
-export SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... GEMINI_API_KEY=...
-python -m tools.ingest_corpus --file corpus/hmc-title27-ch2.json --dry-run
-python -m tools.ingest_corpus --file corpus/hmc-title27-ch2.json
+python -m tools.corpus.refresh --dry-run            # download, parse, gate, report
+python -m tools.corpus.refresh --dry-run --from-zip XML.zip --dump out/
+python -m tools.corpus.refresh                      # needs SUPABASE_URL, SUPABASE_KEY, CORPUS_INGEST_TOKEN
 ```
 
-Input is a JSON array of sections; `--dry-run` validates and chunks without
-writing. Every section needs an `official_url` over https, because **a
-citation a tenant cannot open is an assertion, not a source** — and the
-validator rejects the file if one is missing.
-
-Scraping is deliberately not in that script. Publishers change their markup,
-and a fetch loop that breaks quietly would poison the corpus with the one
-kind of error this whole subsystem exists to prevent.
+Every section carries its official `codelibrary.amlegal.com` URL, because
+**a citation a tenant cannot open is an assertion, not a source**; the
+write RPC refuses anything but https. Sanity gates (minimum section count,
+anchor sections, no empty unrepealed section, >= 80% of the current
+library) refuse a bad parse before anything is written. The quarterly
+workflow runs the same command. Full design and the load procedure:
+`docs/HANDOFF.md` section 3.

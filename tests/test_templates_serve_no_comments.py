@@ -58,7 +58,7 @@ def _build_test_app():
     return app
 
 
-PAGES = ["/login", "/", "/forgot-password", "/reset-password", "/settings", "/chat", "/chat?conversation_id=c1"]
+PAGES = ["/login", "/", "/signup", "/forgot-password", "/reset-password", "/settings", "/chat", "/chat?conversation_id=c1"]
 
 
 class ServedPagesCarryNoCommentsTests(unittest.TestCase):

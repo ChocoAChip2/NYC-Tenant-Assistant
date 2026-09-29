@@ -25,6 +25,17 @@ SHORT_DISCLAIMER = (
     f"{PRODUCT_NAME} gives general information, not legal advice."
 )
 
+# Under the text of a law on /law/<citation>. The page shows the statute
+# itself, which invites reading it as an answer; this says what the text
+# can and cannot tell someone, next to the text rather than only in the
+# footer.
+LAW_PAGE_NOTE = (
+    "This is the text of the law as officially published. How it applies "
+    "to you depends on your facts and on other laws and court decisions, "
+    f"so treat it as a starting point. {PRODUCT_NAME} gives general "
+    "information, not legal advice."
+)
+
 # Shown next to the short disclaimer as the link out to the full page.
 LEARN_MORE_LABEL = "Learn more"
 
@@ -148,4 +159,5 @@ def register(app) -> None:
             "top_disclaimer": TOP_DISCLAIMER,
             "per_message_disclaimer": PER_MESSAGE_DISCLAIMER,
             "learn_more_label": LEARN_MORE_LABEL,
+            "law_page_note": LAW_PAGE_NOTE,
         }

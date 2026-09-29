@@ -1,4 +1,4 @@
-"""Tests for retrieval and the ingest tool.
+"""Tests for retrieval.
 
 No Supabase and no Gemini: the Supabase client and the Gemini client are
 both faked, because retrieval has to be testable without either, and
@@ -14,7 +14,6 @@ from unittest import mock
 
 import retrieval_service
 from citation_guard import Passage
-from tools import ingest_corpus
 
 
 class FakeResponse:
@@ -159,66 +158,6 @@ class PromptFormattingTests(unittest.TestCase):
         block = retrieval_service.format_for_prompt([Passage(marker="S1", text="x" * 50)])
 
         self.assertIn("Rules for using them:", block)
-
-
-class ChunkingTests(unittest.TestCase):
-    def test_a_short_section_stays_one_chunk(self):
-        self.assertEqual(ingest_corpus.chunk_section("Short section text."), ["Short section text."])
-
-    def test_a_long_section_is_split_under_the_embedding_input_cap(self):
-        text = ("This is a sentence about heat and hot water in dwellings. " * 200).strip()
-
-        chunks = ingest_corpus.chunk_section(text)
-
-        self.assertGreater(len(chunks), 1)
-        for chunk in chunks:
-            self.assertLessEqual(len(chunk), ingest_corpus.MAX_CHARS_PER_CHUNK)
-
-    def test_splitting_loses_no_content(self):
-        text = ". ".join(f"Sentence number {n} about repairs" for n in range(400)) + "."
-
-        joined = " ".join(ingest_corpus.chunk_section(text))
-
-        self.assertIn("Sentence number 0 about repairs", joined)
-        self.assertIn("Sentence number 399 about repairs", joined)
-
-
-class IngestValidationTests(unittest.TestCase):
-    GOOD = {
-        "authority": "NYC Administrative Code",
-        "citation": "27-2029",
-        "title": "Minimum temperature to be maintained",
-        "official_url": "https://codelibrary.amlegal.com/example",
-        "text": "Between the hours of 10:00 PM and 6:00 AM...",
-    }
-
-    def test_a_complete_section_validates(self):
-        self.assertEqual(ingest_corpus.validate([self.GOOD]), [])
-
-    def test_a_section_without_an_official_url_is_rejected(self):
-        """Provenance is not optional: a citation the tenant cannot open is
-        an assertion, not a source."""
-        problems = ingest_corpus.validate([dict(self.GOOD, official_url="")])
-
-        self.assertTrue(any("official_url" in problem for problem in problems))
-
-    def test_a_non_https_source_url_is_rejected(self):
-        problems = ingest_corpus.validate([dict(self.GOOD, official_url="http://example.gov/x")])
-
-        self.assertTrue(any("https" in problem for problem in problems))
-
-    def test_a_duplicate_citation_is_rejected(self):
-        """Two rows for one section means two passages that can disagree,
-        both citable."""
-        problems = ingest_corpus.validate([self.GOOD, dict(self.GOOD, text="different text")])
-
-        self.assertTrue(any("duplicate" in problem for problem in problems))
-
-    def test_dry_run_writes_nothing_and_still_reports_chunk_counts(self):
-        stats = ingest_corpus.ingest([self.GOOD], supabase=None, gemini=None, dry_run=True)
-
-        self.assertEqual(stats["sections"], 1)
-        self.assertEqual(stats["chunks"], 1)
 
 
 if __name__ == "__main__":

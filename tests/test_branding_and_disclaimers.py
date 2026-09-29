@@ -19,7 +19,7 @@ from tests.app_test_support import configure_test_app
 _TEMPLATES_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "templates")
 
 # Every page a visitor can reach, authenticated or not.
-ALL_PAGES = ["/", "/login", "/forgot-password", "/reset-password", "/settings", "/chat", "/learn-more"]
+ALL_PAGES = ["/", "/signup", "/login", "/forgot-password", "/reset-password", "/settings", "/chat", "/learn-more"]
 
 
 class FakeSupabaseService:
@@ -91,7 +91,7 @@ class ProductNameTests(BrandingTestCase):
             self.assertNotIn(branding.PRODUCT_NAME, source, f"{name} hardcodes the product name")
 
     def test_the_st_monogram_appears_on_branded_pages(self):
-        for path in ["/", "/login", "/chat", "/learn-more"]:
+        for path in ["/", "/signup", "/login", "/chat", "/learn-more"]:
             body = self.client.get(path).get_data(as_text=True)
             self.assertIn(f">{branding.LOGO_MONOGRAM}<", body, f"{path} is missing the ST mark")
 
