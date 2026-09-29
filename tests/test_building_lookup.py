@@ -673,7 +673,7 @@ class OnAccentContrastTests(unittest.TestCase):
     just this one. Text on an accent fill now uses --on-accent, which is
     white in light mode and near-black in dark (6.05:1)."""
 
-    THEMED = ("chat.html", "settings.html", "learn_more.html", "building.html")
+    THEMED = ("chat.html", "settings.html", "learn_more.html", "building.html", "law.html")
 
     @staticmethod
     def _ratio(a, b):

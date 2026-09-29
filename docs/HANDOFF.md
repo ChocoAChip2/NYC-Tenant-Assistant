@@ -132,7 +132,12 @@ Done in the cloud session of 2026-09-28 (items 1-4 of the old list, minus everyt
    - `legal_refresh_runs` shows `succeeded`
    - a second identical run reports 0 changes
 6. ✅ **Workflow** `.github/workflows/refresh-legal-library.yml` (cron 09:00 UTC on Jan/Apr/Jul/Oct 1, plus manual runs that default to dry run). Until `CORPUS_INGEST_TOKEN` exists it does a parse-and-gate dry run without touching Supabase, so the 2026-10-01 run won't fail just because the library isn't set up yet. It opens an issue when the law changed and fails the job on any non-zero exit. ✅ **`tools/ingest_corpus.py` retired**, and its docs repointed to `tools/corpus/`.
-7. `/law/<citation>` page + building-page chip links + log entry. Ship.
+7. ✅ **`/law/<citation>` page + building-page chip links** (`law_service.py`, `templates/law.html`, docs in `docs/frontend/law-page.md`):
+   - Shows repealed and missing sections with a notice.
+   - Chips link only when the number is unambiguous in the library.
+   - The page returns 503 and chips stay plain until the library is loaded.
+   - Rendered and checked in Chromium, light and dark, at 390 px.
+   - **Still to do after the load:** open a real `/law/27-2029` and a real building page on Render. Then set `LEGAL_CORPUS_ENABLED=1`, keep the guard in `report`, and watch the logs.
 
 ## 4. What the owner needs to do
 

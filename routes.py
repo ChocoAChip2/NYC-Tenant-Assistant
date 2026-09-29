@@ -7,10 +7,11 @@ stored in the Flask app config to handle authentication and chat persistence.
 import json
 import logging
 import os
-from flask import Blueprint, current_app, flash, jsonify, make_response, redirect, render_template, request, session, url_for, send_file
+from flask import Blueprint, abort, current_app, flash, jsonify, make_response, redirect, render_template, request, session, url_for, send_file
 
 import branding
 import building_service
+import law_service
 import citation_guard
 import password_safety
 import retrieval_service
@@ -736,6 +737,7 @@ def building_lookup():
             error = "We couldn't complete that lookup. Please try again."
             status = 500
 
+    chip_links = _law_chip_links(report) if report else {}
     chat_prompt = building_service.chat_prompt(report) if report else ""
     chat_title = (report.match.label.split(",")[0].title() if report else "")[:80]
 
@@ -754,6 +756,74 @@ def building_lookup():
         max_per_class=60,
         hpd_clear_violations_url=building_service.HPD_CLEAR_VIOLATIONS_URL,
         dataset_url=building_service.HPD_VIOLATIONS_DATASET_URL,
+        chip_links=chip_links,
+    ), status
+
+
+def _law_chip_links(report) -> dict[str, str]:
+    """Chip label -> /law URL, for Admin Code sections the library holds.
+
+    One batched query for the page (law_service.linkable_citations), and
+    only unambiguous numbers are linked. Any failure means plain chips.
+    """
+    try:
+        violations = list(report.apartment_violations or [])
+        for _, _, items in report.open_by_class():
+            violations.extend(items)
+        numbers = {}
+        for v in violations:
+            for label in v.citations or []:
+                number = law_service.admin_code_number(label)
+                if number:
+                    numbers[label] = number
+        if not numbers:
+            return {}
+        client = getattr(get_supabase_service(), "client", None)
+        linkable = law_service.linkable_citations(client, numbers.values())
+        return {
+            label: url_for("main.law_section", citation=number)
+            for label, number in numbers.items()
+            if number in linkable
+        }
+    except Exception:
+        # Links are a bonus on this page; the violations are the point.
+        logger.exception("Could not build law links for a building page.")
+        return {}
+
+
+@main_bp.route("/law/<citation>")
+@limiter.limit("60 per minute")
+def law_section(citation):
+    """Public: one section of NYC law, verbatim, from the official publisher.
+
+    Reachable without logging in, like /building: a citation has to open
+    for anyone it is shown to. The text is exactly what American Legal
+    Publishing publishes (loaded by tools/corpus), with its amendment
+    history, the date we last checked it against the official code, and a
+    link to the official page. A section that has left the code is still
+    shown, with a notice, because old citations point at it.
+    """
+    if not law_service.is_valid_citation(citation):
+        abort(404)
+    status = 200
+    sections: list = []
+    error = None
+    try:
+        sections = law_service.get_sections(getattr(get_supabase_service(), "client", None), citation)
+    except law_service.LawUnavailable:
+        logger.warning("Legal library unavailable for /law/%s.", citation, exc_info=True)
+        error = "unavailable"
+        status = 503
+    if not sections and not error:
+        error = "not_found"
+        status = 404
+    return render_template(
+        "law.html",
+        citation=citation,
+        sections=sections,
+        error=error,
+        logged_in=bool(session.get("user_id")),
+        alp_url=law_service.ALP_CODE_LIBRARY_URL,
     ), status
 
 

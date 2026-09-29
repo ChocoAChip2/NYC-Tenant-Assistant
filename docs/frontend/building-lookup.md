@@ -91,6 +91,16 @@ The rule now: **label a citation only when its source is unambiguous, and
 drop it otherwise.** A missing chip costs nothing; a mislabeled one is a
 false statement about the law.
 
+**Chips link to the law, by the same rule.** An Admin Code chip becomes a
+link to `/law/<number>` only when the legal library holds exactly one
+active, unrepealed section with that number, found with one batched query
+per page (`law_service.linkable_citations`). § 26-1301 is never
+auto-linked, because Title 26 has two of them. If the library can't be
+read (it is empty until the 20260929 migration and first load), every chip
+stays plain text and the page is otherwise unchanged. Linked chips are
+underlined, so a tappable chip and a plain one never look the same. See
+[law-page.md](law-page.md).
+
 - `27-2xxx`: Housing Maintenance Code, identified by the number itself.
 - Any other `NN-NN`: Admin Code only when the text says HMC or ADM CODE
   right after it, and RCNY only when it says RCNY. "28 RCNY" keeps its

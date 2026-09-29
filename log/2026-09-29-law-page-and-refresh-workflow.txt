@@ -1,0 +1,33 @@
+2026-09-29  Legal library: quarterly refresh workflow, /law page, chip links
+
+Requirement (docs/HANDOFF.md section 3, steps 6-7): keep the library
+current automatically ("every few months"), and put it to use: a public
+page per section, and violation chips on /building that open the real
+text.
+
+Shipped:
+- .github/workflows/refresh-legal-library.yml: 09:00 UTC on Jan/Apr/Jul/
+  Oct 1 plus manual runs (default dry run). Opens an issue when the law
+  changed; fails the job (owner emailed) on any non-zero exit. Until
+  CORPUS_INGEST_TOKEN exists it does a parse-and-gate dry run without
+  touching Supabase, so the 2026-10-01 run proves the source still parses
+  instead of failing on setup.
+- tools/ingest_corpus.py retired: after the migration its upsert targets a
+  constraint that no longer exists. Docs repointed to tools/corpus/.
+- /law/<citation> (law_service.py, templates/law.html): verbatim text,
+  heading path, amendment history, last-amended and last-checked dates,
+  official link, publisher's notes labelled as not law. Repealed and
+  missing-from-source sections are shown with a notice, never hidden.
+- /building chips link to /law only when exactly one active, unrepealed
+  section has that number (one batched query per page); § 26-1301 is never
+  auto-linked. Any library failure leaves plain chips and an intact page.
+
+Verified: tests render the page from the parser's real output for the ALP
+fixtures; key rules mutation-tested (ambiguity, duplicates, repealed,
+https provenance, missing notice). Rendered in Chromium at 900 and 390
+wide, light and dark: no horizontal overflow at 390.
+
+Not verified here (cloud container, no Supabase): the page against the
+live library, which is empty until the migration is applied and loaded.
+The workflow has not run on GitHub yet; its shell logic was exercised with
+a stubbed python.
