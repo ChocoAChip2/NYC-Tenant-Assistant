@@ -1,0 +1,48 @@
+2026-09-30  Tenant-phrased legal search (migration 20260930_tenant_phrased_search)
+
+Problem
+- After the library loaded, everyday questions found no law. Full-text search
+  required every word, and tenants and the Admin Code use different words:
+  landlord/owner, lawyer/counsel/"legal services", roaches/cockroaches,
+  bed bugs/bedbug, voucher/"lawful source of income".
+- Measured on tests/fixtures/tenant_questions.json: recall@6 was 8 of 38
+  questions (6/23 on the tuning set, 2/15 on the held-out set).
+
+Fix (the search_legal_documents contract is unchanged, so the app needed
+no change)
+- legal_search_synonyms: a public-read table mapping tenant words to law
+  words or exact phrases. It is data, so it can grow without a migration.
+- Filler words ("apartment", "get", "section", single digits, single
+  letters) are dropped.
+- Each query word becomes a group (the word OR its law words). Sections
+  are scored by the groups they match, each weighted by rarity (IDF), plus
+  the same weight again when the group is in the section title. A section
+  needs two groups, or its only group, or one group that is in its title.
+- One chunk per section. A quoted phrase still matches exactly first.
+- Tenant text reaches to_tsquery only as quoted lexemes or through
+  phraseto_tsquery, so "a & b | !c" is words, not operators.
+
+Result, on a local copy of the real 308-section library
+- Tuning set: 23/23.
+- Held-out set (written after tuning, never tuned on): 13/15. The misses:
+    "owner turned off the gas and heat so we would leave" -> heat sections, not 26-521
+    "can I get a free attorney if I'm being evicted" -> 26-408 Evictions and 26-1304, not 26-1302
+- Noise: "hello", "what's the weather", "capital of france" (0-2 results)
+  and "file my taxes" (6 results from the tax sections). Leftover keyword noise.
+- Speed: about 80 ms median as the anon role.
+
+Live, 2026-09-29 evening
+- The rolled-back live test matched the local results.
+- Applied as migration "tenant_phrased_search". get_advisors: the only new
+  finding is legal_search_synonyms visible in GraphQL, which is intended
+  (it is public data).
+- The library checks file now checks amended chunks directly. Search now
+  matches most-but-not-all words, so the amended heat text ("degrees
+  Fahrenheit") legitimately still appears in search results. The checks
+  pass with and without the new migration.
+
+Measure again at any time, read-only, with the anon key:
+    SUPABASE_URL=... SUPABASE_KEY=<anon> python -m tools.corpus.eval_search --min-recall 0.8
+
+Still true: there are no embeddings yet. Paraphrases that share no words
+with the law (e.g. "it's like an icebox in here") still need vector search.
