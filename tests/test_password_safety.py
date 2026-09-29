@@ -28,6 +28,20 @@ import password_safety
 PASSWORD_PREFIX, PASSWORD_SUFFIX = "5BAA6", "1E4C9B93F3F0682250B6CF8331B7EE68FD8"
 
 
+# tests/__init__.py turns the check off for the rest of the suite so no test
+# reaches the real API. This module tests the check itself, so it turns it
+# back on; every network call below is faked.
+_ENABLED = mock.patch.dict(os.environ, {"PASSWORD_BREACH_CHECK": "on"})
+
+
+def setUpModule():
+    _ENABLED.start()
+
+
+def tearDownModule():
+    _ENABLED.stop()
+
+
 def _range_body(entries):
     return "\r\n".join(f"{suffix}:{count}" for suffix, count in entries)
 
