@@ -145,7 +145,9 @@ still auto-sent when the tenant ignored the continue chip and opened an
 existing *empty* conversation from the sidebar. The prompt-carrying click
 now also stores `pendingChatArmedAt`, and the chat page auto-sends only if
 that stamp is less than two minutes old. Any other page load leaves the
-prompt waiting behind the continue chip.
+prompt waiting behind the continue chip. Landing back on the greeting (for
+example after a create that failed with a 429) clears the stamp, so a
+failed click cannot arm a later one.
 
 ## `--on-accent`
 

@@ -1128,6 +1128,7 @@
       let pending = null;
       let pendingTitle = "";
       try {
+        if (continueForm) sessionStorage.removeItem("pendingChatArmedAt");
         pending = sessionStorage.getItem("pendingChatPrompt");
         pendingTitle = sessionStorage.getItem("pendingChatTitle") || "";
       } catch (error) {

@@ -142,6 +142,14 @@ class PendingPromptOnlyAutoSendsWhenArmedTests(unittest.TestCase):
         form = building[building.index('querySelectorAll("[data-new-chat-form]")'):]
         self.assertIn('sessionStorage.setItem("pendingChatArmedAt"', form[:400])
 
+    def test_landing_back_on_the_greeting_disarms(self):
+        # A create that failed (429, Supabase error) redirects back to the
+        # greeting; the stamp it left must not arm a later sidebar click.
+        chat = _read("chat.html")
+        block = chat[chat.index('const continueForm = document.querySelector("[data-continue-form]");'):]
+        self.assertLess(block.index('sessionStorage.removeItem("pendingChatArmedAt")'),
+                        block.index('continueForm.hidden = false;'))
+
     def test_new_chat_clears_the_arm_stamp_too(self):
         chat = _read("chat.html")
         block = chat[chat.index('document.querySelectorAll(".new-chat-form")'):]
