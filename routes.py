@@ -7,7 +7,7 @@ stored in the Flask app config to handle authentication and chat persistence.
 import json
 import logging
 import os
-from flask import Blueprint, current_app, flash, jsonify, redirect, render_template, request, session, url_for, send_file
+from flask import Blueprint, current_app, flash, jsonify, make_response, redirect, render_template, request, session, url_for, send_file
 
 import branding
 import building_service
@@ -87,6 +87,24 @@ def get_user_scoped_client():
     except Exception:
         logger.exception("Failed to build user-scoped Supabase client.")
         return None
+
+
+@main_bp.route("/favicon.ico")
+@limiter.exempt
+def favicon():
+    """The ST mark as an SVG icon. Browsers request /favicon.ico on every
+    new visit; without this each one logged a 404 (2026-09-29 sweep).
+    Chrome, Firefox and Safari all honor image/svg+xml here."""
+    svg = (
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">'
+        '<rect width="32" height="32" rx="8" fill="#1c5d8c"/>'
+        '<text x="16" y="21" font-family="Arial,Helvetica,sans-serif" font-size="13" font-weight="700" '
+        f'fill="#ffffff" text-anchor="middle">{branding.LOGO_MONOGRAM}</text></svg>'
+    )
+    response = make_response(svg)
+    response.headers["Content-Type"] = "image/svg+xml"
+    response.headers["Cache-Control"] = "public, max-age=604800"
+    return response
 
 
 @main_bp.route("/", methods=["GET", "POST"])
@@ -247,20 +265,29 @@ def reset_password():
             flash("This reset link is invalid or has expired. Request a new one below.", "error")
             return redirect(url_for("main.forgot_password"))
 
+        # A typo must not cost the tenant their reset link: the tokens came
+        # from the URL fragment, which the page has already cleared, so they
+        # are handed back to the re-rendered form.
+        def retry():
+            response = make_response(render_template(
+                "reset_password.html", access_token=access_token, refresh_token=refresh_token))
+            response.headers["Cache-Control"] = "no-store"  # the page now carries the tokens
+            return response
+
         if not new_password or new_password != confirm_password:
             flash("Passwords do not match.", "error")
-            return render_template("reset_password.html")
+            return retry()
 
         if len(new_password) < 6:
             flash("Password must be at least 6 characters.", "error")
-            return render_template("reset_password.html")
+            return retry()
 
         # Checked against public breach corpora (see password_safety.py).
         # Fails open by design: an unreachable API must never stop someone
         # making an account.
         if password_safety.is_breached(new_password):
             flash(password_safety.MESSAGE, "error")
-            return render_template("reset_password.html")
+            return retry()
 
         try:
             get_supabase_service().update_account(
@@ -580,11 +607,14 @@ def chat_message():
         session.clear()
         return jsonify({"error": "Your session expired. Please log in again."}), 401
 
-    payload = request.get_json(silent=True) or {}
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        payload = {}
     conversation_id = payload.get("conversation_id")
-    content = (payload.get("content") or "").strip()
+    content = payload.get("content")
+    content = content.strip() if isinstance(content, str) else ""
 
-    if not conversation_id or not content:
+    if not isinstance(conversation_id, str) or not conversation_id or not content:
         return jsonify({"error": "A conversation and message are required."}), 400
 
     if len(content) > MAX_MESSAGE_LENGTH:
@@ -936,7 +966,8 @@ def download_chat_history():
     content = _render_conversations_as_markdown(conversations)
 
     response = current_app.response_class(content, mimetype="text/markdown")
-    response.headers["Content-Disposition"] = "attachment; filename=nyc-tenant-assistant-chat-history.md"
+    slug = "-".join(branding.PRODUCT_NAME.lower().split())
+    response.headers["Content-Disposition"] = f"attachment; filename={slug}-chat-history.md"
     return response
 
 

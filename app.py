@@ -12,6 +12,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 from ai_service import AIService
 import branding
+import error_pages
 from alerting import configure_alerting
 from config import load_settings
 from rate_limit import limiter
@@ -78,6 +79,9 @@ def create_app() -> Flask:
     # limits on specific expensive or sensitive routes (login, signup,
     # the AI chat endpoint, etc.), applied via @limiter.limit(...) in
     # routes.py.
+    # Retry-After and X-RateLimit-* on responses, so a 429 tells the
+    # client when it may try again.
+    app.config["RATELIMIT_HEADERS_ENABLED"] = True
     limiter.init_app(app)
 
     # Session cookie hardening. SameSite=Lax is safe to set unconditionally
@@ -166,6 +170,8 @@ def create_app() -> Flask:
     # branding.py precisely so six standalone templates cannot drift apart
     # on the one piece of text that has legal weight.
     branding.register(app)
+    # Branded 4xx/5xx pages with the disclaimer; JSON for the chat endpoint.
+    error_pages.register(app)
 
     return app
 

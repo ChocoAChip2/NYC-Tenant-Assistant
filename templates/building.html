@@ -26,12 +26,13 @@
       --accent: #1c5d8c;
       --accent-hover: #164a70;
       --accent-tint: #dce8f2;
+      --chip-text: #1c5d8c;
       --on-accent: #ffffff;
       --warning: #8a5a1f;
       --warning-tint: #f7ecd9;
       --error: #a3312a;
       --error-tint: #fbe9e7;
-      --success: #1b7f3b;
+      --success: #18733a;
       --success-tint: #e6f4ea;
     }
     @media (prefers-color-scheme: dark) {
@@ -45,6 +46,7 @@
         --accent: #5b9bd5;
         --accent-hover: #7db2e0;
         --accent-tint: #1f3547;
+        --chip-text: #74aee0;
         --on-accent: #101820;
         --warning: #e8c27a;
         --warning-tint: #3a2f18;
@@ -64,6 +66,7 @@
       --accent: #5b9bd5;
       --accent-hover: #7db2e0;
       --accent-tint: #1f3547;
+      --chip-text: #74aee0;
       --on-accent: #101820;
       --warning: #e8c27a;
       --warning-tint: #3a2f18;
@@ -259,7 +262,7 @@
       padding: 2px 8px;
       border-radius: 6px;
       background: var(--accent-tint);
-      color: var(--accent);
+      color: var(--chip-text);
       font-weight: 600;
     }
     .badge {
@@ -467,6 +470,9 @@
       });
       document.querySelectorAll("[data-new-chat-form]").forEach(function (f) {
         f.addEventListener("submit", function () {
+          try {
+            sessionStorage.setItem("pendingChatArmedAt", String(Date.now()));
+          } catch (error) {}
           var b = f.querySelector("button");
           if (b) b.disabled = true;
         });

@@ -1,0 +1,40 @@
+2026-09-29  Fixes from a site-wide browser sweep
+
+The sweep ran the real create_app() in Chromium with Supabase, Gemini, HIBP
+and the building data faked in process. It covered 22 page states at 1280
+and 375 wide, in light and dark (88 loads), 95 interactive-flow checks and
+27 security/HTTP checks. It found no 500s in normal use. CSRF held on all 13
+POST forms, every XSS payload tried was inert, the security headers were on
+every response, and the building-to-chat hand-off worked end to end.
+
+It did find eight defects, all fixed here:
+
+1. Reset password: a typo (mismatch, too short, breached) re-rendered the
+   page without the recovery tokens, so the form vanished behind "link
+   expired". The tenant needed a new email. The tokens are now handed back
+   to the form, with Cache-Control: no-store.
+2. A pending building prompt auto-sent into an unrelated empty conversation
+   opened from the sidebar. Auto-send now needs a pendingChatArmedAt stamp
+   under 2 minutes old, set only by a prompt-carrying click.
+3. With site storage blocked, settings.html's first localStorage read threw
+   and killed every handler, so "Delete my account" and the password
+   toggles were dead. Every localStorage access is now inside a try.
+4. /chat/message returned 500 for non-object JSON or non-string fields. It
+   now returns 400.
+5. Contrast below WCAG AA:
+   - light success text 4.46 -> #18733a, 5.21
+   - dark building chips 4.28 -> --chip-text #74aee0, 5.35
+   - active archived chat row 4.39 -> accent-hover
+6. 404, the CSRF 400 and 429 were unbranded Werkzeug/Flask-Limiter pages
+   with no disclaimer. There are now branded error pages (error_pages.py,
+   templates/error.html), JSON for the chat endpoint, and Retry-After on
+   429.
+7. The chat-history download was named after the old product. It is now
+   sidekick-tidbit-chat-history.md.
+8. No favicon, so every visit logged a 404. /favicon.ico now serves the ST
+   mark as an SVG.
+
+Known and not changed here: the "[S1]" citation markers in replies still
+have no UI (log/2026-09-20-legal-grounding.txt).
+
+Suite: 590 passing (23 new in tests/test_site_sweep_fixes.py).

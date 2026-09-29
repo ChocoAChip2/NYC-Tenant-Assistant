@@ -140,6 +140,13 @@ that far more likely, so "+ New chat" now clears any pending prompt.
 Only something that carries a prompt (a chip, the continue chip, the
 building CTA) causes an auto-send. Browser-tested both ways.
 
+Tightened 2026-09-29. A browser sweep found that a pending building prompt
+still auto-sent when the tenant ignored the continue chip and opened an
+existing *empty* conversation from the sidebar. The prompt-carrying click
+now also stores `pendingChatArmedAt`, and the chat page auto-sends only if
+that stamp is less than two minutes old. Any other page load leaves the
+prompt waiting behind the continue chip.
+
 ## `--on-accent`
 
 Found while reviewing this page's dark-mode screenshot, and **fixed
