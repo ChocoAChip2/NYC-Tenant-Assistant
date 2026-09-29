@@ -226,7 +226,7 @@ class DownloadChatHistoryTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.mimetype, "text/markdown")
         self.assertIn("attachment", response.headers["Content-Disposition"])
-        self.assertIn("nyc-tenant-assistant-chat-history.md", response.headers["Content-Disposition"])
+        self.assertIn("sidekick-tidbit-chat-history.md", response.headers["Content-Disposition"])
         body = response.get_data(as_text=True)
         self.assertIn("Broken heat", body)
         self.assertIn("My landlord won't fix the heat", body)

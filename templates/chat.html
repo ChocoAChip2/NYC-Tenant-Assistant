@@ -10,7 +10,8 @@
   <script>
 
     (function () {
-      var saved = localStorage.getItem("theme");
+      var saved = null;
+      try { saved = localStorage.getItem("theme"); } catch (e) {}
       if (saved === "light" || saved === "dark") {
         document.documentElement.setAttribute("data-theme", saved);
       }
@@ -34,7 +35,7 @@
       --warning-tint: #f7ecd9;
       --error: #a3312a;
       --error-tint: #fbe9e7;
-      --success: #1b7f3b;
+      --success: #18733a;
       --success-tint: #e6f4ea;
     }
     @media (prefers-color-scheme: dark) {
@@ -298,6 +299,7 @@
     .archived-section summary:hover { color: var(--text); }
     .archived-section .conversation-list { margin-top: 6px; }
     .conversation-row.archived .conversation-link { color: var(--muted); }
+    .conversation-row.archived.active .conversation-link { color: var(--accent-hover); }
 
     .chat-area {
       flex: 1;
@@ -1126,6 +1128,7 @@
       let pending = null;
       let pendingTitle = "";
       try {
+        if (continueForm) sessionStorage.removeItem("pendingChatArmedAt");
         pending = sessionStorage.getItem("pendingChatPrompt");
         pendingTitle = sessionStorage.getItem("pendingChatTitle") || "";
       } catch (error) {
@@ -1139,6 +1142,13 @@
           if (button) button.textContent = "Continue: " + pendingTitle.slice(0, 60);
         }
         continueForm.hidden = false;
+        continueForm.addEventListener("submit", () => {
+          try {
+            sessionStorage.setItem("pendingChatArmedAt", String(Date.now()));
+          } catch (error) {
+
+          }
+        });
       }
     })();
 
@@ -1147,6 +1157,7 @@
         try {
           sessionStorage.removeItem("pendingChatPrompt");
           sessionStorage.removeItem("pendingChatTitle");
+          sessionStorage.removeItem("pendingChatArmedAt");
         } catch (error) {
 
         }
@@ -1157,6 +1168,7 @@
       chip.addEventListener("click", () => {
         try {
           sessionStorage.setItem("pendingChatPrompt", chip.dataset.prompt);
+          sessionStorage.setItem("pendingChatArmedAt", String(Date.now()));
         } catch (error) {
 
         }
@@ -1365,9 +1377,13 @@
       if (chatBox && chatBox.children.length === 0) {
         let pendingPrompt = null;
         try {
-          pendingPrompt = sessionStorage.getItem("pendingChatPrompt");
-          sessionStorage.removeItem("pendingChatPrompt");
-          sessionStorage.removeItem("pendingChatTitle");
+          const armedAt = Number(sessionStorage.getItem("pendingChatArmedAt") || 0);
+          if (armedAt && Date.now() - armedAt < 120000) {
+            pendingPrompt = sessionStorage.getItem("pendingChatPrompt");
+            sessionStorage.removeItem("pendingChatPrompt");
+            sessionStorage.removeItem("pendingChatTitle");
+          }
+          sessionStorage.removeItem("pendingChatArmedAt");
         } catch (error) {
           pendingPrompt = null;
         }
