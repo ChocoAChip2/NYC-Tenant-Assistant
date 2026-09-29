@@ -42,7 +42,16 @@ Shipped, in order: SideKick Tidbit rename + ST mark + disclaimers (#25), promine
 
 Test suite: **591 passing** (`python -m unittest discover -s tests`). Tests never touch the network: `tests/__init__.py` turns the HIBP check off (it used to call the real API, which failed 5 tests on a machine with internet).
 
-The legal-library migration (`20260929_legal_library.sql`) is **still not applied** to the live project, so the library is empty and grounding is off.
+**The legal library is live (2026-09-29).**
+- **Migration:** `20260929_legal_library.sql` was applied after a rolled-back live test of the current version passed. `get_advisors` shows only expected findings: the token-checked anon `corpus_*` functions, RLS with no policies on the two private tables, and public law being visible to GraphQL.
+- **Ingest token:** created on the owner's Mac and never printed. Only its sha256 is in `corpus_ingest_tokens`, labelled `owner-mac-and-github-actions-2026-09-29`.
+- **Load:** the initial load from the Mac used ALP's zip, `Last-Modified` 29 Sep 2026. It added 308 sections and 521 chunks (18 sections are repealed). A second run changed nothing.
+- **Spot checks:** § 27-2029 says sixty-two degrees, with `last_amended` 2017-10-01.
+- **Retrieval:** the app's own `RetrievalService`, run against the live data, returns § 27-2029 for "sixty-two degrees" and §§ 27-2031 and 27-2029 for "hot water temperature".
+- **Grounding:** still OFF on Render (`LEGAL_CORPUS_ENABLED` is not set).
+- **Known gap, fix before relying on grounding:** there are no embeddings yet, and full-text search requires every word to match. So everyday questions find nothing: "no heat at night how cold can it get", "my landlord changed the locks", "mold in my bathroom", "can my landlord evict me without going to court" and "right to counsel eviction lawyer" all return 0 sources. Two fixes:
+  - an OR fallback in `search_legal_documents` when the AND query finds nothing, plus tenant-phrase synonyms (landlord→owner, locks→lock)
+  - an embeddings backfill: a `corpus_set_embeddings` RPC plus a Gemini batch; `tools/ingest_corpus.py`, the old embedding writer, no longer works against this schema
 
 **Branches:** every branch is merged into `main`. The two superseded AI branches are preserved as `archive/*` tags. A repository rule blocks branch deletion, so old branch refs stay on GitHub as history. Local clones were cleaned on 2026-09-29.
 

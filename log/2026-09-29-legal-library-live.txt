@@ -1,0 +1,24 @@
+2026-09-29  Legal library applied and loaded on the live project
+
+- Rolled-back live test: the current migration (after #36) plus the checks passed. After the rollback nothing persisted.
+- Applied: the migration "legal_library". get_advisors showed only expected findings:
+    anon can run the corpus_* SECURITY DEFINER functions (they check the token)
+    RLS is on with no policies for corpus_ingest_tokens and legal_refresh_runs (private)
+    legal_* tables are visible in GraphQL (public law)
+    leaked-password protection is off (a Pro feature; the app's HIBP check replaces it)
+- Token: generated on the owner's Mac straight into a file with owner-only permissions, and never printed.
+  Only its sha256 was inserted into corpus_ingest_tokens.
+- Load: tools.corpus.refresh ran from the Mac and downloaded ALP's zip (Last-Modified 29 Sep 2026).
+    HMC 211, RSL 25, UE 9, RTC 6, HRL 35, Rent Control 22: 308 added, 521 chunks.
+    Second run: 308 unchanged. Both runs are recorded as succeeded in legal_refresh_runs.
+- Checks:
+    § 27-2029 says sixty-two degrees, with last_amended 2017-10-01 and the ALP URL
+    the pest sections §§ 27-2017.4 and 27-2017.8 are present
+    SQL search: "visible mold" returns 27-2017.3; "lock entrance door" returns 26-521 (among others)
+- The app's RetrievalService against live data, with LEGAL_CORPUS_ENABLED=1:
+    "sixty-two degrees" -> 27-2029
+    "hot water temperature" -> 27-2031, 27-2029
+    everyday phrasings (heat at night, locks changed, mold in my bathroom, evicted
+    without court, right to counsel) -> nothing. Full-text search needs every word
+    to match and there are no embeddings yet. See HANDOFF section 2 for the fix.
+- Grounding is still OFF on Render.
