@@ -63,6 +63,9 @@ class FakeQuery:
         self.filters.append(("in", column, list(values)))
         return self
 
+    def limit(self, n):
+        return self
+
     def execute(self):
         self.table.log.append(("execute", self.filters))
         if self.table.error:
@@ -211,6 +214,10 @@ class LawPageTests(unittest.TestCase):
 
 
 class LinkableCitationTests(unittest.TestCase):
+    def setUp(self):
+        law_service.clear_cache()
+        self.addCleanup(law_service.clear_cache)
+
     def test_links_only_unambiguous_active_unrepealed_sections(self):
         rows = list(HMC.values()) + [RTC["26-1301"]]
         db = FakeClient(rows)

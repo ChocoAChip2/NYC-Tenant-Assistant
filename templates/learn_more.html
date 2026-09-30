@@ -173,11 +173,11 @@
 </head>
 <body>
   <header>
-    <a class="brand" href="{{ url_for('main.chat') }}">
+    <a class="brand" href="{{ url_for('main.chat') if logged_in else url_for('main.home') }}">
       <span class="brand-mark" aria-hidden="true">{{ logo_monogram }}</span>
       <span class="brand-name">{{ product_name }}</span>
     </a>
-    <a class="back" href="{{ url_for('main.chat') }}">&larr; Back to chat</a>
+    {% if logged_in %}<a class="back" href="{{ url_for('main.chat') }}">&larr; Back to chat</a>{% else %}<a class="back" href="{{ url_for('main.home') }}">&larr; Look up a building</a>{% endif %}
   </header>
 
   <main>

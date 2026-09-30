@@ -272,7 +272,7 @@
           <dl class="facts">
             <dt>Source</dt>
             <dd>{{ s.authority }}, as published by American Legal Publishing</dd>
-            <dt>Last amended</dt>
+            <dt>{% if s.repealed %}Repealed{% else %}Last amended{% endif %}</dt>
             <dd>{% if s.last_amended %}Effective {{ s.last_amended.strftime("%B") }} {{ s.last_amended.day }}, {{ s.last_amended.year }}{% else %}No amendment date in the official history{% endif %}</dd>
             {% if s.last_checked_at %}
               <dt>Checked</dt>

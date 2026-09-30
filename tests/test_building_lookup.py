@@ -113,8 +113,12 @@ def fake_network(
 
 class _CacheIsolation(unittest.TestCase):
     def setUp(self):
+        import law_service
+
         bs.clear_caches()
+        law_service.clear_cache()
         self.addCleanup(bs.clear_caches)
+        self.addCleanup(law_service.clear_cache)
 
 
 # ---------------------------------------------------------------------------
@@ -573,7 +577,11 @@ class RouteTests(_CacheIsolation):
         source = inspect.getsource(routes)
         route_at = source.index('@main_bp.route("/building")')
         self.assertIn("@_building_lookup_limit", source[route_at:route_at + 120])
-        self.assertIn('limiter.shared_limit("30 per minute", scope="building_lookup"', source)
+        limit_at = source.index("_building_lookup_limit = limiter.shared_limit(")
+        block = source[limit_at:source.index(")", source.index("exempt_when", limit_at)) + 1]
+        self.assertIn('"30 per minute"', block)
+        self.assertIn('scope="building_lookup"', block)
+        self.assertIn('methods=["GET", "HEAD"]', block)  # HEAD runs the whole view too
 
 
 class FrontDoorTests(unittest.TestCase):

@@ -28,13 +28,34 @@ from __future__ import annotations
 
 import logging
 import re
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import TimeoutError as FutureTimeout
 from dataclasses import dataclass, field
 from datetime import date, datetime
 
 logger = logging.getLogger(__name__)
 
-# NYC Admin Code section numbers: "27-2029", "26-504.1", "27-2017.4", "8-107".
-CITATION_RE = re.compile(r"^\d{1,3}-\d{1,5}(?:\.\d{1,3})?$")
+# NYC Admin Code section numbers as the official publisher numbers them:
+# "27-2029", "26-504.1", "27-2056.6.1", "8-102a". The first version missed
+# the last two shapes, and both are real sections in the library (review,
+# 2026-09-30). ASCII only, so other scripts' digits never reach the query.
+CITATION_RE = re.compile(r"^\d{1,3}-\d{1,5}[a-z]?(?:\.\d{1,3}){0,2}$", re.ASCII)
+
+# The library is read with the app's shared client, whose HTTP timeout is
+# the library default (120 s). A page must never wait that long on it:
+# every read runs with its own short deadline, and the building page's chip
+# links come from an in-memory index of the whole library (a few hundred
+# rows) refreshed at most hourly, so a building page normally makes no
+# library call at all.
+READ_TIMEOUT_SECONDS = 4.0
+INDEX_TTL_SECONDS = 3600
+INDEX_RETRY_SECONDS = 60  # after a failed load, don't make every page wait again
+
+_executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="law-read")
+_index_lock = threading.Lock()
+_index: dict = {"counts": None, "loaded_at": 0.0, "failed_at": 0.0}
 
 # Numbers that name more than one section of the Admin Code.
 AMBIGUOUS_CITATIONS = frozenset({"26-1301"})
@@ -47,11 +68,6 @@ _COLUMNS = (
     "section_key,source_key,authority,citation,title,heading_path,full_text,history,notes,"
     "repealed,last_amended,last_checked_at,official_url,status"
 )
-
-# Upper bound on chips looked up for one building page; the page shows at
-# most a few hundred violations, each citing one or two sections.
-_MAX_LINK_LOOKUP = 200
-
 
 class LawUnavailable(Exception):
     """The library could not be read (Supabase down, or not set up yet)."""
@@ -83,6 +99,28 @@ def is_valid_citation(citation: str) -> bool:
     return bool(CITATION_RE.fullmatch(citation or ""))
 
 
+def normalize_citation(raw: str) -> str | None:
+    """"§ 27-2029", "§27-2029", "27-2029." -> "27-2029"; None if still not a citation."""
+    tidy = (raw or "").strip().lstrip("§").strip().rstrip(".").strip()
+    return tidy if tidy != raw and is_valid_citation(tidy) else None
+
+
+def _read(fn):
+    """Run one library read with a deadline. Raises LawUnavailable on timeout or error."""
+    future = _executor.submit(fn)
+    try:
+        return future.result(timeout=READ_TIMEOUT_SECONDS)
+    except FutureTimeout as exc:
+        raise LawUnavailable(f"library read timed out after {READ_TIMEOUT_SECONDS}s") from exc
+    except Exception as exc:  # noqa: BLE001 -- any read failure is "unavailable"
+        raise LawUnavailable(str(exc)) from exc
+
+
+def clear_cache() -> None:
+    with _index_lock:
+        _index.update(counts=None, loaded_at=0.0, failed_at=0.0)
+
+
 def get_sections(client, citation: str) -> list[LawSection]:
     """Every library section with this number, current ones first.
 
@@ -90,11 +128,8 @@ def get_sections(client, citation: str) -> list[LawSection]:
     """
     if client is None:
         raise LawUnavailable("no database client")
-    try:
-        response = client.table("legal_sources").select(_COLUMNS).eq("citation", citation).execute()
-        rows = list(response.data or [])
-    except Exception as exc:  # noqa: BLE001 -- any read failure is "unavailable"
-        raise LawUnavailable(str(exc)) from exc
+    response = _read(lambda: client.table("legal_sources").select(_COLUMNS).eq("citation", citation).execute())
+    rows = list(getattr(response, "data", None) or [])
     sections = [s for s in (_to_section(row) for row in rows) if s is not None]
     sections.sort(key=lambda s: (not s.is_current, s.section_key))
     return sections
@@ -103,32 +138,48 @@ def get_sections(client, citation: str) -> list[LawSection]:
 def linkable_citations(client, citations) -> set[str]:
     """Which of these section numbers can be linked unambiguously.
 
-    One query for the whole page. Never raises: a failure means no links.
+    Answered from the hourly in-memory index. Never raises and never waits
+    longer than one bounded read: a failure means no links.
     """
-    wanted = sorted({c for c in citations if is_valid_citation(c) and c not in AMBIGUOUS_CITATIONS})
-    if client is None or not wanted:
+    wanted = {c for c in citations if is_valid_citation(c) and c not in AMBIGUOUS_CITATIONS}
+    if not wanted:
         return set()
-    wanted = wanted[:_MAX_LINK_LOOKUP]
+    counts = _active_counts(client)
+    if counts is None:
+        return set()
+    return {cite for cite in wanted if counts.get(cite) == 1}
+
+
+def _active_counts(client) -> dict[str, int] | None:
+    """citation -> number of active, unrepealed sections with that number."""
+    now = time.monotonic()
+    with _index_lock:
+        counts, loaded_at, failed_at = _index["counts"], _index["loaded_at"], _index["failed_at"]
+    if counts is not None and now - loaded_at < INDEX_TTL_SECONDS:
+        return counts
+    if client is None or now - failed_at < INDEX_RETRY_SECONDS:
+        return counts  # a stale index beats no links
     try:
-        response = (
-            client.table("legal_sources")
-            .select("citation,status,repealed")
-            .in_("citation", wanted)
-            .eq("status", "active")
-            .execute()
-        )
-        rows = list(response.data or [])
-    except Exception:  # noqa: BLE001
+        response = _read(lambda: client.table("legal_sources")
+                         .select("citation,status,repealed")
+                         .eq("status", "active")
+                         .limit(10000)
+                         .execute())
+    except LawUnavailable:
         logger.warning("Legal library unavailable for chip links.", exc_info=True)
-        return set()
-    counts: dict[str, int] = {}
-    for row in rows:
-        if not isinstance(row, dict) or row.get("repealed"):
+        with _index_lock:
+            _index["failed_at"] = now
+        return counts
+    fresh: dict[str, int] = {}
+    for row in getattr(response, "data", None) or []:
+        if not isinstance(row, dict) or row.get("repealed") or row.get("status") != "active":
             continue
         cite = row.get("citation")
         if isinstance(cite, str):
-            counts[cite] = counts.get(cite, 0) + 1
-    return {cite for cite, n in counts.items() if n == 1}
+            fresh[cite] = fresh.get(cite, 0) + 1
+    with _index_lock:
+        _index.update(counts=fresh, loaded_at=now, failed_at=0.0)
+    return fresh
 
 
 def admin_code_number(chip_label: str) -> str | None:

@@ -244,9 +244,15 @@ class BrandedErrorPageTests(unittest.TestCase):
         self.assertIn("GET", response.headers.get("Allow", ""))
 
     def test_429_is_branded_and_says_when_to_retry(self):
+        # A real lookup is needed: since 2026-09-30 a bare page load (no
+        # address) doesn't count against the lookup budget.
+        import building_service
+
         response = None
-        for _ in range(31):
-            response = self.client.get("/building?address=")
+        with mock.patch.object(building_service, "lookup",
+                               side_effect=building_service.LookupUnavailable("offline in tests")):
+            for _ in range(31):
+                response = self.client.get("/building?address=231+echo+place")
         self._assert_branded(response, 429)
         self.assertTrue(response.headers.get("Retry-After"))
 

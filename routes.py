@@ -110,8 +110,21 @@ def favicon():
 
 # One budget for the lookup at both of its URLs. Each lookup costs several
 # calls to the city's APIs, so "/" and "/building" must not be two separate
-# 30-a-minute allowances.
-_building_lookup_limit = limiter.shared_limit("30 per minute", scope="building_lookup", methods=["GET"])
+# 30-a-minute allowances. HEAD counts too (Flask runs the whole view for
+# it, API calls included). Only an actual lookup counts: opening the front
+# page with no address calls nothing, and counting it would let a shared
+# connection (a library, a tenant meeting) lock everyone out of the front
+# door. Both from the 2026-09-30 review.
+def _no_lookup_requested() -> bool:
+    return not (request.args.get("address") or "").strip()
+
+
+_building_lookup_limit = limiter.shared_limit(
+    "30 per minute",
+    scope="building_lookup",
+    methods=["GET", "HEAD"],
+    exempt_when=_no_lookup_requested,
+)
 
 
 @main_bp.route("/", methods=["GET", "POST"])
@@ -841,6 +854,9 @@ def law_section(citation):
     shown, with a notice, because old citations point at it.
     """
     if not law_service.is_valid_citation(citation):
+        tidy = law_service.normalize_citation(citation)
+        if tidy:
+            return redirect(url_for("main.law_section", citation=tidy), code=301)
         abort(404)
     status = 200
     sections: list = []
@@ -880,6 +896,7 @@ def learn_more():
         "learn_more.html",
         full_disclaimer_paragraphs=branding.FULL_DISCLAIMER_PARAGRAPHS,
         help_resources=branding.HELP_RESOURCES,
+        logged_in=bool(session.get("user_id")),
     )
 
 
