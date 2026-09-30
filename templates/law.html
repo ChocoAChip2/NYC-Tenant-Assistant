@@ -1,0 +1,303 @@
+<!doctype html>
+{# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. See docs/frontend/law-page.md for why sections that left the code are still shown and why the text is set apart from our own words. #}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ product_name }} | {% if sections %}{{ sections[0].authority }} § {{ sections[0].citation }}{% else %}§ {{ citation }}{% endif %}</title>
+  <meta name="description" content="The official text of NYC law, with its amendment history and a link to the City's official publisher.">
+  <script>
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem("theme"); } catch (e) {}
+      if (saved === "light" || saved === "dark") {
+        document.documentElement.setAttribute("data-theme", saved);
+      }
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #eef1f5;
+      --surface: #ffffff;
+      --border: #d7dde5;
+      --text: #1c2733;
+      --muted: #5b6b7c;
+      --accent: #1c5d8c;
+      --accent-hover: #164a70;
+      --accent-tint: #dce8f2;
+      --chip-text: #1c5d8c;
+      --on-accent: #ffffff;
+      --warning: #8a5a1f;
+      --warning-tint: #f7ecd9;
+      --error: #a3312a;
+      --error-tint: #fbe9e7;
+      --success: #18733a;
+      --success-tint: #e6f4ea;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #101820;
+        --surface: #16212c;
+        --border: #2a3846;
+        --text: #e8edf2;
+        --muted: #93a3b3;
+        --accent: #5b9bd5;
+        --accent-hover: #7db2e0;
+        --accent-tint: #1f3547;
+        --chip-text: #74aee0;
+        --on-accent: #101820;
+        --warning: #e8c27a;
+        --warning-tint: #3a2f18;
+        --error: #e28a83;
+        --error-tint: #3a2320;
+        --success: #7fcf9b;
+        --success-tint: #1f3327;
+      }
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #101820;
+      --surface: #16212c;
+      --border: #2a3846;
+      --text: #e8edf2;
+      --muted: #93a3b3;
+      --accent: #5b9bd5;
+      --accent-hover: #7db2e0;
+      --accent-tint: #1f3547;
+      --chip-text: #74aee0;
+      --on-accent: #101820;
+      --warning: #e8c27a;
+      --warning-tint: #3a2f18;
+      --error: #e28a83;
+      --error-tint: #3a2320;
+      --success: #7fcf9b;
+      --success-tint: #1f3327;
+    }
+    [hidden] { display: none !important; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: var(--on-accent);
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .brand-name { font-size: 15px; font-weight: 600; }
+    nav { display: flex; gap: 16px; align-items: center; font-size: 13px; }
+    nav a { color: var(--muted); text-decoration: none; }
+    nav a:hover { color: var(--accent); }
+    nav a.primary {
+      color: var(--on-accent);
+      background: var(--accent);
+      padding: 7px 12px;
+      border-radius: 7px;
+      font-weight: 600;
+    }
+    nav a.primary:hover { background: var(--accent-hover); color: var(--on-accent); }
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+    h1 { font-size: 26px; line-height: 1.25; margin: 0; }
+    .lede { color: var(--muted); font-size: 15px; margin: 6px 0 0; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    button, .button {
+      font: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      border: 0;
+      border-radius: 8px;
+      padding: 11px 18px;
+      cursor: pointer;
+      background: var(--accent);
+      color: var(--on-accent);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s ease;
+    }
+    button:hover, .button:hover { background: var(--accent-hover); }
+    button:disabled { opacity: 0.6; cursor: wait; }
+    .button.secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--border);
+    }
+    .button.secondary:hover { background: var(--accent-tint); }
+    .alert {
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 14px;
+      border: 1px solid;
+    }
+    .alert.error { background: var(--error-tint); border-color: var(--error); color: var(--error); }
+    .alert.warning { background: var(--warning-tint); border-color: var(--warning); color: var(--warning); }
+    .alert.success { background: var(--success-tint); border-color: var(--success); color: var(--success); }
+    .alert strong { display: block; margin-bottom: 3px; }
+    .alert p { margin: 0; }
+    .alert a { color: inherit; font-weight: 600; }
+    .path { font-size: 12.5px; color: var(--muted); margin: 0 0 6px; }
+    .law-title { font-size: 24px; line-height: 1.3; margin: 0; }
+    .law-title .cite { white-space: nowrap; }
+    .law-text { margin-top: 18px; font-family: Georgia, "Times New Roman", serif; font-size: 16px; line-height: 1.65; }
+    .law-text p { margin: 0 0 12px; overflow-wrap: anywhere; }
+    .facts { display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; margin: 18px 0 0; font-size: 13.5px; }
+    .facts dt { color: var(--muted); }
+    .facts dd { margin: 0; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+    h2 { font-size: 16px; margin: 22px 0 8px; }
+    .history, .notes { margin: 0; padding-left: 18px; font-size: 13.5px; color: var(--muted); }
+    .history li, .notes li { margin-bottom: 4px; overflow-wrap: anywhere; }
+    .hint { font-size: 12.5px; color: var(--muted); margin: 0 0 6px; }
+    .card .alert { margin-top: 14px; }
+    .note { font-size: 13px; color: var(--muted); margin: 18px 0 0; }
+    .chip { font-size: 11.5px; padding: 2px 8px; border-radius: 6px; background: var(--accent-tint); color: var(--chip-text); font-weight: 600; }
+    footer {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 20px 40px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+    footer a { color: var(--muted); text-decoration: underline; }
+    footer a:hover { color: var(--accent); }
+    @media (max-width: 480px) {
+      h1 { font-size: 22px; }
+      .match-label { font-size: 19px; }
+      nav .hide-narrow { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="{{ url_for('main.building_lookup') }}">
+      <span class="brand-mark" aria-hidden="true">{{ logo_monogram }}</span>
+      <span class="brand-name">{{ product_name }}</span>
+    </a>
+    <nav aria-label="Site">
+      <a class="hide-narrow" href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a>
+      {% if logged_in %}
+        <a class="primary" href="{{ url_for('main.chat') }}">Open chat</a>
+      {% else %}
+        <a href="{{ url_for('main.login') }}">Log in</a>
+        <a class="primary" href="{{ url_for('main.signup') }}">Sign up free</a>
+      {% endif %}
+    </nav>
+  </header>
+  <main>
+    {% if error == "unavailable" %}
+      <div class="alert error" role="alert">
+        <strong>The law library didn't respond</strong>
+        <p>This is usually brief. Please try again in a minute. The official text is always on <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">American Legal Publishing</a>, the City's official publisher.</p>
+      </div>
+    {% elif error == "not_found" %}
+      <section class="card">
+        <h1 class="law-title">§ {{ citation }} isn't in our library</h1>
+        <p class="note">We hold the Housing Maintenance Code, the Rent Stabilization Law, Unlawful Eviction, Right to Counsel, the NYC Human Rights Law and Rent Control, copied word for word from the official code. This section is outside those, or the number may be mistyped. You can look it up on <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">American Legal Publishing</a>, the City's official publisher.</p>
+      </section>
+    {% else %}
+      {% if sections|length > 1 %}
+        <div class="alert warning">
+          <strong>More than one section is numbered § {{ citation }}.</strong>
+          <p>Check the chapter shown above each one to find the one you need.</p>
+        </div>
+      {% endif %}
+      {% for s in sections %}
+        <article class="card" aria-labelledby="title-{{ loop.index }}">
+          {% if s.heading_path %}<p class="path">{{ s.authority }} &rsaquo; {{ s.heading_path|replace(" > ", " › ") }}</p>{% endif %}
+          <h1 class="law-title" id="title-{{ loop.index }}"><span class="cite">§ {{ s.citation }}</span> {{ s.title }}</h1>
+          {% if s.status != "active" %}
+            <div class="alert warning" role="note">
+              <strong>No longer in the official code</strong>
+              <p>This section was not in the official publisher's current edition when we last checked{% if s.last_checked_at %} on {{ s.last_checked_at.strftime("%B") }} {{ s.last_checked_at.day }}, {{ s.last_checked_at.year }}{% endif %}. It is kept here so older links still work. Don't rely on it as current law.</p>
+            </div>
+          {% elif s.repealed %}
+            <div class="alert warning" role="note">
+              <strong>This section has been repealed</strong>
+              <p>It is no longer in force. The history below says when and by which law.</p>
+            </div>
+          {% endif %}
+          {% if s.paragraphs %}
+            <div class="law-text">
+              {% for p in s.paragraphs %}<p>{{ p }}</p>{% endfor %}
+            </div>
+          {% endif %}
+          <dl class="facts">
+            <dt>Source</dt>
+            <dd>{{ s.authority }}, as published by American Legal Publishing</dd>
+            <dt>{% if s.repealed %}Repealed{% else %}Last amended{% endif %}</dt>
+            <dd>{% if s.last_amended %}Effective {{ s.last_amended.strftime("%B") }} {{ s.last_amended.day }}, {{ s.last_amended.year }}{% else %}No amendment date in the official history{% endif %}</dd>
+            {% if s.last_checked_at %}
+              <dt>Checked</dt>
+              <dd>Matched the official code on {{ s.last_checked_at.strftime("%B") }} {{ s.last_checked_at.day }}, {{ s.last_checked_at.year }}</dd>
+            {% endif %}
+          </dl>
+          <div class="actions">
+            <a class="button secondary" href="{{ s.official_url }}" target="_blank" rel="noopener noreferrer">Read it on the official site</a>
+          </div>
+          {% if s.history %}
+            <h2>Amendment history</h2>
+            <ul class="history">{% for h in s.history %}<li>{{ h }}</li>{% endfor %}</ul>
+          {% endif %}
+          {% if s.notes %}
+            <h2>Publisher's notes</h2>
+            <p class="hint">Added by the publisher for reference. Not part of the law.</p>
+            <ul class="notes">{% for n in s.notes %}<li>{{ n }}</li>{% endfor %}</ul>
+          {% endif %}
+          <p class="note">{{ law_page_note }}</p>
+        </article>
+      {% endfor %}
+    {% endif %}
+  </main>
+  <footer>
+    <p>{{ short_disclaimer }} <a href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a></p>
+  </footer>
+</body>
+</html>

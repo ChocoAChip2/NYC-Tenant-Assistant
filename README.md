@@ -86,13 +86,13 @@ from before this branch — errors only appear in logs.
 ├── test.py               # Backward-compatible legacy entrypoint (imports app)
 ├── requirements.txt      # Python dependencies
 ├── docs/                 # data-encryption.md (threat model + key rotation), frontend/ (template rationale)
-├── tools/                # Offline scripts (ingest_corpus.py -- needs the service-role key)
+├── tools/corpus/         # Legal library: ALP XML parser + quarterly refresh CLI (no service-role key)
 ├── tests/                # Unit tests (python -m unittest discover -s tests)
 ├── supabase/migrations/  # SQL applied to the Supabase project (account deletion + its pg_cron purge)
 ├── .github/workflows/
 │   └── keepalive.yml     # Supabase keep-alive cron (see below)
 └── templates/
-    ├── signup.html       # Signup page
+    ├── signup.html       # Signup page (/signup; / is the building lookup)
     ├── login.html        # Login page
     └── chat.html         # Post-login chat placeholder
 ```

@@ -78,7 +78,7 @@ class SupabaseService:
 
         return self.client is not None
 
-    def sign_up(self, email: str, password: str) -> bool:
+    def sign_up(self, email: str, password: str, email_redirect_to: str | None = None) -> bool:
         """Create a new Supabase account for the signup route.
 
         Returns False instead of raising when the email already has an
@@ -91,13 +91,20 @@ class SupabaseService:
         confirmation is turned off in the dashboard, it instead raises with
         "already registered" in the message. Both are handled here so this
         works regardless of that project setting.
+
+        email_redirect_to is where the confirmation link sends the tenant.
+        Supabase only honours it if it's in the project's Redirect URLs
+        allowlist; otherwise it falls back to the Site URL.
         """
 
         if not self.client:
             raise RuntimeError("Supabase is not configured yet.")
 
         try:
-            response = self.client.auth.sign_up({"email": email, "password": password})
+            credentials = {"email": email, "password": password}
+            if email_redirect_to:
+                credentials["options"] = {"email_redirect_to": email_redirect_to}
+            response = self.client.auth.sign_up(credentials)
         except Exception as exc:
             if "already registered" in str(exc).lower() or "already exists" in str(exc).lower():
                 return False

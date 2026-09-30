@@ -12,9 +12,23 @@ open. That needs live public data.
 
 ## Why it's public
 
-It's the front door. The site used to ask for an email address before
-showing anything useful; this shows real value first. The signup and login
-pages both link to it, and so does the chat empty state.
+It's the front door, literally: since 2026-09-29 it is what `/` serves,
+and signup moved to `/signup`. The site used to ask for an email address
+before showing anything useful; this shows real value first. `/building`
+still works (shared lookup links and the form use it), the signup and
+login pages both link here, and so does the chat empty state.
+
+- **One rate limit, two URLs.** `/` and `/building` share one 30-a-minute
+  budget (`limiter.shared_limit`, scope `building_lookup`), because every
+  lookup costs several calls to the city's APIs. Both views call the plain
+  `_render_building_lookup()`, so a lookup is never counted twice.
+- **Old signup tabs.** A POST to `/` can only be a signup form rendered
+  before the move; it is answered with a 307 to `/signup`, which keeps
+  the method and body.
+- **Confirmation emails land on `/login`.** Signup passes
+  `email_redirect_to` so the link doesn't drop a new tenant on the lookup
+  (the Supabase Site URL). Supabase only honours it if that URL is in
+  Authentication -> URL Configuration -> Redirect URLs.
 
 The top disclaimer banner is **not** on this page, on purpose. The banner
 tells people to message the chatbot, which a logged-out visitor can't do.
@@ -90,6 +104,16 @@ the statute. HPD writes the legal basis in at least 42 different shapes.
 The rule now: **label a citation only when its source is unambiguous, and
 drop it otherwise.** A missing chip costs nothing; a mislabeled one is a
 false statement about the law.
+
+**Chips link to the law, by the same rule.** An Admin Code chip becomes a
+link to `/law/<number>` only when the legal library holds exactly one
+active, unrepealed section with that number, found with one batched query
+per page (`law_service.linkable_citations`). § 26-1301 is never
+auto-linked, because Title 26 has two of them. If the library can't be
+read (it is empty until the 20260929 migration and first load), every chip
+stays plain text and the page is otherwise unchanged. Linked chips are
+underlined, so a tappable chip and a plain one never look the same. See
+[law-page.md](law-page.md).
 
 - `27-2xxx`: Housing Maintenance Code, identified by the number itself.
 - Any other `NN-NN`: Admin Code only when the text says HMC or ADM CODE

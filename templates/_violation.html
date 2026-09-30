@@ -2,7 +2,7 @@
 <div class="violation">
   <p class="violation-desc">{{ v.description or v.raw_description }}</p>
   {% if v.citations %}
-    <div class="chips">{% for c in v.citations %}<span class="chip">{{ c }}</span>{% endfor %}</div>
+    <div class="chips">{% for c in v.citations %}{% set href = chip_links.get(c) if chip_links else None %}{% if href %}<a class="chip" href="{{ href }}">{{ c }}</a>{% else %}<span class="chip">{{ c }}</span>{% endif %}{% endfor %}</div>
   {% endif %}
   <div class="violation-meta">
     {% if v.inspection_date %}<span>Inspected {{ v.inspection_date.strftime("%b") }} {{ v.inspection_date.day }}, {{ v.inspection_date.year }}</span>{% endif %}

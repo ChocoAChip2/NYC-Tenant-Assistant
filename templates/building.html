@@ -265,6 +265,8 @@
       color: var(--chip-text);
       font-weight: 600;
     }
+    a.chip { text-decoration: underline; text-underline-offset: 2px; }
+    a.chip:hover { background: var(--accent); color: var(--on-accent); }
     .badge {
       font-size: 11.5px;
       padding: 1px 7px;
@@ -347,7 +349,7 @@
 
     {% if report %}
       <section class="card" aria-labelledby="match-label">
-        <p class="match-label" id="match-label">{{ report.match.label }}</p>
+        <h1 class="match-label" id="match-label">{{ report.match.label }}</h1>
         <p class="match-meta">
           {% if report.data_as_of %}City data as of {{ report.data_as_of.strftime("%B") }} {{ report.data_as_of.day }}, {{ report.data_as_of.year }}.{% else %}The city's last-update date is unavailable right now.{% endif %}
           Not your building? Add the borough or ZIP code and search again.

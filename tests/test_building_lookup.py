@@ -113,8 +113,12 @@ def fake_network(
 
 class _CacheIsolation(unittest.TestCase):
     def setUp(self):
+        import law_service
+
         bs.clear_caches()
+        law_service.clear_cache()
         self.addCleanup(bs.clear_caches)
+        self.addCleanup(law_service.clear_cache)
 
 
 # ---------------------------------------------------------------------------
@@ -539,7 +543,7 @@ class RouteTests(_CacheIsolation):
     def test_logged_out_cta_points_at_signup_and_carries_the_prompt(self):
         body = self._get("?address=231+echo+pl").get_data(as_text=True)
 
-        self.assertIn('href="/"', body)
+        self.assertIn('href="/signup"', body)
         self.assertIn("Create a free account to talk this through", body)
         self.assertIn('data-prompt="I live at 231 ECHO PLACE', body)
 
@@ -572,14 +576,19 @@ class RouteTests(_CacheIsolation):
 
         source = inspect.getsource(routes)
         route_at = source.index('@main_bp.route("/building")')
-        self.assertIn("@limiter.limit(", source[route_at:route_at + 120])
+        self.assertIn("@_building_lookup_limit", source[route_at:route_at + 120])
+        limit_at = source.index("_building_lookup_limit = limiter.shared_limit(")
+        block = source[limit_at:source.index(")", source.index("exempt_when", limit_at)) + 1]
+        self.assertIn('"30 per minute"', block)
+        self.assertIn('scope="building_lookup"', block)
+        self.assertIn('methods=["GET", "HEAD"]', block)  # HEAD runs the whole view too
 
 
 class FrontDoorTests(unittest.TestCase):
     """The lookup only helps if first-time visitors can find it."""
 
     def test_signup_and_login_link_to_the_lookup(self):
-        for path in ("/", "/login"):
+        for path in ("/signup", "/login"):
             with self.subTest(path=path):
                 body = _client().get(path).get_data(as_text=True)
                 self.assertIn('href="/building"', body)
@@ -673,7 +682,7 @@ class OnAccentContrastTests(unittest.TestCase):
     just this one. Text on an accent fill now uses --on-accent, which is
     white in light mode and near-black in dark (6.05:1)."""
 
-    THEMED = ("chat.html", "settings.html", "learn_more.html", "building.html")
+    THEMED = ("chat.html", "settings.html", "learn_more.html", "building.html", "law.html")
 
     @staticmethod
     def _ratio(a, b):

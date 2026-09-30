@@ -138,7 +138,7 @@ _BBL_RE = re.compile(r"^[1-5]\d{9}$")
 #                             leading citation clause, and only when that
 #                             clause names the MDL. Never from the body,
 #                             which is full of bare numbers ("APT 5", "3rd").
-_HMC_RE = re.compile(r"\b(27-2\d{3}(?:\.\d+)?)")
+_HMC_RE = re.compile(r"\b(27-2\d{3}(?:\.\d+)*)")  # every level: 27-2056.6.1 is not 27-2056.6
 _RCNY_TITLED_RE = re.compile(r"\b(\d{1,2})\s*RCNY\s*(?:§+\s*)?((?:\d+-\d+(?:\.\d+)?)(?:\s*(?:,|and|&)\s*§*\s*\d+-\d+(?:\.\d+)?)*)", re.I)
 # A run of section numbers: the first carries §, later ones may not
 # ("§ 12-06, 12-10 RCNY"), and any may carry subdivisions ("(B)(5)").

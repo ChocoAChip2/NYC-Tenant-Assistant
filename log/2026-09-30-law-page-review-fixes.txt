@@ -1,0 +1,34 @@
+2026-09-30  Review fixes for the /law page and building-home branches
+
+Claude Code's three stacked branches (cc/feat/legal-library-workflow,
+cc/feat/law-page, cc/feat/building-home) were reviewed line by line and
+swept in a real browser with every external service faked. They merge
+cleanly onto main. The findings below were fixed on fix/cc-stack-review.
+
+Found and fixed
+- HEAD bypassed the shared building-lookup limit. A HEAD request runs the
+  whole view (a GeoSearch call and an Open Data call) but the limit only
+  counted GET. It now counts GET and HEAD.
+- Opening the front page with no address used up the same 30/minute
+  budget as a real lookup. A bare load is now exempt.
+- A slow Supabase could hold a building page for the client's default
+  120 s. Library reads now have a 4 s deadline. Chip links come from an
+  hourly in-memory index of which citations have exactly one active
+  section. A failed refresh keeps the old index, and a failure with no
+  index is retried after 60 s, not on every page.
+- The citation check rejected real sections (27-2056.6.1, 8-102a) and
+  accepted non-ASCII digits. It now matches the shapes the parser actually
+  produces, ASCII digits only.
+- The HMC chip regex cut 27-2056.6.1 to 27-2056.6, which is a different
+  section, so the chip would have linked to the wrong law. It now keeps
+  every decimal level.
+- /law/§27-2029 and /law/27-2029. were 404s. They now 301 to /law/27-2029.
+- Learn more sent logged-out visitors to login. It now links home
+  ("Look up a building").
+- Repealed sections said "Last amended". They now say "Repealed".
+- The building result had no h1.
+
+Tests
+- tests/test_law_and_home_review_fixes.py (15 tests). Test isolation:
+  the law index cache is cleared between tests.
+- Full suite: 660 OK.
