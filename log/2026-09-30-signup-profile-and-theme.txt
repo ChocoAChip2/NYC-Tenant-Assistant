@@ -1,0 +1,59 @@
+2026-09-30  Sign-up asks for name and date of birth; every page follows the browser theme (AMOLED dark)
+
+Asked for
+- Sign-up asks for first name, last name and date of birth, and makes
+  clear the details are kept confidential.
+- The theme follows the browser: light by default, dark when the device
+  asks for it, with dark as AMOLED black.
+- Chosen: dark = pure black (#000); minimum age 13.
+
+Sign-up profile
+- profile_service.py validates the three fields. Names can use letters in
+  any script plus spaces, hyphens, apostrophes and periods, up to 50
+  characters. The date of birth must be a real date, not in the future, at
+  least 13 years ago (Feb 29 handled) and at most 120.
+- The profile is stored ENCRYPTED as one envelope in the new account's
+  Supabase user_metadata ("profile"). There is no session at sign-up and
+  no service-role key, so account metadata is the only place it can go.
+  With no DATA_ENCRYPTION_KEYS the profile is not stored at all. It is
+  never stored in the clear, even if encrypt() ever returned plaintext.
+- At login the first name is decrypted into the session. The chat
+  greeting uses it in the Jinja heading and in the time-of-day script. The
+  script used to overwrite the heading with the email handle, so the name
+  would never have shown. Accounts made before this change greet by the
+  email handle as before.
+- The date of birth is only checked at sign-up. Neither field reaches the
+  AI. Both are deleted with the account (auth.users purge).
+- The page: a lock-icon note under the fields, "Your details stay
+  confidential", listing exactly the above. The date picker is limited to
+  13-120 years old, with autocomplete given-name/family-name/bday. On an
+  error the form keeps everything typed except the password.
+
+Theme
+- All ten page templates: dark tokens under
+  @media (prefers-color-scheme: dark) :root:not([data-theme="light"]) and
+  the same tokens under :root[data-theme="dark"]. --bg #000000,
+  --surface #0a0a0a, borders and tints darkened to match.
+- The auth pages (login, signup, forgot/reset password) were light-only.
+  They now have the dark tokens and the pre-paint theme script, and
+  hard-coded #fff text became var(--on-accent).
+- Every page has <meta name="color-scheme" content="light dark"> and
+  theme-color metas (#eef1f5 / #000000).
+- Settings' Light / Dark / Match system choice still wins over the browser.
+- Dark text tokens are AA against both #000 and #0a0a0a (checked in tests).
+
+Checked
+- tests/test_signup_profile_and_theme.py (30 tests): name and date rules,
+  including the turning-13-today and leap-day edges; the metadata is
+  ciphertext only; garbage metadata never breaks login; an under-13
+  sign-up never calls Supabase; typed values are escaped when echoed; the
+  greeting; and on every page, dark = #000, the two dark blocks match, the
+  theme script runs before the styles, and AA contrast.
+- Full suite: 690 OK.
+- Chromium at 375 px, light and dark: the sign-up page has no horizontal
+  scroll, the body is rgb(0,0,0) in dark, an under-13 date is refused with
+  the form kept, and chat shows "Good afternoon, Ana".
+
+Needed on Render
+- DATA_ENCRYPTION_KEYS must be set, or the profile is not stored. The age
+  check still runs either way.

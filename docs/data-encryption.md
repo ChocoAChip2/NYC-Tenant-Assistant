@@ -38,6 +38,17 @@ So the accurate description is **"encrypted at rest under a key the
 application holds"** — not "only the user can ever read this". Don't
 describe it to users as the latter.
 
+The sign-up profile (first name, last name, date of birth) is encrypted
+the same way, as one envelope in the account's `user_metadata.profile`
+(`profile_service.py`). There is no session at sign-up and the app holds
+no service-role key, so account metadata is the only place it can go.
+Unlike message bodies, it has **no plaintext fallback**: with no key
+configured the profile is simply not stored, because the sign-up page
+promises it is encrypted. Set `DATA_ENCRYPTION_KEYS` on every deployment
+that should keep it. The envelope also rides in the access token (Supabase
+copies `user_metadata` into the JWT); it is ciphertext there too, and adds
+about 200 bytes.
+
 Not encrypted, on purpose: `user_id`, `conversation_id`, `role`,
 timestamps and `archived_at`. Those are what RLS filters and the app
 sorts and joins on; encrypting them would break every query while

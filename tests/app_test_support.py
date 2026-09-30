@@ -30,3 +30,8 @@ def configure_test_app(app):
     CSRFProtect(app)
     branding.register(app)
     return app
+
+
+# A valid sign-up profile (first/last name, date of birth) for tests that
+# post the sign-up form but aren't about the profile itself.
+SIGNUP_PROFILE = {"first_name": "Ana", "last_name": "Rivera", "date_of_birth": "1990-05-17"}

@@ -6,6 +6,7 @@ real environment variables and keeps this fully offline.
 """
 
 import os
+from tests.app_test_support import SIGNUP_PROFILE
 import unittest
 
 import flask
@@ -27,7 +28,7 @@ class FakeSupabaseService:
         self._sign_up_result = sign_up_result
         self.sign_up_calls = []
 
-    def sign_up(self, email, password, email_redirect_to=None):
+    def sign_up(self, email, password, email_redirect_to=None, metadata=None):
         self.sign_up_calls.append((email, password))
         self.redirect_targets = getattr(self, "redirect_targets", []) + [email_redirect_to]
         return self._sign_up_result
@@ -54,7 +55,7 @@ class SignupDuplicateAccountRouteTests(unittest.TestCase):
         client = app.test_client()
 
         response = client.post(
-            "/signup", data={"email": "new@example.com", "password": "hunter22"}, follow_redirects=False
+            "/signup", data={"email": "new@example.com", "password": "hunter22", **SIGNUP_PROFILE}, follow_redirects=False
         )
 
         self.assertEqual(response.status_code, 302)
@@ -65,7 +66,7 @@ class SignupDuplicateAccountRouteTests(unittest.TestCase):
         client = app.test_client()
 
         response = client.post(
-            "/signup", data={"email": "existing@example.com", "password": "hunter22"}, follow_redirects=False
+            "/signup", data={"email": "existing@example.com", "password": "hunter22", **SIGNUP_PROFILE}, follow_redirects=False
         )
 
         # No account was (or should have been) created, so this must not
@@ -83,7 +84,7 @@ class SignupDuplicateAccountRouteTests(unittest.TestCase):
         client = app.test_client()
         fake_service = app.config["SUPABASE_SERVICE"]
 
-        response = client.post("/signup", data={"email": "", "password": ""}, follow_redirects=False)
+        response = client.post("/signup", data={"email": "", "password": "", **SIGNUP_PROFILE}, follow_redirects=False)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(fake_service.sign_up_calls, [])
