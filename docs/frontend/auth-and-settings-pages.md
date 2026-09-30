@@ -117,3 +117,28 @@ Renders an "an account already exists for this email" notice when
 duplicate signup directly, so the route detects it and passes it through —
 otherwise someone gets told to "check your email" for a confirmation that
 was never sent.
+
+### Name and date of birth
+
+The form asks for first name, last name and date of birth above the email
+field, with a lock-icon note directly under them saying the details are
+kept confidential. The note's promises are what the code does, so keep
+them in step with `profile_service.py`:
+
+- **"encrypted before they're stored"** — the three fields go into the new
+  account's Supabase `user_metadata` as one AES-GCM envelope
+  (`crypto_service`). If encryption isn't configured, nothing is stored.
+- **"used only to greet you and confirm your age"** — the first name is
+  decrypted at login into the session and shown as "Good morning, Ana" in
+  chat (both the Jinja greeting and the time-of-day script prefer it over
+  the email handle). The date of birth is only checked at sign-up.
+- **"never sent to the AI"** — neither field is read by the chat route.
+- **"deleted with your account"** — it lives on the `auth.users` row the
+  account-deletion purge removes.
+
+The date picker's `max` is the latest birthday that is 13 today
+(`profile_service.latest_allowed_birthday`, which handles Feb 29), and
+`min` is 120 years back. Both are re-checked server-side before the
+breach check and before Supabase is called, so an under-13 sign-up never
+creates an account. On any error the form keeps what was typed (email,
+names, date) — never the password.

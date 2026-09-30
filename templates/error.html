@@ -3,6 +3,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#eef1f5" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ product_name }} | {{ heading }}</title>
   <script>
@@ -29,26 +32,26 @@
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) {
         color-scheme: dark;
-        --bg: #101820;
-        --surface: #16212c;
-        --border: #2a3846;
+        --bg: #000000;
+        --surface: #0a0a0a;
+        --border: #2a2f35;
         --text: #e8edf2;
-        --muted: #93a3b3;
+        --muted: #9aa7b4;
         --accent: #5b9bd5;
         --accent-hover: #7db2e0;
-        --on-accent: #101820;
+        --on-accent: #000000;
       }
     }
     :root[data-theme="dark"] {
       color-scheme: dark;
-      --bg: #101820;
-      --surface: #16212c;
-      --border: #2a3846;
+      --bg: #000000;
+      --surface: #0a0a0a;
+      --border: #2a2f35;
       --text: #e8edf2;
-      --muted: #93a3b3;
+      --muted: #9aa7b4;
       --accent: #5b9bd5;
       --accent-hover: #7db2e0;
-      --on-accent: #101820;
+      --on-accent: #000000;
     }
     * { box-sizing: border-box; }
     body {

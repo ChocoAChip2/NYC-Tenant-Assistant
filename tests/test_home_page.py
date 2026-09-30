@@ -7,6 +7,7 @@ before the move), and check that confirmation emails land on /login.
 """
 
 import inspect
+from tests.app_test_support import SIGNUP_PROFILE
 import unittest
 
 import routes
@@ -47,7 +48,7 @@ class HomeIsTheLookupTests(_CacheIsolation):
 
     def test_a_signup_form_open_from_before_the_move_still_submits(self):
         app = _build_test_app(sign_up_result=True)
-        response = app.test_client().post("/", data={"email": "a@example.com", "password": "hunter22"})
+        response = app.test_client().post("/", data={"email": "a@example.com", "password": "hunter22", **SIGNUP_PROFILE})
         self.assertEqual(response.status_code, 307)
         self.assertTrue(response.headers["Location"].endswith("/signup"))
 
@@ -60,7 +61,7 @@ class HomeIsTheLookupTests(_CacheIsolation):
 class ConfirmationEmailTests(unittest.TestCase):
     def test_signup_asks_supabase_to_send_confirmations_to_login(self):
         app = _build_test_app(sign_up_result=True)
-        app.test_client().post("/signup", data={"email": "a@example.com", "password": "hunter22"})
+        app.test_client().post("/signup", data={"email": "a@example.com", "password": "hunter22", **SIGNUP_PROFILE})
         service = app.config["SUPABASE_SERVICE"]
         self.assertEqual(service.redirect_targets, ["http://localhost/login"])
 

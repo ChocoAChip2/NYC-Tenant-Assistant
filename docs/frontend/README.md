@@ -31,9 +31,10 @@ one file per shipped branch, with the requirement it came from.
 
 **No shared layout.** Every template is standalone and repeats the design
 tokens, the `.password-toggle` styles, and the theme scripts. This is
-deliberate but it means **a palette change has to be made in all five files
-that define `:root`** (`chat`, `login`, `signup`, `settings`,
-`reset_password`, `forgot_password`). There is no inheritance to catch a
+deliberate but it means **a palette change has to be made in every page template**
+(`building`, `chat`, `error`, `forgot_password`, `law`, `learn_more`,
+`login`, `reset_password`, `settings`, `signup`), in the light block and
+both dark blocks. There is no inheritance to catch a
 missed one.
 
 **Design tokens.** A cool-neutral, civic-blue palette — one accent color
@@ -47,17 +48,30 @@ dark-mode accent is 2.96:1, which fails WCAG AA. `--on-accent` is white in
 light mode and near-black in dark. A test fails if hardcoded white comes
 back on a themed page. See [building-lookup.md](building-lookup.md#--on-accent).
 
-**Theming.** `chat.html` and `settings.html` support dark mode; the auth
-pages are light-only. Both themed pages carry an inline `<script>` in
-`<head>`, *before* any stylesheet, that reads `localStorage.theme` and sets
-`data-theme` on `<html>`. It runs pre-paint specifically so switching pages
-never flashes the wrong theme. Three states:
+**Theming.** Every page follows the browser: light by default, dark when
+the device asks for it, and dark is **AMOLED black** (`--bg: #000000`,
+`--surface: #0a0a0a`), so an OLED screen switches those pixels off. Each
+page carries:
+
+- `<meta name="color-scheme" content="light dark">` so form controls,
+  scrollbars and the date picker match before any CSS loads;
+- two `theme-color` metas (`#eef1f5` light, `#000000` dark) for the
+  mobile browser bar;
+- an inline `<script>` in `<head>`, *before* `<style>`, that reads
+  `localStorage.theme` and sets `data-theme` on `<html>`. It runs
+  pre-paint so switching pages never flashes the wrong theme.
+
+Three states:
 
 - `data-theme="light"` / `"dark"` — an explicit choice from Settings; wins in both directions.
 - no attribute — no choice saved yet, so `@media (prefers-color-scheme: dark)` decides.
 
 The media-query block is guarded as `:root:not([data-theme="light"])` so an
-explicit light choice still beats a dark OS setting.
+explicit light choice still beats a dark OS setting, and the same tokens are
+repeated under `:root[data-theme="dark"]` so an explicit dark choice beats a
+light OS setting. The two dark blocks must stay identical; a test compares
+them on every page, checks `--bg` is `#000000`, and checks the dark text
+tokens against WCAG AA.
 
 **Icons are inline SVG, never emoji.** An emoji renders as a fixed-color
 picture that ignores CSS entirely, so it looked identical — and equally

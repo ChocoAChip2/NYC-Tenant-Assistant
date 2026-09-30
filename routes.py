@@ -6,6 +6,7 @@ stored in the Flask app config to handle authentication and chat persistence.
 
 import json
 import logging
+from datetime import date
 import os
 from flask import Blueprint, abort, current_app, flash, jsonify, make_response, redirect, render_template, request, session, url_for, send_file
 
@@ -14,6 +15,7 @@ import building_service
 import law_service
 import citation_guard
 import password_safety
+import profile_service
 import retrieval_service
 from ai_service import AIService
 from markdown_service import render_markdown
@@ -150,21 +152,46 @@ def home():
 @limiter.limit("10 per minute", methods=["POST"])
 def signup():
     """Show the signup page and create a new account on form submission."""
+    today = date.today()
+    form_limits = {
+        "dob_max": profile_service.latest_allowed_birthday(today).isoformat(),
+        "dob_min": f"{today.year - profile_service.MAX_AGE}-01-01",
+        "min_age": profile_service.MIN_AGE,
+    }
     if request.method == "POST":
         supabase_service = get_supabase_service()
         email = request.form.get("email", "").strip()
         password = request.form.get("password", "")
+        # Echoed back into the form on any error so nothing has to be
+        # retyped -- except the password, which is never echoed.
+        entered = {
+            "email": email,
+            "first_name": request.form.get("first_name", ""),
+            "last_name": request.form.get("last_name", ""),
+            "date_of_birth": request.form.get("date_of_birth", ""),
+        }
+
+        def retry():
+            return render_template("signup.html", form=entered, **form_limits)
 
         if not email or not password:
             flash("Please provide both email and password.", "error")
-            return render_template("signup.html")
+            return retry()
+
+        try:
+            profile = profile_service.validate(
+                entered["first_name"], entered["last_name"], entered["date_of_birth"], today=today
+            )
+        except profile_service.ProfileError as exc:
+            flash(str(exc), "error")
+            return retry()
 
         # Checked against public breach corpora (see password_safety.py).
         # Fails open by design: an unreachable API must never stop someone
         # making an account.
         if password_safety.is_breached(password):
             flash(password_safety.MESSAGE, "error")
-            return render_template("signup.html")
+            return retry()
 
         try:
             # Ask Supabase to create the account. sign_up() returns False
@@ -181,9 +208,12 @@ def signup():
                 email=email,
                 password=password,
                 email_redirect_to=url_for("main.login", _external=True),
+                # Encrypted before it leaves this process; None (store
+                # nothing) when encryption isn't configured.
+                metadata=profile_service.to_metadata(profile),
             )
             if not created:
-                return render_template("signup.html", existing_account_email=email)
+                return render_template("signup.html", existing_account_email=email, form=entered, **form_limits)
 
             flash(
                 "Sign-up successful. Please confirm your email, then log in.",
@@ -192,8 +222,9 @@ def signup():
             return redirect(url_for("main.login"))
         except Exception as exc:
             flash(f"Sign-up failed: {exc}", "error")
+            return retry()
 
-    return render_template("signup.html")
+    return render_template("signup.html", form={}, **form_limits)
 
 
 @main_bp.route("/login", methods=["GET", "POST"])
@@ -231,6 +262,13 @@ def login():
             session["user_id"] = auth_response.user.id
             session["access_token"] = auth_response.session.access_token
             session["refresh_token"] = auth_response.session.refresh_token
+            first_name = profile_service.first_name_from_metadata(
+                getattr(auth_response.user, "user_metadata", None)
+            )
+            if first_name:
+                session["first_name"] = first_name
+            else:
+                session.pop("first_name", None)
             record_success(lockout_key)
 
             return redirect(url_for("main.chat"))
@@ -390,6 +428,7 @@ def chat():
     return render_template(
         "chat.html",
         user_email=session["user_email"],
+        first_name=session.get("first_name"),
         ai_ready=get_ai_service().is_ready(),
         conversations=conversations,
         archived_conversations=archived_conversations,

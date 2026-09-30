@@ -18,6 +18,7 @@ on a plane.
 """
 
 import os
+from tests.app_test_support import SIGNUP_PROFILE
 import unittest
 import urllib.error
 from unittest import mock
@@ -222,7 +223,7 @@ class RouteIntegrationTests(unittest.TestCase):
             self.sign_up_calls = []
             self.update_calls = []
 
-        def sign_up(self, email, password, email_redirect_to=None):
+        def sign_up(self, email, password, email_redirect_to=None, metadata=None):
             self.sign_up_calls.append((email, password))
             return object()
 
@@ -269,7 +270,7 @@ class RouteIntegrationTests(unittest.TestCase):
 
         with _fetch_returns(self.BREACHED):
             response = app.test_client().post(
-                "/signup", data={"email": "t@example.com", "password": "password"}, follow_redirects=True
+                "/signup", data={"email": "t@example.com", "password": "password", **SIGNUP_PROFILE}, follow_redirects=True
             )
 
         self.assertIn("appeared in public data breaches", response.get_data(as_text=True))
@@ -281,7 +282,7 @@ class RouteIntegrationTests(unittest.TestCase):
         with _fetch_returns(_range_body([("D" * 35, 4)])):
             app.test_client().post(
                 "/signup",
-                data={"email": "t@example.com", "password": "a-long-unique-passphrase"},
+                data={"email": "t@example.com", "password": "a-long-unique-passphrase", **SIGNUP_PROFILE},
                 follow_redirects=True,
             )
 
@@ -293,7 +294,7 @@ class RouteIntegrationTests(unittest.TestCase):
 
         with _fetch_raises(TimeoutError()):
             app.test_client().post(
-                "/signup", data={"email": "t@example.com", "password": "password"}, follow_redirects=True
+                "/signup", data={"email": "t@example.com", "password": "password", **SIGNUP_PROFILE}, follow_redirects=True
             )
 
         self.assertEqual(len(service.sign_up_calls), 1)
