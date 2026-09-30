@@ -960,12 +960,77 @@ def settings():
         except Exception:
             logger.exception("Failed to look up a pending account deletion.")
 
+    # The saved name and date of birth, to pre-fill "Your name". Also
+    # best-effort: an older account has none, and a failed read just
+    # shows the empty form.
+    profile = None
+    profile_known = True
+    try:
+        profile = profile_service.read_metadata(
+            get_supabase_service().get_user_metadata(session.get("access_token"))
+        )
+    except Exception:
+        profile_known = False
+        logger.warning("Could not read the account profile for Settings.", exc_info=True)
+
+    today = date.today()
     return render_template(
         "settings.html",
         user_email=session["user_email"],
         pending_deletion=pending_deletion,
         deletion_grace_period_days=ACCOUNT_DELETION_GRACE_PERIOD_DAYS,
+        profile=profile or {},
+        has_profile=bool(profile) or not profile_known,
+        dob_max=profile_service.latest_allowed_birthday(today).isoformat(),
+        dob_min=f"{today.year - profile_service.MAX_AGE}-01-01",
     )
+
+
+@main_bp.route("/settings/profile", methods=["POST"])
+@limiter.limit("10 per minute")
+def update_profile():
+    """Save the signed-in user's name and date of birth (encrypted).
+
+    Mainly for accounts made before sign-up asked for them. Same rules and
+    same encrypted envelope as sign-up (profile_service); with no
+    encryption key configured nothing is saved, because the page promises
+    it is stored encrypted.
+    """
+    if not session.get("user_id"):
+        return redirect(url_for("main.login"))
+
+    access_token = session.get("access_token")
+    refresh_token = session.get("refresh_token")
+    if not access_token or not refresh_token:
+        session.clear()
+        flash("Your session expired. Please log in again.", "error")
+        return redirect(url_for("main.login"))
+
+    try:
+        profile = profile_service.validate(
+            request.form.get("first_name", ""),
+            request.form.get("last_name", ""),
+            request.form.get("date_of_birth", ""),
+        )
+    except profile_service.ProfileError as exc:
+        flash(str(exc), "error")
+        return redirect(url_for("main.settings") + "#profile")
+
+    metadata = profile_service.to_metadata(profile)
+    if metadata is None:
+        flash("Your name can't be saved right now. Please try again later.", "error")
+        return redirect(url_for("main.settings") + "#profile")
+
+    try:
+        tokens = get_supabase_service().update_profile(access_token, refresh_token, metadata)
+        if tokens:
+            session["access_token"], session["refresh_token"] = tokens
+        session["first_name"] = profile.first_name
+        flash(f"Saved. We'll greet you as {profile.first_name}.", "success")
+    except Exception:
+        logger.exception("Failed to save the account profile.")
+        flash("Your name couldn't be saved. Please try again.", "error")
+    return redirect(url_for("main.settings") + "#profile")
 
 
 @main_bp.route("/settings/account/delete", methods=["POST"])

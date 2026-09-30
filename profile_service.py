@@ -14,6 +14,10 @@ If encryption is not configured on a deployment, the profile is NOT
 stored at all: the sign-up page promises it is kept encrypted, and that
 promise is only kept by not writing plaintext. The age check still runs.
 
+Accounts made before sign-up asked for a name can add one from Settings
+("Your name"), which writes the same envelope through the tenant's own
+session (supabase_service.update_profile).
+
 WHAT IT IS USED FOR
 The first name greets the tenant in chat (kept in the session, which is
 the tenant's own browser). The date of birth confirms they are old enough
@@ -111,8 +115,13 @@ def to_metadata(profile: Profile) -> dict | None:
     return {METADATA_KEY: envelope}
 
 
-def first_name_from_metadata(metadata) -> str | None:
-    """The first name from an account's metadata, or None (never raises)."""
+def read_metadata(metadata) -> dict | None:
+    """The decrypted profile from an account's metadata, or None (never raises).
+
+    Returns {"first_name", "last_name", "date_of_birth"} as strings. Anything
+    that isn't our encrypted envelope -- no profile, an older account, a
+    value the user rewrote through the auth API -- reads as None.
+    """
     if not isinstance(metadata, dict):
         return None
     try:
@@ -120,8 +129,19 @@ def first_name_from_metadata(metadata) -> str | None:
         if not crypto_service.is_encrypted(envelope):
             return None
         data = json.loads(crypto_service.decrypt(envelope))
-        name = data.get("first_name")
-        return name if isinstance(name, str) and name.strip() else None
-    except Exception:  # noqa: BLE001 -- a greeting is never worth a failed login
+        if not isinstance(data, dict):
+            return None
+        fields = {key: data.get(key) for key in ("first_name", "last_name", "date_of_birth")}
+        if not all(isinstance(value, str) for value in fields.values()):
+            return None
+        return fields
+    except Exception:  # noqa: BLE001 -- a greeting is never worth a failed page
         logger.warning("Could not read the account profile.", exc_info=True)
         return None
+
+
+def first_name_from_metadata(metadata) -> str | None:
+    """The first name from an account's metadata, or None (never raises)."""
+    profile = read_metadata(metadata)
+    name = profile["first_name"] if profile else None
+    return name if name and name.strip() else None

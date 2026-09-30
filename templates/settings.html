@@ -160,7 +160,7 @@
     .theme-option input { accent-color: var(--accent); }
     form.stack { display: grid; gap: 12px; }
     label { font-size: 13px; color: var(--muted); display: grid; gap: 6px; }
-    input[type="email"], input[type="password"] {
+    input[type="email"], input[type="password"], input[type="text"], input[type="date"] {
       padding: 10px 12px;
       border-radius: 8px;
       border: 1px solid var(--border);
@@ -169,6 +169,24 @@
       font: inherit;
       font-size: 14px;
     }
+    .name-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 420px) { .name-row { grid-template-columns: 1fr; } }
+    .name-row input, label > input[type="date"] { width: 100%; min-width: 0; }
+    .privacy-note {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin: 0;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--accent-tint);
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .privacy-note svg { flex-shrink: 0; margin-top: 2px; color: var(--accent); }
+    .privacy-note strong { display: block; margin-bottom: 2px; }
     input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-tint); }
 
     .password-field { position: relative; }
@@ -335,6 +353,37 @@
       </div>
     </section>
 
+    <section class="card" id="profile">
+      <h2>Your name</h2>
+      {% if has_profile %}
+      <p class="hint">This is how we greet you. Update it any time.{% if not profile %} Enter all three to save.{% endif %}</p>
+      {% else %}
+      <p class="hint">Add your name so we can greet you. Accounts made before we asked for it don't have one yet.</p>
+      {% endif %}
+      <form class="stack" id="profile-form" method="POST" action="{{ url_for('main.update_profile') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="name-row">
+          <label>
+            First name
+            <input type="text" name="first_name" value="{{ profile.first_name or '' }}" maxlength="50" autocomplete="given-name" required>
+          </label>
+          <label>
+            Last name
+            <input type="text" name="last_name" value="{{ profile.last_name or '' }}" maxlength="50" autocomplete="family-name" required>
+          </label>
+        </div>
+        <label>
+          Date of birth
+          <input type="date" name="date_of_birth" value="{{ profile.date_of_birth or '' }}" min="{{ dob_min }}" max="{{ dob_max }}" autocomplete="bday" required>
+        </label>
+        <p class="privacy-note">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <span><strong>Your details stay confidential.</strong>Your name and date of birth are encrypted before they're stored, used only to greet you and confirm your age, never shared or sold, never sent to the AI, and deleted with your account.</span>
+        </p>
+        <button type="submit">Save name</button>
+      </form>
+    </section>
+
     <section class="card">
       <h2>Account</h2>
       <p class="hint">Signed in as <strong>{{ user_email }}</strong>. Update your email and/or password below. Changing your email requires confirming it from your inbox before it takes effect.</p>
@@ -449,11 +498,15 @@
       });
     });
 
-    document.getElementById("account-form").addEventListener("submit", function (event) {
-      var btn = event.target.querySelector('button[type="submit"]');
-      if (!btn || btn.disabled) return;
-      btn.disabled = true;
-      btn.textContent = "Saving…";
+    ["account-form", "profile-form"].forEach(function (id) {
+      var form = document.getElementById(id);
+      if (!form) return;
+      form.addEventListener("submit", function (event) {
+        var btn = event.target.querySelector('button[type="submit"]');
+        if (!btn || btn.disabled) return;
+        btn.disabled = true;
+        btn.textContent = "Saving…";
+      });
     });
 
     (function () {

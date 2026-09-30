@@ -384,6 +384,35 @@ class SupabaseService:
         account_client.auth.set_session(access_token, refresh_token)
         return account_client.auth.update_user(attributes)
 
+    def get_user_metadata(self, access_token: str) -> dict | None:
+        """The signed-in user's user_metadata, read fresh from Supabase auth."""
+        if not self.client:
+            raise RuntimeError("Supabase is not configured yet.")
+        response = self.client.auth.get_user(access_token)
+        user = getattr(response, "user", None)
+        return getattr(user, "user_metadata", None) if user else None
+
+    def update_profile(self, access_token: str, refresh_token: str, metadata: dict) -> tuple[str, str] | None:
+        """Merge metadata into the signed-in user's user_metadata.
+
+        Runs as the user (their own session), the same way update_account
+        does, so no service-role key is involved. GoTrue merges `data` into
+        the existing metadata rather than replacing it.
+
+        set_session refreshes an expired access token, which rotates the
+        refresh token, so the caller gets the session's current tokens back
+        to store; None if the client didn't report a session.
+        """
+        if not self.client:
+            raise RuntimeError("Supabase is not configured yet.")
+        account_client = create_client(str(self.client.supabase_url), self.client.supabase_key)
+        account_client.auth.set_session(access_token, refresh_token)
+        account_client.auth.update_user({"data": metadata})
+        current = account_client.auth.get_session()
+        if current and current.access_token and current.refresh_token:
+            return current.access_token, current.refresh_token
+        return None
+
     def list_conversations(self, user_client: Client, archived: bool = False) -> list[dict]:
         """Return the user's conversations sorted by most recent activity.
 

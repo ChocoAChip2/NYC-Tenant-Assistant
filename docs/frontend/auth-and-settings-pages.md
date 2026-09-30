@@ -69,9 +69,21 @@ this page and `chat.html` read. "Match system" *removes* the key and the
 `data-theme` attribute rather than storing a `"system"` value, so the
 `prefers-color-scheme` media query takes over.
 
+### Your name
+
+The same three fields as sign-up (first name, last name, date of birth),
+with the same confidentiality note, so accounts made before sign-up asked
+for a name can add one. It is pre-filled from the account's encrypted
+profile, read fresh from Supabase auth on each visit. If that read fails
+(an expired token, auth down), the form shows empty but the hint does not
+claim there is no name on file. Saving goes to `POST /settings/profile`,
+which validates with `profile_service`, writes the envelope through the
+tenant's own session (`supabase_service.update_profile`), keeps any
+rotated tokens, and updates the chat greeting straight away.
+
 ### The account form is selected by id
 
-The "Saving…" submit handler targets `#account-form`, **not**
+The "Saving…" submit handler targets `#account-form` and `#profile-form` by id, **not**
 `form.stack` — the delete-account confirmation below is also a `.stack`
 form, and a `querySelector("form.stack")` would eventually claim the wrong
 one.
