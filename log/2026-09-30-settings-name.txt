@@ -1,0 +1,31 @@
+2026-09-30  Settings: add or update your name (for accounts made before sign-up asked)
+
+Found while testing the live site
+- Everything from the sign-up/theme change was live and correct:
+  - all public pages served 200/301/404 as expected, AMOLED dark, with no
+    HTML comments;
+  - the sign-up form had the three fields, the privacy note, and a date
+    limit of 13+;
+  - the /law pages and the building lookup worked.
+- But the owner's own account (made 2026-09-07) has no name on file, and
+  there was no way to add one. Every account made before today would be
+  greeted by its email handle for good.
+
+Fix
+- Settings has a new "Your name" card: first name, last name and date of
+  birth, with the same "Your details stay confidential" note as sign-up.
+  It is pre-filled from the encrypted profile when one exists.
+- POST /settings/profile uses the same validation as sign-up (13+, real
+  names). It saves the same AES-GCM envelope into user_metadata through
+  the tenant's own session (no service-role key). GoTrue merges `data`, so
+  other metadata is kept.
+- Rotated tokens from set_session are stored back in the session. The
+  chat greeting updates at once.
+- With no encryption key nothing is saved, and the page says so.
+- If Settings can't read the profile (expired token, auth down), the page
+  still renders. It doesn't tell someone who has a name that they don't.
+
+Checked
+- tests/test_settings_profile.py (10 tests). Full suite: 700 OK.
+- Chromium, dark at 375 px and light at 1100 px: no horizontal scroll, and
+  saving shows "Saved. We'll greet you as Ana."
