@@ -40,7 +40,8 @@ reminders) would repeat that gap. This is the general fix.
 - **Save fails:** the tenant carries on, and is asked again at the next
   login.
 - **Account can't be read** (auth down): nothing is gated, and the check
-  runs again at the next login.
+  runs again 10 minutes later (`RETRY_UNKNOWN_SECONDS`), not on every
+  page.
 - **Optional requirements** (`required=False`) offer **Remind me next
   time**. That skips them for the session; the next login asks again.
 - **Required requirements** (like the age check) don't offer a skip.

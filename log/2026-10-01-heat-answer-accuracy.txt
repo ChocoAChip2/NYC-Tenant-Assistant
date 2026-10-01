@@ -1,0 +1,26 @@
+2026-10-01  The heat answer gave an out-of-date number
+
+Found testing the live site (signed in, after #45)
+- Asked: "How warm does my apartment have to be at night in the winter?"
+- The search returned 27-2033.1 and 27-2028, not § 27-2029 (Minimum
+  temperature to be maintained). The grounding rules then allowed an
+  uncited answer "from general knowledge", and the model gave the pre-2017
+  rule: 55°F at night when it is below 40°F outside. The law since 2017 is
+  62°F overnight, whatever the outside temperature.
+- The citation itself rendered correctly (the [S5] fix in #44): "(NYC
+  Admin Code § 27-2033.1)", linked to the official text.
+
+Fix
+- Search: tenant words warm, warmth, degrees, thermostat and chilly now
+  map to heat/temperature. Migration 20261001_search_synonyms_warmth.sql
+  (data only) was checked in a rolled-back transaction and then applied
+  live. § 27-2029 now comes back for the question above and two
+  variants, which were added to tests/fixtures/tenant_questions.json.
+- Prompt: specific legal numbers (temperatures, deadlines, dollar
+  amounts, percentages, notice periods) are stated only when a source in
+  the conversation gives them. Otherwise the rule is described without the
+  number, with where to confirm it. The same rule is in the grounding
+  block that sits next to the sources (retrieval_service.format_for_prompt).
+- Also in this branch: a failed account check (as happened when the
+  expired-token bug hit it) now retries 10 minutes later instead of
+  waiting for the next login.
