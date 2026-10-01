@@ -18,10 +18,10 @@ guard *approve* wrong law.
 | **NYC Human Rights Law**, §8-107(5) housing discrimination incl. source of income | ALP | Admin XML, `XML/0-0-0-4607.xml` (Title 8 Ch 1) | VERIFIED | P0 |
 | Rent Control, T26 Ch 3 §26-401+ | ALP | Admin XML, `XML/0-0-0-228764.xml` | VERIFIED | P2 |
 | **RCNY Title 28** (HPD rules: lead ch 11, detectors ch 12, heat/doors ch 25, which HPD violations cite) | ALP | Bulk XML `https://files.amlegal.com/pdffiles/NewYorkCity/Rules/XML.zip` (60 MB, Last-Modified 2026-09-24) | Reachable; not yet parsed | P1 |
-| **RPL Art 7** §§220–238-a (223-b retaliation, 226-c notice, 227-c DV, **235-b habitability**, 235-e, 235-f, 238-a) | NY Senate | Open Legislation API, lawId `RPP`, **free key required** | Text VERIFIED via web; API 401 without key | P0 |
-| **Good Cause Eviction**, **RPL Art 6-A §§210–218** | NY Senate | API, `RPP`. §212: "this article shall apply to the city of New York". Sunsets June 15, 2034 | VERIFIED | P0 |
-| **RPAPL Art 7** (711, 731–733, 743, 745, 749, 751, 753, 755, 756, 768) | NY Senate | API, lawId `RPA` | VERIFIED | P0 |
-| **GOL §§7-101–7-109** (security deposits; 7-108) | NY Senate | API, lawId `GOB`, article `A7T1` | VERIFIED | P0 |
+| **RPL Art 7** §§220–238-a (223-b retaliation, 226-c notice, 227-c DV, **235-b habitability**, 235-e, 235-f, 238-a) | NY Senate | Open Legislation API, lawId `RPP`, **free key required** | **LOADED 2026-10-01** (all 55 sections of Art. 7, `nys-rpl-7`) | P0 |
+| **Good Cause Eviction**, **RPL Art 6-A §§210–218** | NY Senate | API, `RPP`. §212: "this article shall apply to the city of New York". Sunsets June 15, 2034 | **LOADED 2026-10-01** (`nys-good-cause`) | P0 |
+| **RPAPL Art 7** (711, 731–733, 743, 745, 749, 751, 753, 755, 756, 768) | NY Senate | API, lawId `RPA` | **LOADED 2026-10-01** (all 32 sections of Art. 7, `nys-rpapl-7`; Art. 7-A too, `nys-rpapl-7a`) | P0 |
+| **GOL §§7-101–7-109** (security deposits; 7-108) | NY Senate | API, lawId `GOB`, article `A7T1` | **LOADED 2026-10-01** (`nys-gol-deposits`) | P0 |
 | Multiple Dwelling Law | NY Senate; DOB PDF (8/26/2025) `nyc.gov/assets/buildings/pdf/MultipleDwellingLaw.pdf` | API, lawId `MDW` | VERIFIED | P1 |
 | ETPA (L.1974 c.576) | NY Senate | API, lawId `ETP`. §5-a still listed despite HSTPA repeal, so **check each section's `repealed` flag** | VERIFIED | P1 |
 | Exec Law §296(5) | NY Senate | API, lawId `EXC` | VERIFIED | P1 |

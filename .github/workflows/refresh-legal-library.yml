@@ -10,6 +10,7 @@ name: Refresh Legal Library
 # SECRETS
 #   SUPABASE_URL, SUPABASE_KEY  already set for the keep-alive (anon key)
 #   CORPUS_INGEST_TOKEN         from `python -m tools.corpus.refresh --new-token`
+#   NYSENATE_API_KEY            free key from legislation.nysenate.gov (state law)
 #
 # Until CORPUS_INGEST_TOKEN exists (i.e. before the 20260929 migration is
 # applied and the token is created), a scheduled run does a DRY RUN of the
@@ -62,6 +63,9 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           CORPUS_INGEST_TOKEN: ${{ secrets.CORPUS_INGEST_TOKEN }}
+          # State law (NY Senate Open Legislation API). Without it the state
+          # sources are skipped and the summary says so.
+          NYSENATE_API_KEY: ${{ secrets.NYSENATE_API_KEY }}
           REQUESTED_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
           TRIGGER: ${{ github.event_name }}
         run: |

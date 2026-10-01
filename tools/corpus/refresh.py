@@ -18,6 +18,10 @@ The service-role key is never used. Environment:
 
     SUPABASE_URL, SUPABASE_KEY   read current state (optional for --dry-run)
     CORPUS_INGEST_TOKEN          required to write
+    NYSENATE_API_KEY             state law (NY Senate Open Legislation API).
+                                 Without it the state sources are skipped,
+                                 said so in the summary, and nothing about
+                                 them changes; the city sources still run.
 
 The Markdown summary goes to stdout, to $GITHUB_STEP_SUMMARY when set,
 and to --summary PATH. When anything changed, `changed=true` is written to
@@ -53,8 +57,9 @@ import zipfile
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
+from tools.corpus import nys
 from tools.corpus.alp import AlpParseError, ParseResult, parse_chapter, read_chapter_from_zip
-from tools.corpus.registry import ALP_ADMIN_ZIP_URL, AlpSource, alp_sources
+from tools.corpus.registry import ALP_ADMIN_ZIP_URL, AlpSource, NysSource, all_sources
 
 USER_AGENT = "SideKickTidbit-legal-library/1.0 (+https://github.com/ChocoAChip2/NYC-Tenant-Assistant)"
 MAX_ZIP_BYTES = 250 * 1024 * 1024  # the real file is ~65 MB
@@ -171,7 +176,7 @@ class Supabase:
 # Gates
 # ---------------------------------------------------------------------------
 
-def gate(source: AlpSource, result: ParseResult, current: dict[str, dict] | None) -> list[str]:
+def gate(source: AlpSource | NysSource, result: ParseResult, current: dict[str, dict] | None) -> list[str]:
     """Reasons this parse must not be written. Empty means it may be."""
     problems: list[str] = []
     sections = result.sections
@@ -210,7 +215,7 @@ def gate(source: AlpSource, result: ParseResult, current: dict[str, dict] | None
 
 @dataclass
 class SourceReport:
-    source: AlpSource
+    source: AlpSource | NysSource
     result: ParseResult
     problems: list[str] = field(default_factory=list)
     changes: dict[str, list] = field(default_factory=lambda: {
@@ -343,7 +348,7 @@ def main(argv=None, *, opener=urllib.request.urlopen, env=None, out=None) -> int
         return 0
 
     try:
-        sources = alp_sources(args.source)
+        sources = all_sources(args.source)
     except KeyError as exc:
         out.write(f"error: {exc.args[0]}\n")
         return 2
@@ -355,35 +360,67 @@ def main(argv=None, *, opener=urllib.request.urlopen, env=None, out=None) -> int
         return 2
     db = Supabase(url, key, opener) if url and key else None
 
-    origin = f"local file `{os.path.basename(args.from_zip)}`" if args.from_zip else ALP_ADMIN_ZIP_URL
+    nys_key = env.get("NYSENATE_API_KEY")
+    skipped: list[str] = []
+    if not nys_key and any(isinstance(s, NysSource) for s in sources):
+        if args.source:
+            out.write("error: the state sources need NYSENATE_API_KEY\n")
+            return 2
+        skipped = [s.key for s in sources if isinstance(s, NysSource)]
+        sources = [s for s in sources if not isinstance(s, NysSource)]
+    alp = [s for s in sources if isinstance(s, AlpSource)]
+    state = [s for s in sources if isinstance(s, NysSource)]
+
+    origins: list[str] = []
     reports: list[SourceReport] = []
     fatal: list[str] = []
     with tempfile.TemporaryDirectory() as tmp:
-        zip_path = args.from_zip
-        if not zip_path:
-            zip_path = os.path.join(tmp, "XML.zip")
-            try:
-                with open(zip_path, "wb") as handle:
-                    last_modified = download_zip(ALP_ADMIN_ZIP_URL, handle, opener)
-                origin = f"{ALP_ADMIN_ZIP_URL} (Last-Modified: {last_modified or 'not given'})"
-            except RefreshError as exc:
-                fatal.append(str(exc))
-        elif not os.path.isfile(zip_path):
-            fatal.append(f"--from-zip: no such file {zip_path}")
-
-        if not fatal:
-            for source in sources:
+        if alp:
+            zip_path = args.from_zip
+            origin = f"local file `{os.path.basename(args.from_zip)}`" if args.from_zip else ALP_ADMIN_ZIP_URL
+            if not zip_path:
+                zip_path = os.path.join(tmp, "XML.zip")
                 try:
-                    result = parse_chapter(
-                        read_chapter_from_zip(zip_path, source.file_id),
-                        source_key=source.key,
-                        authority=source.authority,
-                    )
-                except (AlpParseError, zipfile.BadZipFile, OSError) as exc:
-                    reports.append(SourceReport(source, ParseResult(sections=[]),
-                                                problems=[f"{source.key}: cannot read the zip: {exc}"]))
-                    continue
+                    with open(zip_path, "wb") as handle:
+                        last_modified = download_zip(ALP_ADMIN_ZIP_URL, handle, opener)
+                    origin = f"{ALP_ADMIN_ZIP_URL} (Last-Modified: {last_modified or 'not given'})"
+                except RefreshError as exc:
+                    fatal.append(str(exc))
+            elif not os.path.isfile(zip_path):
+                fatal.append(f"--from-zip: no such file {zip_path}")
+            origins.append(origin)
+
+            if not fatal:
+                for source in alp:
+                    try:
+                        result = parse_chapter(
+                            read_chapter_from_zip(zip_path, source.file_id),
+                            source_key=source.key,
+                            authority=source.authority,
+                        )
+                    except (AlpParseError, zipfile.BadZipFile, OSError) as exc:
+                        reports.append(SourceReport(source, ParseResult(sections=[]),
+                                                    problems=[f"{source.key}: cannot read the zip: {exc}"]))
+                        continue
+                    reports.append(SourceReport(source, result))
+
+        if state and not fatal:
+            origins.append(f"{nys.API_BASE} (NY Senate Open Legislation)")
+            trees: dict[str, dict] = {}
+            for source in state:
+                try:
+                    if source.law_id not in trees:
+                        trees[source.law_id] = nys.fetch_law_tree(source.law_id, nys_key, opener, USER_AGENT)
+                except nys.NysError as exc:
+                    fatal.append(str(exc))
+                    break
+                result = nys.parse_law(trees[source.law_id], law_id=source.law_id, law_name=source.law_name,
+                                       source_key=source.key, authority=source.authority, scope=source.scope)
                 reports.append(SourceReport(source, result))
+
+    origin = "; ".join(origins) or "no sources"
+    if skipped:
+        origin += f". Skipped (NYSENATE_API_KEY not set): {', '.join(skipped)}"
 
     if not fatal:
         for report in reports:

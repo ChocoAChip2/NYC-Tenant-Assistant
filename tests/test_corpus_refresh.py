@@ -26,7 +26,7 @@ from unittest import mock
 from tools.corpus import refresh
 from tools.corpus.alp import parse_chapter
 from tools.corpus.model import law_hash
-from tools.corpus.registry import ALP_ADMIN_ZIP_URL, ALP_SOURCES, NYS_SOURCES, AlpSource, alp_sources
+from tools.corpus.registry import ALP_ADMIN_ZIP_URL, ALP_SOURCES, NYS_SOURCES, AlpSource, all_sources, alp_sources
 
 FIXTURES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures", "alp")
 SUPABASE_URL = "https://example.supabase.co"
@@ -180,12 +180,15 @@ class RegistryTests(unittest.TestCase):
         for key in keys:
             self.assertRegex(key, r"^[a-z0-9-]{2,40}$")
 
-    def test_measured_sources_enabled_and_nys_sources_not(self):
-        # Rent Control was enabled once the full zip measured it (22).
+    def test_measured_sources_enabled(self):
+        # Rent Control was enabled once the full zip measured it (22); the
+        # state sources once the live API was measured (2026-10-01).
         enabled = [s.key for s in alp_sources()]
         self.assertEqual(enabled, ["nyc-hmc", "nyc-rsl", "nyc-ue", "nyc-rtc", "nyc-hrl", "nyc-rent-control"])
         self.assertTrue(all(s.real_count for s in ALP_SOURCES if s.enabled))
-        self.assertTrue(all(not s.enabled for s in NYS_SOURCES))
+        self.assertEqual([s.key for s in NYS_SOURCES if s.enabled],
+                         ["nys-good-cause", "nys-rpl-7", "nys-rpapl-7", "nys-rpapl-7a", "nys-gol-deposits"])
+        self.assertTrue(all(s.real_count for s in NYS_SOURCES))
 
     def test_anchors_exist_in_the_real_chapters_we_have_whole(self):
         # UE and RTC fixtures are complete chapters, and the kept HMC/RSL/HRL
@@ -205,9 +208,12 @@ class RegistryTests(unittest.TestCase):
                     checked += 1
         self.assertGreaterEqual(checked, 9)
 
-    def test_unknown_source_is_refused_with_a_hint_for_nys(self):
-        with self.assertRaisesRegex(KeyError, "no adapter yet"):
-            alp_sources(["nys-rpl-7"])
+    def test_unknown_source_is_refused(self):
+        with self.assertRaisesRegex(KeyError, "unknown source"):
+            alp_sources(["nys-rpl-7"])  # a state source is not an ALP source
+        with self.assertRaisesRegex(KeyError, "unknown source"):
+            all_sources(["nys-nope"])
+        self.assertEqual([s.key for s in all_sources(["nys-rpl-7", "nyc-hmc"])], ["nys-rpl-7", "nyc-hmc"])
 
 
 class GateTests(RefreshTestCase):

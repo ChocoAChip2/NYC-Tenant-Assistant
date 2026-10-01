@@ -1,0 +1,542 @@
+{
+ "success": true,
+ "message": "The document structure for RPP law",
+ "responseType": "law-tree",
+ "result": {
+  "lawVersion": {
+   "lawId": "RPP",
+   "activeDate": "2026-09-04"
+  },
+  "info": {
+   "lawId": "RPP",
+   "name": "Real Property",
+   "lawType": "CONSOLIDATED",
+   "chapter": "50"
+  },
+  "publishedDates": [
+   "2014-09-22",
+   "2014-10-24",
+   "2014-12-05",
+   "2014-12-26",
+   "2015-04-24",
+   "2015-09-04",
+   "2015-10-30",
+   "2015-11-27",
+   "2016-01-22",
+   "2016-09-16",
+   "2017-01-13",
+   "2017-04-28",
+   "2017-12-08",
+   "2018-08-10",
+   "2019-01-11",
+   "2019-04-19",
+   "2019-06-28",
+   "2019-07-19",
+   "2019-08-16",
+   "2019-10-11",
+   "2019-10-18",
+   "2019-10-25",
+   "2019-11-29",
+   "2019-12-13",
+   "2019-12-20",
+   "2019-12-27",
+   "2020-03-06",
+   "2020-03-13",
+   "2020-04-17",
+   "2020-04-24",
+   "2020-08-07",
+   "2020-08-28",
+   "2020-12-18",
+   "2021-02-19",
+   "2021-04-16",
+   "2021-04-23",
+   "2021-07-02",
+   "2021-08-06",
+   "2021-10-08",
+   "2021-12-24",
+   "2021-12-31",
+   "2022-02-25",
+   "2022-03-04",
+   "2022-03-11",
+   "2022-03-25",
+   "2022-04-29",
+   "2022-07-08",
+   "2022-07-29",
+   "2022-08-19",
+   "2022-09-23",
+   "2022-12-02",
+   "2022-12-16",
+   "2022-12-23",
+   "2022-12-30",
+   "2023-01-06",
+   "2023-01-27",
+   "2023-03-10",
+   "2023-06-16",
+   "2023-06-23",
+   "2023-09-29",
+   "2023-10-06",
+   "2023-10-27",
+   "2023-11-17",
+   "2023-11-26",
+   "2023-12-15",
+   "2024-03-29",
+   "2024-04-26",
+   "2024-05-03",
+   "2024-05-31",
+   "2024-07-26",
+   "2024-09-20",
+   "2024-10-04",
+   "2024-11-29",
+   "2024-12-20",
+   "2024-12-27",
+   "2025-01-03",
+   "2025-02-21",
+   "2025-03-07",
+   "2025-03-14",
+   "2025-05-16",
+   "2025-07-04",
+   "2025-08-22",
+   "2025-09-12",
+   "2025-09-26",
+   "2025-10-17",
+   "2025-11-07",
+   "2025-12-12",
+   "2025-12-19",
+   "2026-02-20",
+   "2026-06-05",
+   "2026-06-12",
+   "2026-09-04"
+  ],
+  "documents": {
+   "lawId": "RPP",
+   "lawName": "Real Property",
+   "locationId": "-CH50",
+   "title": "Real Property",
+   "docType": "CHAPTER",
+   "publishedDates": [
+    "2014-09-22",
+    "2019-12-13",
+    "2021-08-06",
+    "2022-12-02",
+    "2024-03-29",
+    "2024-05-03",
+    "2024-12-27",
+    "2025-03-07",
+    "2025-05-16",
+    "2025-12-19"
+   ],
+   "docLevelId": "50",
+   "activeDate": "2025-12-19",
+   "sequenceNo": 1,
+   "repealedDate": null,
+   "fromSection": "1",
+   "toSection": "602",
+   "text": "                            REAL PROPERTY LAW\\n                           Laws 1909, Chap. 52\\nAN ACT relating to real property, constituting chapter fifty of the\\n   consolidated laws.\\n  Became a law February 17, 1909, with the approval of the Governor.\\nPassed, three-fifths being present.\\n  The People of the State of New York, represented in Senate and\\nAssembly, do enact as follows:\\n                   CHAPTER 50 OF THE CONSOLIDATED LAWS\\n                            REAL PROPERTY LAW\\nArticle 1.    Short title; definitions (§§ 1-2).\\n        2.    Tenure of real property (§§ 10-18).\\n        4.    Uses and trusts (§§ 119-123).\\n        4-A.  Trust indentures and interests therein (§§ 124--130-k).\\n        6.    Dower and curtesy (§§ 189-207).\\n        6-A.  Good cause eviction law. (§§ 210-218).\\n        7.    Landlord and tenant (§§ 220-238).\\n        7-A.  Portable kerosene heaters (§§ 239--239-g).\\n        8.    Conveyances and mortgages (§§ 240-282).\\n        9.    Recording instruments affecting real property\\n                (§§ 290-336).\\n        9-A.  Subdivided lands (§§ 337--339-c).\\n        9-B.  Condominium act (§§ 339-d--339-ll).\\n        9-C.  Solar rights act (§ 342).\\n        9-D.  Electric vehicle rights act (§ 343).\\n        9-E.  Conveyance and encumbrance of manufactured homes as real\\n                property (§§ 344-a--344-k).\\n        10.   Discharge of ancient mortgages (§ 345).\\n        12.   Registering title to real property (§§ 370-436).\\n        12-A. Real estate brokers and real estate salesmen\\n                (§§ 440--443-a).\\n        12-B. Home inspection professional licensing.\\n                (§§ 444-a--444-q).\\n        12-C. Apartment information vendors (§§ 446-a--446-j).\\n        12-D. Short-term rental units (§§ 447-a--447-g).\\n        13.   Cemetery lands (§§ 450-451).\\n        14.   Property condition disclosure in the sale of residential\\n                real property (§§ 460-466).\\n        15.   Prohibition and disclosure of private transfer fee\\n                obligations (§§ 470-476).\\n        16.   Ninety-day waiting period for sale of single-family and\\n                two-family residences to certain purchasers\\n                (§§ 520-522).\\n        20.   Laws repealed; construction; when to take effect\\n                (§§ 600-602).\\n",
+   "documents": {
+    "items": [
+     {
+      "lawId": "RPP",
+      "lawName": "Real Property",
+      "locationId": "A6-A",
+      "title": "Good Cause Eviction Law",
+      "docType": "ARTICLE",
+      "publishedDates": [
+       "2024-05-03"
+      ],
+      "docLevelId": "6-A",
+      "activeDate": "2024-05-03",
+      "sequenceNo": 60,
+      "repealedDate": null,
+      "fromSection": "210",
+      "toSection": "218",
+      "text": "                              * ARTICLE 6-A\\n                         GOOD CAUSE EVICTION LAW\\nSection 210.    Short title.\\n        211.    Definitions.\\n        212.    Applicability in the city of New York.\\n        213.    Voluntary participation by local governments outside the\\n                  city of New York.\\n        214.    Covered housing accommodations.\\n        215.    Necessity for good cause.\\n        216.    Grounds for removal of tenants.\\n        217.    Preservation of existing requirements of law.\\n        218.    Waiver of rights void.\\n  * NB Repealed June 15, 2034\\n",
+      "documents": {
+       "items": [
+        {
+         "lawId": "RPP",
+         "lawName": "Real Property",
+         "locationId": "210",
+         "title": "Short title",
+         "docType": "SECTION",
+         "publishedDates": [
+          "2024-05-03"
+         ],
+         "docLevelId": "210",
+         "activeDate": "2024-05-03",
+         "sequenceNo": 61,
+         "repealedDate": null,
+         "fromSection": "210",
+         "toSection": "210",
+         "text": "  * § 210. Short title. This article shall be cited as the \"good cause\\neviction law\".\\n  * NB Repealed June 15, 2034\\n",
+         "documents": {
+          "items": [],
+          "size": 0
+         },
+         "repealed": false
+        },
+        {
+         "lawId": "RPP",
+         "lawName": "Real Property",
+         "locationId": "211",
+         "title": "Definitions",
+         "docType": "SECTION",
+         "publishedDates": [
+          "2024-05-03"
+         ],
+         "docLevelId": "211",
+         "activeDate": "2024-05-03",
+         "sequenceNo": 62,
+         "repealedDate": null,
+         "fromSection": "211",
+         "toSection": "211",
+         "text": "  * § 211. Definitions. 1. The term \"housing accommodation\", as used in\\nthis article shall mean any residential premises, including any\\nresidential premises located within a mixed-use residential premises.\\n  2. The term \"landlord\" as used in this article shall mean any fee\\nowner, lessor, sublessor, assignor, court appointed receiver, or any\\nother person or entity receiving or entitled to receive rent for the\\noccupancy of any housing accommodation or an agent of any of the\\nforegoing.\\n  3. (a) The term \"small landlord\" as used in this article shall mean a\\nlandlord of no more than (i) ten units in the state, or (ii) such other\\nnumber of units in the state designated by local law pursuant to\\nparagraph (b) of subdivision two of section two hundred thirteen of this\\narticle.\\n  (b) If a landlord is a single natural person, then that landlord is a\\nsmall landlord if they own or are a beneficial owner of, directly or\\nindirectly, in whole or in part, no more than the number of units\\nestablished pursuant to paragraph (a) of this subdivision; if there is\\nmore than one natural person owner, then no one person may own or be a\\nbeneficial owner of, directly or indirectly, in whole or in part, more\\nthan the number of units established pursuant to paragraph (a) of this\\nsubdivision.\\n  (c) If a landlord is an entity, organized under the laws of this state\\nor of any other jurisdiction, then that landlord is a small landlord if\\neach natural person with a direct or indirect ownership interest in the\\nentity or any affiliated entity owns no more than the number of units\\nestablished pursuant to paragraph (a) of this subdivision. If an entity\\ncannot provide the names of all natural persons with a direct or\\nindirect ownership interest in the entity, such entity shall not qualify\\nas a small landlord.\\n  4. The term \"tenant\" as used in this article shall mean a tenant,\\nsub-tenant, lessee, sublessee, or any other person entitled to the\\nlawful possession, use or occupancy of any housing accommodation. An\\nindividual shall not be considered a tenant for the purposes of this\\narticle if:\\n  (a) no landlord-tenant relationship exists, as established pursuant to\\nany of the grounds set forth in section seven hundred thirteen of the\\nreal property actions and proceedings law; or\\n  (b) the individual is an occupant, as defined in paragraph (b) of\\nsubdivision one of section two hundred thirty-five-f of this chapter,\\nwho has not received the landlord's express or implied consent to use\\nthe housing accommodation as their primary residence in exchange for\\npayment of rent.\\n  5. The term \"rent\" as used in this article shall mean any\\nconsideration, including any bonus, benefit or gratuity demanded or\\nreceived for or in connection with the possession, use or occupancy of\\nhousing accommodations or the execution or transfer of a lease for such\\nhousing accommodations. The term \"rent\" shall not include any separate\\ncharges for services, amenities or facilities which the tenant pays in\\naddition to rent, including but not limited to charges for fitness\\ncenters, parking, storage, or facility rentals, provided that such\\ncharges are not imposed or increased for the purposes of circumventing\\nthis article.\\n  6. The term \"disabled person\" as used in this article shall mean a\\nperson who has an impairment which results from anatomical,\\nphysiological or psychological conditions, other than addiction to\\nalcohol, gambling, or any controlled substance, which are demonstrable\\nby medically acceptable clinical and laboratory diagnostic techniques,\\nand which are expected to be permanent and which substantially limit one\\nor more of such person's major life activities.\\n  7. The term \"inflation index\" shall mean five percent plus the annual\\npercentage change in the consumer price index for all urban consumers\\nfor all items as published by the United States bureau of labor\\nstatistics for the region in which the housing accommodation is located,\\nas established for the most recent preceding calendar year as shall be\\npublished by the division of housing and community renewal no later than\\nthe first of August in any given year, provided further that for New\\nYork city and any village, town, or city that adopts the provisions of\\nthis article by local law pursuant to subdivision one of section two\\nhundred thirteen of this article in the counties of Dutchess, Nassau,\\nOrange, Putnam, Rockland, Suffolk, and Westchester, such consumer price\\nindex shall be the New York-Newark-Jersey City, NY-NJ-PA consumer price\\nindex, and provided further that for any other village, town, or city\\nthat adopts the provisions of this article by local law pursuant to\\nsubdivision one of section two hundred thirteen of this article, such\\nconsumer price index shall be the Northeast Region consumer price index.\\n  8. The term \"local rent standard\" shall mean a rent increase equal to\\nthe inflation index or ten percent, whichever is lower.\\n  * NB Repealed June 15, 2034\\n",
+         "documents": {
+          "items": [],
+          "size": 0
+         },
+         "repealed": false
+        },
+        {
+         "lawId": "RPP",
+         "lawName": "Real Property",
+         "locationId": "212",
+         "title": "Applicability in the city of New York",
+         "docType": "SECTION",
+         "publishedDates": [
+          "2024-05-03"
+         ],
+         "docLevelId": "212",
+         "activeDate": "2024-05-03",
+         "sequenceNo": 63,
+         "repealedDate": null,
+         "fromSection": "212",
+         "toSection": "212",
+         "text": "  * § 212. Applicability in the city of New York. Upon the effective\\ndate of this section, this article shall apply to the city of New York.\\n  * NB Repealed June 15, 2034\\n",
+         "documents": {
+          "items": [],
+          "size": 0
+         },
+         "repealed": false
+        },
+        {
+         "lawId": "RPP",
+         "lawName": "Real Property",
+         "locationId": "213",
+         "title": "Voluntary participation by local governments outside the city of New York",
+         "docType": "SECTION",
+         "publishedDates": [
+          "2024-05-03"
+         ],
+         "docLevelId": "213",
+         "activeDate": "2024-05-03",
+         "sequenceNo": 64,
+         "repealedDate": null,
+         "fromSection": "213",
+         "toSection": "213",
+         "text": "  * § 213. Voluntary participation by local governments outside the city\\nof New York. 1. Applicability. This article shall apply in any village,\\ntown, or a city, other than the city of New York, that, acting through\\nits local legislative body, adopts the provisions of this article by\\nlocal law.\\n  2. Opt-in by a village, town, or city, other than the city of New\\nYork.  A village, town, or city that adopts the provisions of this\\narticle by local law pursuant to subdivision one of this section may:\\n  (a) provide that any unit on or within a housing accommodation shall\\nbe exempt from the provisions of this article if such unit has a monthly\\nrent above a percent of fair market rent, as published by the United\\nStates department of housing and urban development and as shall be\\npublished for each county in the state by the division of housing and\\ncommunity renewal pursuant to subdivision fifteen of section two hundred\\nfourteen of this article, that shall be established in the local law\\nadopted pursuant to subdivision one of this section, provided that if\\nsuch local law does not establish such percent of fair market rent, any\\nunit on or within a housing accommodation with a monthly rent greater\\nthan two hundred forty-five percent of such fair market rent shall be\\nexempt from the provisions of this article; and/or\\n  (b) define \"small landlord\" as a landlord of no more than any number\\nof units in the state that the village, town, or city enacts by local\\nlaw, provided that if such local law does not define \"small landlord,\" a\\n\"small landlord\" shall mean a landlord of no more than ten units in the\\nstate.\\n  3. Notwithstanding the foregoing provisions of this section, if a town\\nand a village within such town both adopt the provisions of this article\\nby local law pursuant to subdivision one of this section, the local law\\nadopted by such town shall not apply within the territorial limits of a\\nvillage within such town.\\n  4. Nothing in this section shall permit a village, town, or city to\\nwhich this article applies to preempt or alter the terms and provisions\\nof this article within such village, town or city.\\n  5. Within thirty days of receipt of a local law adopted pursuant to\\nsubdivision one of this section, and filed with the department of state\\npursuant to section twenty-seven of the municipal home rule law, the\\ndepartment of state shall notify the division of housing and community\\nrenewal of such adoption.\\n  6. The division of housing and community renewal shall include in the\\nannual publication required pursuant to subdivision seven of section two\\nhundred eleven of this article a list including any village, town, or\\ncity, other than the city of New York, as to which the division of\\nhousing and community renewal has received the notice from the\\ndepartment of state required pursuant to subdivision five of this\\nsection indicating that such village, town, or city has adopted a local\\nlaw pursuant to subdivision one of this section to apply the provisions\\nof this article within such village, town, or city. Such list shall\\ninclude the name of each village, town, or city that has adopted such a\\nlocal law, the applicable fair market rent threshold within such\\nvillage, town, or city for exemption from the provisions of this article\\nestablished pursuant to paragraph (a) of subdivision two of this\\nsection, and the applicable definition of small landlord within such\\nvillage, town, or city established pursuant to paragraph (b) of\\nsubdivision two of this section.\\n  * NB Repealed June 15, 2034\\n",
+         "documents": {
+          "items": [],
+          "size": 0
+         },
+         "repealed": false
+        },
+        {
+         "lawId": "RPP",
+         "lawName": "Real Property",
+         "locationId": "214",
+         "title": "Covered housing accommodations",
+         "docType": "SECTION",
+         "publishedDates": [
+          "2024-05-03"
+         ],
+         "docLevelId": "214",
+         "activeDate": "2024-05-03",
+         "sequenceNo": 65,
+         "repealedDate": null,
+         "fromSection": "214",
+         "toSection": "214",
+         "text": "  * § 214. Covered housing accommodations. Where this article applies,\\nit shall apply to all housing accommodations except a:\\n  1. premises owned by a small landlord provided that in connection with\\nany eviction proceeding in which the landlord claims an exemption from\\nthe provisions of this article on the basis of being a small landlord,\\nsuch landlord shall provide to the tenant or tenants subject to the\\nproceeding the name of each natural person who owns or is a beneficial\\nowner of, directly or indirectly, in whole or in part, the housing\\naccommodation at issue in the proceeding, the number of units owned,\\njointly or separately, by each such natural person owner, and the\\naddresses of any such units, excluding each natural person owner's\\nprincipal residence; provided further that if the landlord is an entity,\\norganized under the laws of this state or of any other jurisdiction,\\nthen such landlord shall provide to the tenant or tenants subject to the\\nproceeding the name of each natural person with a direct or indirect\\nownership interest in such entity or any affiliated entity, the number\\nof units owned, jointly or separately, by each such natural person\\nowner, and the addresses of any such units, excluding each natural\\nperson owner's principal residence;\\n  2. owner-occupied housing accommodation with no more then ten units;\\n  3. unit on or within a housing accommodation where such unit is sublet\\npursuant to section two hundred twenty-six-b of this chapter, or\\notherwise, where the sublessor seeks in good faith to recover possession\\nof such housing accommodation for their own personal use and occupancy;\\n  4. unit on or within a housing accommodation where the possession, use\\nor occupancy of which is solely incident to employment and such\\nemployment is being or has been lawfully terminated;\\n  5. unit on or within a housing accommodation where such unit is\\notherwise subject to regulation of rents or evictions pursuant to local,\\nstate or federal law, rule, or regulation;\\n  6. unit on or within a housing accommodation where such unit must be\\naffordable to tenants at a specific income level pursuant to statute,\\nregulation, restrictive declaration, or pursuant to a regulatory\\nagreement with a local, state, or federal government entity;\\n  7. unit on or within a housing accommodation owned as a condominium or\\ncooperative, or a unit on or within a housing accommodation subject to\\nan offering plan submitted to the office of the attorney general,\\nprovided that nothing herein shall abrogate or otherwise limit any\\nrights or obligations a tenant residing in a unit within a condominium\\nor cooperative or a purchaser, owner, or offeror of a condominium or\\ncooperative unit has pursuant to any other state law;\\n  8. housing accommodation for which a temporary or permanent\\ncertificate of occupancy was issued on or after the first of January,\\ntwo thousand nine, for a period of time of thirty years following\\nissuance of such certificate;\\n  9. unit on or within a housing accommodation that qualifies as a\\nseasonal use dwelling unit pursuant to subdivisions four and five of\\nsection 7-108 of the general obligations law;\\n  10. housing accommodation in a hospital as defined in subdivision one\\nof section twenty-eight hundred one of the public health law, continuing\\ncare retirement community licensed pursuant to article forty-six or\\nforty-six-A of the public health law, assisted living residence licensed\\npursuant to article forty-six-B of the public health law, adult care\\nfacility licensed pursuant to article seven of the social services law,\\nsenior residential community that have submitted an offering plan to the\\nattorney general, and not-for-profit independent retirement community\\nthat offer personal emergency response, housekeeping, transportation and\\nmeals to their residents;\\n  11. manufactured home located on or in a manufactured home park as\\ndefined in section two hundred thirty-three of the real property law;\\n  12. hotel room or other transient use covered by the definition of a\\nclass B multiple dwelling under subdivision nine of section four of the\\nmultiple dwelling law, regardless of whether such use is located in a\\njurisdiction in which the multiple dwelling law applies;\\n  13. dormitory owned and operated by an institution of higher education\\nor a kindergarten and grades 1 to 12, inclusive, school;\\n  14. housing accommodation within and for use by a religious facility\\nor institution; and\\n  15. unit on or within a housing accommodation where the monthly rent\\nis greater than the percent of fair market rent established pursuant to\\nparagraph (a) of subdivision two of section two hundred thirteen of this\\narticle in a local law of a village, town, or city, other than the city\\nof New York, adopting the provisions of this article pursuant to\\nsubdivision one of section two hundred thirteen of this article, or two\\nhundred forty-five percent of the fair market rent, provided that fair\\nmarket rent shall refer to the figure published by the United States\\ndepartment of housing and urban development, for the county in which the\\nhousing accommodation is located, as shall be published by the division\\nof housing and community renewal no later than the first of August in\\nany given year. The division of housing and community renewal shall\\npublish the fair market rent and two hundred forty-five percent of the\\nfair market rent for each unit type for which such fair market rent is\\npublished by the United States department of housing and urban\\ndevelopment for each county in New York state in the annual publication\\nrequired pursuant to subdivision seven of section two hundred eleven of\\nthis article.\\n  * NB Repealed June 15, 2034\\n",
+         "documents": {
+          "items": [],
+          "size": 0
+         },
+         "repealed": false
+        },
+        {
+         "lawId": "RPP",
+         "lawName": "Real Property",
+         "locationId": "215",
+         "title": "Necessity for good cause",
+         "docType": "SECTION",
+         "publishedDates": [
+          "2024-05-03"
+         ],
+         "docLevelId": "215",
+         "activeDate": "2024-05-03",
+         "sequenceNo": 66,
+         "repealedDate": null,
+         "fromSection": "215",
+         "toSection": "215",
+         "text": "  * § 215. Necessity for good cause. No landlord shall, by action to\\nevict or to recover possession, by exclusion from possession, by failure\\nto renew any lease, or otherwise, remove any tenant from housing\\naccommodations covered by section two hundred fourteen of this article\\nexcept for good cause as defined in section two hundred sixteen of this\\narticle.\\n  * NB Repealed June 15, 2034\\n",
+         "documents": {
+          "items": [],
+          "size": 0
+         },
+         "repealed": false
+        },
+        {
+         "lawId": "RPP",
+         "lawName": "Real Property",
+         "locationId": "216",
+         "title": "Grounds for removal of tenants",
+         "docType": "SECTION",
+         "publishedDates": [
+          "2024-05-03"
+         ],
+         "docLevelId": "216",
+         "activeDate": "2024-05-03",
+         "sequenceNo": 67,
+         "repealedDate": null,
+         "fromSection": "216",
+         "toSection": "216",
+         "text": "  * § 216. Grounds for removal of tenants. 1. No landlord shall remove a\\ntenant from any housing accommodation covered by section two hundred\\nfourteen of this article, or attempt such removal or exclusion from\\npossession, notwithstanding that the tenant has no written lease or that\\nthe lease or other rental agreement has expired or otherwise terminated,\\nexcept upon order of a court of competent jurisdiction entered in an\\nappropriate judicial action or proceeding in which the petitioner or\\nplaintiff has established one of the following grounds as good cause for\\nremoval or eviction:\\n  (a) (i) The tenant has failed to pay rent due and owing, provided\\nhowever that the rent due and owing, or any part thereof, did not result\\nfrom a rent increase which is unreasonable. In determining whether all\\nor part of the rent due and owing is the result of an unreasonable rent\\nincrease, it shall be a rebuttable presumption that the rent for a\\ndwelling not protected by rent regulation is unreasonable if said rent\\nhas been increased in any calendar year, after the effective date of\\nthis article, or after the effective date of the local law in any\\nvillage, town, or city that enacts such local law to apply this article\\nto such village, town, or city pursuant to subdivision one of section\\ntwo hundred thirteen of this article, by an amount greater than the\\nlocal rent standard, provided further that no rent increase less than or\\nequal to the local rent standard shall be deemed unreasonable.\\n  (ii) Whenever a court considers whether a rent increase is\\nunreasonable, the court may consider all relevant facts, including but\\nnot limited to a landlord's costs for fuel and other utilities,\\ninsurance, and maintenance; but in all cases, the court shall consider\\nthe landlord's property tax expenses and any recent increases thereto;\\nsuch relevant facts also shall include whether the landlord, other than\\nin circumstances governed by paragraph (d) of this subdivision, seeks in\\ngood faith to raise the rent upon a renewal lease to reflect completed\\nsignificant repairs to the housing accommodation, or to any other part\\nof the building or real property in which the housing accommodation is\\nlocated, provided that the landlord can establish that the repairs\\nconstituted significant repairs and that such repairs did not result\\nfrom the landlord's failure to properly maintain the building or housing\\naccommodation, and provided further that for the purposes of this\\nsubparagraph, \"significantly repair\" means the replacement or\\nsubstantial modification of any structural, electrical, plumbing, or\\nmechanical system that requires a permit from a governmental agency, or\\nabatement of hazardous materials, including lead-based paint, mold, or\\nasbestos in accordance with applicable federal, state, and local laws,\\nand provided further cosmetic improvements alone, including painting,\\ndecorating, and minor repairs, do not qualify as significant repairs;\\n  (b) The tenant is violating a substantial obligation of their tenancy\\nor breaching any of the landlord's rules and regulations governing said\\npremises, other than the obligation to surrender possession, and has\\nfailed to cure such violation after written notice that the violation\\ncease within ten days of receipt of such written notice, provided\\nhowever, that the obligation of tenancy for which violation is claimed\\nwas not imposed for the purpose of circumventing the intent of this\\narticle and provided such rules or regulations are reasonable and have\\nbeen accepted in writing by the tenant or made a part of the lease at\\nthe beginning of the lease term;\\n  (c) The tenant is committing or permitting a nuisance in such housing\\naccommodation, or elsewhere in the building or on the real property in\\nwhich the housing accommodation is located, or is maliciously or by\\nreason of gross negligence substantially damaging the housing\\naccommodation, or causing substantial damage elsewhere in the building\\nor on the real property in which the housing accommodation is located;\\nor the tenant's conduct is such as to interfere with the comfort and\\nsafety of the landlord or other tenants or occupants of the same or\\nanother adjacent building or structure;\\n  (d) Occupancy of the housing accommodation by the tenant is in\\nviolation of or causes a violation of law and the landlord is subject to\\ncivil or criminal penalties therefor; provided however that an agency of\\nthe state or municipality having jurisdiction has issued an order\\nrequiring the tenant to vacate the housing accommodation. No tenant\\nshall be removed from possession of a housing accommodation on such\\nground unless the court finds that the cure of the violation of law\\nrequires the removal of the tenant and that the landlord did not through\\nneglect or deliberate action or failure to act create the condition\\nnecessitating the vacate order. In instances where the landlord does not\\nundertake to cure conditions of the housing accommodation causing such\\nviolation of the law, the tenant shall have the right to pay or secure\\npayment in a manner satisfactory to the court, to cure such violation\\nprovided that any tenant expenditures shall be applied against rent to\\nwhich the landlord is entitled. In instances where removal of a tenant\\nis absolutely essential to such tenant's health and safety, the removal\\nof the tenant shall be without prejudice to any leasehold interest or\\nother right of occupancy the tenant may have and the tenant shall be\\nentitled to resume possession at such time as the dangerous conditions\\nhave been removed. Nothing herein shall abrogate or otherwise limit the\\nright of a tenant to bring an action for monetary damages against the\\nlandlord or to otherwise compel compliance by the landlord with all\\napplicable state or municipal housing codes;\\n  (e) The tenant is using or permitting the housing accommodation, or\\nelsewhere in the building or on the real property in which the housing\\naccommodation is located, to be used for an illegal purpose;\\n  (f) The tenant has unreasonably refused the landlord access to the\\nhousing accommodation for the purpose of making necessary repairs or\\nimprovements required by law or for the purpose of showing the housing\\naccommodation to a prospective purchaser, mortgagee or other person\\nhaving a legitimate interest therein;\\n  (g) The landlord seeks in good faith to recover possession of a\\nhousing accommodation for the landlord's own personal use and occupancy\\nas the landlord's principal residence, or the personal use and occupancy\\nas principal residence of the landlord's spouse, domestic partner,\\nchild, stepchild, parent, step-parent, sibling, grandparent, grandchild,\\nparent-in-law or sibling-in-law, when no other suitable housing\\naccommodation in such building is available, provided that no judgment\\nin favor of the landlord may be granted pursuant to this paragraph\\nunless the landlord establishes good faith to recover possession of a\\nhousing accommodation for the landlord's own personal use and occupancy\\nas the landlord's principal residence, or the personal use and occupancy\\nas a principal residence of the landlord's spouse, domestic partner,\\nchild, stepchild, parent, step-parent, sibling, grandparent, grandchild,\\nparent-in-law or sibling-in-law, by clear and convincing evidence. This\\nparagraph shall not apply to a housing accommodation occupied by a\\ntenant who is sixty-five years of age or older or who is a disabled\\nperson;\\n  (h) The landlord in good faith seeks to demolish the housing\\naccommodation, provided that no judgment in favor of the landlord may be\\ngranted pursuant to this paragraph unless the landlord establishes good\\nfaith to demolish the housing accommodation by clear and convincing\\nevidence;\\n  (i) The landlord seeks in good faith to withdraw a housing\\naccommodation from the housing rental market, provided that no judgment\\nin favor of the landlord may be granted pursuant to this paragraph\\nunless the landlord establishes good faith to withdraw the housing\\naccommodation from the housing rental market by clear and convincing\\nevidence; or\\n  (j) The tenant fails to agree to reasonable changes to a lease at\\nrenewal, including increases in rent that are not unreasonable as\\ndefined in paragraph (a) of this subdivision, as long as written notice\\nof the changes to the lease were provided to the tenant at least thirty\\ndays, but no more than ninety days, prior to the expiration of the\\ncurrent lease.\\n  2. A tenant required to surrender a housing accommodation by virtue of\\nthe operation of paragraph (g), (h), or (i) of subdivision one of this\\nsection shall have a cause of action in any court of competent\\njurisdiction for damages, declaratory, and injunctive relief against a\\nlandlord or purchaser of the premises who makes a fraudulent statement\\nregarding a proposed use, removal from the rental housing market, or\\ndemolition of the housing accommodation. In any action or proceeding\\nbrought pursuant to this subdivision a prevailing tenant shall be\\nentitled to recovery of actual damages, and reasonable attorneys' fees.\\nExcept as provided in this subdivision, nothing in this article shall\\ncreate a civil claim or cause of action by a tenant against a landlord.\\n  3. Nothing in this section shall abrogate or limit the tenant's right\\npursuant to section seven hundred fifty-one of the real property actions\\nand proceedings law to permanently stay the issuance or execution of a\\nwarrant or eviction in a summary proceeding, whether characterized as a\\nnonpayment, objectionable tenancy, or holdover proceeding, the\\nunderlying basis of which is the nonpayment of rent, so long as the\\ntenant complies with the procedural requirements of section seven\\nhundred fifty-one of the real property actions and proceedings law where\\napplicable.\\n  * NB Repealed June 15, 2034\\n",
+         "documents": {
+          "items": [],
+          "size": 0
+         },
+         "repealed": false
+        },
+        {
+         "lawId": "RPP",
+         "lawName": "Real Property",
+         "locationId": "217",
+         "title": "Preservation of existing requirements of law",
+         "docType": "SECTION",
+         "publishedDates": [
+          "2024-05-03"
+         ],
+         "docLevelId": "217",
+         "activeDate": "2024-05-03",
+         "sequenceNo": 68,
+         "repealedDate": null,
+         "fromSection": "217",
+         "toSection": "217",
+         "text": "  * § 217. Preservation of existing requirements of law. No action shall\\nbe maintainable and no judgment of possession shall be entered for\\nhousing accommodations pursuant to section two hundred sixteen of this\\narticle, unless the landlord has complied with any and all applicable\\nlaws governing such action or proceeding and has complied with any and\\nall applicable laws governing notice to tenants, including without\\nlimitation the manner and the time of service of such notice and the\\ncontents of such notice.\\n  * NB Repealed June 15, 2034\\n",
+         "documents": {
+          "items": [],
+          "size": 0
+         },
+         "repealed": false
+        },
+        {
+         "lawId": "RPP",
+         "lawName": "Real Property",
+         "locationId": "218",
+         "title": "Waiver of rights void",
+         "docType": "SECTION",
+         "publishedDates": [
+          "2024-05-03"
+         ],
+         "docLevelId": "218",
+         "activeDate": "2024-05-03",
+         "sequenceNo": 69,
+         "repealedDate": null,
+         "fromSection": "218",
+         "toSection": "218",
+         "text": "  * § 218. Waiver of rights void. Any agreement by a tenant heretofore\\nor hereinafter entered into in a written lease or other rental agreement\\nwaiving or modifying their rights as set forth in this article shall be\\nvoid as contrary to public policy.\\n  * NB Repealed June 15, 2034\\n",
+         "documents": {
+          "items": [],
+          "size": 0
+         },
+         "repealed": false
+        }
+       ],
+       "size": 9
+      },
+      "repealed": false
+     },
+     {
+      "lawId": "RPP",
+      "lawName": "Real Property",
+      "locationId": "A7",
+      "title": "Landlord and Tenant",
+      "docType": "ARTICLE",
+      "publishedDates": [
+       "2014-09-22",
+       "2015-10-30",
+       "2017-12-08",
+       "2019-06-28",
+       "2019-10-11",
+       "2019-12-20",
+       "2019-12-27",
+       "2021-08-06",
+       "2021-12-24",
+       "2022-12-30",
+       "2023-11-26",
+       "2024-10-04",
+       "2024-11-29"
+      ],
+      "docLevelId": "7",
+      "activeDate": "2024-11-29",
+      "sequenceNo": 70,
+      "repealedDate": null,
+      "fromSection": "220",
+      "toSection": "238-A",
+      "text": "                                ARTICLE 7\\n                           Landlord and Tenant\\nSection  220.     Action for use and occupation.\\n         221.     Rent due on life leases recoverable.\\n         222.     When rent is apportionable.\\n         223.     Rights where property or lease is transferred.\\n         223-a.   Remedies of lessee when possession is not delivered.\\n         223-b.   Retaliation by landlord against tenant.\\n         224.     Attornment by tenant.\\n         225.     Notice of action adverse to possession of tenant.\\n         226.     Effect of renewal on sub-lease.\\n         226-a.   Effect of new lease on tenant's right to remove\\n                    fixtures or improvements.\\n         226-b.   Right to sublease or assign.\\n         226-c.   Notice of rent increase or non-renewal of residential\\n                    tenancy.\\n         227.     When tenant may surrender premises.\\n         227-a.   Termination of residential lease by senior citizens or\\n                    individuals with a disability moving to a residence\\n                    of a family member or entering certain health care\\n                    facilities, adult care facilities or housing\\n                    projects.\\n         227-b.   Termination of certain contracts by senior citizens.\\n         227-c.   Termination of residential lease by victims of\\n                    domestic violence.\\n         227-d.   Discrimination based on domestic violence status;\\n                    prohibited.\\n         227-e.   Landlord duty to mitigate damages.\\n         227-f.   Denial on the basis of involvement in prior disputes\\n                    prohibited.\\n         228.     Termination of tenancies at will or by sufferance, by\\n                    notice.\\n         229.     Liability of tenant holding over after giving notice\\n                    of intention to quit.\\n         230.     Right of tenants to form, join or participate in\\n                    tenants' groups.\\n         231.     Lease, when void; liability of landlord where premises\\n                    are occupied for unlawful purpose.\\n         231-a.   Sprinkler system notice in residential leases.\\n         231-b.   Flood history and risk notice in residential leases.\\n         232.     Duration of certain agreements in New York.\\n         232-a.   Notice to terminate monthly tenancy or tenancy from\\n                    month to month in the city of New York.\\n         232-b.   Notification to terminate monthly tenancy or tenancy\\n                    from month to month outside the city of New York.\\n         232-c.   Holding over by a tenant after expiration of a term\\n                    longer than one month; effect of acceptance of rent.\\n         233.     Manufactured home parks; duties, responsibilities.\\n         233-a.   Sale of manufactured home parks.\\n         233-b.   Manufactured home parks; rent increases.\\n         233-b*2. Campgrounds.\\n         233-c.   Residential ground lease cooperative apartment\\n                    buildings.\\n         234.     Right to recover attorneys' fees in actions or summary\\n                    proceedings arising out of leases of residential\\n                    property.\\n         234-a.   Unauthorized legal fees.\\n         235.     Wilful violations.\\n         235-a.   Tenant right to offset payments and entitlement to\\n                    damages in certain cases.\\n         235-b.   Warranty of habitability.\\n         235-bb.  Certificates of occupancy; required disclosure to\\n                    tenant.\\n         235-c.   Unconscionable lease or clause.\\n         235-d.   Harassment.\\n         235-e.   Duty to provide written receipt.\\n         235-f.   Unlawful restrictions on occupancy.\\n         235-g.   Electronic billing and/or payment of rent.\\n         235-h.   Waiver of right to bring a declaratory judgment\\n                    action.\\n         235-i.   Unreasonable tenant fees for reproductions of keys.\\n         235-j.   Duty to inform of bed bug infestation.\\n         236.     Assignment of lease of a deceased tenant.\\n         236-a.   Termination of lease of a deceased tenant.\\n         237.     Discrimination in leases with respect to bearing of\\n                    children.\\n         237-a.   Discrimination against children in dwelling houses and\\n                    manufactured home parks.\\n         238.     Agreements or contracts for privileges to deal with\\n                    occupants of tenements, apartment houses or bungalow\\n                    colonies.\\n         238-a.   Limitation on fees.\\n",
+      "documents": {
+       "items": [
+        {
+         "lawId": "RPP",
+         "lawName": "Real Property",
+         "locationId": "223-B",
+         "title": "Retaliation by landlord against tenant",
+         "docType": "SECTION",
+         "publishedDates": [
+          "2014-09-22",
+          "2019-06-28"
+         ],
+         "docLevelId": "223-B",
+         "activeDate": "2019-06-28",
+         "sequenceNo": 76,
+         "repealedDate": null,
+         "fromSection": "223-B",
+         "toSection": "223-B",
+         "text": "  § 223-b. Retaliation by landlord against tenant. 1. No landlord of\\npremises or units to which this section is applicable shall serve a\\nnotice to quit upon any tenant or commence any action to recover real\\nproperty or summary proceeding to recover possession of real property in\\nretaliation for:\\n  a. A good faith complaint, by or in behalf of the tenant, to the\\nlandlord, the landlord's agent or a governmental authority of the\\nlandlord's alleged violation of any health or safety law, regulation,\\ncode, or ordinance, the warranty of habitability under section two\\nhundred thirty-five-b of this article, the duty to repair under sections\\nseventy-eight, seventy-nine, and eighty of the multiple dwelling law or\\nsection one hundred seventy-four of the multiple residence law, or any\\nlaw or regulation which has as its objective the regulation of premises\\nused for dwelling purposes or which pertains to the offense of rent\\ngouging in the third, second or first degree; or\\n  b. Actions taken in good faith, by or in behalf of the tenant, to\\nsecure or enforce any rights under the lease or rental agreement, the\\nwarranty of habitability under section two hundred thirty-five-b of this\\narticle, the duty to repair under sections seventy-eight, seventy-nine,\\nand eighty of the multiple dwelling law or section one hundred\\nseventy-four of the multiple residence law, or under any other law of\\nthe state of New York, or of its governmental subdivisions, or of the\\nUnited States which has as its objective the regulation of premises used\\nfor dwelling purposes or which pertains to the offense of rent gouging\\nin the third, second or first degree; or\\n  c. The tenant's participation in the activities of a tenant's\\norganization.\\n  2. No landlord of premises or units to which this section is\\napplicable or such landlord's agent shall substantially alter the terms\\nof the tenancy in retaliation for any actions set forth in paragraphs a,\\nb, and c of subdivision one of this section. Substantial alteration\\nshall include, but is not limited to, the refusal to continue a tenancy\\nof the tenant, upon expiration of the tenant's lease, to renew the lease\\nor offer a new lease, or offering a new lease with an unreasonable rent\\nincrease; provided, however, that a landlord shall not be required under\\nthis section to offer a new lease or a lease renewal for a term greater\\nthan one year.\\n  3. A landlord shall be subject to a civil action for damages,\\nattorney's fees and costs and other appropriate relief, including\\ninjunctive and other equitable remedies, as may be determined by a court\\nof competent jurisdiction in any case in which the landlord has violated\\nthe provisions of this section.\\n  4. In any action to recover real property or summary proceeding to\\nrecover possession of real property, judgment shall be entered for the\\ntenant if the court finds that the landlord is acting in retaliation for\\nany action set forth in paragraphs a, b, and c of subdivision one of\\nthis section. Retaliation shall be asserted as an affirmative defense in\\nsuch action or proceeding. The tenant shall not be relieved of the\\nobligation to pay any rent for which he is otherwise liable.\\n  5. In an action or proceeding instituted against a tenant of premises\\nor a unit to which this section is applicable, a rebuttable presumption\\nthat the landlord is acting in retaliation shall be created if the\\ntenant establishes that the landlord served a notice to quit, or\\ninstituted an action or proceeding to recover possession, or attempted\\nto substantially alter the terms of the tenancy, within one year after:\\n  a. A good faith complaint was made, by or in behalf of the tenant, to\\nthe landlord, the landlord's agent or a governmental authority of the\\nlandlord's violation of any health or safety law, regulation, code, or\\nordinance, the warranty of habitability under section two hundred\\nthirty-five-b of this article, the duty to repair under sections\\nseventy-eight, seventy-nine, and eighty of the multiple dwelling law or\\nsection one hundred seventy-four of the multiple residence law, or any\\nlaw or regulation which has as its objective the regulation of premises\\nused for dwelling purposes or which pertains to the offense of rent\\ngouging in the third, second or first degree; or\\n  b. The tenant in good faith took action to secure or enforce against\\nthe landlord or his agents any rights under the lease or rental\\nagreement, the warranty of habitability under section two hundred\\nthirty-five-b of this article, the duty to repair under sections\\nseventy-eight, seventy-nine, and eighty of the multiple dwelling law or\\nsection one hundred seventy-four of the multiple residence law, or under\\nany other law of the state of New York, or of its governmental\\nsubdivisions, or of the United States which has as its objective the\\nregulation of premises used for dwelling purposes or which pertains to\\nthe offense of rent gouging in the third, second or first degree.\\n  c. Judgment under subdivision three or four of this section was\\nentered for the tenant in a previous action between the parties; or an\\ninspection was made, an order was entered, or other action was taken as\\na result of a complaint or act described in paragraph a or b of this\\nsubdivision.\\n  The effect of the presumption shall be to require the landlord to\\nestablish a non-retaliatory motive for his acts by a preponderance of\\nthe evidence.\\n  5-a. Any lease provision which seeks to assess a fee, penalty or\\ndollar charge, in addition to the stated rent, against a tenant because\\nsuch tenant files a bona fide complaint with the landlord, the\\nlandlord's agent or a building code officer regarding the condition of\\nsuch tenant's leased premises shall be null and void as being against\\npublic policy. A landlord or agent of the landlord who seeks to enforce\\nsuch a fee, penalty or charge shall be liable to the tenant for triple\\nthe amount of such fee, penalty or charge.\\n  6. This section shall apply to all rental residential premises except\\nowner-occupied dwellings with less than four units. However, its\\nprovisions shall not be given effect in any case in which it is\\nestablished that the condition from which the complaint or action arose\\nwas caused by the tenant, a member of the tenant's household, or a guest\\nof the tenant. Nor shall it apply in a case where a tenancy was\\nterminated pursuant to the terms of a lease as a result of a bona fide\\ntransfer of ownership.\\n",
+         "documents": {
+          "items": [],
+          "size": 0
+         },
+         "repealed": false
+        },
+        {
+         "lawId": "RPP",
+         "lawName": "Real Property",
+         "locationId": "226-C",
+         "title": "Notice of rent increase or non-renewal of residential tenancy",
+         "docType": "SECTION",
+         "publishedDates": [
+          "2019-06-28",
+          "2019-10-18",
+          "2021-12-31",
+          "2024-05-03",
+          "2025-08-22"
+         ],
+         "docLevelId": "226-C",
+         "activeDate": "2025-08-22",
+         "sequenceNo": 82,
+         "repealedDate": null,
+         "fromSection": "226-C",
+         "toSection": "226-C",
+         "text": "  § 226-c. Notice of rent increase or non-renewal of residential\\ntenancy.  1. * (a) Whenever a landlord intends to offer to renew the\\ntenancy of an occupant in a residential dwelling unit with a rent\\nincrease equal to or greater than five percent above the current rent,\\nor the landlord does not intend to renew the tenancy, the landlord shall\\nprovide written notice as required in subdivision two of this section.\\nThe notice shall append or contain the notice required pursuant to\\nsection two hundred thirty-one-c of this article, which shall state the\\nfollowing: (i) if the unit is or is not subject to article six-A of this\\nchapter, the \"good cause eviction law\", and if the unit is exempt, such\\nnotice shall state why the unit is exempt from such law; (ii) if the\\nlandlord is not renewing the lease for a unit subject to article six-A\\nof this chapter, the lawful basis for such non-renewal; and (iii) if the\\nlandlord is increasing the rent upon an existing lease of a unit subject\\nto article six-A of this chapter above the applicable local rent\\nstandard, as defined in subdivision eight of section two hundred eleven\\nof this chapter, the justification for such increase. If the landlord\\nfails to provide timely notice, the occupant's lawful tenancy shall\\ncontinue under the existing terms of the tenancy from the date on which\\nthe landlord gave actual written notice until the notice period has\\nexpired, notwithstanding any provision of a lease or other tenancy\\nagreement to the contrary.\\n  * NB Effective August 18, 2024 until June 15, 2034\\n  * (a) Whenever a landlord intends to offer to renew the tenancy of an\\noccupant in a residential dwelling unit with a rent increase equal to or\\ngreater than five percent above the current rent, or the landlord does\\nnot intend to renew the tenancy, the landlord shall provide written\\nnotice as required in subdivision two of this section. If the landlord\\nfails to provide timely notice, the occupant's lawful tenancy shall\\ncontinue under the existing terms of the tenancy from the date on which\\nthe landlord gave actual written notice until the notice period has\\nexpired, notwithstanding any provision of a lease or other tenancy\\nagreement to the contrary.\\n  * NB Effective June 15, 2034\\n  (b) Notwithstanding paragraph (a) of this subdivision, notice shall\\nnot be required under this section to be provided by a cooperative\\nhousing corporation, other than a cooperative housing corporation\\nsubject to the provisions of article two, article four, article five or\\narticle eleven of the private housing finance law, to a tenant who is a\\ndwelling unit owner or shareholder of such corporation. Nothing in this\\nparagraph shall relieve such cooperative housing corporation of any\\notherwise applicable obligation to provide notice to such tenant\\npursuant to any other law or any agreement between the parties.\\n  2. (a) For the purposes of this section, the required notice shall be\\nbased on the cumulative amount of time the tenant has occupied the\\nresidence or the length of the tenancy in each lease, whichever is\\nlonger.\\n  (b) If the tenant has occupied the unit for less than one year and\\ndoes not have a lease term of at least one year, the landlord shall\\nprovide at least thirty days' notice.\\n  (c) If the tenant has occupied the unit for more than one year but\\nless than two years, or has a lease term of at least one year but less\\nthan two years, the landlord shall provide at least sixty days' notice.\\n  (d) If the tenant has occupied the unit for more than two years or has\\na lease term of at least two years, the landlord shall provide at least\\nninety days' notice.\\n",
+         "documents": {
+          "items": [],
+          "size": 0
+         },
+         "repealed": false
+        },
+        {
+         "lawId": "RPP",
+         "lawName": "Real Property",
+         "locationId": "233-B*2",
+         "title": "Campgrounds",
+         "docType": "SECTION",
+         "publishedDates": [
+          "2019-12-20",
+          "2020-04-24"
+         ],
+         "docLevelId": "233-B*2",
+         "activeDate": "2020-04-24",
+         "sequenceNo": 104,
+         "repealedDate": null,
+         "fromSection": "233-B*2",
+         "toSection": "233-B*2",
+         "text": "  * § 233-b. Campgrounds. a. Whenever used in this section:\\n  1. \"Campground\" means any parcel or tract of land, including buildings\\nor other structures, where five or more campsites are made available for\\nuse as temporary living quarters for recreational, camping, travel or\\nseasonal use. For purposes of this section, campgrounds shall not\\ninclude land owned by the state of New York.\\n  2. \"Campground owner\" means the owner or operator of a campground or\\nan agent of such owner or operator.\\n  3. \"Guest\" means a person who occupies a campsite pursuant to an\\nagreement with a term of more than one week.\\n  b. 1. A campground owner may request any law enforcement officer\\nremove any guest who willfully denies other guests their right to quiet\\nenjoyment of the campground, including, but not limited, to any guest\\nwho:\\n  (a) disturbs, threatens or endangers other guests;\\n  (b) is less than twenty-one years of age and possesses alcohol;\\n  (c) possesses illegal drugs;\\n  (d) violates any state or local law; or\\n  (e) violates any other lawful rule or regulation of the campground\\nthat enhances the safety and quiet enjoyment of its guests and is posted\\nin a conspicuous place or made a part of the guest's occupancy\\nagreement.\\n  2. the right to request a guest to be removed by any law enforcement\\nofficer can only be exercised after the campground owner or its agent\\nhas provided the guest with written warning that his or her conduct\\nshall result in a removal from the campground if it is repeated. In the\\nevent that such conduct is repeated and the guest fails to vacate the\\ncampground upon being requested to do so, the campground owner may only\\ncause the guest to be removed by a law enforcement officer, who may cite\\nthe guest with trespass.\\n  c. A person who is removed from a campground pursuant to subdivision b\\nof this section shall be entitled to a refund of the unused portion of\\nany prepaid fees, less any amount otherwise owed to the campground owner\\nor deducted for damages, which unused portion of prepaid fees may be\\nprorated at a rate that is based upon the daily rate charged by the\\ncampground owner.\\n  d. A campground owner may remove property belonging to a person who is\\nremoved from a campground pursuant to subdivision b of this section from\\na campsite and such property, whether removed from a campsite or allowed\\nto remain on a campsite, shall be deemed to be placed in storage. A\\ncampground owner shall provide the owner of such property thirty days\\nwritten notice, by certified mail, return receipt requested, to remove\\nsuch property and dispose of such property pursuant to article nine of\\nthe lien law in the event the owner fails to remove such property within\\nthe thirty-day period of time.\\n  * NB There are 2 § 233-b's\\n",
+         "documents": {
+          "items": [],
+          "size": 0
+         },
+         "repealed": false
+        },
+        {
+         "lawId": "RPP",
+         "lawName": "Real Property",
+         "locationId": "235-B",
+         "title": "Warranty of habitability",
+         "docType": "SECTION",
+         "publishedDates": [
+          "2014-09-22"
+         ],
+         "docLevelId": "235-B",
+         "activeDate": "2014-09-22",
+         "sequenceNo": 110,
+         "repealedDate": null,
+         "fromSection": "235-B",
+         "toSection": "235-B",
+         "text": "  § 235-b. Warranty of habitability. 1. In every written or oral lease\\nor rental agreement for residential premises the landlord or lessor\\nshall be deemed to covenant and warrant that the premises so leased or\\nrented and all areas used in connection therewith in common with other\\ntenants or residents are fit for human habitation and for the uses\\nreasonably intended by the parties and that the occupants of such\\npremises shall not be subjected to any conditions which would be\\ndangerous, hazardous or detrimental to their life, health or safety.\\nWhen any such condition has been caused by the misconduct of the tenant\\nor lessee or persons under his direction or control, it shall not\\nconstitute a breach of such covenants and warranties.\\n  2. Any agreement by a lessee or tenant of a dwelling waiving or\\nmodifying his rights as set forth in this section shall be void as\\ncontrary to public policy.\\n  3. In determining the amount of damages sustained by a tenant as a\\nresult of a breach of the warranty set forth in the section, the court;\\n  (a) need not require any expert testimony; and\\n  (b) shall, to the extent the warranty is breached or cannot be cured\\nby reason of a strike or other labor dispute which is not caused\\nprimarily by the individual landlord or lessor and such damages are\\nattributable to such strike, exclude recovery to such extent, except to\\nthe extent of the net savings, if any, to the landlord or lessor by\\nreason of such strike or labor dispute allocable to the tenant's\\npremises, provided, however, that the landlord or lesser has made a good\\nfaith attempt, where practicable, to cure the breach.\\n  (c) where the premises is subject to regulation pursuant to the local\\nemergency housing rent control law, the emergency tenant protection act\\nof nineteen seventy-four, the rent stabilization law of nineteen hundred\\nsixty-nine or the city rent and rehabilitation law, reduce the amount\\nawarded hereunder by the total amount of any rent reduction ordered by\\nthe state division of housing and community renewal pursuant to such\\nlaws or act, awarded to the tenant, from the effective date of such rent\\nreduction order, that relates to one or more matters for which relief is\\nawarded hereunder.\\n",
+         "documents": {
+          "items": [],
+          "size": 0
+         },
+         "repealed": false
+        },
+        {
+         "lawId": "RPP",
+         "lawName": "Real Property",
+         "locationId": "235-E",
+         "title": "Duty to provide a written receipt",
+         "docType": "SECTION",
+         "publishedDates": [
+          "2014-09-22",
+          "2019-06-28",
+          "2021-12-31"
+         ],
+         "docLevelId": "235-E",
+         "activeDate": "2021-12-31",
+         "sequenceNo": 114,
+         "repealedDate": null,
+         "fromSection": "235-E",
+         "toSection": "235-E",
+         "text": "  § 235-e. Duty to provide a written receipt. (a) Upon the receipt of\\nthe payment of rent for residential premises in the form of cash, or any\\ninstrument other than the personal check of the lessee, it shall be the\\nduty of the lessor, or any agent of the lessor authorized to receive\\nrent, to provide the lessee with a written receipt containing the\\nfollowing:\\n  1. The date;\\n  2. The amount;\\n  3. The identity of the premises and period for which paid; and\\n  4. The signature and title of the person receiving the rent.\\n  (b) A lessee may request, in writing, that a lessor provide a receipt\\nfor rent paid by personal check. If such request is made, the lessor, or\\nany agent of the lessor authorized to receive rent, shall provide the\\nlessee with the receipt described in subdivision (a) of this section.\\nSuch request shall, unless otherwise specified by the lessee, remain in\\neffect for the duration of such lessee's tenancy. The lessor shall\\nmaintain a record of all cash receipts for rent for at least three\\nyears.\\n  (c) If a payment of rent is personally transmitted to a lessor, or an\\nagent of a lessor authorized to receive rent, the receipt for such\\npayment shall be issued immediately to a lessee. If a payment of rent is\\ntransmitted indirectly to a lessor, or an agent of a lessor authorized\\nto receive rent, a lessee shall be provided with a receipt within\\nfifteen days of such lessor or agent's receipt of a rent payment.\\n  (d) If a lessor, or an agent of a lessor authorized to receive rent,\\nfails to receive payment for rent within five days of the date specified\\nin a lease agreement, such lessor or agent shall send the lessee, by\\ncertified mail, a written notice stating the failure to receive such\\nrent payment. The failure of a lessor, or any agent of the lessor\\nauthorized to receive rent, to provide a lessee with a written notice of\\nthe non-payment of rent may be used as an affirmative defense by such\\nlessee in an eviction proceeding based on the non-payment of rent.\\nNotwithstanding the provisions of this subdivision, a lessor which is a\\ncooperative housing corporation, other than a cooperative housing\\ncorporation subject to the provisions of article two, article four,\\narticle five or article eleven of the private housing finance law, may\\nprovide for a method of sending notice by mail other than by certified\\nmail, as long as such method of sending notice is provided for in the\\nproprietary lease or occupancy agreement, and the lessee is a dwelling\\nunit owner or shareholder of such cooperative housing corporation.\\n",
+         "documents": {
+          "items": [],
+          "size": 0
+         },
+         "repealed": false
+        },
+        {
+         "lawId": "RPP",
+         "lawName": "Real Property",
+         "locationId": "238-A",
+         "title": "Limitation on fees",
+         "docType": "SECTION",
+         "publishedDates": [
+          "2019-06-28",
+          "2021-12-31",
+          "2022-03-04",
+          "2025-10-17"
+         ],
+         "docLevelId": "238-A",
+         "activeDate": "2025-10-17",
+         "sequenceNo": 125,
+         "repealedDate": null,
+         "fromSection": "238-A",
+         "toSection": "238-A",
+         "text": "  § 238-a. Limitation on fees. In relation to a residential dwelling\\nunit:\\n  1. (a) Except in instances where statutes or regulations provide for a\\npayment, fee or charge, no landlord, lessor, sub-lessor or grantor may\\ndemand any payment, fee, or charge for the processing, review or\\nacceptance of an application, or demand any other payment, fee or charge\\nbefore or at the beginning of the tenancy, except background checks and\\ncredit checks as provided by paragraph (b) of this subdivision, provided\\nthat this subdivision shall not apply to entrance fees charged by\\ncontinuing care retirement communities licensed pursuant to article\\nforty-six or forty-six-A of the public health law, assisted living\\nproviders licensed pursuant to article forty-six-B of the public health\\nlaw, adult care facilities licensed pursuant to article seven of the\\nsocial services law, senior residential communities that have submitted\\nan offering plan to the attorney general, or not-for-profit independent\\nretirement communities that offer personal emergency response,\\nhousekeeping, transportation and meals to their residents. Nothing in\\nthis paragraph shall prohibit a cooperative housing corporation, other\\nthan a cooperative housing corporation subject to the provisions of\\narticle two, article four, article five or article eleven of the private\\nhousing finance law, from demanding from a prospective tenant any\\npayment, fee or charge which is necessary to compensate a managing agent\\nand/or transfer agent for the processing, review or acceptance of such\\nprospective tenant's application where such prospective tenant would\\nbecome a dwelling unit owner or shareholder of such cooperative housing\\ncorporation.\\n  (b) A landlord, lessor, sub-lessor or grantor may charge a fee or fees\\nto reimburse costs associated with conducting a background check and\\ncredit check, provided the cumulative fee or fees for such checks is no\\nmore than the actual cost of the background check and credit check or\\ntwenty dollars, whichever is less, and the landlord, lessor, sub-lessor\\nor grantor shall waive the fee or fees if the potential tenant provides\\na copy of a background check or credit check conducted within the past\\nthirty days. The landlord, lessor, sub-lessor or grantor may not collect\\nthe fee or fees unless the landlord, lessor, sub-lessor or grantor\\nprovides the potential tenant with a copy of the background check or\\ncredit check and the receipt or invoice from the entity conducting the\\nbackground check or credit check. Notwithstanding the provisions of this\\nparagraph, a cooperative housing corporation shall be permitted to\\ncharge a fee or fees to reimburse costs associated with conducting a\\nbackground check and credit check in excess of twenty dollars, where the\\npotential tenant would become a dwelling unit owner or shareholder of\\nsuch cooperative housing corporation, provided the cumulative fee or\\nfees for such checks is no more than the actual cost of such background\\ncheck and/or credit check. Further, with regard to a cooperative housing\\ncorporation subject to the provisions of article two, article four,\\narticle five or article eleven of the private housing finance law, all\\nsuch fees must be reasonable and approved by the agency supervising such\\ncooperative housing corporation.\\n  2. No landlord, lessor, sub-lessor or grantor may demand any payment,\\nfee, or charge for the late payment of rent unless the payment of rent\\nhas not been made within five days of the date it was due, and such\\npayment, fee, or charge shall not exceed fifty dollars or five percent\\nof the monthly rent, whichever is less; provided a cooperative housing\\ncorporation, other than a cooperative housing corporation subject to the\\nprovisions of article two, article four, article five or article eleven\\nof the private housing finance law, shall be permitted to charge a\\ntenant that is a dwelling unit owner or shareholder of such cooperative\\nhousing corporation a fee of up to eight percent of the monthly\\nmaintenance fee for the late payment of the monthly maintenance fee if\\nthe proprietary lease or occupancy agreement provides for such fee.\\n  2-a. (a) No landlord, lessor, sub-lessor or grantor shall demand any\\npayment, fee, or charge from a tenant for the delivery of a check, draft\\nor like instrument that was given in payment for rent and subsequently\\ndishonored by the tenant's financial institution for insufficient funds\\nexcept as provided in paragraph (b) of this subdivision.\\n  (b) Notwithstanding any contrary provision herein, a landlord, lessor,\\nsub-lessor or grantor may demand any payment, fee, or charge from a\\ntenant for the delivery of a dishonored check only if such payment, fee,\\nor charge was provided for in the lease or contract between landlord,\\nlessor, sub-lessor or grantor and the tenant; provided, however, that:\\n  (i) such payment, fee, or charge shall not exceed the actual costs,\\ncharges or fees incurred by landlord, lessor, sub-lessor or grantor for\\nthe return of such dishonored check or the amount set forth in\\nsubdivision three of section 5-328 of the general obligations law,\\nwhichever is greater; and\\n  (ii) if the payment, fee or charge exceeds the amount set forth in\\nsubdivision three of section 5-328 of the general obligations law, the\\nlandlord, lessor, sub-lessor or grantor shall provide to the tenant upon\\nrequest evidence substantiating the equivalence between the payment, fee\\nor charge and the amount of actual costs, charges or fees incurred for\\nthe return of the dishonored check.\\n  (c) As used in this subdivision, \"dishonored check\" shall have the\\nsame meaning as such term is defined in section 5-328 of the general\\nobligations law.\\n  (d) The provisions of this subdivision shall not apply to a\\nshareholder of a cooperative housing corporation, provided, however,\\nthat the provisions of this subdivision shall apply with respect to any\\ntenant or subtenant of such a shareholder.\\n  3. Any provision of a lease or contract waiving or limiting the\\nprovisions of this section shall be void as against public policy.\\n",
+         "documents": {
+          "items": [],
+          "size": 0
+         },
+         "repealed": false
+        }
+       ],
+       "size": 6
+      },
+      "repealed": false
+     }
+    ],
+    "size": 2
+   },
+   "repealed": false
+  }
+ }
+}

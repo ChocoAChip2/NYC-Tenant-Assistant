@@ -142,8 +142,9 @@ Done in the cloud session of 2026-09-28 (items 1-4 of the old list, minus everyt
 ## 4. What the owner needs to do
 
 - [x] 2026-09-30: `DATA_ENCRYPTION_KEYS`, `DATA_ENCRYPTION_ACTIVE_KEY_ID` and `LEGAL_CORPUS_ENABLED` set on Render; `/login` and `/reset-password` added to Supabase Redirect URLs; `CORPUS_INGEST_TOKEN` added (a real refresh run succeeded).
-- [ ] Register a free **NY Senate Open Legislation API key** (legislation.nysenate.gov), needed for RPL/RPAPL/GOL/MDL/Good Cause.
-- [ ] Add GitHub secrets: `CORPUS_INGEST_TOKEN` (generated in section 3, step 4), optionally `GEMINI_API_KEY` (embeddings) and `NYSENATE_API_KEY`. `SUPABASE_URL` and `SUPABASE_KEY` already exist for the keep-alive.
+- [x] 2026-10-01: NY Senate Open Legislation API key registered; state law loaded (Good Cause, RPL Art. 7, RPAPL Arts. 7 and 7-A, GOL deposits).
+- [ ] **Add GitHub secret `NYSENATE_API_KEY`** (the key is in `~/Desktop/Github/sidekick-corpus-work/NYSENATE_API_KEY.txt`). Until then the quarterly refresh skips the state sources and says so; the city sources still refresh.
+- [x] GitHub secret `CORPUS_INGEST_TOKEN` (added 2026-09-30). Optional later: `GEMINI_API_KEY` (embeddings). `SUPABASE_URL` and `SUPABASE_KEY` already exist for the keep-alive.
 - [ ] After the library loads: set `LEGAL_CORPUS_ENABLED=1` on Render.
 - [ ] Post-deploy checks on Render: sign up with password `password` (should be refused by the HIBP check), and look up one real building on `/building`.
 - [x] Decided 2026-09-29: `/building` is the site root; signup is at `/signup` (branch `feat/building-home`).
