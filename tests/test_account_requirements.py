@@ -153,6 +153,19 @@ class AlreadySignedInTests(_Keys):
         response = _signed_in(FakeSupabase(fail_read=True)).get("/chat")
         self.assertEqual(response.status_code, 200)
 
+    def test_a_failed_check_is_retried_later_not_only_at_next_login(self):
+        service = FakeSupabase(fail_read=True)
+        client = _signed_in(service)
+        self.assertEqual(client.get("/chat").status_code, 200)
+        self.assertEqual(client.get("/chat").status_code, 200)
+        self.assertEqual(service.reads, 1)  # not on every page
+        service.fail_read, service.metadata = False, None
+        with mock.patch.object(account_requirements.time, "time",
+                               return_value=__import__("time").time() + account_requirements.RETRY_UNKNOWN_SECONDS + 1):
+            response = client.get("/chat")
+        self.assertEqual(service.reads, 2)
+        self.assertIn("/account/complete", response.headers["Location"])
+
     def test_ungated_pages_stay_reachable(self):
         client = _signed_in(FakeSupabase(metadata=None))
         self.assertEqual(client.get("/chat").status_code, 302)  # records what's missing

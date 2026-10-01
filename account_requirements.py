@@ -29,6 +29,7 @@ continues and is asked again next time. Optional requirements have
 from __future__ import annotations
 
 import hashlib
+import time
 from dataclasses import dataclass, field
 from datetime import date
 from typing import Callable
@@ -124,14 +125,23 @@ def record(session, metadata: dict | None) -> None:
     session[SESSION_KEY] = {"v": REQUIREMENTS_VERSION, "missing": [r.key for r in missing(metadata)]}
 
 
+# After a failed check, try again this much later rather than on every
+# page (auth being down shouldn't add a slow call to each request) or
+# only at the next login (one blip shouldn't skip the check for days).
+RETRY_UNKNOWN_SECONDS = 600
+
+
 def record_unknown(session) -> None:
-    """Couldn't read the account: assume nothing is missing until next login."""
-    session[SESSION_KEY] = {"v": REQUIREMENTS_VERSION, "missing": []}
+    """Couldn't read the account: let the tenant through, and check again later."""
+    session[SESSION_KEY] = {"v": REQUIREMENTS_VERSION, "missing": [], "unknown_at": time.time()}
 
 
 def is_current(session) -> bool:
     state = session.get(SESSION_KEY)
-    return isinstance(state, dict) and state.get("v") == REQUIREMENTS_VERSION
+    if not isinstance(state, dict) or state.get("v") != REQUIREMENTS_VERSION:
+        return False
+    unknown_at = state.get("unknown_at")
+    return not unknown_at or time.time() - float(unknown_at) < RETRY_UNKNOWN_SECONDS
 
 
 def pending(session) -> list[Requirement]:
