@@ -69,6 +69,16 @@ The safety of that `|safe` rests entirely on `render_markdown` escaping its
 input *before* any formatting rule runs — see the module docstring, which
 records the XSS this got wrong once already.
 
+## Automatic chat names
+
+A chat started with **+ New chat** is titled "New conversation" until its
+first reply. The `/chat/message` JSON then carries a `title`, and
+`showConversationTitle()` writes it into the active `.conversation-row`
+(the link text and the hidden rename input), so the sidebar changes
+without a reload. Older chats still titled "New conversation" are named
+server-side the next time they are opened. Rules (what is never renamed,
+the fallback, privacy) live in `conversation_titles.py`.
+
 ## Renaming a conversation
 
 Two entry points, one flow: the **Rename** item in a row's `…` menu, and

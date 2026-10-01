@@ -1,0 +1,40 @@
+2026-10-01  New chats name themselves from the first message
+
+Found
+- Every chat started with "+ New chat" stayed "New conversation" in the
+  sidebar. Renaming by hand (the ⋮ menu → Rename) worked, but nothing ever
+  named a chat automatically. Auto-naming was written in August on the
+  feat/ai/model-fallback-and-titles branch, which was never merged.
+
+What
+- After the first reply, a conversation still titled "New conversation" is
+  renamed from what the tenant asked (conversation_titles.py):
+  1. ai_service.generate_title() asks gemini-2.5-flash-lite (then
+     2.5-flash) for a 2–5 word title. No thinking, no retries, 40-token cap.
+  2. conversation_titles.clean() strips quotes/"Title:" and caps it at 6
+     words / 60 characters; an empty or "New conversation" answer is
+     rejected.
+  3. If the model is unavailable, a fixed topic title is picked from the
+     tenant's words ("Heat and hot water", "Eviction case", ...). If no
+     topic fits, the default stays.
+- The new title comes back in the /chat/message JSON and the sidebar row
+  updates without a reload. The RA-81 download path names the chat too.
+- Older chats still called "New conversation" are named the next time
+  they're opened (only the open one, only if it has a tenant message).
+- Titles the tenant typed, and the suggestion-chip titles ("Repairs and
+  heat", "My building"), are never replaced. Manual rename is unchanged.
+- Naming is best-effort: any failure is logged as a warning and the reply
+  or page goes out as normal.
+
+Privacy
+- Titles are encrypted at rest like before. The model is told never to
+  put a name, address, apartment, phone or email in a title; the fallback
+  only ever produces one of the fixed topic titles, never the tenant's own
+  words.
+
+Also
+- tests/test_tenant_phrased_search.py: the fixture regex now accepts state
+  citations ("235-b", "768"); it was failing on main since #48.
+
+Tests
+- tests/test_conversation_auto_title.py (16). Full suite: 801 OK.

@@ -98,7 +98,8 @@ class FixtureTests(unittest.TestCase):
             self.assertTrue(case["q"].strip())
             self.assertTrue(case["any_of"])
             for citation in case["any_of"]:
-                self.assertRegex(citation, r"^\d+-\d+(\.\d+)*$")
+                # NYC Admin Code ("27-2029") or NY State law ("235-b", "768", "7-108").
+                self.assertRegex(citation, r"^\d+(-\d+(\.\d+)*|-[a-z]+)?$")
 
 
 class _Fake:

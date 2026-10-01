@@ -1370,6 +1370,7 @@
             if (!response.ok) throw new Error(payload.error || "Request failed.");
             thinkingEl.remove();
             renderMessage("assistant", payload.reply, payload.reply_html);
+            if (payload.title) showConversationTitle(payload.title);
           }
         } catch (error) {
           thinkingEl.remove();
@@ -1379,6 +1380,15 @@
           messageInput.focus();
         }
       });
+
+      function showConversationTitle(title) {
+        const row = document.querySelector(".conversation-row.active");
+        if (!row) return;
+        const link = row.querySelector(".conversation-link");
+        const input = row.querySelector("[data-rename-input]");
+        if (link) link.textContent = title;
+        if (input) input.value = title;
+      }
 
       if (chatBox && chatBox.children.length === 0) {
         let pendingPrompt = null;
