@@ -81,12 +81,28 @@ class Scope:
 
 
 def _find(node: dict, path: tuple[str, ...]) -> dict | None:
+    trail = _trail(node, path)
+    return trail[-1] if trail else None
+
+
+def _trail(node: dict, path: tuple[str, ...]) -> list[dict]:
+    """The nodes along `path` (article, then title...), or [] if any is missing."""
+    trail = []
     for location in path:
         children = ((node.get("documents") or {}).get("items")) or []
         node = next((c for c in children if c.get("locationId") == location), None)
         if node is None:
-            return None
-    return node
+            return []
+        trail.append(node)
+    return trail
+
+
+def _level_label(node: dict, fallback: str) -> str:
+    """'Article 7: Landlord and Tenant', 'Title 1: Money Deposited ...'."""
+    kind = (node.get("docType") or "").strip().title() or "Part"
+    level = (node.get("docLevelId") or fallback).strip()
+    title = (node.get("title") or "").strip()
+    return f"{kind} {level}: {title}" if title else f"{kind} {level}"
 
 
 def _sections_under(node: dict) -> list[dict]:
@@ -216,12 +232,13 @@ def parse_law(tree: dict, *, law_id: str, law_name: str, source_key: str, author
               scope: tuple[str, ...], today: date | None = None) -> ParseResult:
     """Sections of one source (an article or title) from a full law tree."""
     root = ((tree.get("result") or {}).get("documents")) or {}
-    node = _find(root, scope)
-    if node is None:
+    trail = _trail(root, scope)
+    if not trail:
         return ParseResult(sections=[], warnings=[f"{'/'.join(scope)} not found in {law_id}"])
-    heading = f"{law_name} > Article {node.get('docLevelId') or scope[0]}: {node.get('title', '').strip()}"
-    if len(scope) > 1:
-        heading = f"{law_name} > {' > '.join(scope)}: {node.get('title', '').strip()}"
+    node = trail[-1]
+    # Like the city's ("Chapter 4: Rent Stabilization"): the law's name is
+    # already the section's authority, shown before this on every page.
+    heading = " > ".join(_level_label(level, location) for level, location in zip(trail, scope))
     sections, warnings, seen = [], [], set()
     for doc in _sections_under(node):
         location = doc.get("locationId") or ""

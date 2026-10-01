@@ -1,0 +1,48 @@
+2026-10-01  Test and debug sweep before a clean main
+
+Checked
+- Full suite (809 tests), pyflakes, a local smoke run of every route.
+- Render logs (24h): the only errors were the "JWT expired" 500s fixed in
+  PR #45; nothing since. Supabase edge logs: every 4xx predates that fix.
+- Supabase advisors (security + performance).
+- The live site in a signed-in browser: every page loads with no console
+  errors; new chat, auto-naming, rename, archive, restore and the chat
+  export all work.
+
+Fixed
+1. /law/235-b, /law/226-c, /law/711 (state sections) were 404s although
+   they are in the library: the citation pattern only knew City numbers.
+   It now also accepts "235-b" and "711".
+2. State law pages said "as published by American Legal Publishing". Each
+   page now names its own publisher (the State Senate's Open Legislation
+   service for state law), and the not-found and outage messages mention
+   state law and link the State Senate's laws page.
+3. GOL § 7-108's breadcrumb read "General Obligations Law > A7 > A7T1: ...".
+   State headings are now built from the tree's levels, like the City's:
+   "Article 7: Obligations Relating to Property Received As Security >
+   Title 1: Money Deposited ...". (Takes effect on the next library
+   refresh, which rewrites metadata.)
+4. A live reply showed "[S2(e)]" raw, with no link and no source chip: the
+   model added a pinpoint subdivision to the marker. Markers like "[S2(e)]",
+   "[S2 (1-a)(e)]" and "[S1, S3]" are now normalized before the guard,
+   resolution, display and export see them; the prompt also asks for plain
+   markers. The pinpoint is dropped (nothing can verify it); the section is
+   linked.
+5. The chat export showed stale "[S5]" markers; it now cleans them like the
+   chat page does (the tenant's own words are never touched).
+6. Supabase performance advisor: 12 row-level security policies re-ran
+   auth.uid() per row. Rewritten as (select auth.uid()); same access rules.
+   Applied live; supabase/migrations/20261001_rls_initplan.sql records it.
+7. Housekeeping: unused imports/variables (pyflakes), a leaked file handle
+   in a test, and the rate limiter's in-memory store is now named
+   explicitly so production logs stop warning about it on every boot.
+
+Left as is (by design, noted)
+- Security advisor: anon can call the corpus_* functions (they check the
+  ingest token themselves; that's how the GitHub refresh writes); the law
+  tables are readable by everyone (the /law pages are public); "leaked
+  password protection" is a Pro feature, replaced by the app's own HIBP
+  check. GraphQL schema visibility of user tables: rows stay protected by
+  RLS.
+- Unused indexes: the deletion purge index (no purges yet) and the
+  embeddings index (embeddings not backfilled).

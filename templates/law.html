@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ product_name }} | {% if sections %}{{ sections[0].authority }} § {{ sections[0].citation }}{% else %}§ {{ citation }}{% endif %}</title>
-  <meta name="description" content="The official text of NYC law, with its amendment history and a link to the City's official publisher.">
+  <meta name="description" content="The official text of New York City and New York State tenant law, with its history and a link to the official publisher.">
   <script>
     (function () {
       var saved = null;
@@ -238,12 +238,12 @@
     {% if error == "unavailable" %}
       <div class="alert error" role="alert">
         <strong>The law library didn't respond</strong>
-        <p>This is usually brief. Please try again in a minute. The official text is always on <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">American Legal Publishing</a>, the City's official publisher.</p>
+        <p>This is usually brief. Please try again in a minute. The official text is always on <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">American Legal Publishing</a> (City law) and <a href="{{ nys_laws_url }}" target="_blank" rel="noopener noreferrer">the State Senate's site</a> (State law).</p>
       </div>
     {% elif error == "not_found" %}
       <section class="card">
         <h1 class="law-title">§ {{ citation }} isn't in our library</h1>
-        <p class="note">We hold the Housing Maintenance Code, the Rent Stabilization Law, Unlawful Eviction, Right to Counsel, the NYC Human Rights Law and Rent Control, copied word for word from the official code. This section is outside those, or the number may be mistyped. You can look it up on <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">American Legal Publishing</a>, the City's official publisher.</p>
+        <p class="note">We hold the City's Housing Maintenance Code, Rent Stabilization Law, Unlawful Eviction, Right to Counsel, Human Rights Law and Rent Control, and the State's landlord-tenant law (Real Property Law Articles 6-A and 7, RPAPL Articles 7 and 7-A, and the security deposit rules), copied word for word from the official text. This section is outside those, or the number may be mistyped. You can look it up on <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">American Legal Publishing</a> (City law) or <a href="{{ nys_laws_url }}" target="_blank" rel="noopener noreferrer">the State Senate's site</a> (State law).</p>
       </section>
     {% else %}
       {% if sections|length > 1 %}
@@ -274,7 +274,7 @@
           {% endif %}
           <dl class="facts">
             <dt>Source</dt>
-            <dd>{{ s.authority }}, as published by American Legal Publishing</dd>
+            <dd>{{ s.authority }}, as published by {{ s.publisher }}</dd>
             <dt>{% if s.repealed %}Repealed{% else %}Last amended{% endif %}</dt>
             <dd>{% if s.last_amended %}Effective {{ s.last_amended.strftime("%B") }} {{ s.last_amended.day }}, {{ s.last_amended.year }}{% else %}No amendment date in the official history{% endif %}</dd>
             {% if s.last_checked_at %}

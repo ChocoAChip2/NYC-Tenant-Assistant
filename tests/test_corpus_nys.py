@@ -12,7 +12,7 @@ import unittest
 import urllib.error
 from datetime import date
 
-from tools.corpus import nys, refresh
+from tools.corpus import nys
 from tools.corpus.model import law_hash
 from tools.corpus.registry import NYS_SOURCES
 from tests.test_corpus_refresh import SUPABASE_URL, FakeNetwork, RefreshTestCase, _Response
@@ -58,7 +58,7 @@ class ParseTests(unittest.TestCase):
         self.assertEqual(habitability.section_key, "nys-rpl-7:235-b")
         self.assertEqual(habitability.official_url, "https://www.nysenate.gov/legislation/laws/RPP/235-B")
         self.assertEqual(habitability.last_amended, "2014-09-22")
-        self.assertEqual(habitability.heading_path, "Real Property Law > Article 7: Landlord and Tenant")
+        self.assertEqual(habitability.heading_path, "Article 7: Landlord and Tenant")
         self.assertEqual(sections["233-b*2"].official_url, "https://www.nysenate.gov/legislation/laws/RPP/233-B%2A2")
 
     def test_payload_is_state_jurisdiction_and_hash_matches_the_server_rule(self):
@@ -74,8 +74,8 @@ class ParseTests(unittest.TestCase):
 
     def test_title_scope(self):
         tree = {"result": {"documents": {"documents": {"items": [
-            {"docType": "ARTICLE", "locationId": "A7", "title": "Security", "documents": {"items": [
-                {"docType": "TITLE", "locationId": "A7T1", "title": "Deposits", "documents": {"items": [
+            {"docType": "ARTICLE", "locationId": "A7", "docLevelId": "7", "title": "Security", "documents": {"items": [
+                {"docType": "TITLE", "locationId": "A7T1", "docLevelId": "1", "title": "Deposits", "documents": {"items": [
                     {"docType": "SECTION", "locationId": "7-108", "title": "Deposits", "activeDate": "2019-07-14",
                      "repealed": False, "text": "  § 7-108. Deposits. 1. This section\\napplies.",
                      "documents": {"items": []}}]}},
@@ -86,6 +86,8 @@ class ParseTests(unittest.TestCase):
                                authority="NY General Obligations Law", scope=("A7", "A7T1"))
         self.assertEqual([s.citation for s in result.sections], ["7-108"])
         self.assertEqual(result.sections[0].text, "§ 7-108. Deposits. 1. This section applies.")
+        # Readable levels, not the API's location ids ("A7 > A7T1"), found live 2026-10-01.
+        self.assertEqual(result.sections[0].heading_path, "Article 7: Security > Title 1: Deposits")
 
     def test_split_text_keeps_hyphenated_words_whole(self):
         paragraphs, _ = nys.split_text("  1. A rent-\\nstabilized unit and a\\nlease.")
@@ -201,7 +203,8 @@ class RefreshWithStateLawTests(RefreshTestCase):
         self.assertEqual(len(net.rows), 9)
 
     def test_without_a_key_the_state_sources_are_skipped_and_named(self):
-        net = NysNetwork(zip_bytes=open(self.zip_path, "rb").read())
+        with open(self.zip_path, "rb") as handle:
+            net = NysNetwork(zip_bytes=handle.read())
         env = {k: v for k, v in self.ENV.items() if k != "NYSENATE_API_KEY"}
         code, out, _ = self.run_refresh(["--dry-run", "--from-zip", self.zip_path], net, env=env)
         self.assertEqual(net.api_urls, [])

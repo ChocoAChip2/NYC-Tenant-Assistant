@@ -756,7 +756,6 @@ class RealHpdDescriptionTests(unittest.TestCase):
                         self.assertNotRegex(d, re.escape(number) + r"\s*,?\s*RCNY")
 
     def test_cleaned_text_never_starts_with_punctuation_or_citation_residue(self):
-        import re
 
         for d in self.descriptions:
             text = bs.readable_description(d)

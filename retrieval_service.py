@@ -175,6 +175,7 @@ def format_for_prompt(passages: list[Passage]) -> str:
         + "\n\n".join(blocks)
         + "\n\nRules for using them:\n"
         "- Cite with the markers above, like [S1]. Cite nothing else.\n"
+        "- Write each marker exactly as shown, one per bracket: [S2], not [S2(e)] or [S1, S2].\n"
         "- A sentence may carry a citation only if it contains a phrase "
         "copied word for word from that source, in quotation marks.\n"
         "- Every number, temperature, deadline and dollar amount you state "
