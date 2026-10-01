@@ -183,5 +183,8 @@ def format_for_prompt(passages: list[Passage]) -> str:
         "- Do not name any statute, section, rule or local law that does not "
         "appear in the sources above.\n"
         "- If these sources do not answer the question, say so plainly and "
-        "answer from general knowledge WITHOUT citing anything.\n"
+        "answer from general knowledge WITHOUT citing anything -- and without "
+        "stating any specific number (temperature, deadline, dollar amount) "
+        "the sources don't give. Remembered numbers may be out of date; say "
+        "where the tenant can confirm instead (311 or HPD, or DHCR).\n"
     )
