@@ -329,6 +329,9 @@ def strip_citations(reply: str) -> str:
     return re.sub(r"[ \t]{2,}", " ", without).strip()
 
 
+_PAREN_MARKERS_RE = re.compile(r"\(\s*((?:\[S\d+\][\s,;]*(?:and\s+)?)+)\)")
+
+
 def resolve_markers(reply: str, passages: list[Passage]) -> str:
     """Replace each [Sn] marker with the section it stands for.
 
@@ -337,23 +340,38 @@ def resolve_markers(reply: str, passages: list[Passage]) -> str:
     tenant a bare "[S5]" forever, and a later turn would read them as
     pointing at that turn's passages. So the reply is rewritten before it
     is stored or shown: "[S5]" becomes "(NYC Admin Code § 27-2029)", linked
-    to the official text when the passage has an https URL. A marker that
-    matches no passage is dropped.
+    to the official text when the passage has an https URL. A marker the
+    model already put in parentheses, "([S5])" or "([S1], [S2])", becomes
+    one set of parentheses, not two. A marker that matches no passage is
+    dropped.
     """
     by_marker = {p.marker: p for p in passages}
 
-    def label(match: re.Match) -> str:
-        passage = by_marker.get(match.group(1))
+    def name_of(marker: str) -> str:
+        passage = by_marker.get(marker)
         if not passage or not passage.citation:
             return ""
         authority = (passage.authority or "").strip()
         name = f"{authority} § {passage.citation}" if authority else f"§ {passage.citation}"
         url = (passage.official_url or "").strip()
         if url.lower().startswith("https://") and not any(ch in url for ch in " ()<>\"'"):
-            return f" ([{name}]({url}))"
-        return f" ({name})"
+            return f"[{name}]({url})"
+        return name
 
-    resolved = _MARKER_RE.sub(label, reply)
+    def group(match: re.Match) -> str:
+        names = []
+        for marker in _MARKER_RE.findall(match.group(1)):
+            name = name_of(marker)
+            if name and name not in names:
+                names.append(name)
+        return f"({'; '.join(names)})" if names else ""
+
+    def single(match: re.Match) -> str:
+        name = name_of(match.group(1))
+        return f" ({name})" if name else ""
+
+    resolved = _PAREN_MARKERS_RE.sub(group, reply)
+    resolved = _MARKER_RE.sub(single, resolved)
     resolved = re.sub(r"\s+([.,;:!?])", r"\1", resolved)
     resolved = re.sub(r"[ \t]{2,}", " ", resolved)
     resolved = re.sub(r"(?m)^[ \t]+(?=\()", "", resolved)
