@@ -338,3 +338,34 @@ class ChipUrlSafetyTests(unittest.TestCase):
         """Statute text fetched over http could have been tampered with in
         transit, which is the one thing a citation must not be."""
         self.assertEqual(self._chip_count("http://example.gov/x"), 0)
+
+
+class ResolveMarkersTests(unittest.TestCase):
+    """[Sn] markers are per-request; stored replies must name the section instead."""
+
+    HEAT = guard.Passage(marker="S5", text="sixty-two degrees", citation="27-2029", authority="NYC Admin Code",
+                         official_url="https://codelibrary.amlegal.com/codes/newyorkcity/latest/NYCadmin/0-0-0-60410")
+
+    def test_marker_becomes_a_linked_section_name(self):
+        out = guard.resolve_markers('At night it must be "sixty-two degrees Fahrenheit" [S5].', [self.HEAT])
+        self.assertEqual(out, 'At night it must be "sixty-two degrees Fahrenheit" '
+                              '([NYC Admin Code § 27-2029](https://codelibrary.amlegal.com/codes/newyorkcity/latest/NYCadmin/0-0-0-60410)).')
+
+    def test_unknown_and_uncited_markers_are_dropped(self):
+        bare = guard.Passage(marker="S1", text="x")
+        self.assertEqual(guard.resolve_markers("Call 311 [S1] [S9].", [bare]), "Call 311.")
+
+    def test_non_https_urls_are_not_linked(self):
+        passage = guard.Passage(marker="S1", text="x", citation="27-2029", authority="NYC Admin Code",
+                                official_url="javascript:alert(1)")
+        self.assertEqual(guard.resolve_markers("See [S1].", [passage]), "See (NYC Admin Code § 27-2029).")
+
+    def test_the_rendered_link_is_safe_html(self):
+        from markdown_service import render_markdown
+        html = render_markdown(guard.resolve_markers("Heat [S5].", [self.HEAT]))
+        self.assertIn('href="https://codelibrary.amlegal.com/codes/newyorkcity/latest/NYCadmin/0-0-0-60410"', html)
+        self.assertNotIn("[S5]", html)
+
+    def test_has_markers(self):
+        self.assertTrue(guard.has_markers("x [S12] y"))
+        self.assertFalse(guard.has_markers("§ 27-2029 [note]"))

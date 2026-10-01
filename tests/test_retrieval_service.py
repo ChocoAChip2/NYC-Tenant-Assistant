@@ -282,7 +282,9 @@ class ChatRouteGroundingTests(unittest.TestCase):
         ):
             payload = self._post(client).get_json()
 
-        self.assertIn("[S1]", payload["reply"])
+        # Kept, but as the section it names (resolve_markers), never "[S1]".
+        self.assertIn("§ 27-2029", payload["reply"])
+        self.assertNotIn("[S1]", payload["reply"])
 
     def test_enforce_mode_strips_the_citation_from_a_failing_reply(self):
         passage = Passage(marker="S1", text="at least 62 degrees Fahrenheit", citation="27-2029")
@@ -357,7 +359,9 @@ class GroundingFailureModeTests(ChatRouteGroundingTests):
         ), mock.patch.object(citation_guard, "render_sources", side_effect=RuntimeError("boom")):
             payload = self._post(client).get_json()
 
-        self.assertIn("[S1]", payload["reply"])
+        # Kept, but as the section it names (resolve_markers), never "[S1]".
+        self.assertIn("§ 27-2029", payload["reply"])
+        self.assertNotIn("[S1]", payload["reply"])
         self.assertEqual(payload["sources"], [])
 
     def test_a_model_error_is_still_reported_as_a_model_error(self):

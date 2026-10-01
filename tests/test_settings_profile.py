@@ -42,7 +42,7 @@ class FakeSupabase:
             raise RuntimeError("auth down")
         return self.metadata
 
-    def update_profile(self, access_token, refresh_token, metadata):
+    def update_user_metadata(self, access_token, refresh_token, metadata):
         if self.fail_update:
             raise RuntimeError("auth down")
         self.updates.append((access_token, refresh_token, metadata))
@@ -68,10 +68,12 @@ FORM = {"first_name": "Ana", "last_name": "Rivera", "date_of_birth": "1990-05-17
 class _Keys(unittest.TestCase):
     def setUp(self):
         patcher = _configured(f"k1:{KEY_A}", "k1")
+        # Cleanups run last-in-first-out: the env must be restored BEFORE
+        # the keys are reloaded, or this test's key leaks into the next.
+        self.addCleanup(crypto_service.reload_keys)
         patcher.start()
         self.addCleanup(patcher.stop)
         crypto_service.reload_keys()
-        self.addCleanup(crypto_service.reload_keys)
 
 
 class SettingsProfileCardTests(_Keys):

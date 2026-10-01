@@ -392,7 +392,7 @@ class SupabaseService:
         user = getattr(response, "user", None)
         return getattr(user, "user_metadata", None) if user else None
 
-    def update_profile(self, access_token: str, refresh_token: str, metadata: dict) -> tuple[str, str] | None:
+    def update_user_metadata(self, access_token: str, refresh_token: str, metadata: dict) -> tuple[str, str] | None:
         """Merge metadata into the signed-in user's user_metadata.
 
         Runs as the user (their own session), the same way update_account
@@ -412,6 +412,9 @@ class SupabaseService:
         if current and current.access_token and current.refresh_token:
             return current.access_token, current.refresh_token
         return None
+
+    # The first caller (Settings -> Your name) used this name.
+    update_profile = update_user_metadata
 
     def list_conversations(self, user_client: Client, archived: bool = False) -> list[dict]:
         """Return the user's conversations sorted by most recent activity.

@@ -931,6 +931,8 @@
   <script>
     const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
     const PER_MESSAGE_DISCLAIMER = {{ per_message_disclaimer|tojson }};
+    const FORM_READY_MESSAGE = {{ (form_ready_message or "")|tojson }};
+    const FORM_READY_HTML = {{ (form_ready_html or "")|tojson }};
     const chatBox = document.getElementById("chat-box");
     const chatForm = document.getElementById("chat-form");
 
@@ -1356,13 +1358,13 @@
 
             const link = document.createElement('a');
             link.href = downloadUrl;
-            link.download = "NYC_Tenant_Complaint.pdf";
+            link.download = "RA-81_Rent_Reduction_Application.pdf";
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
 
             thinkingEl.remove();
-            renderMessage("assistant", "System: Your form is complete and downloading now!");
+            renderMessage("assistant", FORM_READY_MESSAGE, FORM_READY_HTML);
           } else {
             const payload = await response.json();
             if (!response.ok) throw new Error(payload.error || "Request failed.");
