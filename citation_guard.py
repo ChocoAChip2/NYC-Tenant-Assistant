@@ -89,6 +89,38 @@ class GuardResult:
 
 _MARKER_RE = re.compile(r"\[(S\d+)\]")
 
+# Models don't always write the marker exactly as asked. Seen live
+# 2026-10-01: "[S2(e)]" (a pinpoint subdivision), which no pattern above
+# matched, so the tenant saw it raw, with no link and no source chip. Also
+# guarded against: "[S1, S3]" and "[S1; S3]". _canonical() rewrites them
+# to plain markers before anything else looks at a reply. The pinpoint is
+# dropped, not shown: nothing here can check that "(e)" is the right
+# subdivision, and the linked section is what the tenant needs.
+_PINPOINT_MARKER_RE = re.compile(
+    r"\[\s*(S\d+)\s*(?:\((?:\d{1,3}(?:-[a-z]{1,2})?|[a-z]{1,4})\)\s*){1,4}\]"
+)
+_MULTI_MARKER_RE = re.compile(r"\[\s*(S\d+(?:\s*[,;]\s*(?:and\s+)?S\d+)+)\s*\]")
+
+
+def _canonical(text: str) -> str:
+    """'[S2(e)]' -> '[S2]'; '[S1, S3]' -> '([S1], [S3])'. Everything else unchanged.
+
+    A bracket of several markers becomes one parenthesized group, so it
+    resolves to one "(A; B)" and strips to nothing, like "([S1], [S3])"
+    written by the model.
+    """
+    text = _PINPOINT_MARKER_RE.sub(lambda m: f"[{m.group(1)}]", text or "")
+
+    def split(match: re.Match) -> str:
+        markers = ", ".join(f"[{marker}]" for marker in re.findall(r"S\d+", match.group(1)))
+        before = text[:match.start()].rstrip()
+        after = text[match.end():].lstrip()
+        if before.endswith("(") and after.startswith(")"):
+            return markers
+        return f"({markers})"
+
+    return _MULTI_MARKER_RE.sub(split, text)
+
 # Statute-shaped strings. Deliberately narrow: it has to match the things
 # a model invents (section numbers, code cites, rule numbers) without
 # matching every number in an ordinary sentence. Agency names (HPD, DHCR)
@@ -217,9 +249,9 @@ def check(
 ) -> GuardResult:
     """Return every way `reply` outruns `passages`. Never raises."""
 
+    reply = _canonical(reply)
     violations: list[Violation] = []
     by_marker = {passage.marker: passage for passage in passages}
-    corpus_norm = " \n ".join(normalize(passage.text) for passage in passages)
     user_norm = normalize(user_message)
 
     cited = _MARKER_RE.findall(reply)
@@ -314,7 +346,7 @@ def check(
 
 
 def has_markers(text: str) -> bool:
-    return bool(_MARKER_RE.search(text or ""))
+    return bool(_MARKER_RE.search(_canonical(text)))
 
 
 def strip_citations(reply: str) -> str:
@@ -324,7 +356,8 @@ def strip_citations(reply: str) -> str:
     general information, it just may not wear an authority it has not
     earned. The caller is responsible for labelling the result uncited.
     """
-    without = _MARKER_RE.sub("", reply)
+    without = _MARKER_RE.sub("", _canonical(reply))
+    without = re.sub(r"\(\s*(?:[,;]|and)?(?:\s*(?:[,;]|and))*\s*\)", "", without)
     without = re.sub(r"\s+([.,;:!?])", r"\1", without)
     return re.sub(r"[ \t]{2,}", " ", without).strip()
 
@@ -345,6 +378,7 @@ def resolve_markers(reply: str, passages: list[Passage]) -> str:
     one set of parentheses, not two. A marker that matches no passage is
     dropped.
     """
+    reply = _canonical(reply)
     by_marker = {p.marker: p for p in passages}
 
     def name_of(marker: str) -> str:

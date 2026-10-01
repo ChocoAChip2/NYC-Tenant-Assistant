@@ -12,7 +12,6 @@ import unittest
 
 import flask
 
-import building_service as bs
 import law_service
 from routes import main_bp
 from tests.app_test_support import configure_test_app
@@ -185,6 +184,37 @@ class LawPageTests(unittest.TestCase):
                 response, _, db = self.get(bad)
                 self.assertEqual(response.status_code, 404)
                 self.assertEqual(db.log, [])
+
+    def test_state_sections_open_and_name_their_own_publisher(self):
+        # Found live 2026-10-01: /law/235-b and /law/711 were 404s although
+        # both are in the library, and 7-108 said "American Legal Publishing".
+        state = {
+            "section_key": "nys-rpl-7:235-b", "source_key": "nys-rpl-7", "authority": "NY Real Property Law",
+            "citation": "235-b", "title": "Warranty of habitability", "heading_path": "Article 7: Landlord and Tenant",
+            "full_text": "§ 235-b. Warranty of habitability. 1. In every written or oral lease...",
+            "history": [], "notes": [], "repealed": False, "last_amended": None,
+            "last_checked_at": "2026-10-01T09:03:11+00:00", "status": "active", "jurisdiction": "NYS",
+            "official_url": "https://www.nysenate.gov/legislation/laws/RPP/235-B",
+        }
+        eviction = dict(state, section_key="nys-rpapl-7:711", citation="711", source_key="nys-rpapl-7",
+                        authority="NY RPAPL", title="Grounds where landlord-tenant relationship exists",
+                        official_url="https://www.nysenate.gov/legislation/laws/RPA/711")
+        for citation in ("235-b", "711"):
+            with self.subTest(citation=citation):
+                response, body, _ = self.get(citation, rows=[state, eviction])
+                self.assertEqual(response.status_code, 200)
+                self.assertIn("the New York State Senate&#39;s Open Legislation service", body)
+                self.assertNotIn("as published by American Legal Publishing", body)
+        _, body, _ = self.get("27-2029")
+        self.assertIn("as published by American Legal Publishing", body)
+
+    def test_state_shaped_citations_are_valid(self):
+        for good in ("235-b", "226-c", "711", "7-108", "27-2056.6.1", "8-102a"):
+            with self.subTest(good=good):
+                self.assertTrue(law_service.is_valid_citation(good))
+        for bad in ("235-bbb", "-711", "7108-", "235_b", "١٢٣"):
+            with self.subTest(bad=bad):
+                self.assertFalse(law_service.is_valid_citation(bad))
 
     def test_library_down_is_a_503_not_a_crash(self):
         response, body, _ = self.get("27-2029", error=RuntimeError("relation does not exist"))

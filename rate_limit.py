@@ -46,4 +46,7 @@ limiter = Limiter(
     # route nobody thought to specifically guard still can't be hammered
     # into the ground.
     default_limits=["200 per hour", "60 per minute"],
+    # Said explicitly (it is the default) so the startup log no longer
+    # warns about it on every boot; see the module docstring for why.
+    storage_uri="memory://",
 )

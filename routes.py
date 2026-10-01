@@ -28,7 +28,6 @@ from login_lockout import format_duration, record_failure, record_success, secon
 from rate_limit import limiter, rate_limit_key
 from supabase_service import SupabaseService
 import form_service
-from form_service import FormService
 
 # The blueprint groups the page routes together so app.py can register them as
 # one unit.
@@ -1054,7 +1053,7 @@ def _law_chip_links(report) -> dict[str, str]:
 @main_bp.route("/law/<citation>")
 @limiter.limit("60 per minute")
 def law_section(citation):
-    """Public: one section of NYC law, verbatim, from the official publisher.
+    """Public: one section of NYC or NY State law, verbatim, from the official publisher.
 
     Reachable without logging in, like /building: a citation has to open
     for anyone it is shown to. The text is exactly what American Legal
@@ -1087,6 +1086,7 @@ def law_section(citation):
         error=error,
         logged_in=bool(session.get("user_id")),
         alp_url=law_service.ALP_CODE_LIBRARY_URL,
+        nys_laws_url=law_service.NYS_LAWS_URL,
     ), status
 
 
@@ -1454,7 +1454,12 @@ def _render_conversations_as_markdown(conversations: list[dict]) -> str:
         lines.append("")
         for message in conversation.get("messages", []):
             speaker = "You" if message.get("role") == "user" else "Assistant"
-            lines.append(f"**{speaker}:** {message.get('content', '')}")
+            content = message.get("content", "") or ""
+            if speaker == "Assistant" and citation_guard.has_markers(content):
+                # Same as the chat page: replies stored before markers were
+                # resolved carry "[S5]"s that point at nothing any more.
+                content = citation_guard.strip_citations(content)
+            lines.append(f"**{speaker}:** {content}")
             lines.append("")
         lines.append("---")
         lines.append("")

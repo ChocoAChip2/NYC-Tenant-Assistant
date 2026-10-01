@@ -37,11 +37,22 @@ from datetime import date, datetime
 
 logger = logging.getLogger(__name__)
 
-# NYC Admin Code section numbers as the official publisher numbers them:
-# "27-2029", "26-504.1", "27-2056.6.1", "8-102a". The first version missed
-# the last two shapes, and both are real sections in the library (review,
-# 2026-09-30). ASCII only, so other scripts' digits never reach the query.
-CITATION_RE = re.compile(r"^\d{1,3}-\d{1,5}[a-z]?(?:\.\d{1,3}){0,2}$", re.ASCII)
+# Section numbers as the official publishers number them. NYC Admin Code:
+# "27-2029", "26-504.1", "27-2056.6.1", "8-102a" (the first version missed
+# the last two shapes; review, 2026-09-30). NY State law (since 2026-10-01):
+# "235-b", "226-c", "711", "7-108" -- the first two shapes 404'd on the live
+# site until this allowed them. ASCII only, so other scripts' digits never
+# reach the query.
+CITATION_RE = re.compile(
+    r"^\d{1,3}(?:-\d{1,5}[a-z]?(?:\.\d{1,3}){0,2}|-[a-z]{1,2})?$", re.ASCII
+)
+
+# Who publishes each jurisdiction's official text (shown on /law pages).
+PUBLISHERS = {
+    "NYC": "American Legal Publishing, the City's official publisher",
+    "NYS": "the New York State Senate's Open Legislation service",
+}
+NYS_LAWS_URL = "https://www.nysenate.gov/legislation/laws/CONSOLIDATED"
 
 # The library is read with the app's shared client, whose HTTP timeout is
 # the library default (120 s). A page must never wait that long on it:
@@ -66,7 +77,7 @@ ALP_CODE_LIBRARY_URL = "https://codelibrary.amlegal.com/"  # only the per-record
 
 _COLUMNS = (
     "section_key,source_key,authority,citation,title,heading_path,full_text,history,notes,"
-    "repealed,last_amended,last_checked_at,official_url,status"
+    "repealed,last_amended,last_checked_at,official_url,status,jurisdiction"
 )
 
 class LawUnavailable(Exception):
@@ -89,6 +100,11 @@ class LawSection:
     last_amended: date | None = None
     last_checked_at: datetime | None = None
     status: str = "active"
+    jurisdiction: str = "NYC"
+
+    @property
+    def publisher(self) -> str:
+        return PUBLISHERS.get(self.jurisdiction, PUBLISHERS["NYC"])
 
     @property
     def is_current(self) -> bool:
@@ -210,6 +226,7 @@ def _to_section(row) -> LawSection | None:
             last_amended=_parse_date(row.get("last_amended")),
             last_checked_at=_parse_datetime(row.get("last_checked_at")),
             status=str(row.get("status") or "active"),
+            jurisdiction=str(row.get("jurisdiction") or "NYC"),
         )
     except (KeyError, TypeError, ValueError):
         logger.warning("Skipping a malformed legal_sources row.", exc_info=True)

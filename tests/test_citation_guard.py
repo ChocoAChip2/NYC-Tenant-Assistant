@@ -390,3 +390,38 @@ class ResolveMarkersInParenthesesTests(unittest.TestCase):
     def test_repeated_and_unknown_markers(self):
         self.assertEqual(guard.resolve_markers("Heat ([S1], [S1], [S9]).", [self.A]), "Heat (NYC Admin Code § 27-2029).")
         self.assertEqual(guard.resolve_markers("Heat ([S9]).", [self.A]), "Heat.")
+
+
+class LooseMarkerTests(unittest.TestCase):
+    """Seen live 2026-10-01: the model wrote "[S2(e)]" and the tenant saw it raw."""
+
+    A = guard.Passage(marker="S1", text="x", citation="27-2029", authority="NYC Admin Code")
+    DEP = guard.Passage(marker="S2", text="fourteen days after the tenant has vacated", citation="7-108",
+                        authority="NY General Obligations Law",
+                        official_url="https://www.nysenate.gov/legislation/laws/GOB/7-108")
+
+    def test_pinpoint_markers_resolve_to_the_section(self):
+        out = guard.resolve_markers('They have "fourteen days after the tenant has vacated" [S2(e)].', [self.DEP])
+        self.assertEqual(out, 'They have "fourteen days after the tenant has vacated" '
+                              '([NY General Obligations Law § 7-108](https://www.nysenate.gov/legislation/laws/GOB/7-108)).')
+        for raw in ("[S2(1-a)(e)]", "[S2 (e)]", "[S2(3)]"):
+            with self.subTest(raw=raw):
+                self.assertNotIn("[S2", guard.resolve_markers(f"Deposit {raw}.", [self.DEP]))
+
+    def test_several_markers_in_one_bracket(self):
+        self.assertEqual(guard.resolve_markers("Heat and deposits [S1, S2].", [self.A, self.DEP]).count("§"), 2)
+        self.assertEqual(guard.resolve_markers("Heat [S1, S2].", [self.A]), "Heat (NYC Admin Code § 27-2029).")
+        self.assertEqual(guard.resolve_markers("Heat ([S1; S1]).", [self.A]), "Heat (NYC Admin Code § 27-2029).")
+
+    def test_the_guard_counts_loose_markers_as_citations(self):
+        result = guard.check('"fourteen days after the tenant has vacated" [S2(e)].', [self.DEP])
+        self.assertIn("S2", result.cited_markers)
+
+    def test_stored_replies_with_loose_markers_are_cleaned(self):
+        self.assertTrue(guard.has_markers("Old reply [S2(e)]."))
+        self.assertEqual(guard.strip_citations("Old reply [S2(e)] and [S1, S3]."), "Old reply and.")
+
+    def test_ordinary_brackets_are_left_alone(self):
+        for text in ("[Section 2(e)]", "[S2 is great]", "[note]"):
+            with self.subTest(text=text):
+                self.assertEqual(guard.resolve_markers(text, [self.DEP]), text)

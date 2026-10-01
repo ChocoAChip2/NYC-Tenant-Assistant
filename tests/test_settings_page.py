@@ -232,6 +232,21 @@ class DownloadChatHistoryTests(unittest.TestCase):
         self.assertIn("My landlord won't fix the heat", body)
         self.assertIn("Here is what NYC law says...", body)
 
+    def test_download_drops_stale_citation_markers_but_keeps_what_the_tenant_typed(self):
+        # Found live 2026-10-01: the export showed "[S2(e)]" and "[S5]".
+        service = FakeSupabaseService(conversations=[{
+            "id": "c1", "title": "Deposit", "created_at": "2026-10-01",
+            "messages": [
+                {"role": "user", "content": "What does [S5] mean?"},
+                {"role": "assistant", "content": "They have fourteen days [S2(e)] and must itemize [S5]."},
+            ],
+        }])
+        client = _build_test_app(service).test_client()
+        _logged_in_session(client)
+        body = client.get("/settings/download-logs").get_data(as_text=True)
+        self.assertIn("They have fourteen days and must itemize.", body)
+        self.assertIn("What does [S5] mean?", body)
+
     def test_download_with_no_conversations_still_succeeds(self):
         app = _build_test_app(FakeSupabaseService(conversations=[]))
         client = app.test_client()
