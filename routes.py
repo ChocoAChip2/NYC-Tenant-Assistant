@@ -4,8 +4,10 @@ app.py registers this blueprint, and each route uses the shared SupabaseService
 stored in the Flask app config to handle authentication and chat persistence.
 """
 
+import base64
 import io
 import json
+import time
 import logging
 from datetime import date
 import os
@@ -37,6 +39,49 @@ def _safe_next(target: str | None) -> str:
     if target and target.startswith("/") and not target.startswith("//") and "\\" not in target:
         return target
     return url_for("main.chat")
+
+
+def _token_expires_at(token: str | None) -> float | None:
+    """The `exp` claim of a JWT, read without verifying it (Supabase verifies)."""
+    try:
+        payload = token.split(".")[1]
+        payload += "=" * (-len(payload) % 4)
+        return float(json.loads(base64.urlsafe_b64decode(payload))["exp"])
+    except Exception:
+        return None
+
+
+# Refresh this long before the access token actually expires, so a
+# request that starts just before expiry doesn't fail halfway through.
+TOKEN_REFRESH_MARGIN_SECONDS = 120
+
+
+@main_bp.before_request
+def _keep_session_fresh():
+    """Swap an expiring Supabase access token for a fresh one.
+
+    Access tokens last an hour, but the browser session lasts much longer.
+    Before this, every page that queried as the tenant returned a 500
+    ("JWT expired") once a session was an hour old. If the refresh token
+    is no good either, the session is cleared: protected pages then send
+    the tenant to log in, and public pages carry on as logged out.
+    """
+    if not session.get("user_id"):
+        return None
+    expires_at = _token_expires_at(session.get("access_token"))
+    if expires_at is None or expires_at - time.time() > TOKEN_REFRESH_MARGIN_SECONDS:
+        return None
+    tokens = None
+    try:
+        tokens = get_supabase_service().refresh_tokens(session.get("refresh_token"))
+    except Exception:
+        logger.warning("Could not refresh an expired session.", exc_info=True)
+    if tokens:
+        session["access_token"], session["refresh_token"] = tokens
+        return None
+    session.clear()
+    flash("Your session expired. Please log in again.", "error")
+    return None
 
 
 @main_bp.before_request

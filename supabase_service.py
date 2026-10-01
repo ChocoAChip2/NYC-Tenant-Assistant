@@ -384,6 +384,23 @@ class SupabaseService:
         account_client.auth.set_session(access_token, refresh_token)
         return account_client.auth.update_user(attributes)
 
+    def refresh_tokens(self, refresh_token: str) -> tuple[str, str] | None:
+        """Exchange a refresh token for a new (access, refresh) pair, or None.
+
+        Uses a throwaway client so the shared one never holds anyone's
+        session. Supabase access tokens last an hour; without this, any
+        page that queries as the tenant failed with "JWT expired" once a
+        session was older than that.
+        """
+        if not self.client or not refresh_token:
+            return None
+        account_client = create_client(str(self.client.supabase_url), self.client.supabase_key)
+        response = account_client.auth.refresh_session(refresh_token)
+        current = getattr(response, "session", None)
+        if current and current.access_token and current.refresh_token:
+            return current.access_token, current.refresh_token
+        return None
+
     def get_user_metadata(self, access_token: str) -> dict | None:
         """The signed-in user's user_metadata, read fresh from Supabase auth."""
         if not self.client:
