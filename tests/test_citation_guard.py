@@ -369,3 +369,24 @@ class ResolveMarkersTests(unittest.TestCase):
     def test_has_markers(self):
         self.assertTrue(guard.has_markers("x [S12] y"))
         self.assertFalse(guard.has_markers("§ 27-2029 [note]"))
+
+
+class ResolveMarkersInParenthesesTests(unittest.TestCase):
+    """Seen live: the model wrote '([S1])' and the page showed '( (NYC Admin Code § 27-2029))'."""
+
+    A = guard.Passage(marker="S1", text="x", citation="27-2029", authority="NYC Admin Code")
+    B = guard.Passage(marker="S2", text="y", citation="27-2031", authority="NYC Admin Code")
+
+    def test_one_marker_in_parentheses(self):
+        self.assertEqual(guard.resolve_markers('"sixty-two degrees" ([S1]) overnight.', [self.A]),
+                         '"sixty-two degrees" (NYC Admin Code § 27-2029) overnight.')
+
+    def test_several_markers_in_one_pair(self):
+        self.assertEqual(guard.resolve_markers("Heat and hot water ([S1], [S2]).", [self.A, self.B]),
+                         "Heat and hot water (NYC Admin Code § 27-2029; NYC Admin Code § 27-2031).")
+        self.assertEqual(guard.resolve_markers("See ([S1] and [S2]).", [self.A, self.B]),
+                         "See (NYC Admin Code § 27-2029; NYC Admin Code § 27-2031).")
+
+    def test_repeated_and_unknown_markers(self):
+        self.assertEqual(guard.resolve_markers("Heat ([S1], [S1], [S9]).", [self.A]), "Heat (NYC Admin Code § 27-2029).")
+        self.assertEqual(guard.resolve_markers("Heat ([S9]).", [self.A]), "Heat.")

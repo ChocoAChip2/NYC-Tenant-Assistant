@@ -24,3 +24,11 @@ Fix
 - Also in this branch: a failed account check (as happened when the
   expired-token bug hit it) now retries 10 minutes later instead of
   waiting for the next login.
+
+Retested live after #46
+- "Is 55 degrees at night okay? How warm does my apartment have to be at
+  night in the winter?" now gets § 27-2029, quoted, with the right
+  answer: 62°F overnight, so 55 is not okay.
+- The model had put the marker in parentheses itself ("([S1])"), and the
+  page showed "( (NYC Admin Code § 27-2029))". resolve_markers now turns
+  a parenthesized group of markers into one set of parentheses (#47).
