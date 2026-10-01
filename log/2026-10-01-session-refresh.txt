@@ -1,0 +1,25 @@
+2026-10-01  Sessions older than an hour no longer crash /chat
+
+Found on the live site right after PR #44 deployed
+- The owner's /chat returned the branded 500 page. The Render log showed
+  postgrest "JWT expired" (PGRST303) from list_conversations.
+- Supabase access tokens last an hour, but the Flask session keeps the
+  same token for as long as the browser session lasts. So every
+  signed-in page broke for anyone signed in longer than an hour. This
+  was not new: it predates today's changes. The new account check (#44)
+  hit the same expired token, but handled it and carried on.
+
+Fix
+- routes._keep_session_fresh runs before every request. It reads the
+  access token's `exp` claim (unverified; Supabase does the verifying).
+  When the token has expired, or will within 2 minutes, it swaps the
+  refresh token for a new pair through a throwaway auth client.
+- If the refresh token is no good either, the session is cleared with
+  "Your session expired. Please log in again." Protected pages then send
+  the tenant to log in, public pages carry on logged out, and the chat
+  API answers 401 JSON.
+- It runs before the account-requirements check, so that check sees a
+  valid token.
+
+Checked
+- tests/test_session_refresh.py (7 tests); full suite OK.
