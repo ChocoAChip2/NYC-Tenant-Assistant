@@ -18,6 +18,7 @@ import branding
 import building_service
 import law_service
 import citation_guard
+import conversation_titles
 import password_safety
 import profile_service
 import retrieval_service
@@ -516,6 +517,12 @@ def chat():
             flash("That conversation could not be found.", "error")
             conversation_id = None
 
+    if conversation_id and messages and get_ai_service().is_ready():
+        active = next(
+            (c for c in conversations + archived_conversations if c.get("id") == conversation_id), None
+        )
+        _name_older_conversation(supabase_service, user_client, active, session["user_id"], messages)
+
     return render_template(
         "chat.html",
         user_email=session["user_email"],
@@ -544,7 +551,7 @@ def create_conversation():
         flash("Your session expired. Please log in again.", "error")
         return redirect(url_for("main.login"))
 
-    title = request.form.get("title", "").strip() or "New conversation"
+    title = request.form.get("title", "").strip()[:MAX_CONVERSATION_TITLE_LENGTH] or conversation_titles.DEFAULT_TITLE
     supabase_service = get_supabase_service()
 
     # Best-effort cleanup, not a precondition for creating the new one --
@@ -622,8 +629,8 @@ def unarchive_conversation(conversation_id):
 @main_bp.route("/conversations/<conversation_id>/rename", methods=["POST"])
 @limiter.limit("20 per minute")
 def rename_conversation(conversation_id):
-    """Rename a conversation. The title shown in the sidebar is otherwise
-    whatever the first message set it to (or "New conversation")."""
+    """Rename a conversation. Otherwise a chat started as "New conversation"
+    is named from its first message (_name_new_conversation)."""
 
     if not session.get("user_id"):
         return redirect(url_for("main.login"))
@@ -780,6 +787,62 @@ def _guard_mode():
     )
 
 
+def _title_for(first_message, reply):
+    """A title for an opening exchange, or "" (conversation_titles.py has the rules)."""
+    title = ""
+    try:
+        title = conversation_titles.clean(get_ai_service().generate_title(first_message, reply or ""))
+    except Exception:  # noqa: BLE001 -- fall back to the keyword title
+        logger.warning("Title model unavailable; using a keyword title.")
+    return title or conversation_titles.from_keywords(first_message)
+
+
+def _name_new_conversation(supabase_service, user_client, conversation_id, user_id, history, reply):
+    """Rename a conversation still called "New conversation" after its first reply.
+
+    Returns the new title, or None when nothing changed. Best-effort by
+    design: any failure here is logged and the chat reply goes out
+    untouched.
+    """
+    try:
+        user_messages = [m for m in history if m.get("role") == "user"]
+        if len(user_messages) != 1:
+            return None
+        current = supabase_service.get_conversation_title(user_client, conversation_id, user_id)
+        if not conversation_titles.is_default(current):
+            return None
+        title = _title_for(user_messages[0].get("content") or "", reply)
+        if not title:
+            return None
+        supabase_service.rename_conversation(user_client, conversation_id, user_id, title)
+        return title
+    except Exception:  # noqa: BLE001 -- naming must never fail the chat
+        logger.warning("Could not name a new conversation.", exc_info=True)
+        return None
+
+
+def _name_older_conversation(supabase_service, user_client, conversation, user_id, messages):
+    """Chats started before auto-naming existed are named when next opened.
+
+    Only the open conversation, only if it still has the default title and
+    has a message from the tenant. Updates `conversation` in place so the
+    sidebar shows the new title on this same page load.
+    """
+    try:
+        if not conversation or not conversation_titles.is_default(conversation.get("title")):
+            return
+        first = next((m for m in messages if m.get("role") == "user"), None)
+        if not first:
+            return
+        reply = next((m.get("content") or "" for m in messages if m.get("role") == "assistant"), "")
+        title = _title_for(first.get("content") or "", reply)
+        if title:
+            supabase_service.rename_conversation(user_client, conversation["id"], user_id, title)
+            conversation["title"] = title
+    except Exception:  # noqa: BLE001 -- naming must never break the page
+        logger.warning("Could not name an older conversation.", exc_info=True)
+
+
 @main_bp.route("/chat/message", methods=["POST"])
 @limiter.limit("20 per minute; 300 per day")
 def chat_message():
@@ -849,6 +912,9 @@ def chat_message():
                     "role": "assistant",
                     "content": form_service.READY_MESSAGE,
                 })
+                _name_new_conversation(
+                    supabase_service, user_client, conversation_id, user_id, history, form_service.READY_MESSAGE
+                )
                 return send_file(
                     io.BytesIO(pdf_bytes),
                     as_attachment=True,
@@ -863,7 +929,11 @@ def chat_message():
             "content": reply,
         })
 
-        return jsonify({"reply": reply, "reply_html": render_markdown(reply), "sources": sources})
+        body = {"reply": reply, "reply_html": render_markdown(reply), "sources": sources}
+        title = _name_new_conversation(supabase_service, user_client, conversation_id, user_id, history, reply)
+        if title:
+            body["title"] = title
+        return jsonify(body)
 
     except ValueError:
         return jsonify({"error": "No valid messages were provided."}), 400

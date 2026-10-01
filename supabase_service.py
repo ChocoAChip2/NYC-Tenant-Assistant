@@ -227,6 +227,22 @@ class SupabaseService:
         if not response.data:
             raise ValueError("Conversation not found for this user.")
 
+    def get_conversation_title(self, user_client: Client, conversation_id: str, user_id: str) -> str | None:
+        """The decrypted title of one of the user's conversations, or None if not found."""
+
+        response = (
+            user_client
+            .table("conversations")
+            .select("id,title")
+            .eq("id", conversation_id)
+            .eq("user_id", user_id)
+            .limit(1)
+            .execute()
+        )
+        if not response.data:
+            return None
+        return _safe_decrypt(response.data[0].get("title"), what="conversation title", row_id=conversation_id)
+
     def fetch_messages_for_conversation(self, user_client: Client, conversation_id: str) -> list[dict]:
         """Fetch full message history for a conversation, ordered oldest->newest.
 

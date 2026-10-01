@@ -21,6 +21,20 @@ FALLBACK_MODELS = (
 # first hiccup. Retrying briefly, then trying the next fallback model, gives
 # a transient overload a real chance to clear before giving up.
 _SERVER_ERROR_RETRIES_PER_MODEL = 1
+
+# Conversation titles are a throwaway few-word summary, so they try the
+# cheapest model first and never wait on retries: a title that fails just
+# falls back to conversation_titles.from_keywords().
+TITLE_MODELS = ("gemini-2.5-flash-lite", "gemini-2.5-flash")
+TITLE_INSTRUCTION = (
+    "You name conversations for a New York City tenant-help app. Given the "
+    "tenant's first message (and the start of the reply), answer with a title "
+    "of two to five words naming the tenant's specific housing issue, for "
+    "example: Broken radiator in bedroom, Landlord kept security deposit, "
+    "Court date next week. Answer with the title only: no quotes, no trailing "
+    "punctuation, no 'Title:' prefix. Never include a person's name, a street "
+    "address, an apartment number, a phone number or an email address."
+)
 _SERVER_ERROR_RETRY_DELAY_SECONDS = 1.5
 
 # This prompt used to describe a pure "administrative intake clerk" whose
@@ -264,3 +278,34 @@ class AIService:
         raise RuntimeError(
             f"Gemini is temporarily unavailable after retrying {attempted_models}."
         ) from last_error
+
+    def generate_title(self, user_message: str, assistant_message: str = "") -> str:
+        """A short raw title for a conversation's opening exchange.
+
+        Returns the model's text unprocessed ("" if every title model
+        failed); conversation_titles.clean() makes it safe to show. Never
+        raises for model trouble -- naming a chat must not fail the chat.
+        """
+        if not self.client:
+            raise RuntimeError("Gemini is not configured yet.")
+        opening = f"Tenant: {user_message.strip()[:1500]}"
+        if assistant_message.strip():
+            opening += f"\n\nAssistant (start of reply): {assistant_message.strip()[:600]}"
+        contents = [{"role": "user", "parts": [{"text": opening}]}]
+        # No thinking: on 2.5 Flash, thinking tokens count against the output
+        # cap and can leave no room for the title itself.
+        config = {
+            "system_instruction": TITLE_INSTRUCTION,
+            "max_output_tokens": 40,
+            "temperature": 0.2,
+            "thinking_config": {"thinking_budget": 0},
+        }
+        for model_name in TITLE_MODELS:
+            try:
+                response = self.client.models.generate_content(model=model_name, contents=contents, config=config)
+                text = (response.text or "").strip()
+                if text:
+                    return text
+            except (ClientError, ServerError):
+                continue
+        return ""
