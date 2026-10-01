@@ -313,6 +313,10 @@ def check(
     )
 
 
+def has_markers(text: str) -> bool:
+    return bool(_MARKER_RE.search(text or ""))
+
+
 def strip_citations(reply: str) -> str:
     """Remove every marker, leaving the prose readable.
 
@@ -323,6 +327,37 @@ def strip_citations(reply: str) -> str:
     without = _MARKER_RE.sub("", reply)
     without = re.sub(r"\s+([.,;:!?])", r"\1", without)
     return re.sub(r"[ \t]{2,}", " ", without).strip()
+
+
+def resolve_markers(reply: str, passages: list[Passage]) -> str:
+    """Replace each [Sn] marker with the section it stands for.
+
+    The markers only mean something inside one request: [S5] is "the fifth
+    passage retrieved for this question". Stored as-is they would show the
+    tenant a bare "[S5]" forever, and a later turn would read them as
+    pointing at that turn's passages. So the reply is rewritten before it
+    is stored or shown: "[S5]" becomes "(NYC Admin Code § 27-2029)", linked
+    to the official text when the passage has an https URL. A marker that
+    matches no passage is dropped.
+    """
+    by_marker = {p.marker: p for p in passages}
+
+    def label(match: re.Match) -> str:
+        passage = by_marker.get(match.group(1))
+        if not passage or not passage.citation:
+            return ""
+        authority = (passage.authority or "").strip()
+        name = f"{authority} § {passage.citation}" if authority else f"§ {passage.citation}"
+        url = (passage.official_url or "").strip()
+        if url.lower().startswith("https://") and not any(ch in url for ch in " ()<>\"'"):
+            return f" ([{name}]({url}))"
+        return f" ({name})"
+
+    resolved = _MARKER_RE.sub(label, reply)
+    resolved = re.sub(r"\s+([.,;:!?])", r"\1", resolved)
+    resolved = re.sub(r"[ \t]{2,}", " ", resolved)
+    resolved = re.sub(r"(?m)^[ \t]+(?=\()", "", resolved)
+    return resolved.strip()
 
 
 def render_sources(passages: list[Passage], result: GuardResult) -> list[dict[str, str]]:

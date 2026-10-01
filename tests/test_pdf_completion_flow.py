@@ -8,13 +8,22 @@ filesystem (which is what Render runs) that mismatch means pypdf's
 PdfReader raises FileNotFoundError the moment a user finishes the intake
 flow -- the one time this code path matters in production.
 
-No real Gemini or Supabase call is made; FormService.fill_tenant_form and
-flask.send_file are both mocked so this never touches pypdf or the disk.
+No real Gemini or Supabase call is made. Since 2026-10-01 the route checks
+the intake before filling (form_service.missing_fields) and these tests
+fill a real PDF in memory to check what the tenant downloads.
 """
 
+import io
+import json
 import os
 import unittest
 from unittest import mock
+
+from pypdf import PdfReader
+
+import ai_service
+import form_service
+from tests.test_form_service import FULL
 
 import flask
 
@@ -77,39 +86,81 @@ class TemplateFileTests(unittest.TestCase):
         )
 
 
+class RecordingSupabase(FakeSupabaseService):
+    def __init__(self):
+        self.inserted = []
+
+    def insert_message(self, user_client, message):
+        self.inserted.append(message)
+
+
+def _post(reply, content="That's all correct"):
+    app = _build_test_app(reply)
+    service = RecordingSupabase()
+    app.config["SUPABASE_SERVICE"] = service
+    client = app.test_client()
+    _logged_in_session(client)
+    response = client.post("/chat/message", json={"conversation_id": "c1", "content": content})
+    return response, service
+
+
+COMPLETE = json.dumps(FULL)
+
+
 class CompletionJsonTriggersPdfDownloadTests(unittest.TestCase):
-    def test_completion_json_calls_form_service_with_the_real_template_path(self):
-        completion_reply = '{"status": "complete", "name": "A Tenant", "address": "123 Main St", "complaint": "No heat"}'
-        app = _build_test_app(completion_reply)
-        client = app.test_client()
-        _logged_in_session(client)
+    def test_a_complete_intake_downloads_a_filled_pdf(self):
+        response, service = _post(COMPLETE)
+        self.assertEqual(response.mimetype, "application/pdf")
+        self.assertIn("RA-81_Rent_Reduction_Application.pdf", response.headers["Content-Disposition"])
+        fields = PdfReader(io.BytesIO(response.get_data())).get_fields()
+        self.assertEqual(str(fields["Name"]["/V"]), "Maria Rodriguez")
+        self.assertEqual(str(fields["Name_2"]["/V"]), "Concourse Realty LLC")
 
-        with mock.patch("routes.FormService.fill_tenant_form", return_value="/tmp/fake.pdf") as fake_fill, \
-             mock.patch("routes.send_file", return_value="pdf-response") as fake_send_file:
-            response = client.post(
-                "/chat/message",
-                json={"conversation_id": "c1", "content": "My info is ready"},
-            )
+    def test_the_stored_message_is_the_next_steps_not_the_raw_json(self):
+        _, service = _post(COMPLETE)
+        assistant = [m for m in service.inserted if m["role"] == "assistant"]
+        self.assertEqual(assistant[-1]["content"], form_service.READY_MESSAGE)
+        self.assertNotIn("Maria Rodriguez", assistant[-1]["content"])
 
-        fake_fill.assert_called_once()
-        self.assertEqual(fake_fill.call_args.kwargs["template_path"], _EXPECTED_TEMPLATE_PATH)
-        fake_send_file.assert_called_once()
-        self.assertEqual(response.get_data(as_text=True), "pdf-response")
+    def test_a_fenced_intake_still_works(self):
+        response, _ = _post(f"```json\n{COMPLETE}\n```")
+        self.assertEqual(response.mimetype, "application/pdf")
+
+    def test_an_incomplete_intake_asks_for_what_is_missing_instead_of_a_pdf(self):
+        legacy = '{"status": "complete", "name": "A Tenant", "address": "123 Main St", "complaint": "No heat"}'
+        with mock.patch("routes.form_service.fill_to_bytes") as fill:
+            response, service = _post(legacy)
+        fill.assert_not_called()
+        payload = response.get_json()
+        self.assertIn("Before I can fill in your RA-81, I still need", payload["reply"])
+        self.assertIn("landlord's mailing address", payload["reply"])
+        self.assertEqual(service.inserted[-1]["content"], payload["reply"])
 
     def test_non_json_reply_is_returned_as_a_normal_chat_message(self):
-        app = _build_test_app("This is a normal housing-law answer, not JSON.")
-        client = app.test_client()
-        _logged_in_session(client)
-
-        with mock.patch("routes.FormService.fill_tenant_form") as fake_fill:
-            response = client.post(
-                "/chat/message",
-                json={"conversation_id": "c1", "content": "What are my rights?"},
-            )
-
-        fake_fill.assert_not_called()
+        with mock.patch("routes.form_service.fill_to_bytes") as fill:
+            response, _ = _post("This is a normal housing-law answer, not JSON.", "What are my rights?")
+        fill.assert_not_called()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.get_json()["reply"], "This is a normal housing-law answer, not JSON.")
+
+
+class PromptContractTests(unittest.TestCase):
+    """The prompt and the form code must describe the same JSON."""
+
+    def test_every_key_the_form_reads_is_in_the_prompt(self):
+        prompt = ai_service.INTAKE_SYSTEM_PROMPT
+        for key in ("tenant", "owner", "regulation", "coop_condo", "seven_a_administrator", "move_in_date",
+                    "apartments_in_building", "scrie_drie", "section8", "voucher_number", "notice", "conditions",
+                    "phone_day", "phone_home", "city_state_zip", *form_service.ROOM_KEYS,
+                    *form_service.REGULATION_CHECKBOXES, *form_service.SECTION8_CHECKBOXES,
+                    *form_service.NOTICE_METHOD_CHECKBOXES):
+            with self.subTest(key=key):
+                self.assertIn(key, prompt)
+
+    def test_the_prompt_forbids_guessing_and_requires_confirmation(self):
+        prompt = ai_service.INTAKE_SYSTEM_PROMPT
+        self.assertIn("Never guess", prompt)
+        self.assertIn("confirm", prompt)
 
 
 if __name__ == "__main__":

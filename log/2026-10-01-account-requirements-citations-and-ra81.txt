@@ -1,0 +1,86 @@
+2026-10-01  Existing accounts are asked for new information; citations read properly; the RA-81 is filled completely
+
+Found while testing the live site signed in (the owner's account)
+- The account was made before sign-up asked for a name, so chat greeted
+  it by its email handle, and nothing would ever ask for the name.
+- A grounded answer ended in a bare "[S5]": the per-request marker for
+  "passage 5" was stored and shown as-is.
+- Reading the RA-81 flow end to end:
+  - Only 6 of the form's ~60 fields were ever filled.
+  - The landlord's column, rent-regulation status and the notice letter
+    were never asked.
+  - Every problem went on the "Other" line.
+  - That line holds about 45 characters, but 120 were written into it,
+    so most of a complaint was clipped out of sight on the printout.
+
+1. Account requirements (account_requirements.py, /account/complete)
+- A feature that needs information older accounts lack declares it once.
+  The account is asked at its next login. A session that was already
+  signed in is asked on its next visit to chat, because the requirements
+  carry a version.
+- The name and date of birth is the first requirement. It is required:
+  the age check is the point.
+- Never a dead end:
+  - not asked when it can't be stored (no encryption key);
+  - a failed save lets the tenant continue, and they're asked again next
+    login;
+  - an unreadable account isn't gated;
+  - optional requirements have "Remind me next time";
+  - Settings, public pages and logout are never gated.
+- Docs: docs/frontend/account-requirements.md. HANDOFF section 6 makes it
+  a rule for every feature.
+
+2. Citation markers
+- citation_guard.resolve_markers turns "[S5]" into "(NYC Admin Code
+  § 27-2029)" linked to the official text, before the reply is stored or
+  shown. Markers that match no passage are dropped.
+- Replies stored before this have markers stripped when displayed.
+
+3. RA-81 accuracy (form_service.py, ai_service.py prompt, routes.py)
+- Every field is mapped by widget position. The mapping is checked by
+  tests that pin positions and order, and was confirmed by filling a
+  sample and looking at both pages:
+  - tenant and owner columns and phones;
+  - regulation status;
+  - co-op/condo and 7A;
+  - move-in date and number of apartments;
+  - SCRIE/DRIE, Section 8 and voucher number;
+  - the notice letter's date and method;
+  - a checkbox and two lines for each room.
+- Nothing is guessed. Unknown or invalid choices and dates stay blank, and
+  a copied "yes | no" placeholder is not a choice.
+- Nothing is cut off. Text is wrapped with real Helvetica widths, and
+  anything that doesn't fit says "continued on attached page" and is
+  printed in full on a page appended to the form.
+- Appearance streams are written by the app with a font size that fits
+  each box. The pypdf version in use escaped parentheses twice
+  ("\(rear\)") and couldn't shrink text. NeedAppearances is off, so
+  Poppler-based viewers no longer draw empty checkboxes without their
+  squares.
+- The prompt:
+  - collects every field;
+  - checks that the apartment is rent-regulated, and points to HHW-1 or
+    RA-84 when those apply;
+  - asks about the written notice to the landlord;
+  - forbids guessing;
+  - confirms a summary with the tenant before handing off.
+- The route checks the hand-off (missing_fields). If anything DHCR needs
+  is missing, the tenant is asked for it and no PDF is made.
+- The stored message is the next steps (sign, attach the letter and proof
+  of mailing, where to send it), not the raw JSON with the tenant's
+  details. The PDF is built in memory, and the temporary file is removed.
+- The old {name, address, complaint} hand-off still fills correctly.
+
+Also
+- A test-isolation bug: three test classes restored the encryption env
+  AFTER reloading keys, which leaked a key into later tests depending on
+  order. Fixed, with the rule written down in HANDOFF.
+
+Checked
+- Full suite: 753 OK. This adds 20 account-requirement tests, 36
+  form-service tests (rewritten) and 7 completion-flow tests.
+- Chromium, dark at 375 px and light at 1000 px: /account/complete has no
+  horizontal scroll, and saving lands on chat greeting "Ana".
+- Filled RA-81 rendered with Poppler at 100 dpi: every value is in its
+  box, the boxes are ticked correctly, and the attachment page reads in
+  full.

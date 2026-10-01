@@ -141,6 +141,7 @@ Done in the cloud session of 2026-09-28 (items 1-4 of the old list, minus everyt
 
 ## 4. What the owner needs to do
 
+- [x] 2026-09-30: `DATA_ENCRYPTION_KEYS`, `DATA_ENCRYPTION_ACTIVE_KEY_ID` and `LEGAL_CORPUS_ENABLED` set on Render; `/login` and `/reset-password` added to Supabase Redirect URLs; `CORPUS_INGEST_TOKEN` added (a real refresh run succeeded).
 - [ ] Register a free **NY Senate Open Legislation API key** (legislation.nysenate.gov), needed for RPL/RPAPL/GOL/MDL/Good Cause.
 - [ ] Add GitHub secrets: `CORPUS_INGEST_TOKEN` (generated in section 3, step 4), optionally `GEMINI_API_KEY` (embeddings) and `NYSENATE_API_KEY`. `SUPABASE_URL` and `SUPABASE_KEY` already exist for the keep-alive.
 - [ ] After the library loads: set `LEGAL_CORPUS_ENABLED=1` on Render.
@@ -157,7 +158,14 @@ Done in the cloud session of 2026-09-28 (items 1-4 of the old list, minus everyt
 - Timeline + follow-up email; Spanish first; RCNY Title 28 from the Rules zip.
 - Known residual gap: condo units HPD recorded under a unit lot with no `bbl`.
 
-## 6. Working habits that paid off
+## 6. Rules every new feature follows
+
+- **Existing accounts get asked for new information.** If a feature needs something accounts made before it won't have, declare it in `account_requirements.py` (see `docs/frontend/account-requirements.md`). Signed-in tenants are asked once on `/account/complete`, nobody is ever locked out, and new accounts that give it at sign-up are never asked.
+- **Forms are filled from what the tenant said, never guessed.** `form_service.py` maps every RA-81 field by position. The assistant confirms a summary before handing off, and the route refuses a hand-off that is missing anything DHCR needs. Long text continues on an attached page, never clipped. A new form gets the same treatment: map every field, check positions in tests, and look at a filled sample.
+- **No per-request markers reach a tenant.** Citation markers (`[S1]`) are resolved into the section they name before a reply is stored.
+- **Tests that switch on encryption restore it.** Register `crypto_service.reload_keys` as a cleanup BEFORE starting the env patch; cleanups run last-in-first-out, and the other order leaked a key into later tests.
+
+## 7. Working habits that paid off
 
 - **Verify against real data, not idealized fixtures.** Fixtures modeled on 2014 records hid two production bugs that 5,000 real rows exposed in minutes.
 - **Look at rendered screenshots.** "Nov Sent Out" (reads as November) and the dark-mode contrast failure were both found by eye.

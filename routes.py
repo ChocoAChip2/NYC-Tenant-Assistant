@@ -4,12 +4,14 @@ app.py registers this blueprint, and each route uses the shared SupabaseService
 stored in the Flask app config to handle authentication and chat persistence.
 """
 
+import io
 import json
 import logging
 from datetime import date
 import os
 from flask import Blueprint, abort, current_app, flash, jsonify, make_response, redirect, render_template, request, session, url_for, send_file
 
+import account_requirements
 import branding
 import building_service
 import law_service
@@ -22,11 +24,44 @@ from markdown_service import render_markdown
 from login_lockout import format_duration, record_failure, record_success, seconds_until_unlocked
 from rate_limit import limiter, rate_limit_key
 from supabase_service import SupabaseService
+import form_service
 from form_service import FormService
 
 # The blueprint groups the page routes together so app.py can register them as
 # one unit.
 main_bp = Blueprint("main", __name__)
+
+
+def _safe_next(target: str | None) -> str:
+    """A same-site path to continue to, or the chat page."""
+    if target and target.startswith("/") and not target.startswith("//") and "\\" not in target:
+        return target
+    return url_for("main.chat")
+
+
+@main_bp.before_request
+def _ask_for_missing_account_details():
+    """Send a signed-in tenant to /account/complete when their account is
+    missing something a feature now needs (account_requirements.py).
+
+    Checked once per session and requirements version: at login from the
+    sign-in response, and here for sessions that were already signed in
+    when a requirement was added. Only the pages in GATED_ENDPOINTS wait.
+    """
+    if request.endpoint not in account_requirements.GATED_ENDPOINTS or not session.get("user_id"):
+        return None
+    if not account_requirements.is_current(session):
+        try:
+            metadata = get_supabase_service().get_user_metadata(session.get("access_token"))
+            account_requirements.record(session, metadata)
+        except Exception:
+            # Never a lock-out: if the account can't be read, carry on and
+            # ask at the next login.
+            logger.warning("Could not check the account's details.", exc_info=True)
+            account_requirements.record_unknown(session)
+    if account_requirements.pending(session):
+        return redirect(url_for("main.complete_account", next=request.full_path.rstrip("?")))
+    return None
 logger = logging.getLogger(__name__)
 
 # Per-message cap, in characters. Gemini calls bill (and take longer)
@@ -271,6 +306,11 @@ def login():
                 session.pop("first_name", None)
             record_success(lockout_key)
 
+            # A fresh login re-checks everything and forgets earlier skips.
+            session.pop(account_requirements.SKIPPED_KEY, None)
+            account_requirements.record(session, getattr(auth_response.user, "user_metadata", None))
+            if account_requirements.pending(session):
+                return redirect(url_for("main.complete_account"))
             return redirect(url_for("main.chat"))
         except Exception as exc:
             record_failure(lockout_key)
@@ -420,7 +460,13 @@ def chat():
             # would also widen the injection surface for no benefit.
             for message in messages:
                 if message.get("role") == "assistant":
-                    message["content_html"] = render_markdown(message.get("content"))
+                    content = message.get("content") or ""
+                    if citation_guard.has_markers(content):
+                        # Replies stored before markers were resolved
+                        # (2026-09-30): the passages they named are gone.
+                        content = citation_guard.strip_citations(content)
+                        message["content"] = content
+                    message["content_html"] = render_markdown(content)
         except ValueError:
             flash("That conversation could not be found.", "error")
             conversation_id = None
@@ -435,6 +481,8 @@ def chat():
         active_conversation_id=conversation_id,
         messages=messages,
         max_message_length=MAX_MESSAGE_LENGTH,
+        form_ready_message=form_service.READY_MESSAGE,
+        form_ready_html=render_markdown(form_service.READY_MESSAGE),
     )
 
 
@@ -627,8 +675,9 @@ def _ground_reply(user_client, question, history):
 
     if not passages:
         # Either grounding is off, or nothing cleared the relevance floor.
-        # An uncited answer is the honest outcome, not a failure.
-        return ai_service_instance.generate_reply(history), []
+        # An uncited answer is the honest outcome, not a failure. Markers
+        # the history taught the model to write would point at nothing.
+        return citation_guard.strip_citations(ai_service_instance.generate_reply(history)), []
 
     try:
         sources_block = retrieval_service.format_for_prompt(passages)
@@ -666,10 +715,15 @@ def _ground_reply(user_client, question, history):
             return citation_guard.strip_citations(reply), []
 
     try:
-        return reply, citation_guard.render_sources(passages, result)
+        sources = citation_guard.render_sources(passages, result)
     except Exception:
         logger.exception("Could not render citation chips; sending the reply without them.")
-        return reply, []
+        sources = []
+    try:
+        return citation_guard.resolve_markers(reply, passages), sources
+    except Exception:
+        logger.exception("Could not resolve citation markers; sending the reply without them.")
+        return citation_guard.strip_citations(reply), sources
 
 
 def _guard_mode():
@@ -731,36 +785,38 @@ def chat_message():
             [{"role": message["role"], "content": message["content"]} for message in history],
         )
 
+        # The intake hand-off: the assistant answers with the RA-81 JSON
+        # once the tenant has confirmed everything (ai_service.py). It is
+        # checked here, not trusted: a form missing something DHCR needs is
+        # never produced -- the tenant is asked for it instead.
+        intake_data = form_service.parse_intake(reply)
+        if intake_data is not None:
+            intake = form_service.normalize_intake(intake_data)
+            missing = form_service.missing_fields(intake)
+            if missing:
+                reply = form_service.missing_message(missing)
+                sources = []
+            else:
+                pdf_bytes = form_service.fill_to_bytes(intake_data)
+                supabase_service.insert_message(user_client, {
+                    "conversation_id": conversation_id,
+                    "user_id": user_id,
+                    "role": "assistant",
+                    "content": form_service.READY_MESSAGE,
+                })
+                return send_file(
+                    io.BytesIO(pdf_bytes),
+                    as_attachment=True,
+                    download_name="RA-81_Rent_Reduction_Application.pdf",
+                    mimetype="application/pdf",
+                )
+
         supabase_service.insert_message(user_client, {
             "conversation_id": conversation_id,
             "user_id": user_id,
             "role": "assistant",
             "content": reply,
         })
-
-        # Check if the AI outputted the final JSON payload
-        try:
-            parsed_response = json.loads(reply)
-            
-            if parsed_response.get("status") == "complete":
-                # Build the completed PDF
-                pdf_path = FormService.fill_tenant_form(
-                    json_data=parsed_response,
-                    template_path="templates/ra-81-fillable.pdf",
-                    output_filename="completed_complaint.pdf"
-                )
-                
-                # Trigger the browser download
-                return send_file(
-                    pdf_path,
-                    as_attachment=True,
-                    download_name="NYC_Tenant_Complaint.pdf",
-                    mimetype="application/pdf"
-                )
-                
-        except json.JSONDecodeError:
-            # If it is not JSON, it is a normal chat response. Send it to the frontend.
-            pass
 
         return jsonify({"reply": reply, "reply_html": render_markdown(reply), "sources": sources})
 
@@ -939,6 +995,75 @@ def learn_more():
     )
 
 
+@main_bp.route("/account/complete", methods=["GET", "POST"])
+@limiter.limit("10 per minute", methods=["POST"])
+def complete_account():
+    """Ask a signed-in tenant for what their account is missing.
+
+    Shows every pending requirement (account_requirements.py) on one page
+    and saves them in one metadata update, through the tenant's own
+    session. Never a dead end: a failed save lets them continue and asks
+    again next login, and optional requirements have "Remind me next time".
+    """
+    if not session.get("user_id"):
+        return redirect(url_for("main.login"))
+    next_url = _safe_next(request.values.get("next"))
+    pending = account_requirements.pending(session)
+    if not pending:
+        return redirect(next_url)
+
+    today = date.today()
+    page = dict(
+        requirements=pending,
+        next_url=next_url,
+        can_skip=not any(r.required for r in pending),
+        dob_max=profile_service.latest_allowed_birthday(today).isoformat(),
+        dob_min=f"{today.year - profile_service.MAX_AGE}-01-01",
+        min_age=profile_service.MIN_AGE,
+        form={},
+    )
+    if request.method == "GET":
+        return render_template("account_complete.html", **page)
+
+    if request.form.get("action") == "skip":
+        optional = [r.key for r in pending if not r.required]
+        account_requirements.skip(session, optional)
+        return redirect(next_url if not account_requirements.pending(session) else url_for("main.complete_account", next=next_url))
+
+    entered = {key: value for key, value in request.form.items() if key not in ("csrf_token", "action", "next")}
+    metadata, updates, errors = {}, {}, []
+    for requirement in pending:
+        try:
+            collected = requirement.collect(entered, today)
+        except account_requirements.RequirementError as exc:
+            errors.append(str(exc))
+            continue
+        metadata.update(collected.metadata)
+        updates.update(collected.session_updates)
+    if errors:
+        for message in errors:
+            flash(message, "error")
+        page["form"] = entered
+        return render_template("account_complete.html", **page), 400
+
+    access_token = session.get("access_token")
+    refresh_token = session.get("refresh_token")
+    try:
+        tokens = get_supabase_service().update_user_metadata(access_token, refresh_token, metadata)
+    except Exception:
+        logger.exception("Failed to save missing account details.")
+        account_requirements.skip(session, [r.key for r in pending])
+        flash("We couldn't save that just now. You can carry on, and we'll ask again next time you log in.", "error")
+        return redirect(next_url)
+
+    if tokens:
+        session["access_token"], session["refresh_token"] = tokens
+    session.update(updates)
+    account_requirements.mark_met(session, [r.key for r in pending])
+    flash("Thanks, you're all set.", "success")
+    return redirect(next_url)
+
+
 @main_bp.route("/settings")
 def settings():
     """Show the settings page: appearance, account, data export, deletion."""
@@ -1022,10 +1147,11 @@ def update_profile():
         return redirect(url_for("main.settings") + "#profile")
 
     try:
-        tokens = get_supabase_service().update_profile(access_token, refresh_token, metadata)
+        tokens = get_supabase_service().update_user_metadata(access_token, refresh_token, metadata)
         if tokens:
             session["access_token"], session["refresh_token"] = tokens
         session["first_name"] = profile.first_name
+        account_requirements.mark_met(session, [account_requirements.PROFILE.key])
         flash(f"Saved. We'll greet you as {profile.first_name}.", "success")
     except Exception:
         logger.exception("Failed to save the account profile.")
