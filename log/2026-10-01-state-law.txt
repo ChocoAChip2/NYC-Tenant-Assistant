@@ -43,3 +43,24 @@ Checked
 - Dry run against the live API from the owner's Mac: 118 sections, every
   gate passed. Spot-checked GOL § 7-108, RPAPL § 711 and Good Cause
   § 212 in the dump.
+
+Loaded live, 2026-10-01
+- The write run from the owner's Mac added all 118 sections, with no
+  gate problems. The run is recorded in legal_refresh_runs.
+- Search finds them for tenant questions:
+  - deposit return -> GOL §§ 7-105/7-107/7-108
+  - mold/habitability -> RPL § 235-b first
+  - non-renewal without good cause -> RPL §§ 231-c, 215
+  - retaliation -> RPL § 223-b first
+  - notice of a rent increase -> RPL § 226-c
+  These five were added to the eval set (tuning).
+- Eval (tools.corpus.eval_search, live): 35/40 overall.
+  - Two misses are new.
+  - "is my apartment rent controlled" now ranks GOL § 7-108 and RPAPL
+    § 756 above Admin Code §§ 26-401/26-403. The top three results are
+    still rent-control sections (26-415, 26-407.1, 26-405), so this is
+    left as a known gap.
+  - "illegal eviction penalty" returned RPAPL § 768 (the state
+    unlawful-eviction section and its penalty), which is a right answer.
+    The held-out expectation predates the state law, so it now accepts
+    § 768.

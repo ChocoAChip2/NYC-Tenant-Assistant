@@ -1,5 +1,5 @@
 {
-  "_about": "Questions phrased the way tenants type them, with the Admin Code sections that answer them. A question is a hit when ANY listed citation is in the top results. 'tuning' was used to choose synonyms; 'held_out' was written afterwards and never tuned on. 'noise' should ideally return nothing. Run: python -m tools.corpus.eval_search (see its docstring).",
+  "_about": "Questions phrased the way tenants type them, with the Admin Code sections that answer them. A question is a hit when ANY listed citation is in the top results. 'tuning' was used to choose synonyms; 'held_out' was written afterwards and never tuned on. 'noise' should ideally return nothing. Run: python -m tools.corpus.eval_search (see its docstring). 2026-10-01: state law loaded; 'illegal eviction penalty' also accepts RPAPL § 768 (the state unlawful-eviction section, with its civil penalty), which did not exist in the library when this set was written. Five state-law questions added to tuning.",
   "tuning": [
     {
       "q": "no heat at night how cold can it get",
@@ -173,6 +173,38 @@
       "any_of": [
         "27-2029"
       ]
+    },
+    {
+      "q": "how long does my landlord have to return my security deposit",
+      "any_of": [
+        "7-108"
+      ]
+    },
+    {
+      "q": "landlord won't fix mold, is there a warranty of habitability",
+      "any_of": [
+        "235-b"
+      ]
+    },
+    {
+      "q": "can my landlord refuse to renew my lease without good cause",
+      "any_of": [
+        "214",
+        "215",
+        "216"
+      ]
+    },
+    {
+      "q": "landlord is retaliating because I complained to 311",
+      "any_of": [
+        "223-b"
+      ]
+    },
+    {
+      "q": "how much notice for a rent increase",
+      "any_of": [
+        "226-c"
+      ]
     }
   ],
   "held_out": [
@@ -241,7 +273,8 @@
       "q": "illegal eviction penalty",
       "any_of": [
         "26-521",
-        "26-523"
+        "26-523",
+        "768"
       ]
     },
     {
