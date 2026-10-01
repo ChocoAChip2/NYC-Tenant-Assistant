@@ -10,6 +10,9 @@ Minimums are ~90% of the real section counts in the Admin Code as of the
 Stabilization Law 25, Unlawful Eviction 9, Right to Counsel 6, Human
 Rights Law 37. A source whose real count has not been measured is not
 enabled -- a guessed minimum is either useless or a false alarm.
+
+State law (NYS_SOURCES) comes from the NY Senate Open Legislation API,
+counted from the live API on 2026-10-01.
 """
 
 from __future__ import annotations
@@ -45,21 +48,27 @@ class AlpSource:
 
 @dataclass(frozen=True)
 class NysSource:
-    """A New York State law from the Senate's Open Legislation API.
+    """An article (or title) of a New York State law, from the NY Senate's
+    Open Legislation API (tools/corpus/nys.py). Needs NYSENATE_API_KEY.
 
-    Listed so the plan is in one place, but NOT loadable yet: the API
-    needs a key (NYSENATE_API_KEY) and its response shape has only been
-    read from the docs, never seen live. The adapter gets written after a
-    real response has been captured, not before.
+    Counts were measured from the live API on 2026-10-01; `scope` is the
+    path of locationIds from the law down to the article or title.
     """
 
     key: str
     name: str
     law_id: str
-    locations: tuple[str, ...]
+    law_name: str
+    scope: tuple[str, ...]
+    anchors: tuple[str, ...]
+    real_count: int | None
     authority: str
-    enabled: bool = False
+    enabled: bool = True
     jurisdiction: str = "NYS"
+
+    @property
+    def min_sections(self) -> int | None:
+        return ninety_percent(self.real_count) if self.real_count else None
 
 
 ALP_SOURCES: tuple[AlpSource, ...] = (
@@ -115,44 +124,76 @@ ALP_SOURCES: tuple[AlpSource, ...] = (
 
 NYS_SOURCES: tuple[NysSource, ...] = (
     NysSource(
-        key="nys-rpl-7",
-        name="Real Property Law Article 7 (landlord and tenant)",
-        law_id="RPP",
-        locations=("223-B", "226-C", "227-C", "235-B", "235-E", "235-F", "238-A"),
-        authority="NY Real Property Law",
-    ),
-    NysSource(
         key="nys-good-cause",
         name="Good Cause Eviction (Real Property Law Article 6-A, §§ 210-218)",
         law_id="RPP",
-        locations=tuple(str(n) for n in range(210, 219)),
+        law_name="Real Property Law",
+        scope=("A6-A",),
+        anchors=("212", "214", "216"),
+        real_count=9,
+        authority="NY Real Property Law",
+    ),
+    NysSource(
+        key="nys-rpl-7",
+        name="Real Property Law Article 7 (landlord and tenant)",
+        law_id="RPP",
+        law_name="Real Property Law",
+        scope=("A7",),
+        anchors=("223-b", "226-c", "235-b", "235-e", "238-a"),
+        real_count=55,
         authority="NY Real Property Law",
     ),
     NysSource(
         key="nys-rpapl-7",
-        name="RPAPL Article 7 (summary proceedings)",
+        name="RPAPL Article 7 (summary proceedings: evictions)",
         law_id="RPA",
-        locations=("711", "731", "732", "733", "743", "745", "749", "751", "753", "755", "756", "768"),
+        law_name="Real Property Actions and Proceedings Law",
+        scope=("A7",),
+        anchors=("711", "749", "753", "768"),
+        real_count=32,
+        authority="NY RPAPL",
+    ),
+    NysSource(
+        key="nys-rpapl-7a",
+        name="RPAPL Article 7-A (tenants' proceedings in NYC: 7A administrators)",
+        law_id="RPA",
+        law_name="Real Property Actions and Proceedings Law",
+        scope=("A7-A",),
+        anchors=("769", "770", "778"),
+        real_count=15,
         authority="NY RPAPL",
     ),
     NysSource(
         key="nys-gol-deposits",
-        name="General Obligations Law §§ 7-101 to 7-109 (security deposits)",
+        name="General Obligations Law Article 7 Title 1 (security deposits)",
         law_id="GOB",
-        locations=tuple(f"7-10{n}" for n in range(1, 10)),
+        law_name="General Obligations Law",
+        scope=("A7", "A7T1"),
+        anchors=("7-103", "7-107", "7-108"),
+        real_count=7,
         authority="NY General Obligations Law",
     ),
 )
 
 
 def alp_sources(keys: list[str] | None = None) -> list[AlpSource]:
-    """Enabled ALP sources, or exactly the named ones (enabled or not)."""
+    """Enabled ALP sources, or exactly the named ALP ones (enabled or not)."""
     if not keys:
         return [s for s in ALP_SOURCES if s.enabled]
     by_key = {s.key: s for s in ALP_SOURCES}
-    nys = {s.key for s in NYS_SOURCES}
     unknown = [k for k in keys if k not in by_key]
     if unknown:
-        hint = " (NYS sources have no adapter yet; see registry.NysSource)" if set(unknown) & nys else ""
-        raise KeyError(f"unknown source(s): {', '.join(unknown)}{hint}")
+        raise KeyError(f"unknown source(s): {', '.join(unknown)}")
+    return [by_key[k] for k in keys]
+
+
+def all_sources(keys: list[str] | None = None) -> list[AlpSource | NysSource]:
+    """Every enabled source (city and state), or exactly the named ones."""
+    everything = (*ALP_SOURCES, *NYS_SOURCES)
+    if not keys:
+        return [s for s in everything if s.enabled]
+    by_key = {s.key: s for s in everything}
+    unknown = [k for k in keys if k not in by_key]
+    if unknown:
+        raise KeyError(f"unknown source(s): {', '.join(unknown)}")
     return [by_key[k] for k in keys]

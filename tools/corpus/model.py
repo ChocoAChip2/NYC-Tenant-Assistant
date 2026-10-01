@@ -29,6 +29,7 @@ class Section:
     history: list[str] = field(default_factory=list)
     notes: list[str] = field(default_factory=list)
     repealed: bool = False
+    jurisdiction: str = "NYC"
 
     @property
     def section_key(self) -> str:
@@ -56,7 +57,7 @@ class Section:
         return pack_paragraphs(self.paragraphs)
 
     def as_payload(self) -> dict:
-        return {
+        payload = {
             "section_key": self.section_key,
             "source_key": self.source_key,
             "authority": self.authority,
@@ -72,6 +73,12 @@ class Section:
             "content_hash": self.content_hash,
             "chunks": [{"ordinal": i, "text": c} for i, c in enumerate(self.chunks())],
         }
+        # The database defaults jurisdiction to NYC; only state law says
+        # otherwise, so city payloads (pinned in the migration checks) are
+        # unchanged.
+        if self.jurisdiction != "NYC":
+            payload["jurisdiction"] = self.jurisdiction
+        return payload
 
 
 # ASCII whitespace only, spelled out. The database recomputes this hash

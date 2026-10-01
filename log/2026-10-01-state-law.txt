@@ -1,0 +1,45 @@
+2026-10-01  State tenant law in the legal library (NY Senate Open Legislation API)
+
+What
+- tools/corpus/nys.py reads New York State law from the NY Senate Open
+  Legislation API. It uses one request per law (`?full=true` returns the
+  whole tree with text) and takes the article or title each source names.
+- Five sources, counted from the live API:
+  - Good Cause Eviction (RPL Art. 6-A): 9 sections
+  - RPL Art. 7, landlord and tenant: 55 (235-b habitability, 223-b
+    retaliation, 226-c notice of increase/non-renewal, 235-e receipts,
+    238-a fees, ...)
+  - RPAPL Art. 7, summary proceedings/evictions: 32
+  - RPAPL Art. 7-A, tenants' proceedings and 7A administrators: 15
+  - GOL Art. 7 Title 1, security deposits: 7
+- Same gates and write path as the city sources (90% minimum count,
+  anchors, the token-checked corpus_* RPCs). Rows are jurisdiction NYS.
+  The official URL is the section's nysenate.gov page.
+
+Accuracy rules
+- The adapter was written from real responses captured with the key, not
+  from the docs (the earlier plan's rule).
+- The API prints every dated version of a provision. RPAPL § 711 and RPL
+  § 226-c carry both their current Good Cause text ("Effective until June
+  15, 2034") and their post-sunset text ("Effective June 15, 2034"). Only
+  the version in force on the day of the refresh is stored as law; the
+  other is noted as not shown. A quarterly refresh after 2034 will pick
+  up the other version by itself.
+- Publisher notes ("NB Repealed June 15, 2034") are kept as notes, never
+  as law text.
+- The key is read from the environment, never logged, and scrubbed from
+  any error message.
+
+Running it
+- Locally: NYSENATE_API_KEY plus the usual SUPABASE_URL, SUPABASE_KEY and
+  CORPUS_INGEST_TOKEN.
+- GitHub Actions: the workflow passes secrets.NYSENATE_API_KEY. Until the
+  owner adds that secret, scheduled runs skip the state sources, say so in
+  the summary, and refresh the city sources as before.
+
+Checked
+- tests/test_corpus_nys.py (21 tests, on an excerpt of the real RPP
+  response); full suite OK.
+- Dry run against the live API from the owner's Mac: 118 sections, every
+  gate passed. Spot-checked GOL § 7-108, RPAPL § 711 and Good Cause
+  § 212 in the dump.
