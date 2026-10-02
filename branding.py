@@ -30,10 +30,22 @@ SHORT_DISCLAIMER = (
 # can and cannot tell someone, next to the text rather than only in the
 # footer.
 LAW_PAGE_NOTE = (
-    "This is the text of the law as officially published. How it applies "
-    "to you depends on your facts and on other laws and court decisions, "
-    f"so treat it as a starting point. {PRODUCT_NAME} gives general "
-    "information, not legal advice."
+    "Official text. How it applies depends on your facts; this is not legal advice."
+)
+LAW_PAGE_NOTE_DETAIL = (
+    "Other laws and court decisions can change how a section applies to you, "
+    "so treat the text as a starting point."
+)
+
+# The lock note beside the name and date-of-birth fields (sign-up,
+# Settings, the requirements page). Short line visible, the full promise
+# behind the "i".
+PRIVACY_NOTE_TITLE = "Your details stay confidential."
+PRIVACY_NOTE = "Encrypted, never shared, never sent to the AI."
+PRIVACY_NOTE_DETAIL = (
+    "Your name and date of birth are encrypted before they're stored, used "
+    "only to greet you and confirm your age, never shared or sold, and "
+    "deleted with your account."
 )
 
 # Shown next to the short disclaimer as the link out to the full page.
@@ -42,19 +54,26 @@ LEARN_MORE_LABEL = "Learn more"
 # The banner across the top of the app. Longer and louder than
 # SHORT_DISCLAIMER on purpose: the footer note is the standing reminder,
 # this is the thing someone in real trouble should hit before they start
-# typing. Written by the product owner; reproduced as given except for
-# one spelling fix ("advise" -> "advice") and one em dash for readability.
+# typing. First written by the product owner; trimmed at the owner's request
+# on 2026-10-02 (every page was too wordy), with the rest moved behind an
+# "i" button (TOP_DISCLAIMER_DETAIL).
 #
 # NOTE: this text makes a promise -- that asking the chatbot for legal help
 # produces a list of contacts. ai_service.py's system prompt is what keeps
 # that promise (see the referral rule there), and HELP_RESOURCES below is
 # the list it draws on. Change one and check the other two.
 TOP_DISCLAIMER = (
-    "Disclaimer: In the scenario in which you are actively seeking legal "
-    "assistance, please message our chatbot to let them know \u2014 they will "
-    f"provide a list of sources that you may contact in your area. {LOGO_MONOGRAM} "
-    "does NOT provide legal advice and should never be used for that "
-    "specific purpose. Thank you for your understanding."
+    "Not legal advice. Need a lawyer? Tell the chat and it will list free "
+    "legal help near you."
+)
+
+# Behind the banner's "i" button. Shortened 2026-10-02 at the owner's
+# request (pages were too wordy); the full owner-written wording's points
+# all survive between the banner and this.
+TOP_DISCLAIMER_DETAIL = (
+    f"{PRODUCT_NAME} gives general information about NYC tenant law. It is not "
+    "a law firm and should never be used as legal advice. For your own "
+    "situation, talk to a housing attorney."
 )
 
 # Sits under every single assistant reply. This one has to stay very short:
@@ -63,32 +82,37 @@ TOP_DISCLAIMER = (
 # be screenshotted or quoted without the qualifier attached to it.
 PER_MESSAGE_DISCLAIMER = "General information, not legal advice."
 
-# The full version, on /learn-more. This is the one that has to be
-# complete rather than brief.
-FULL_DISCLAIMER_PARAGRAPHS = [
-    (
-        f"{PRODUCT_NAME} is an informational tool for New York City tenants. It "
-        "explains how housing rules generally work and helps you prepare a "
-        "complaint form. It is not a law firm, it does not provide legal "
-        "advice, and using it does not create an attorney-client relationship."
-    ),
-    (
-        "Nothing here is a substitute for advice from a licensed attorney about "
-        "your specific situation. Housing law is fact-specific: the same facts "
-        "with one date changed can lead to a completely different answer."
-    ),
-    (
-        "The assistant is an AI system and can be wrong. It can misstate a rule, "
-        "miss an exception, or be out of date. Confirm anything you intend to "
-        "act on with an official source or a housing attorney before you rely "
-        "on it -- especially deadlines, dollar amounts, and anything involving "
-        "a court case."
-    ),
-    (
-        f"Documents {PRODUCT_NAME} fills in for you are drafts. Read every "
-        "field before you sign or file anything. You remain responsible for "
-        "what you submit to a government agency or a court."
-    ),
+# The full version, on /learn-more: one short line each, with the rest
+# behind an "i" button (owner, 2026-10-02: pages were too wordy). Together
+# the lead and detail still say everything the earlier paragraphs did.
+FULL_DISCLAIMER_POINTS = [
+    {
+        "lead": "Not a law firm. Using it does not make us your lawyer.",
+        "detail": (
+            f"{PRODUCT_NAME} explains how NYC housing rules generally work and helps "
+            "you prepare a complaint form. It does not provide legal advice, and "
+            "using it does not create an attorney-client relationship."
+        ),
+    },
+    {
+        "lead": "Your facts matter. One changed date can change the answer.",
+        "detail": (
+            "Nothing here replaces advice from a licensed attorney about your "
+            "specific situation."
+        ),
+    },
+    {
+        "lead": "The AI can be wrong. Confirm before you act.",
+        "detail": (
+            "It can misstate a rule, miss an exception, or be out of date. Check "
+            "deadlines, dollar amounts and anything about a court case with an "
+            "official source or a housing attorney."
+        ),
+    },
+    {
+        "lead": "Forms it fills are drafts. Read every field before you sign or file.",
+        "detail": "You are responsible for what you submit to an agency or a court.",
+    },
 ]
 
 # Situations where the assistant should say out loud, in its own reply, that
@@ -157,6 +181,11 @@ def register(app) -> None:
             "logo_monogram": LOGO_MONOGRAM,
             "short_disclaimer": SHORT_DISCLAIMER,
             "top_disclaimer": TOP_DISCLAIMER,
+            "top_disclaimer_detail": TOP_DISCLAIMER_DETAIL,
+            "privacy_note_title": PRIVACY_NOTE_TITLE,
+            "privacy_note": PRIVACY_NOTE,
+            "privacy_note_detail": PRIVACY_NOTE_DETAIL,
+            "law_page_note_detail": LAW_PAGE_NOTE_DETAIL,
             "per_message_disclaimer": PER_MESSAGE_DISCLAIMER,
             "learn_more_label": LEARN_MORE_LABEL,
             "law_page_note": LAW_PAGE_NOTE,

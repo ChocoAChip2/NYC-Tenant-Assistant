@@ -143,9 +143,12 @@ class LearnMorePageTests(BrandingTestCase):
 
     def test_it_shows_the_full_disclaimer(self):
         body = self.client.get("/learn-more").get_data(as_text=True)
-        for paragraph in branding.FULL_DISCLAIMER_PARAGRAPHS:
-            # Templates escape apostrophes, so compare on a distinctive slice.
-            self.assertIn(paragraph.split(".")[0][:60], body)
+        import html as _html
+        text = _html.unescape(body)
+        for point in branding.FULL_DISCLAIMER_POINTS:
+            # The short line is visible; the rest sits behind its "i" button.
+            self.assertIn(point["lead"], text)
+            self.assertIn(point["detail"], text)
 
     def test_it_states_there_is_no_attorney_client_relationship(self):
         body = self.client.get("/learn-more").get_data(as_text=True).lower()

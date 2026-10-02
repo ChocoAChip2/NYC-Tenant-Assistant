@@ -62,6 +62,8 @@ class Requirement:
     is_met: Callable[[dict | None], bool]
     can_collect: Callable[[], bool]
     collect: Callable[[dict, date], Collected]
+    # Optional extra context, behind an "i" button next to `why`.
+    why_detail: str = ""
 
 
 def _profile_collect(form: dict, today: date) -> Collected:
@@ -81,8 +83,8 @@ PROFILE = Requirement(
     key="profile",
     version=1,
     title="Your name and date of birth",
-    why="We now ask everyone for their name, to greet you, and date of birth, to confirm you're at least "
-        f"{profile_service.MIN_AGE}. Your account was made before we asked.",
+    why=f"Used to greet you and confirm you're {profile_service.MIN_AGE} or older.",
+    why_detail="We now ask everyone for these. Your account was made before we asked.",
     template="_requirement_profile.html",
     # The age check is the point, so there's no "remind me next time".
     required=True,

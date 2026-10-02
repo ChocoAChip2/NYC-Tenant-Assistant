@@ -1,0 +1,35 @@
+2026-10-02  Shorter wording everywhere, detail behind an "i" button
+
+Request (owner): some places had too many words. Keep only what's needed
+on the page; where more information is necessary, put it behind an "i".
+Reference points: JustFix's tool cards (short title + one short line) and
+NYC HPD's pages (short sentences, detail elsewhere).
+
+New
+- templates/_info.html: the "i" button (macro info_tip + info_assets).
+  Click/tap toggles, one open at a time, click elsewhere or Escape closes,
+  aria-expanded, stays inside the screen on phones, light/dark tokens.
+  Docs: docs/frontend/info-tips.md. Tests: tests/test_info_tips.py.
+
+Trimmed (visible text now; the rest behind "i" where it mattered)
+- Top banner (chat, settings): 41 words -> "Not legal advice. Need a lawyer?
+  Tell the chat and it will list free legal help near you." The rest of the
+  owner's wording (not a law firm, never use as legal advice, see an
+  attorney) is behind its "i". The banner still can't be dismissed.
+- Privacy note (sign-up, settings, account page): 34 words -> "Encrypted,
+  never shared, never sent to the AI." + full promise behind "i".
+- Building page: intro, hint, "no open violations", certified-by-landlord
+  (34 words -> one line + "i"), apartment lines, call to action, source
+  note (re-inspection caveat behind "i"), Class C deadline (21-day
+  exceptions behind "i").
+- Law page: not-found note (68 words -> one line, library contents behind
+  "i"), outage, "no longer in the code", repealed, the standing note.
+- Settings: appearance, name, account (email confirmation behind "i"),
+  data export, deletion (still says 30 days and can't be undone).
+- Sign-up, login, forgot password, account-details page, chat greeting.
+- Learn more: the four disclaimer paragraphs are now four short lines,
+  each with its detail behind "i" (the page still says everything it did).
+
+Unchanged on purpose
+- The per-message line and footer note (already short).
+- Help resources and the can/cannot lists (already short).

@@ -1,5 +1,6 @@
 <!doctype html>
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. See docs/frontend/law-page.md for why sections that left the code are still shown and why the text is set apart from our own words. #}
+{% from "_info.html" import info as info_tip, info_assets %}
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -238,18 +239,18 @@
     {% if error == "unavailable" %}
       <div class="alert error" role="alert">
         <strong>The law library didn't respond</strong>
-        <p>This is usually brief. Please try again in a minute. The official text is always on <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">American Legal Publishing</a> (City law) and <a href="{{ nys_laws_url }}" target="_blank" rel="noopener noreferrer">the State Senate's site</a> (State law).</p>
+        <p>Try again in a minute, or read it on <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">American Legal Publishing</a> (City) or <a href="{{ nys_laws_url }}" target="_blank" rel="noopener noreferrer">the State Senate's site</a> (State).</p>
       </div>
     {% elif error == "not_found" %}
       <section class="card">
         <h1 class="law-title">§ {{ citation }} isn't in our library</h1>
-        <p class="note">We hold the City's Housing Maintenance Code, Rent Stabilization Law, Unlawful Eviction, Right to Counsel, Human Rights Law and Rent Control, and the State's landlord-tenant law (Real Property Law Articles 6-A and 7, RPAPL Articles 7 and 7-A, and the security deposit rules), copied word for word from the official text. This section is outside those, or the number may be mistyped. You can look it up on <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">American Legal Publishing</a> (City law) or <a href="{{ nys_laws_url }}" target="_blank" rel="noopener noreferrer">the State Senate's site</a> (State law).</p>
+        <p class="note">It may be outside our library, or the number may be mistyped.{% call info_tip(label="What our library holds") %}City: the Housing Maintenance Code, Rent Stabilization Law, Unlawful Eviction, Right to Counsel, Human Rights Law and Rent Control. State: Real Property Law Articles 6-A and 7, RPAPL Articles 7 and 7-A, and the security deposit rules. All copied word for word from the official text.{% endcall %} Try <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">American Legal Publishing</a> (City) or <a href="{{ nys_laws_url }}" target="_blank" rel="noopener noreferrer">the State Senate's site</a> (State).</p>
       </section>
     {% else %}
       {% if sections|length > 1 %}
         <div class="alert warning">
           <strong>More than one section is numbered § {{ citation }}.</strong>
-          <p>Check the chapter shown above each one to find the one you need.</p>
+          <p>Check each one's chapter to find yours.</p>
         </div>
       {% endif %}
       {% for s in sections %}
@@ -259,12 +260,12 @@
           {% if s.status != "active" %}
             <div class="alert warning" role="note">
               <strong>No longer in the official code</strong>
-              <p>This section was not in the official publisher's current edition when we last checked{% if s.last_checked_at %} on {{ s.last_checked_at.strftime("%B") }} {{ s.last_checked_at.day }}, {{ s.last_checked_at.year }}{% endif %}. It is kept here so older links still work. Don't rely on it as current law.</p>
+              <p>Missing from the official code{% if s.last_checked_at %} as of {{ s.last_checked_at.strftime("%B") }} {{ s.last_checked_at.day }}, {{ s.last_checked_at.year }}{% endif %}. Don't rely on it as current law.{{ info_tip("Kept here so older links still work.") }}</p>
             </div>
           {% elif s.repealed %}
             <div class="alert warning" role="note">
               <strong>This section has been repealed</strong>
-              <p>It is no longer in force. The history below says when and by which law.</p>
+              <p>No longer in force. See the history below.</p>
             </div>
           {% endif %}
           {% if s.paragraphs %}
@@ -294,7 +295,7 @@
             <p class="hint">Added by the publisher for reference. Not part of the law.</p>
             <ul class="notes">{% for n in s.notes %}<li>{{ n }}</li>{% endfor %}</ul>
           {% endif %}
-          <p class="note">{{ law_page_note }}</p>
+          <p class="note">{{ law_page_note }}{{ info_tip(law_page_note_detail) }}</p>
         </article>
       {% endfor %}
     {% endif %}
@@ -302,5 +303,6 @@
   <footer>
     <p>{{ short_disclaimer }} <a href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a></p>
   </footer>
+  {{ info_assets() }}
 </body>
 </html>

@@ -241,7 +241,7 @@
 
     <h1>Log in</h1>
     <p class="subtitle">Use your confirmed account to continue.</p>
-    <a class="lookup-callout" href="{{ url_for('main.building_lookup') }}"><strong>Not ready to sign up?</strong> Look up your building's open housing violations first. No account needed.</a>
+    <a class="lookup-callout" href="{{ url_for('main.building_lookup') }}"><strong>Not ready to sign up?</strong> Look up your building first. No account needed.</a>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
