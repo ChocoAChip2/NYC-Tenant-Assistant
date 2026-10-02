@@ -64,5 +64,27 @@ class EveryPageThatUsesATipLoadsItsAssets(unittest.TestCase):
         self.assertGreaterEqual(len(users), 6)
 
 
+class PublicCopyStaysGeneral(unittest.TestCase):
+    """Owner rule, 2026-10-02: say what's true for the tenant ("encrypted",
+    "never shared"), never how it's built. Vendor and config names change;
+    the promise shouldn't."""
+
+    BACKEND_WORDS = ("Gemini", "GEMINI", "Supabase", "API_KEY", "API key", "service-role", "Render.com")
+
+    def test_templates_and_public_strings_never_name_the_backend(self):
+        import branding
+        sources = {}
+        for name in sorted(os.listdir(_TEMPLATES)):
+            if name.endswith(".html"):
+                with open(os.path.join(_TEMPLATES, name), encoding="utf-8") as handle:
+                    sources[name] = re.sub(r"(?s)\{#.*?#\}", "", handle.read())
+        public = {k: v for k, v in vars(branding).items() if k.isupper() and isinstance(v, (str, list))}
+        sources["branding.py (public strings)"] = repr(public)
+        for name, text in sources.items():
+            for word in self.BACKEND_WORDS:
+                with self.subTest(source=name, word=word):
+                    self.assertNotIn(word, text)
+
+
 if __name__ == "__main__":
     unittest.main()

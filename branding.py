@@ -38,15 +38,19 @@ LAW_PAGE_NOTE_DETAIL = (
 )
 
 # The lock note beside the name and date-of-birth fields (sign-up,
-# Settings, the requirements page). Short line visible, the full promise
-# behind the "i".
+# Settings, the requirements page).
+#
+# RULE (owner, 2026-10-02): public privacy wording states the outcome in
+# general terms ("encrypted", "never shared") and never names how it is
+# done -- which services, keys, models or vendors are involved. Those
+# change as the app develops; the promise shouldn't have to. It must
+# still be TRUE for every way the data is handled: the profile is never
+# sent anywhere, so "never shared" holds. Chat messages are a different
+# case (they go to the AI provider to be answered), so nothing says
+# conversations are "never shared". See docs/frontend/info-tips.md.
 PRIVACY_NOTE_TITLE = "Your details stay confidential."
-PRIVACY_NOTE = "Encrypted, never shared, never sent to the AI."
-PRIVACY_NOTE_DETAIL = (
-    "Your name and date of birth are encrypted before they're stored, used "
-    "only to greet you and confirm your age, never shared or sold, and "
-    "deleted with your account."
-)
+PRIVACY_NOTE = "Encrypted and never shared."
+PRIVACY_NOTE_DETAIL = "Used only for your account, and deleted if you delete it."
 
 # Shown next to the short disclaimer as the link out to the full page.
 LEARN_MORE_LABEL = "Learn more"

@@ -1,0 +1,22 @@
+2026-10-02  Public wording says what's true, not how it's built
+
+Request (owner): change the privacy line to "Your details stay
+confidential. Encrypted and never shared." and keep public wording general
+but clear -- never describe backend details that we (or other developers
+or AIs) may change, like which services handle data.
+
+Changed
+- Privacy note (sign-up, Settings, account page): "Encrypted and never
+  shared." Its "i": "Used only for your account, and deleted if you delete
+  it."
+- Learn More, Your data: "Your data is encrypted and never sold."
+- Chat page, AI not configured: was "GEMINI_API_KEY is not configured..."
+  (and the send button's tooltip named the key). Now "The assistant is
+  unavailable right now. Please try again later." Same for the API error.
+- New test: no template or public branding string names the backend
+  (Gemini, Supabase, API keys, service-role...).
+
+Kept true
+- "Never shared" is only said of profile details, which are never sent
+  anywhere. Conversations go to the AI provider to be answered, so they
+  are described as "encrypted and never sold", not "never shared".
