@@ -53,8 +53,9 @@ reminders) would repeat that gap. This is the general fix.
 ## Adding a requirement
 
 1. In `account_requirements.py`, define a `Requirement`:
-   - `key`, `version`, `title`, and `why`. `why` is plain language saying
-     why you're asking; it's shown on the page.
+   - `key`, `version`, `title`, and `why`. `why` is one short, plain
+     sentence saying why you're asking; it's shown on the page. Optional
+     `why_detail` goes behind an "i" button next to it.
    - `template`: `templates/_requirement_<key>.html`. It holds just the
      fields, uses the `.field` / `.name-row` / `.privacy-note` styles of
      `account_complete.html`, and has no HTML/CSS/JS comments.

@@ -483,15 +483,15 @@ class RouteTests(_CacheIsolation):
     def test_the_certified_explanation_appears_when_it_applies(self):
         body = self._get("?address=231+echo+pl").get_data(as_text=True)
 
-        self.assertIn("certified by the landlord as fixed", body)
-        self.assertIn("challenge a certification", body)
+        self.assertIn("certified as fixed by the landlord", body)
+        self.assertIn("challenge it and HPD will re-inspect", body)
 
     def test_a_clean_building_does_not_claim_nothing_is_wrong(self):
         body = self._get(
             "?address=231+echo+pl", open_rows=[], open_counts=[{"class": "C", "n": "0"}]
         ).get_data(as_text=True)
 
-        self.assertIn("none are currently recorded, not that nothing is wrong", body)
+        self.assertIn("mean nothing is wrong", body)
 
     def test_city_text_is_escaped(self):
         """novdescription comes from a third party and lands in our HTML."""

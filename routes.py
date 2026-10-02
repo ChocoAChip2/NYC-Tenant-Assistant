@@ -1104,7 +1104,7 @@ def learn_more():
 
     return render_template(
         "learn_more.html",
-        full_disclaimer_paragraphs=branding.FULL_DISCLAIMER_PARAGRAPHS,
+        full_disclaimer_points=branding.FULL_DISCLAIMER_POINTS,
         help_resources=branding.HELP_RESOURCES,
         logged_in=bool(session.get("user_id")),
     )

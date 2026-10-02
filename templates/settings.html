@@ -1,5 +1,6 @@
 <!doctype html>
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. Jinja comments like this one are stripped before the response is written. Read docs/frontend/css-gotchas.md before deleting a CSS rule here you don't recognise. #}
+{% from "_info.html" import info as info_tip, info_assets %}
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -309,6 +310,7 @@
     @media (max-width: 700px) {
       .top-disclaimer { padding: 10px 14px; font-size: 12px; }
     }
+    .top-disclaimer .info-tip > .info-btn { border-color: currentColor; color: inherit; }
   </style>
 </head>
 <body>
@@ -322,7 +324,7 @@
 
   <p class="top-disclaimer" role="note">
     <span class="warn-icon" aria-hidden="true">!</span>
-    <span>{{ top_disclaimer }}</span>
+    <span>{{ top_disclaimer }}{{ info_tip(top_disclaimer_detail, label="About this notice") }}</span>
   </p>
 
   <main>
@@ -336,7 +338,7 @@
 
     <section class="card">
       <h2>Appearance</h2>
-      <p class="hint">Choose how the app looks. This is saved on this device only.</p>
+      <p class="hint">Saved on this device only.</p>
       <div class="theme-options" id="theme-options">
         <label class="theme-option">
           <input type="radio" name="theme" value="light">
@@ -356,9 +358,9 @@
     <section class="card" id="profile">
       <h2>Your name</h2>
       {% if has_profile %}
-      <p class="hint">This is how we greet you. Update it any time.{% if not profile %} Enter all three to save.{% endif %}</p>
+      <p class="hint">Used to greet you.{% if not profile %} Enter all three to save.{% endif %}</p>
       {% else %}
-      <p class="hint">Add your name so we can greet you. Accounts made before we asked for it don't have one yet.</p>
+      <p class="hint">Add your name so we can greet you.</p>
       {% endif %}
       <form class="stack" id="profile-form" method="POST" action="{{ url_for('main.update_profile') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -378,7 +380,7 @@
         </label>
         <p class="privacy-note">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-          <span><strong>Your details stay confidential.</strong>Your name and date of birth are encrypted before they're stored, used only to greet you and confirm your age, never shared or sold, never sent to the AI, and deleted with your account.</span>
+          <span><strong>{{ privacy_note_title }}</strong>{{ privacy_note }}{{ info_tip(privacy_note_detail, label="How your details are protected") }}</span>
         </p>
         <button type="submit">Save name</button>
       </form>
@@ -386,7 +388,7 @@
 
     <section class="card">
       <h2>Account</h2>
-      <p class="hint">Signed in as <strong>{{ user_email }}</strong>. Update your email and/or password below. Changing your email requires confirming it from your inbox before it takes effect.</p>
+      <p class="hint">Signed in as <strong>{{ user_email }}</strong>.{{ info_tip("A new email takes effect after you confirm it from your inbox.") }}</p>
       <form class="stack" id="account-form" method="POST" action="{{ url_for('main.update_account') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label>
@@ -413,7 +415,7 @@
 
     <section class="card">
       <h2>Your data</h2>
-      <p class="hint">Download a copy of every message in every conversation you've had with the assistant, as a plain Markdown file, for your own records.</p>
+      <p class="hint">Download all your conversations as a Markdown file.</p>
       <a class="button secondary" href="{{ url_for('main.download_chat_history') }}">Download my chat history</a>
     </section>
 
@@ -425,7 +427,7 @@
           <span data-purge-at="{{ pending_deletion.purge_after }}" id="purge-date">
             It will be permanently deleted on {{ pending_deletion.purge_after[:10] }}.
           </span>
-          Until then everything still works normally, and you can stop this at any time.
+          It works normally until then. Cancel any time.
         </div>
         <form method="POST" action="{{ url_for('main.cancel_account_deletion') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -433,11 +435,8 @@
         </form>
       {% else %}
         <p class="hint">
-          This deletes your account and every conversation and message in it.
-          Nothing happens right away: your account is scheduled for deletion
-          in {{ deletion_grace_period_days }} days and keeps working the whole
-          time, so you can change your mind and cancel from this page. After
-          that it is permanent and cannot be undone.
+          Deletes your account and all conversations. You have
+          {{ deletion_grace_period_days }} days to cancel; after that it can't be undone.{{ info_tip("Your account keeps working until then. Cancel from this page.") }}
         </p>
         <button type="button" class="danger" id="delete-account-start">Delete my account</button>
 
@@ -563,5 +562,6 @@
         ".";
     })();
   </script>
+  {{ info_assets() }}
 </body>
 </html>

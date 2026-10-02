@@ -1,5 +1,6 @@
 <!doctype html>
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. See docs/frontend/building-lookup.md for why this page is public, why it queries by BBL, and why "certified" is shown separately from "open". #}
+{% from "_info.html" import info as info_tip, info_assets %}
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -324,7 +325,7 @@
     {% if not report %}
       <div>
         <h1>What does the city already know about your building?</h1>
-        <p class="lede">Type your address to see every open housing violation NYC HPD has on record. Free, and no account needed.</p>
+        <p class="lede">See open housing violations for any NYC address. Free, no account needed.</p>
       </div>
     {% endif %}
 
@@ -339,7 +340,7 @@
           <input type="text" id="apt" name="apt" value="{{ apt }}" placeholder="4B" maxlength="{{ max_apartment_length }}" autocomplete="off">
         </div>
       </div>
-      <p class="hint">Include the house number. Adding the borough or ZIP code helps.</p>
+      <p class="hint">Include the house number. Borough or ZIP helps.</p>
       <div><button type="submit">Look up</button></div>
     </form>
 
@@ -354,8 +355,8 @@
       <section class="card" aria-labelledby="match-label">
         <h1 class="match-label" id="match-label">{{ report.match.label }}</h1>
         <p class="match-meta">
-          {% if report.data_as_of %}City data as of {{ report.data_as_of.strftime("%B") }} {{ report.data_as_of.day }}, {{ report.data_as_of.year }}.{% else %}The city's last-update date is unavailable right now.{% endif %}
-          Not your building? Add the borough or ZIP code and search again.
+          {% if report.data_as_of %}City data as of {{ report.data_as_of.strftime("%B") }} {{ report.data_as_of.day }}, {{ report.data_as_of.year }}.{% else %}City data date unavailable.{% endif %}
+          Not your building? Add the borough or ZIP.
         </p>
 
         <div class="stats">
@@ -385,14 +386,14 @@
       {% if report.open_total == 0 %}
         <div class="alert success">
           <strong>No open violations on record.</strong>
-          <p>That means none are currently recorded, not that nothing is wrong. If there's a problem in your home, call 311 or <a href="https://portal.311.nyc.gov/" target="_blank" rel="noopener noreferrer">file online</a> to request an HPD inspection.</p>
+          <p>That doesn't mean nothing is wrong. Problem at home? Call 311 or <a href="https://portal.311.nyc.gov/" target="_blank" rel="noopener noreferrer">file online</a>.{% call info_tip() %}A 311 complaint asks HPD to inspect. Violations appear here only after an inspector records them.{% endcall %}</p>
         </div>
       {% endif %}
 
       {% if report.certified_open %}
         <div class="alert warning">
-          <strong>{{ report.certified_open }} of these {{ "has" if report.certified_open == 1 else "have" }} been certified by the landlord as fixed.</strong>
-          <p>A certification is the owner telling HPD the problem is corrected. HPD says tenants are notified when this happens and can challenge a certification, which triggers a re-inspection. If the problem is still there, <a href="{{ hpd_clear_violations_url }}" target="_blank" rel="noopener noreferrer">here's how HPD handles it</a>.</p>
+          <strong>{{ report.certified_open }} {{ "is" if report.certified_open == 1 else "are" }} certified as fixed by the landlord.</strong>
+          <p>Still a problem? You can challenge it and HPD will re-inspect. <a href="{{ hpd_clear_violations_url }}" target="_blank" rel="noopener noreferrer">How it works</a>{% call info_tip() %}A certification is the owner telling HPD the problem is corrected. HPD says tenants are notified when this happens.{% endcall %}</p>
         </div>
       {% endif %}
 
@@ -400,19 +401,19 @@
         <section class="card class-group" aria-labelledby="apt-heading">
           <h2 id="apt-heading">In apartment {{ report.apartment }}</h2>
           {% if report.apartment_violations %}
-            <p class="class-deadline">{{ report.apartment_violations|length }} open violation{{ "" if report.apartment_violations|length == 1 else "s" }} recorded for your unit.</p>
+            <p class="class-deadline">{{ report.apartment_violations|length }} open in your unit.</p>
             {% for v in report.apartment_violations %}
               {% include "_violation.html" %}
             {% endfor %}
           {% else %}
-            <p class="class-deadline">No open violations are recorded for apartment {{ report.apartment }}. Building-wide problems, like the boiler, hallways or the roof, are listed below and can still affect you.</p>
+            <p class="class-deadline">None recorded for your unit. Building-wide problems below can still affect you.{{ info_tip("Like the boiler, hallways or the roof.") }}</p>
           {% endif %}
         </section>
       {% endif %}
 
       <section class="card cta" aria-labelledby="cta-heading">
         <h2 id="cta-heading">What do these mean for you?</h2>
-        <p>{{ product_name }} can explain what's on this record, what your landlord is supposed to do, and how to push for it, starting from exactly what's listed here.</p>
+        <p>Ask {{ product_name }} what this record means and what your landlord must do.</p>
         <div class="cta-actions">
           {% if logged_in %}
             <form method="POST" action="{{ url_for('main.create_conversation') }}" data-new-chat-form>
@@ -431,20 +432,19 @@
       {% for cls, info, items in report.open_by_class() %}
         <section class="card class-group" aria-labelledby="class-{{ cls }}">
           <h2 id="class-{{ cls }}"><span class="class-pill {{ cls }}">{{ info.short }}</span> {{ info.name }} <span class="stat-label">({{ report.open_counts.get(cls, items|length) }} open)</span></h2>
-          <p class="class-deadline">{{ info.deadline }}</p>
+          <p class="class-deadline">{{ info.deadline }}{% if info.deadline_detail %}{{ info_tip(info.deadline_detail) }}{% endif %}</p>
           {% for v in items[:max_per_class] %}
             {% include "_violation.html" %}
           {% endfor %}
           {% if report.open_counts.get(cls, items|length) > max_per_class %}
-            <p class="more">Showing the {{ max_per_class }} most recent of {{ report.open_counts.get(cls) }}. The full list is on <a href="{{ dataset_url }}" target="_blank" rel="noopener noreferrer">NYC Open Data</a>.</p>
+            <p class="more">Showing the {{ max_per_class }} most recent of {{ report.open_counts.get(cls) }}. <a href="{{ dataset_url }}" target="_blank" rel="noopener noreferrer">Full list</a></p>
           {% endif %}
         </section>
       {% endfor %}
 
       <div class="source-note">
-        <p>Source: NYC Department of Housing Preservation and Development, <a href="{{ dataset_url }}" target="_blank" rel="noopener noreferrer">Housing Maintenance Code Violations</a> on NYC Open Data. The city updates it daily.</p>
-        <p>New violations can take time to appear after an inspection. A violation that is no longer open was not necessarily re-inspected; many close when the owner certifies the repair.</p>
-        {% if report.list_truncated %}<p>This building has more open violations than can be listed here; the counts above are complete.</p>{% endif %}
+        <p>Source: <a href="{{ dataset_url }}" target="_blank" rel="noopener noreferrer">HPD violations</a> on NYC Open Data, updated daily.{% call info_tip() %}New violations can take time to appear after an inspection. A closed violation wasn't necessarily re-inspected; many close when the owner certifies the repair.{% endcall %}</p>
+        {% if report.list_truncated %}<p>Not every violation is listed; the counts above are complete.</p>{% endif %}
       </div>
     {% endif %}
   </main>
@@ -484,5 +484,6 @@
       });
     })();
   </script>
+  {{ info_assets() }}
 </body>
 </html>

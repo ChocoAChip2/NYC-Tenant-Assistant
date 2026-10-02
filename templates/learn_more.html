@@ -1,5 +1,6 @@
 <!doctype html>
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. Jinja comments like this one are stripped before the response is written. Read docs/frontend/css-gotchas.md before deleting a CSS rule here you don't recognise. #}
+{% from "_info.html" import info as info_tip, info_assets %}
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -141,6 +142,7 @@
       color: var(--warning);
     }
     section.important h2 { color: var(--warning); }
+    section.important ul.points { margin: 0; padding-left: 1.1rem; display: grid; gap: 8px; line-height: 1.5; }
     .two-col { display: grid; gap: 10px; }
     .can-cannot { display: grid; gap: 18px; }
     @media (min-width: 620px) {
@@ -186,14 +188,16 @@
   <main>
     <div>
       <h1>About {{ product_name }}</h1>
-      <p class="lede">What this tool does, what it deliberately does not do, and where to get real help.</p>
+      <p class="lede">What it does, what it doesn't, and where to get real help.</p>
     </div>
 
     <section class="important">
       <h2>This is not legal advice</h2>
-      {% for paragraph in full_disclaimer_paragraphs %}
-        <p>{{ paragraph }}</p>
+      <ul class="points">
+      {% for point in full_disclaimer_points %}
+        <li>{{ point.lead }}{{ info_tip(point.detail) }}</li>
       {% endfor %}
+      </ul>
     </section>
 
     <section>
@@ -224,7 +228,7 @@
 
     <section>
       <h2>Where to get real help</h2>
-      <p class="lede">All of these are free or low-cost. If your situation involves a court date, a signed document, or a deadline, start here rather than with us.</p>
+      <p class="lede">Free or low-cost. Court date, signed papers or a deadline? Start here, not with us.</p>
       {% for resource in help_resources %}
         <div class="resource">
           <p class="resource-name"><a href="{{ resource.url }}" target="_blank" rel="noopener noreferrer">{{ resource.name }}</a></p>
@@ -236,13 +240,14 @@
 
     <section>
       <h2>Your data</h2>
-      <p>Your conversations are encrypted before they are stored, and only your account can read them back.</p>
-      <p>You can download everything you have written, or delete your account entirely, from Settings. Account deletion is scheduled 30 days out and can be cancelled at any point in that window.</p>
+      <p>Your conversations are encrypted, and only your account can read them.</p>
+      <p>Download or delete everything from Settings.{{ info_tip("Deletion happens 30 days after you ask, and you can cancel any time before then.") }}</p>
     </section>
   </main>
 
   <footer>
-    <p>{{ short_disclaimer }} If you are facing an eviction or a court deadline, contact a housing attorney.</p>
+    <p>{{ short_disclaimer }} Facing eviction or a court deadline? Contact a housing attorney.</p>
   </footer>
+  {{ info_assets() }}
 </body>
 </html>

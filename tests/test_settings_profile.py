@@ -92,7 +92,7 @@ class SettingsProfileCardTests(_Keys):
         self.assertIn('value="José"', body)
         self.assertIn('value="O&#39;Brien"', body)
         self.assertIn('value="1990-05-17"', body)
-        self.assertIn("This is how we greet you.", body)
+        self.assertIn("Used to greet you.", body)
 
     def test_settings_still_render_when_auth_cannot_be_read(self):
         response = _client(FakeSupabase(fail_read=True)).get("/settings")

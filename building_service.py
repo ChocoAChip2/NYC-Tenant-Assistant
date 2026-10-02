@@ -92,7 +92,9 @@ CLASS_INFO = {
     "C": {
         "name": "Immediately hazardous",
         "short": "Class C",
-        "deadline": "Most must be corrected within 24 hours. Some conditions, such as lead-based paint, window guards, mold and pests, have 21 days.",
+        "deadline": "Most must be corrected within 24 hours.",
+        # Shown behind the page's "i" button (templates/_info.html).
+        "deadline_detail": "Some conditions, such as lead-based paint, window guards, mold and pests, have 21 days.",
     },
     "B": {
         "name": "Hazardous",

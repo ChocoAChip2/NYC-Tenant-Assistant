@@ -98,9 +98,11 @@ class TopDisclaimerTests(unittest.TestCase):
         """Wording can be edited; these three claims are the reason it exists."""
         text = branding.TOP_DISCLAIMER
 
-        self.assertIn("legal assistance", text)
-        self.assertIn("list of sources", text)
-        self.assertIn("does NOT provide legal advice", text)
+        self.assertIn("Not legal advice", text)
+        self.assertIn("Tell the chat", text)
+        self.assertIn("list free legal help", text)
+        # Trimmed 2026-10-02 (owner: too wordy); the rest is behind its "i".
+        self.assertIn("should never be used as legal advice", branding.TOP_DISCLAIMER_DETAIL)
 
     def test_banner_is_visually_flagged_in_the_warning_colour_not_the_body_colour(self):
         body = _client().get("/chat").get_data(as_text=True)
@@ -118,7 +120,9 @@ class TopDisclaimerTests(unittest.TestCase):
         banner = body[rule_start:body.index("</p>", rule_start)]
 
         self.assertNotIn("dismiss", banner.lower())
-        self.assertNotIn("<button", banner.lower())
+        self.assertNotIn("close", banner.lower())
+        # Its only button is the "i" that shows more; nothing hides it.
+        self.assertEqual(banner.lower().count("<button"), banner.count('class="info-btn"'))
 
     def test_banner_is_not_hardcoded_into_the_templates(self):
         """It has to come from branding.py, or the two pages will drift."""

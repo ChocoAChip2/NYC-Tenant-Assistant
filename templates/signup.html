@@ -1,5 +1,6 @@
 <!doctype html>
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. Jinja comments like this one are stripped before the response is written. Read docs/frontend/css-gotchas.md before deleting a CSS rule here you don't recognise. #}
+{% from "_info.html" import info as info_tip, info_assets %}
 {% set form = form or {} %}
 <html lang="en">
 <head>
@@ -255,8 +256,8 @@
     </div>
 
     <h1>Create your account</h1>
-    <p class="subtitle">Tell us your name and date of birth, then choose an email and password. After you confirm your email, log in to start chatting.</p>
-    <a class="lookup-callout" href="{{ url_for('main.building_lookup') }}"><strong>Not ready to sign up?</strong> Look up your building's open housing violations first. No account needed.</a>
+    <p class="subtitle">You'll confirm your email before your first login.</p>
+    <a class="lookup-callout" href="{{ url_for('main.building_lookup') }}"><strong>Not ready to sign up?</strong> Look up your building first. No account needed.</a>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -294,7 +295,7 @@
       </div>
       <p class="privacy-note" id="privacy-note">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-        <span><strong>Your details stay confidential.</strong>Your name and date of birth are encrypted before they're stored, used only to greet you and confirm your age, never shared or sold, never sent to the AI, and deleted with your account.</span>
+        <span><strong>{{ privacy_note_title }}</strong>{{ privacy_note }}{{ info_tip(privacy_note_detail, label="How your details are protected") }}</span>
       </p>
       <div class="field">
         <label for="email">Email</label>
@@ -340,5 +341,6 @@
       btn.textContent = "Creating account…";
     });
   </script>
+  {{ info_assets() }}
 </body>
 </html>

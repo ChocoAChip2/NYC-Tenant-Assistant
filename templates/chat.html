@@ -1,5 +1,6 @@
 <!doctype html>
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. Jinja comments like this one are stripped before the response is written. Read docs/frontend/css-gotchas.md before deleting a CSS rule here you don't recognise. #}
+{% from "_info.html" import info as info_tip, info_assets %}
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -619,6 +620,7 @@
       text-align: center;
     }
     .top-disclaimer strong { font-weight: 700; }
+    .top-disclaimer .info-tip > .info-btn { border-color: currentColor; color: inherit; }
     @media (max-width: 700px) {
       .top-disclaimer { padding: 10px 14px; font-size: 12px; }
     }
@@ -762,7 +764,7 @@
 
   <p class="top-disclaimer" role="note">
     <span class="warn-icon" aria-hidden="true">!</span>
-    <span>{{ top_disclaimer }}</span>
+    <span>{{ top_disclaimer }}{{ info_tip(top_disclaimer_detail, label="About this notice") }}</span>
   </p>
 
   {% if not ai_ready %}
@@ -897,7 +899,7 @@
           <div class="greeting-block">
             <p class="greeting-eyebrow" id="greeting-date"></p>
             <h1 class="greeting-title" id="greeting-text">Welcome{% if first_name %}, {{ first_name }}{% elif user_email %}, {{ user_email.split("@")[0]|capitalize }}{% endif %}</h1>
-            <p class="greeting-sub">Ask about repairs, evictions, deposits, or anything else about your tenancy in NYC -- or pick up a previous conversation on the left.</p>
+            <p class="greeting-sub">Ask about repairs, evictions, deposits or anything else about renting in NYC.</p>
             <form class="continue-form" method="POST" action="{{ url_for('main.create_conversation') }}" data-new-chat-form data-continue-form hidden>
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <input type="hidden" name="title" value="My building" data-continue-title>
@@ -1412,5 +1414,6 @@
       }
     }
   </script>
+  {{ info_assets() }}
 </body>
 </html>

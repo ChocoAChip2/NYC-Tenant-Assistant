@@ -1,5 +1,6 @@
 <!doctype html>
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. Jinja comments like this one are stripped before the response is written. See docs/frontend/account-requirements.md for what this page is for and how a feature adds a field to it. #}
+{% from "_info.html" import info as info_tip, info_assets %}
 {% set form = form or {} %}
 <html lang="en">
 <head>
@@ -277,7 +278,7 @@
     </div>
 
     <h1>A few details before you continue</h1>
-    <p class="subtitle">We've added something that needs a little information your account doesn't have yet. This only takes a moment.</p>
+    <p class="subtitle">This only takes a moment.</p>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -293,7 +294,7 @@
       {% for requirement in requirements %}
       <section class="requirement" id="requirement-{{ requirement.key }}">
         <h2>{{ requirement.title }}</h2>
-        <p class="why">{{ requirement.why }}</p>
+        <p class="why">{{ requirement.why }}{% if requirement.why_detail %}{{ info_tip(requirement.why_detail) }}{% endif %}</p>
         {% include requirement.template %}
       </section>
       {% endfor %}
@@ -326,5 +327,6 @@
       btn.textContent = "Saving…";
     });
   </script>
+  {{ info_assets() }}
 </body>
 </html>

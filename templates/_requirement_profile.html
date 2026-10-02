@@ -1,4 +1,5 @@
 {# Fields for the "profile" requirement (account_requirements.PROFILE). Rendered inside account_complete.html, whose styles it uses. See docs/frontend/account-requirements.md. #}
+{% from "_info.html" import info as info_tip %}
 <div class="name-row">
   <div class="field">
     <label for="first_name">First name</label>
@@ -16,5 +17,5 @@
 </div>
 <p class="privacy-note">
   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-  <span><strong>Your details stay confidential.</strong>Your name and date of birth are encrypted before they're stored, used only to greet you and confirm your age, never shared or sold, never sent to the AI, and deleted with your account.</span>
+  <span><strong>{{ privacy_note_title }}</strong>{{ privacy_note }}{{ info_tip(privacy_note_detail, label="How your details are protected") }}</span>
 </p>
