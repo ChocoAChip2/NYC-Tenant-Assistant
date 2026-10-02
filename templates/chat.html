@@ -768,7 +768,7 @@
   </p>
 
   {% if not ai_ready %}
-    <p class="warning">GEMINI_API_KEY is not configured, so AI replies are currently disabled.</p>
+    <p class="warning">The assistant is unavailable right now. Please try again later.</p>
   {% endif %}
 
   {% with messages = get_flashed_messages(with_categories=true) %}
@@ -889,7 +889,7 @@
         <form id="chat-form" data-conversation-id="{{ active_conversation_id }}">
           <label for="message-input" class="sr-only">Message input</label>
           <textarea id="message-input" placeholder="Message {{ product_name }}" maxlength="{{ max_message_length }}" required></textarea>
-          <button id="send-btn" type="submit" aria-label="Send message" title="{% if not ai_ready %}Configure GEMINI_API_KEY to enable chat{% else %}Send message{% endif %}" {% if not ai_ready %}disabled{% endif %}>&#8593;</button>
+          <button id="send-btn" type="submit" aria-label="Send message" title="{% if not ai_ready %}The assistant is unavailable right now{% else %}Send message{% endif %}" {% if not ai_ready %}disabled{% endif %}>&#8593;</button>
         </form>
 
         <p class="char-count" id="char-count" aria-live="polite"></p>

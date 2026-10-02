@@ -937,7 +937,7 @@ def chat_message():
     except ValueError:
         return jsonify({"error": "No valid messages were provided."}), 400
     except RuntimeError:
-        return jsonify({"error": "AI service is not configured yet."}), 503
+        return jsonify({"error": "The assistant is unavailable right now. Please try again later."}), 503
     except Exception:
         logger.exception("Failed to generate AI response.")
         return jsonify({"error": "The AI service is currently unavailable. Please try again shortly."}), 500

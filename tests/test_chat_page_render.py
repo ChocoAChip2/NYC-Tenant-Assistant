@@ -83,7 +83,7 @@ class ChatPageRenderTests(unittest.TestCase):
         self.assertIn('class="message user"', body)
         self.assertIn('class="message assistant"', body)
         # No GEMINI_API_KEY warning banner when the AI service is ready.
-        self.assertNotIn("GEMINI_API_KEY is not configured", body)
+        self.assertNotIn("The assistant is unavailable right now", body)
 
     def test_no_active_conversation_shows_dynamic_greeting(self):
         app = _build_test_app(FakeSupabaseService(), FakeAIService(ready=True))
@@ -137,7 +137,10 @@ class ChatPageRenderTests(unittest.TestCase):
 
         response = client.get("/chat")
 
-        self.assertIn("GEMINI_API_KEY is not configured", response.get_data(as_text=True))
+        body = response.get_data(as_text=True)
+        self.assertIn("The assistant is unavailable right now", body)
+        # Public pages never name the backend's configuration.
+        self.assertNotIn("GEMINI", body)
 
     def test_logged_out_redirects_to_login(self):
         app = _build_test_app(FakeSupabaseService(), FakeAIService())
