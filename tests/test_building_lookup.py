@@ -624,7 +624,9 @@ class ChatContinuationTests(unittest.TestCase):
         self.assertIn('sessionStorage.getItem("pendingChatTitle")', body)
 
     def test_the_empty_state_links_to_the_lookup(self):
-        self.assertIn('href="/building"', self._chat_body())
+        body = self._chat_body()
+        self.assertIn('href="/"', body)  # street search, the default lookup since 2026-10-07
+        self.assertIn('href="/resources"', body)
 
     def test_plain_new_chat_clears_a_stale_pending_prompt(self):
         """Without this, a prompt stored on the building page and never

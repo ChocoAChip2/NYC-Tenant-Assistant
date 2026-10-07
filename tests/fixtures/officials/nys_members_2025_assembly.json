@@ -1,0 +1,1388 @@
+{
+"success": true,
+"message": "",
+"responseType": "member-sessions list",
+"total": 153,
+"result": {
+"items": [
+{
+"memberId": 1533,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "George Alvarez",
+"shortName": "ALVAREZ",
+"districtCode": 78,
+"sessionYear": 2025
+},
+{
+"memberId": 1459,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Khaleel Anderson",
+"shortName": "ANDERSON",
+"districtCode": 31,
+"sessionYear": 2025
+},
+{
+"memberId": 1481,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Joe Angelino",
+"shortName": "ANGELINO",
+"districtCode": 121,
+"sessionYear": 2025
+},
+{
+"memberId": 1566,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Andrea Bailey",
+"shortName": "BAILEY",
+"districtCode": 133,
+"sessionYear": 2025
+},
+{
+"memberId": 574,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "William A. Barclay",
+"shortName": "BARCLAY",
+"districtCode": 120,
+"sessionYear": 2025
+},
+{
+"memberId": 625,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Didi Barrett",
+"shortName": "BARRETT",
+"districtCode": 106,
+"sessionYear": 2025
+},
+{
+"memberId": 1542,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Anil Beephan Jr.",
+"shortName": "BEEPHAN",
+"districtCode": 105,
+"sessionYear": 2025
+},
+{
+"memberId": 1543,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Scott H. Bendett",
+"shortName": "BENDETT",
+"districtCode": 107,
+"sessionYear": 2025
+},
+{
+"memberId": 534,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Michael Benedetto",
+"shortName": "BENEDETTO",
+"districtCode": 82,
+"sessionYear": 2025
+},
+{
+"memberId": 1545,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Sam Berger",
+"shortName": "BERGER",
+"districtCode": 27,
+"sessionYear": 2025
+},
+{
+"memberId": 898,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Rodneyse Bichotte Hermelyn",
+"shortName": "BICHOTTE HERMELYN",
+"districtCode": 42,
+"sessionYear": 2025
+},
+{
+"memberId": 631,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Kenneth Blankenbush",
+"shortName": "BLANKENBUSH",
+"districtCode": 117,
+"sessionYear": 2025
+},
+{
+"memberId": 1511,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Jake Ryan Blumencranz",
+"shortName": "BLUMENCRANZ",
+"districtCode": 15,
+"sessionYear": 2025
+},
+{
+"memberId": 1568,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Paula Bologna",
+"shortName": "BOLOGNA",
+"districtCode": 144,
+"sessionYear": 2025
+},
+{
+"memberId": 1531,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Alex Bores",
+"shortName": "BORES",
+"districtCode": 73,
+"sessionYear": 2025
+},
+{
+"memberId": 908,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Karl Brabenec",
+"shortName": "BRABENEC",
+"districtCode": 98,
+"sessionYear": 2025
+},
+{
+"memberId": 610,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Edward Braunstein",
+"shortName": "BRAUNSTEIN",
+"districtCode": 26,
+"sessionYear": 2025
+},
+{
+"memberId": 633,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Harry B. Bronson",
+"shortName": "BRONSON",
+"districtCode": 138,
+"sessionYear": 2025
+},
+{
+"memberId": 499,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Alec Brook-Krasny",
+"shortName": "BROOK-KRASNY",
+"districtCode": 46,
+"sessionYear": 2025
+},
+{
+"memberId": 1509,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Eric Brown",
+"shortName": "BROWN E",
+"districtCode": 20,
+"sessionYear": 2025
+},
+{
+"memberId": 1461,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Keith Brown",
+"shortName": "BROWN K",
+"districtCode": 12,
+"sessionYear": 2025
+},
+{
+"memberId": 1478,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Chris Burdick",
+"shortName": "BURDICK",
+"districtCode": 93,
+"sessionYear": 2025
+},
+{
+"memberId": 1254,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Patrick Burke",
+"shortName": "BURKE",
+"districtCode": 142,
+"sessionYear": 2025
+},
+{
+"memberId": 1557,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Noah Burroughs",
+"shortName": "BURROUGHS",
+"districtCode": 18,
+"sessionYear": 2025
+},
+{
+"memberId": 1249,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Marianne Buttenschon",
+"shortName": "BUTTENSCHON",
+"districtCode": 119,
+"sessionYear": 2025
+},
+{
+"memberId": 1547,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Patrick J. Carroll",
+"shortName": "CARROLL P",
+"districtCode": 96,
+"sessionYear": 2025
+},
+{
+"memberId": 1122,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Robert C. Carroll",
+"shortName": "CARROLL R",
+"districtCode": 44,
+"sessionYear": 2025
+},
+{
+"memberId": 1573,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Michael Cashman",
+"shortName": "CASHMAN",
+"districtCode": 115,
+"sessionYear": 2025
+},
+{
+"memberId": 1510,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Monique Chandler-Waterman",
+"shortName": "CHANDLER-WATERMAN",
+"districtCode": 58,
+"sessionYear": 2025
+},
+{
+"memberId": 1528,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Lester Chang",
+"shortName": "CHANG",
+"districtCode": 49,
+"sessionYear": 2025
+},
+{
+"memberId": 1567,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Patrick Chludzinski",
+"shortName": "CHLUDZINSKI",
+"districtCode": 143,
+"sessionYear": 2025
+},
+{
+"memberId": 1460,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Sarah Clark",
+"shortName": "CLARK",
+"districtCode": 136,
+"sessionYear": 2025
+},
+{
+"memberId": 500,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "William Colton",
+"shortName": "COLTON",
+"districtCode": 47,
+"sessionYear": 2025
+},
+{
+"memberId": 1487,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "William Conrad",
+"shortName": "CONRAD",
+"districtCode": 140,
+"sessionYear": 2025
+},
+{
+"memberId": 457,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Vivian Cook",
+"shortName": "COOK",
+"districtCode": 32,
+"sessionYear": 2025
+},
+{
+"memberId": 1242,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Catalina Cruz",
+"shortName": "CRUZ",
+"districtCode": 39,
+"sessionYear": 2025
+},
+{
+"memberId": 1508,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Brian Cunningham",
+"shortName": "CUNNINGHAM",
+"districtCode": 43,
+"sessionYear": 2025
+},
+{
+"memberId": 1546,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Landon C. Dais",
+"shortName": "DAIS",
+"districtCode": 77,
+"sessionYear": 2025
+},
+{
+"memberId": 655,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Maritza Davila",
+"shortName": "DAVILA",
+"districtCode": 53,
+"sessionYear": 2025
+},
+{
+"memberId": 1506,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Manny De Los Santos",
+"shortName": "DE LOS SANTOS",
+"districtCode": 72,
+"sessionYear": 2025
+},
+{
+"memberId": 1238,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Joe DeStefano",
+"shortName": "DESTEFANO",
+"districtCode": 3,
+"sessionYear": 2025
+},
+{
+"memberId": 900,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Erik Dilan",
+"shortName": "DILAN",
+"districtCode": 54,
+"sessionYear": 2025
+},
+{
+"memberId": 533,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Jeffrey Dinowitz",
+"shortName": "DINOWITZ",
+"districtCode": 81,
+"sessionYear": 2025
+},
+{
+"memberId": 656,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "David DiPietro",
+"shortName": "DIPIETRO",
+"districtCode": 147,
+"sessionYear": 2025
+},
+{
+"memberId": 1466,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Michael Durso",
+"shortName": "DURSO",
+"districtCode": 9,
+"sessionYear": 2025
+},
+{
+"memberId": 1539,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Christopher Eachus",
+"shortName": "EACHUS",
+"districtCode": 99,
+"sessionYear": 2025
+},
+{
+"memberId": 1243,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Simcha Eichenstein",
+"shortName": "EICHENSTEIN",
+"districtCode": 48,
+"sessionYear": 2025
+},
+{
+"memberId": 1144,
+"chamber": "ASSEMBLY",
+"incumbent": false,
+"fullName": "Harvey Epstein",
+"shortName": "EPSTEIN",
+"districtCode": 74,
+"sessionYear": 2025
+},
+{
+"memberId": 1244,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Charles Fall",
+"shortName": "FALL",
+"districtCode": 61,
+"sessionYear": 2025
+},
+{
+"memberId": 469,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Michael J. Fitzpatrick",
+"shortName": "FITZPATRICK",
+"districtCode": 8,
+"sessionYear": 2025
+},
+{
+"memberId": 1474,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Phara Souffrant Forrest",
+"shortName": "FORREST",
+"districtCode": 57,
+"sessionYear": 2025
+},
+{
+"memberId": 636,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Christopher Friend",
+"shortName": "FRIEND",
+"districtCode": 124,
+"sessionYear": 2025
+},
+{
+"memberId": 1471,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Emily Gallagher",
+"shortName": "GALLAGHER",
+"districtCode": 50,
+"sessionYear": 2025
+},
+{
+"memberId": 1484,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Jeff Gallahan",
+"shortName": "GALLAHAN",
+"districtCode": 131,
+"sessionYear": 2025
+},
+{
+"memberId": 1465,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Jerett Gandolfo",
+"shortName": "GANDOLFO",
+"districtCode": 7,
+"sessionYear": 2025
+},
+{
+"memberId": 1505,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Eddie Gibbs",
+"shortName": "GIBBS",
+"districtCode": 68,
+"sessionYear": 2025
+},
+{
+"memberId": 1464,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Jodi Giglio",
+"shortName": "GIGLIO",
+"districtCode": 2,
+"sessionYear": 2025
+},
+{
+"memberId": 519,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Deborah Glick",
+"shortName": "GLICK",
+"districtCode": 66,
+"sessionYear": 2025
+},
+{
+"memberId": 1468,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Jessica Gonzalez-Rojas",
+"shortName": "GONZALEZ-ROJAS",
+"districtCode": 34,
+"sessionYear": 2025
+},
+{
+"memberId": 1544,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Scott Gray",
+"shortName": "GRAY",
+"districtCode": 116,
+"sessionYear": 2025
+},
+{
+"memberId": 1241,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Judy Griffin",
+"shortName": "GRIFFIN",
+"districtCode": 21,
+"sessionYear": 2025
+},
+{
+"memberId": 589,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Stephen Hawley",
+"shortName": "HAWLEY",
+"districtCode": 139,
+"sessionYear": 2025
+},
+{
+"memberId": 535,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Carl Heastie",
+"shortName": "HEASTIE",
+"districtCode": 83,
+"sessionYear": 2025
+},
+{
+"memberId": 488,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Andrew Hevesi",
+"shortName": "HEVESI",
+"districtCode": 28,
+"sessionYear": 2025
+},
+{
+"memberId": 1558,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Larinda Hooks",
+"shortName": "HOOKS",
+"districtCode": 35,
+"sessionYear": 2025
+},
+{
+"memberId": 1105,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Pamela J. Hunter",
+"shortName": "HUNTER",
+"districtCode": 128,
+"sessionYear": 2025
+},
+{
+"memberId": 1089,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Alicia Hyndman",
+"shortName": "HYNDMAN",
+"districtCode": 29,
+"sessionYear": 2025
+},
+{
+"memberId": 1476,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Chantel Jackson",
+"shortName": "JACKSON",
+"districtCode": 79,
+"sessionYear": 2025
+},
+{
+"memberId": 1259,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Jonathan Jacobson",
+"shortName": "JACOBSON",
+"districtCode": 104,
+"sessionYear": 2025
+},
+{
+"memberId": 1485,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Josh Jensen",
+"shortName": "JENSEN",
+"districtCode": 134,
+"sessionYear": 2025
+},
+{
+"memberId": 1120,
+"chamber": "ASSEMBLY",
+"incumbent": false,
+"fullName": "Billy Jones",
+"shortName": "JONES",
+"districtCode": 115,
+"sessionYear": 2025
+},
+{
+"memberId": 1554,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Rebecca Kassay",
+"shortName": "KASSAY",
+"districtCode": 4,
+"sessionYear": 2025
+},
+{
+"memberId": 1564,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Paula Kay",
+"shortName": "KAY",
+"districtCode": 100,
+"sessionYear": 2025
+},
+{
+"memberId": 1482,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Anna Kelles",
+"shortName": "KELLES",
+"districtCode": 125,
+"sessionYear": 2025
+},
+{
+"memberId": 659,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Ron Kim",
+"shortName": "KIM",
+"districtCode": 40,
+"sessionYear": 2025
+},
+{
+"memberId": 1561,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Micah Lasher",
+"shortName": "LASHER",
+"districtCode": 69,
+"sessionYear": 2025
+},
+{
+"memberId": 474,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Charles Lavine",
+"shortName": "LAVINE",
+"districtCode": 13,
+"sessionYear": 2025
+},
+{
+"memberId": 1530,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Grace Lee",
+"shortName": "LEE",
+"districtCode": 65,
+"sessionYear": 2025
+},
+{
+"memberId": 1483,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "John Lemondes",
+"shortName": "LEMONDES",
+"districtCode": 126,
+"sessionYear": 2025
+},
+{
+"memberId": 1537,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Dana Levenberg",
+"shortName": "LEVENBERG",
+"districtCode": 95,
+"sessionYear": 2025
+},
+{
+"memberId": 1507,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Nikki Lucas",
+"shortName": "LUCAS",
+"districtCode": 60,
+"sessionYear": 2025
+},
+{
+"memberId": 1486,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Jen Lunsford",
+"shortName": "LUNSFORD",
+"districtCode": 135,
+"sessionYear": 2025
+},
+{
+"memberId": 576,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Donna Lupardo",
+"shortName": "LUPARDO",
+"districtCode": 123,
+"sessionYear": 2025
+},
+{
+"memberId": 570,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "William Magnarelli",
+"shortName": "MAGNARELLI",
+"districtCode": 129,
+"sessionYear": 2025
+},
+{
+"memberId": 1540,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Brian Maher",
+"shortName": "MAHER",
+"districtCode": 101,
+"sessionYear": 2025
+},
+{
+"memberId": 1469,
+"chamber": "ASSEMBLY",
+"incumbent": false,
+"fullName": "Zohran Mamdani",
+"shortName": "MAMDANI",
+"districtCode": 36,
+"sessionYear": 2025
+},
+{
+"memberId": 1251,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Brian Manktelow",
+"shortName": "MANKTELOW",
+"districtCode": 130,
+"sessionYear": 2025
+},
+{
+"memberId": 662,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "John T. McDonald III",
+"shortName": "MCDONALD",
+"districtCode": 108,
+"sessionYear": 2025
+},
+{
+"memberId": 480,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "David McDonough",
+"shortName": "MCDONOUGH",
+"districtCode": 14,
+"sessionYear": 2025
+},
+{
+"memberId": 1255,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Karen McMahon",
+"shortName": "MCMAHON",
+"districtCode": 146,
+"sessionYear": 2025
+},
+{
+"memberId": 1462,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Demond Meeks",
+"shortName": "MEEKS",
+"districtCode": 137,
+"sessionYear": 2025
+},
+{
+"memberId": 1150,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "John K. Mikulin",
+"shortName": "MIKULIN",
+"districtCode": 17,
+"sessionYear": 2025
+},
+{
+"memberId": 1125,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Brian D. Miller",
+"shortName": "MILLER",
+"districtCode": 122,
+"sessionYear": 2025
+},
+{
+"memberId": 1472,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Marcela Mitaynes",
+"shortName": "MITAYNES",
+"districtCode": 51,
+"sessionYear": 2025
+},
+{
+"memberId": 1570,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Andrew Molitor",
+"shortName": "MOLITOR",
+"districtCode": 150,
+"sessionYear": 2025
+},
+{
+"memberId": 1576,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Diana Moreno",
+"shortName": "MORENO",
+"districtCode": 36,
+"sessionYear": 2025
+},
+{
+"memberId": 1135,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Angelo J. Morinello",
+"shortName": "MORINELLO",
+"districtCode": 145,
+"sessionYear": 2025
+},
+{
+"memberId": 1556,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Daniel Norber",
+"shortName": "NORBER",
+"districtCode": 16,
+"sessionYear": 2025
+},
+{
+"memberId": 1527,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Michael Novakhov",
+"shortName": "NOVAKHOV",
+"districtCode": 45,
+"sessionYear": 2025
+},
+{
+"memberId": 1555,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Kwani O'Pharrow",
+"shortName": "O'PHARROW",
+"districtCode": 11,
+"sessionYear": 2025
+},
+{
+"memberId": 665,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Steven Otis",
+"shortName": "OTIS",
+"districtCode": 91,
+"sessionYear": 2025
+},
+{
+"memberId": 635,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Philip Palmesano",
+"shortName": "PALMESANO",
+"districtCode": 132,
+"sessionYear": 2025
+},
+{
+"memberId": 540,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Amy Paulin",
+"shortName": "PAULIN",
+"districtCode": 88,
+"sessionYear": 2025
+},
+{
+"memberId": 591,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Crystal Peoples-Stokes",
+"shortName": "PEOPLES-STOKES",
+"districtCode": 141,
+"sessionYear": 2025
+},
+{
+"memberId": 1131,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Stacey Pheffer Amato",
+"shortName": "PHEFFER AMATO",
+"districtCode": 23,
+"sessionYear": 2025
+},
+{
+"memberId": 1529,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Samuel Pirozzolo",
+"shortName": "PIROZZOLO",
+"districtCode": 63,
+"sessionYear": 2025
+},
+{
+"memberId": 1577,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Keith Powers",
+"shortName": "POWERS",
+"districtCode": 74,
+"sessionYear": 2025
+},
+{
+"memberId": 539,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "J. Gary Pretlow",
+"shortName": "PRETLOW",
+"districtCode": 89,
+"sessionYear": 2025
+},
+{
+"memberId": 608,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Edward Ra",
+"shortName": "RA",
+"districtCode": 19,
+"sessionYear": 2025
+},
+{
+"memberId": 1525,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Steven Raga",
+"shortName": "RAGA",
+"districtCode": 30,
+"sessionYear": 2025
+},
+{
+"memberId": 1470,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Jenifer Rajkumar",
+"shortName": "RAJKUMAR",
+"districtCode": 38,
+"sessionYear": 2025
+},
+{
+"memberId": 468,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Philip Ramos",
+"shortName": "RAMOS",
+"districtCode": 6,
+"sessionYear": 2025
+},
+{
+"memberId": 1245,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Mike Reilly",
+"shortName": "REILLY",
+"districtCode": 62,
+"sessionYear": 2025
+},
+{
+"memberId": 1257,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Karines Reyes",
+"shortName": "REYES",
+"districtCode": 87,
+"sessionYear": 2025
+},
+{
+"memberId": 1488,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Jonathan Rivera",
+"shortName": "RIVERA",
+"districtCode": 149,
+"sessionYear": 2025
+},
+{
+"memberId": 1565,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Gabriella Romero",
+"shortName": "ROMERO",
+"districtCode": 109,
+"sessionYear": 2025
+},
+{
+"memberId": 520,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Linda Rosenthal",
+"shortName": "ROSENTHAL",
+"districtCode": 67,
+"sessionYear": 2025
+},
+{
+"memberId": 669,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Nily Rozic",
+"shortName": "ROZIC",
+"districtCode": 25,
+"sessionYear": 2025
+},
+{
+"memberId": 670,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Angelo Santabarbara",
+"shortName": "SANTABARBARA",
+"districtCode": 111,
+"sessionYear": 2025
+},
+{
+"memberId": 1258,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Nader Sayegh",
+"shortName": "SAYEGH",
+"districtCode": 90,
+"sessionYear": 2025
+},
+{
+"memberId": 1553,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Tommy Schiavoni",
+"shortName": "SCHIAVONI",
+"districtCode": 1,
+"sessionYear": 2025
+},
+{
+"memberId": 906,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Rebecca Seawright",
+"shortName": "SEAWRIGHT",
+"districtCode": 76,
+"sessionYear": 2025
+},
+{
+"memberId": 1569,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Joseph Sempolinski",
+"shortName": "SEMPOLINSKI",
+"districtCode": 148,
+"sessionYear": 2025
+},
+{
+"memberId": 1477,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Amanda Septimo",
+"shortName": "SEPTIMO",
+"districtCode": 84,
+"sessionYear": 2025
+},
+{
+"memberId": 1535,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "MaryJane Shimsky",
+"shortName": "SHIMSKY",
+"districtCode": 92,
+"sessionYear": 2025
+},
+{
+"memberId": 1541,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Sarahana Shrestha",
+"shortName": "SHRESTHA",
+"districtCode": 103,
+"sessionYear": 2025
+},
+{
+"memberId": 907,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Jo Anne Simon",
+"shortName": "SIMON",
+"districtCode": 52,
+"sessionYear": 2025
+},
+{
+"memberId": 1532,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Tony Simone",
+"shortName": "SIMONE",
+"districtCode": 75,
+"sessionYear": 2025
+},
+{
+"memberId": 1480,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Matthew Simpson",
+"shortName": "SIMPSON",
+"districtCode": 114,
+"sessionYear": 2025
+},
+{
+"memberId": 1536,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Matthew Slater",
+"shortName": "SLATER",
+"districtCode": 94,
+"sessionYear": 2025
+},
+{
+"memberId": 1148,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Doug Smith",
+"shortName": "SMITH",
+"districtCode": 5,
+"sessionYear": 2025
+},
+{
+"memberId": 1248,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Robert Smullen",
+"shortName": "SMULLEN",
+"districtCode": 118,
+"sessionYear": 2025
+},
+{
+"memberId": 673,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Michaelle C. Solages",
+"shortName": "SOLAGES",
+"districtCode": 22,
+"sessionYear": 2025
+},
+{
+"memberId": 675,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Phil Steck",
+"shortName": "STECK",
+"districtCode": 110,
+"sessionYear": 2025
+},
+{
+"memberId": 1147,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Steve Stern",
+"shortName": "STERN",
+"districtCode": 10,
+"sessionYear": 2025
+},
+{
+"memberId": 571,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Albert A. Stirpe",
+"shortName": "STIRPE",
+"districtCode": 127,
+"sessionYear": 2025
+},
+{
+"memberId": 1152,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Chris Tague",
+"shortName": "TAGUE",
+"districtCode": 102,
+"sessionYear": 2025
+},
+{
+"memberId": 1475,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Michael Tannousis",
+"shortName": "TANNOUSIS",
+"districtCode": 64,
+"sessionYear": 2025
+},
+{
+"memberId": 1503,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Yudelka Tapia",
+"shortName": "TAPIA",
+"districtCode": 86,
+"sessionYear": 2025
+},
+{
+"memberId": 1141,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Al Taylor",
+"shortName": "TAYLOR",
+"districtCode": 71,
+"sessionYear": 2025
+},
+{
+"memberId": 1548,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Emerita Torres",
+"shortName": "TORRES",
+"districtCode": 85,
+"sessionYear": 2025
+},
+{
+"memberId": 1559,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Claire Valdez",
+"shortName": "VALDEZ",
+"districtCode": 37,
+"sessionYear": 2025
+},
+{
+"memberId": 1118,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Clyde Vanel",
+"shortName": "VANEL",
+"districtCode": 33,
+"sessionYear": 2025
+},
+{
+"memberId": 896,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Latrice Walker",
+"shortName": "WALKER",
+"districtCode": 55,
+"sessionYear": 2025
+},
+{
+"memberId": 1127,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Mary Beth Walsh",
+"shortName": "WALSH",
+"districtCode": 112,
+"sessionYear": 2025
+},
+{
+"memberId": 484,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "David Weprin",
+"shortName": "WEPRIN",
+"districtCode": 24,
+"sessionYear": 2025
+},
+{
+"memberId": 1563,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Aron Wieder",
+"shortName": "WIEDER",
+"districtCode": 97,
+"sessionYear": 2025
+},
+{
+"memberId": 1116,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Jaime R. Williams",
+"shortName": "WILLIAMS",
+"districtCode": 59,
+"sessionYear": 2025
+},
+{
+"memberId": 886,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Carrie Woerner",
+"shortName": "WOERNER",
+"districtCode": 113,
+"sessionYear": 2025
+},
+{
+"memberId": 1562,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Jordan Wright",
+"shortName": "WRIGHT",
+"districtCode": 70,
+"sessionYear": 2025
+},
+{
+"memberId": 1560,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Kalman Yeger",
+"shortName": "YEGER",
+"districtCode": 41,
+"sessionYear": 2025
+},
+{
+"memberId": 1534,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "John Zaccaro Jr.",
+"shortName": "ZACCARO",
+"districtCode": 80,
+"sessionYear": 2025
+},
+{
+"memberId": 1473,
+"chamber": "ASSEMBLY",
+"incumbent": true,
+"fullName": "Stefani Zinerman",
+"shortName": "ZINERMAN",
+"districtCode": 56,
+"sessionYear": 2025
+}
+],
+"size": 153
+}
+}

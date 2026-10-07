@@ -1,0 +1,605 @@
+{
+"success": true,
+"message": "",
+"responseType": "member-sessions list",
+"total": 66,
+"result": {
+"items": [
+{
+"memberId": 384,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Joseph P. Addabbo Jr.",
+"shortName": "ADDABBO",
+"districtCode": 15,
+"sessionYear": 2025
+},
+{
+"memberId": 1522,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Jake Ashby",
+"shortName": "ASHBY",
+"districtCode": 43,
+"sessionYear": 2025
+},
+{
+"memberId": 1102,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Jamaal Bailey",
+"shortName": "BAILEY",
+"districtCode": 36,
+"sessionYear": 2025
+},
+{
+"memberId": 1552,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "April Baskin",
+"shortName": "BASKIN",
+"districtCode": 63,
+"sessionYear": 2025
+},
+{
+"memberId": 1370,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "George Borrello",
+"shortName": "BORRELLO",
+"districtCode": 57,
+"sessionYear": 2025
+},
+{
+"memberId": 1574,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Erik Bottcher",
+"shortName": "BOTTCHER",
+"districtCode": 47,
+"sessionYear": 2025
+},
+{
+"memberId": 1494,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Jabari Brisport",
+"shortName": "BRISPORT",
+"districtCode": 25,
+"sessionYear": 2025
+},
+{
+"memberId": 1500,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Samra Brouk",
+"shortName": "BROUK",
+"districtCode": 55,
+"sessionYear": 2025
+},
+{
+"memberId": 1549,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Siela Bynoe",
+"shortName": "BYNOE",
+"districtCode": 6,
+"sessionYear": 2025
+},
+{
+"memberId": 1517,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Patricia Canzoneri-Fitzpatrick",
+"shortName": "CANZONERI-FITZPATRICK",
+"districtCode": 9,
+"sessionYear": 2025
+},
+{
+"memberId": 1550,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Stephen T. Chan",
+"shortName": "CHAN",
+"districtCode": 17,
+"sessionYear": 2025
+},
+{
+"memberId": 1504,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Cordell Cleare",
+"shortName": "CLEARE",
+"districtCode": 30,
+"sessionYear": 2025
+},
+{
+"memberId": 888,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Leroy Comrie",
+"shortName": "COMRIE",
+"districtCode": 14,
+"sessionYear": 2025
+},
+{
+"memberId": 1501,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Jeremy Cooney",
+"shortName": "COONEY",
+"districtCode": 56,
+"sessionYear": 2025
+},
+{
+"memberId": 1571,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Patricia Fahy",
+"shortName": "FAHY",
+"districtCode": 46,
+"sessionYear": 2025
+},
+{
+"memberId": 439,
+"chamber": "SENATE",
+"incumbent": false,
+"fullName": "Simcha Felder",
+"shortName": "FELDER",
+"districtCode": 22,
+"sessionYear": 2025
+},
+{
+"memberId": 1520,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Nathalia Fernandez",
+"shortName": "FERNANDEZ",
+"districtCode": 34,
+"sessionYear": 2025
+},
+{
+"memberId": 427,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Patrick M. Gallivan",
+"shortName": "GALLIVAN",
+"districtCode": 60,
+"sessionYear": 2025
+},
+{
+"memberId": 383,
+"chamber": "SENATE",
+"incumbent": false,
+"fullName": "Michael Gianaris",
+"shortName": "GIANARIS",
+"districtCode": 12,
+"sessionYear": 2025
+},
+{
+"memberId": 1513,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Kristen Gonzalez",
+"shortName": "GONZALEZ",
+"districtCode": 59,
+"sessionYear": 2025
+},
+{
+"memberId": 1229,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Andrew Gounardes",
+"shortName": "GOUNARDES",
+"districtCode": 26,
+"sessionYear": 2025
+},
+{
+"memberId": 393,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Joseph A. Griffo",
+"shortName": "GRIFFO",
+"districtCode": 53,
+"sessionYear": 2025
+},
+{
+"memberId": 1233,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Pete Harckham",
+"shortName": "HARCKHAM",
+"districtCode": 40,
+"sessionYear": 2025
+},
+{
+"memberId": 951,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Pamela Helming",
+"shortName": "HELMING",
+"districtCode": 54,
+"sessionYear": 2025
+},
+{
+"memberId": 1497,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Michelle Hinchey",
+"shortName": "HINCHEY",
+"districtCode": 41,
+"sessionYear": 2025
+},
+{
+"memberId": 438,
+"chamber": "SENATE",
+"incumbent": false,
+"fullName": "Brad Hoylman-Sigal",
+"shortName": "HOYLMAN-SIGAL",
+"districtCode": 47,
+"sessionYear": 2025
+},
+{
+"memberId": 1230,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Robert Jackson",
+"shortName": "JACKSON",
+"districtCode": 31,
+"sessionYear": 2025
+},
+{
+"memberId": 1140,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Brian Kavanagh",
+"shortName": "KAVANAGH",
+"districtCode": 27,
+"sessionYear": 2025
+},
+{
+"memberId": 401,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Liz Krueger",
+"shortName": "KRUEGER",
+"districtCode": 28,
+"sessionYear": 2025
+},
+{
+"memberId": 409,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Andrew J. Lanza",
+"shortName": "LANZA",
+"districtCode": 24,
+"sessionYear": 2025
+},
+{
+"memberId": 1225,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "John Liu",
+"shortName": "LIU",
+"districtCode": 16,
+"sessionYear": 2025
+},
+{
+"memberId": 1221,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Monica Martinez",
+"shortName": "MARTINEZ",
+"districtCode": 4,
+"sessionYear": 2025
+},
+{
+"memberId": 397,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Jack M. Martins",
+"shortName": "MARTINS",
+"districtCode": 7,
+"sessionYear": 2025
+},
+{
+"memberId": 1492,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Mario Mattera",
+"shortName": "MATTERA",
+"districtCode": 2,
+"sessionYear": 2025
+},
+{
+"memberId": 1237,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Rachel May",
+"shortName": "MAY",
+"districtCode": 48,
+"sessionYear": 2025
+},
+{
+"memberId": 1143,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Shelley Mayer",
+"shortName": "MAYER",
+"districtCode": 37,
+"sessionYear": 2025
+},
+{
+"memberId": 1521,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Dean Murray",
+"shortName": "MURRAY",
+"districtCode": 3,
+"sessionYear": 2025
+},
+{
+"memberId": 1228,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Zellnor Myrie",
+"shortName": "MYRIE",
+"districtCode": 20,
+"sessionYear": 2025
+},
+{
+"memberId": 415,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Thomas F. O'Mara",
+"shortName": "O'MARA",
+"districtCode": 58,
+"sessionYear": 2025
+},
+{
+"memberId": 1499,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Peter Oberacker",
+"shortName": "OBERACKER",
+"districtCode": 51,
+"sessionYear": 2025
+},
+{
+"memberId": 885,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Robert Ortt",
+"shortName": "ORTT",
+"districtCode": 62,
+"sessionYear": 2025
+},
+{
+"memberId": 1489,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Anthony H. Palumbo",
+"shortName": "PALUMBO",
+"districtCode": 1,
+"sessionYear": 2025
+},
+{
+"memberId": 416,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Kevin S. Parker",
+"shortName": "PARKER",
+"districtCode": 21,
+"sessionYear": 2025
+},
+{
+"memberId": 914,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Roxanne J. Persaud",
+"shortName": "PERSAUD",
+"districtCode": 19,
+"sessionYear": 2025
+},
+{
+"memberId": 1226,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Jessica Ramos",
+"shortName": "RAMOS",
+"districtCode": 13,
+"sessionYear": 2025
+},
+{
+"memberId": 1516,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Steve Rhoads",
+"shortName": "RHOADS",
+"districtCode": 5,
+"sessionYear": 2025
+},
+{
+"memberId": 377,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Gustavo Rivera",
+"shortName": "RIVERA",
+"districtCode": 33,
+"sessionYear": 2025
+},
+{
+"memberId": 1519,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Robert Rolison",
+"shortName": "ROLISON",
+"districtCode": 39,
+"sessionYear": 2025
+},
+{
+"memberId": 1551,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Christopher Ryan",
+"shortName": "RYAN C",
+"districtCode": 50,
+"sessionYear": 2025
+},
+{
+"memberId": 1491,
+"chamber": "SENATE",
+"incumbent": false,
+"fullName": "Sean Ryan",
+"shortName": "RYAN S",
+"districtCode": 61,
+"sessionYear": 2025
+},
+{
+"memberId": 1227,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Julia Salazar",
+"shortName": "SALAZAR",
+"districtCode": 18,
+"sessionYear": 2025
+},
+{
+"memberId": 432,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "James Sanders Jr.",
+"shortName": "SANDERS",
+"districtCode": 10,
+"sessionYear": 2025
+},
+{
+"memberId": 1512,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Jessica Scarcella-Spanton",
+"shortName": "SCARCELLA-SPANTON",
+"districtCode": 23,
+"sessionYear": 2025
+},
+{
+"memberId": 1142,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Luis R. Sep\u00falveda",
+"shortName": "SEPULVEDA",
+"districtCode": 32,
+"sessionYear": 2025
+},
+{
+"memberId": 373,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Jos\u00e9 M. Serrano",
+"shortName": "SERRANO",
+"districtCode": 29,
+"sessionYear": 2025
+},
+{
+"memberId": 1232,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "James Skoufis",
+"shortName": "SKOUFIS",
+"districtCode": 42,
+"sessionYear": 2025
+},
+{
+"memberId": 400,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Toby Ann Stavisky",
+"shortName": "STAVISKY",
+"districtCode": 11,
+"sessionYear": 2025
+},
+{
+"memberId": 1490,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Dan Stec",
+"shortName": "STEC",
+"districtCode": 45,
+"sessionYear": 2025
+},
+{
+"memberId": 396,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Andrea Stewart-Cousins",
+"shortName": "STEWART-COUSINS",
+"districtCode": 35,
+"sessionYear": 2025
+},
+{
+"memberId": 1572,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Sam Sutton",
+"shortName": "SUTTON",
+"districtCode": 22,
+"sessionYear": 2025
+},
+{
+"memberId": 1103,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "James Tedisco",
+"shortName": "TEDISCO",
+"districtCode": 44,
+"sessionYear": 2025
+},
+{
+"memberId": 1523,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Mark Walczyk",
+"shortName": "WALCZYK",
+"districtCode": 49,
+"sessionYear": 2025
+},
+{
+"memberId": 1515,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Lea Webb",
+"shortName": "WEBB",
+"districtCode": 52,
+"sessionYear": 2025
+},
+{
+"memberId": 1518,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "William Weber",
+"shortName": "WEBER",
+"districtCode": 38,
+"sessionYear": 2025
+},
+{
+"memberId": 1493,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Alexis Weik",
+"shortName": "WEIK",
+"districtCode": 8,
+"sessionYear": 2025
+},
+{
+"memberId": 1575,
+"chamber": "SENATE",
+"incumbent": true,
+"fullName": "Jeremy Zellner",
+"shortName": "ZELLNER",
+"districtCode": 61,
+"sessionYear": 2025
+}
+],
+"size": 66
+}
+}

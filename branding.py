@@ -153,10 +153,19 @@ HELP_RESOURCES = [
         "url": "https://www.nyc.gov/site/hra/help/legal-services-for-tenants-facing-eviction.page",
     },
     {
-        "name": "NY State Homeowner & Tenant Helpline",
-        "detail": "Statewide help, including rent-regulated matters handled by DHCR/HCR.",
-        "contact": "(855) 466-3456",
-        "url": "https://hcr.ny.gov/",
+        # Was "NY State Homeowner & Tenant Helpline, (855) 466-3456" until
+        # 2026-10-07 -- that number is the State's Homeowner Protection
+        # Program, not a tenant line. Replaced with the State rent office.
+        "name": "NY State rent office (HCR)",
+        "detail": "Questions about rent-stabilized apartments, rent history and overcharges.",
+        "contact": "1 (833) 499-0343",
+        "url": "https://hcr.ny.gov/contact-us",
+    },
+    {
+        "name": "Met Council on Housing hotline",
+        "detail": "Free tenant-rights advice by phone, Monday, Wednesday and Friday afternoons.",
+        "contact": "(212) 979-0611",
+        "url": "https://www.metcouncilonhousing.org/program/tenants-rights-hotline/",
     },
     {
         "name": "HPD complaints",
