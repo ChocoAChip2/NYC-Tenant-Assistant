@@ -1,4 +1,4 @@
-"""The front door is the building lookup; signup lives at /signup.
+"""The front door is the lookup (street + borough since 2026-10-07); signup lives at /signup.
 
 The lookup needs no account and is the part of the site a general chatbot
 can't do, so it is what a first-time visitor sees at /. These tests pin
@@ -17,12 +17,19 @@ from tests.test_signup_route import _build_test_app
 
 
 class HomeIsTheLookupTests(_CacheIsolation):
-    def test_root_is_the_building_lookup(self):
+    def test_root_is_the_street_lookup(self):
+        # Owner, 2026-10-07: asking for an exact address up front scares
+        # people off, so the front door asks for a street and borough; the
+        # exact-address lookup is one link away.
         response = _client().get("/")
         body = response.get_data(as_text=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('name="address"', body)
-        self.assertIn("no account needed", body)
+        self.assertIn('name="street"', body)
+        self.assertIn('name="borough"', body)
+        self.assertIn('href="/building"', body)
+        exact = _client().get("/building").get_data(as_text=True)
+        self.assertIn('name="address"', exact)
+        self.assertIn("no account needed", exact)
 
     def test_a_lookup_works_at_the_root(self):
         patcher, _ = fake_network()
@@ -39,7 +46,7 @@ class HomeIsTheLookupTests(_CacheIsolation):
 
     def test_lookup_form_still_submits_to_building(self):
         # Shared lookup links keep their /building?address=... shape.
-        self.assertIn('action="/building"', _client().get("/").get_data(as_text=True))
+        self.assertIn('action="/building"', _client().get("/building").get_data(as_text=True))
 
     def test_signup_is_at_signup(self):
         body = _client().get("/signup").get_data(as_text=True)

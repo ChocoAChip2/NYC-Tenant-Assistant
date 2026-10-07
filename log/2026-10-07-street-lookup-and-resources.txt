@@ -1,0 +1,42 @@
+2026-10-07  Street + borough search (front page) and a Resources tab
+
+Request (owner)
+- Don't scare people off by asking for an exact address. Street + borough
+  is the default; exact address optional. Long streets: ask for a ZIP
+  code or cross street. Show the area's representatives and districts
+  (looked up behind the scenes). Re-check officials after elections,
+  about a month after results, leaving room for runoffs.
+- A read-only resources tab now; community posting waits for a layout.
+
+What
+- area_service.py: street + borough -> the city's spelling of the street
+  (fuzzy matches rejected), every lot on it, districts (Council,
+  community, Assembly, State Senate, Congress), officials, community
+  board, land use / homes / zoning, and its buildings with open HPD
+  violations (including corner buildings HPD files under the street).
+  ZIP narrows by lot; a cross street keeps lots within ~160 m of the
+  corner. Real data captured for Echo Place, Bronx is the test fixture
+  (it crosses Council 14/15 and State Senate 32/33).
+- "/" and "/area": the new search page (area.html). "/building" keeps the
+  exact-address lookup; old "/?address=" links still work.
+- "/resources" (resources.html, resources.py): borough picker, community
+  board, Housing Court, free help, where to report.
+- Elected officials: supabase/migrations/20261007_elected_officials.sql
+  (public read; writes only via token-checked officials_replace()),
+  tools/officials/refresh.py (Council from NYC Open Data; Assembly and
+  State Senate incumbents from the NY Senate API), and
+  .github/workflows/refresh-officials.yml (Dec 15, Jan 15, Apr/Jul/Oct 15;
+  opens an issue listing every change).
+- Nav: "Resources" in the header of the public pages; chat's empty state
+  gets "Look up my street" and "Free help near me".
+
+Fixed along the way
+- The chat's referral list (branding.HELP_RESOURCES) gave tenants a "NY
+  State Homeowner & Tenant Helpline, (855) 466-3456". That number is the
+  State's Homeowner Protection Program, not a tenant line. Replaced with
+  the State rent office (HCR, 1 (833) 499-0343) and added the Met Council
+  on Housing hotline ((212) 979-0611). Both checked on the agencies' pages.
+
+Tests
+- tests/test_area_lookup.py (25), tests/test_officials_refresh.py (12).
+  Full suite 851 OK.

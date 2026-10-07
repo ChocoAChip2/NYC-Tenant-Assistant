@@ -221,16 +221,17 @@
 </head>
 <body>
   <header>
-    <a class="brand" href="{{ url_for('main.building_lookup') }}">
+    <a class="brand" href="{{ url_for('main.home') }}">
       <span class="brand-mark" aria-hidden="true">{{ logo_monogram }}</span>
       <span class="brand-name">{{ product_name }}</span>
     </a>
     <nav aria-label="Site">
+      <a href="{{ url_for('main.resources') }}">Resources</a>
       <a class="hide-narrow" href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a>
       {% if logged_in %}
         <a class="primary" href="{{ url_for('main.chat') }}">Open chat</a>
       {% else %}
-        <a href="{{ url_for('main.login') }}">Log in</a>
+        <a class="hide-narrow" href="{{ url_for('main.login') }}">Log in</a>
         <a class="primary" href="{{ url_for('main.signup') }}">Sign up free</a>
       {% endif %}
     </nav>

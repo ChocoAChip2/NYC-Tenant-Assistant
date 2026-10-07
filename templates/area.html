@@ -1,5 +1,5 @@
 <!doctype html>
-{# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. See docs/frontend/building-lookup.md for why this page is public, why it queries by BBL, and why "certified" is shown separately from "open". #}
+{# Street + borough lookup (the default search). No HTML/CSS/JS comments: they would be served. See docs/frontend/area-lookup.md. #}
 {% from "_info.html" import info as info_tip, info_assets %}
 <html lang="en">
 <head>
@@ -8,8 +8,8 @@
   <meta name="theme-color" content="#eef1f5" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ product_name }} | {% if report %}{{ report.match.label }}{% else %}Look up your building{% endif %}</title>
-  <meta name="description" content="See every open NYC housing violation HPD has on record for your building. Free, no account needed.">
+  <title>{{ product_name }} | {% if report %}{{ report.label }}{% else %}What's on your street?{% endif %}</title>
+  <meta name="description" content="Enter a NYC street and borough to see its representatives, community board and buildings. Free, no account needed.">
   <script>
     (function () {
       var saved = null;
@@ -169,7 +169,6 @@
       border-color: var(--accent);
     }
     .hint { font-size: 12.5px; color: var(--muted); margin: 0; }
-    .hint a { color: var(--accent); }
     button, .button {
       font: inherit;
       font-size: 15px;
@@ -303,6 +302,47 @@
     @media (prefers-reduced-motion: reduce) {
       * { transition: none !important; }
     }
+    select {
+      width: 100%; padding: 10px 12px; font-size: 15px; border: 1px solid var(--border);
+      border-radius: 10px; background: var(--surface); color: var(--text); font-family: inherit;
+    }
+    select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-tint); }
+    .field-row.two { grid-template-columns: 1fr; }
+    @media (min-width: 560px) { .field-row.two { grid-template-columns: 3fr 2fr; } }
+    details.more-fields summary { cursor: pointer; font-size: 13.5px; color: var(--accent); font-weight: 600; }
+    details.more-fields[open] summary { margin-bottom: 10px; }
+    .hint a { color: var(--accent); }
+    h2 { font-size: 17px; margin: 0 0 10px; }
+    .card > p { margin: 0 0 6px; font-size: 14px; }
+    .reps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+    .reps li { display: grid; gap: 1px; }
+    .rep-title { font-size: 12.5px; color: var(--muted); }
+    .reps a, .board a, .resource a { color: var(--accent); font-weight: 600; text-decoration: none; }
+    .reps a:hover, .board a:hover, .resource a:hover { text-decoration: underline; }
+    .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 0; }
+    .facts div { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; background: var(--bg); }
+    .facts dt { font-size: 12px; color: var(--muted); }
+    .facts dd { margin: 2px 0 0; font-size: 15px; font-weight: 600; }
+    .board dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 8px 0 0; font-size: 14px; }
+    .board dt { color: var(--muted); }
+    .board dd { margin: 0; overflow-wrap: anywhere; }
+    .buildings { list-style: none; margin: 0; padding: 0; }
+    .buildings li { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; padding: 10px 0; border-top: 1px solid var(--border); }
+    .buildings li:first-child { border-top: none; padding-top: 0; }
+    .buildings a { color: var(--text); font-weight: 600; text-decoration: none; }
+    .buildings a:hover { color: var(--accent); text-decoration: underline; }
+    .bldg-meta { font-size: 12.5px; color: var(--muted); }
+    .counts { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; flex-shrink: 0; }
+    .count { font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 8px; border: 1px solid var(--border); color: var(--muted); white-space: nowrap; }
+    .count.c { color: var(--error); border-color: var(--error); background: var(--error-tint); }
+    .count.none { color: var(--success); border-color: var(--success); background: var(--success-tint); }
+    .borough-picker { display: flex; flex-wrap: wrap; gap: 8px; }
+    .borough-picker a { border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; font-size: 14px; color: var(--text); text-decoration: none; background: var(--surface); }
+    .borough-picker a.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+    .resource { padding: 10px 0; border-top: 1px solid var(--border); }
+    .resource:first-of-type { border-top: none; padding-top: 0; }
+    .resource p { margin: 2px 0 0; font-size: 13.5px; color: var(--muted); }
+    .resource .contact { color: var(--text); }
   </style>
 </head>
 <body>
@@ -326,24 +366,40 @@
   <main>
     {% if not report %}
       <div>
-        <h1>What does the city already know about your building?</h1>
-        <p class="lede">See open housing violations for any NYC address. Free, no account needed.</p>
+        <h1>What's on your street?</h1>
+        <p class="lede">Enter your street and borough. No house number needed.</p>
       </div>
     {% endif %}
 
-    <form class="card lookup-form" method="GET" action="{{ url_for('main.building_lookup') }}" role="search" data-lookup-form>
-      <div class="field-row">
+    <form class="card lookup-form" method="GET" action="{{ url_for('main.area_lookup') }}" role="search" data-lookup-form>
+      <div class="field-row two">
         <div>
-          <label for="address">Building address</label>
-          <input type="text" id="address" name="address" value="{{ address }}" placeholder="231 Echo Place, Bronx" autocomplete="street-address" maxlength="{{ max_address_length }}" required>
+          <label for="street">Street</label>
+          <input type="text" id="street" name="street" value="{{ street }}" placeholder="Echo Place" maxlength="{{ max_street_length }}" autocomplete="off" required>
         </div>
         <div>
-          <label for="apt">Apartment <span class="optional">(optional)</span></label>
-          <input type="text" id="apt" name="apt" value="{{ apt }}" placeholder="4B" maxlength="{{ max_apartment_length }}" autocomplete="off">
+          <label for="borough">Borough</label>
+          <select id="borough" name="borough" required>
+            <option value="">Choose a borough</option>
+            {% for name in boroughs %}<option value="{{ name }}"{% if name == borough %} selected{% endif %}>{{ name }}</option>{% endfor %}
+          </select>
         </div>
       </div>
-      <p class="hint">Include the house number. Borough or ZIP helps. Rather not? <a href="{{ url_for('main.home') }}">Search by street</a></p>
+      <details class="more-fields"{% if zip_code or cross or (report and report.spans_districts) or narrow_error %} open{% endif %}>
+        <summary>Add a ZIP code or cross street (optional)</summary>
+        <div class="field-row two">
+          <div>
+            <label for="cross">Cross street</label>
+            <input type="text" id="cross" name="cross" value="{{ cross }}" placeholder="Grand Concourse" maxlength="{{ max_street_length }}" autocomplete="off">
+          </div>
+          <div>
+            <label for="zip">ZIP code</label>
+            <input type="text" id="zip" name="zip" value="{{ zip_code }}" placeholder="10457" maxlength="5" inputmode="numeric" pattern="[0-9]{5}" autocomplete="postal-code">
+          </div>
+        </div>
+      </details>
       <div><button type="submit">Look up</button></div>
+      <p class="hint">Know your building number? <a href="{{ url_for('main.building_lookup') }}">Search by address</a></p>
     </form>
 
     {% if error %}
@@ -354,99 +410,95 @@
     {% endif %}
 
     {% if report %}
-      <section class="card" aria-labelledby="match-label">
-        <h1 class="match-label" id="match-label">{{ report.match.label }}</h1>
+      <section class="card" aria-labelledby="area-label">
+        <h1 class="match-label" id="area-label">{{ report.label }}</h1>
         <p class="match-meta">
-          {% if report.data_as_of %}City data as of {{ report.data_as_of.strftime("%B") }} {{ report.data_as_of.day }}, {{ report.data_as_of.year }}.{% else %}City data date unavailable.{% endif %}
-          Not your building? Add the borough or ZIP.
+          {{ report.summary }}{% if report.zoning %} · zoned {{ report.zoning }}{{ info_tip("Zoning: " ~ report.zoning_codes|join(", ")) }}{% endif %}
         </p>
-
-        <div class="stats">
-          <div class="stat class-c">
-            <div class="stat-value">{{ report.open_counts.get("C", 0) }}</div>
-            <div class="stat-label">Open Class C<br>immediately hazardous</div>
-          </div>
-          <div class="stat class-b">
-            <div class="stat-value">{{ report.open_counts.get("B", 0) }}</div>
-            <div class="stat-label">Open Class B<br>hazardous</div>
-          </div>
-          <div class="stat">
-            <div class="stat-value">{{ report.open_counts.get("A", 0) }}</div>
-            <div class="stat-label">Open Class A<br>non-hazardous</div>
-          </div>
-          <div class="stat">
-            <div class="stat-value">{{ report.open_total }}</div>
-            <div class="stat-label">Open in total</div>
-          </div>
-        </div>
-
-        {% if report.history_total %}
-          <p class="history">{{ report.history_total }} violation{{ "" if report.history_total == 1 else "s" }} issued at this building in the last two years{% if report.rent_impairing_open %}, and {{ report.rent_impairing_open }} open one{{ "" if report.rent_impairing_open == 1 else "s" }} the city classifies as <strong>rent impairing</strong>{% endif %}.</p>
+        {% if report.cross_street or report.zip_code %}
+          <p class="match-meta">{% if report.cross_street %}Near {{ display_street(report.cross_street) }}{% endif %}{% if report.cross_street and report.zip_code %} · {% endif %}{% if report.zip_code %}ZIP {{ report.zip_code }}{% endif %}</p>
         {% endif %}
       </section>
 
-      {% if report.open_total == 0 %}
-        <div class="alert success">
-          <strong>No open violations on record.</strong>
-          <p>That doesn't mean nothing is wrong. Problem at home? Call 311 or <a href="https://portal.311.nyc.gov/" target="_blank" rel="noopener noreferrer">file online</a>.{% call info_tip() %}A 311 complaint asks HPD to inspect. Violations appear here only after an inspector records them.{% endcall %}</p>
+      {% if report.spans_districts %}
+        <div class="alert warning" role="note">
+          <strong>This street crosses more than one district.</strong>
+          <p>Add your cross street or ZIP code above to narrow it down.</p>
         </div>
       {% endif %}
 
-      {% if report.certified_open %}
-        <div class="alert warning">
-          <strong>{{ report.certified_open }} {{ "is" if report.certified_open == 1 else "are" }} certified as fixed by the landlord.</strong>
-          <p>Still a problem? You can challenge it and HPD will re-inspect. <a href="{{ hpd_clear_violations_url }}" target="_blank" rel="noopener noreferrer">How it works</a>{% call info_tip() %}A certification is the owner telling HPD the problem is corrected. HPD says tenants are notified when this happens.{% endcall %}</p>
-        </div>
-      {% endif %}
-
-      {% if report.apartment %}
-        <section class="card class-group" aria-labelledby="apt-heading">
-          <h2 id="apt-heading">In apartment {{ report.apartment }}</h2>
-          {% if report.apartment_violations %}
-            <p class="class-deadline">{{ report.apartment_violations|length }} open in your unit.</p>
-            {% for v in report.apartment_violations %}
-              {% include "_violation.html" %}
-            {% endfor %}
+      <section class="card" aria-labelledby="reps-heading">
+        <h2 id="reps-heading">Your representatives</h2>
+        <ul class="reps">
+          {% for o in report.officials %}
+            <li>
+              <span class="rep-title">{{ office_titles[o.office] }} · District {{ o.district }}</span>
+              <a href="{{ o.url }}" target="_blank" rel="noopener noreferrer">{% if o.name %}{{ o.name }}{% elif o.office == "congress" %}Find your representative{% else %}See who represents District {{ o.district }}{% endif %}</a>
+            </li>
           {% else %}
-            <p class="class-deadline">None recorded for your unit. Building-wide problems below can still affect you.{{ info_tip("Like the boiler, hallways or the roof.") }}</p>
-          {% endif %}
-        </section>
-      {% endif %}
-
-      <section class="card cta" aria-labelledby="cta-heading">
-        <h2 id="cta-heading">What do these mean for you?</h2>
-        <p>Ask {{ product_name }} what this record means and what your landlord must do.</p>
-        <div class="cta-actions">
-          {% if logged_in %}
-            <form method="POST" action="{{ url_for('main.create_conversation') }}" data-new-chat-form>
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <input type="hidden" name="title" value="{{ chat_title }}">
-              <button type="submit" data-prompt="{{ chat_prompt }}" data-title="{{ chat_title }}">Talk this through</button>
-            </form>
-          {% else %}
-            <a class="button" href="{{ url_for('main.signup') }}" data-prompt="{{ chat_prompt }}" data-title="{{ chat_title }}">Create a free account to talk this through</a>
-            <a class="button secondary" href="{{ url_for('main.login') }}" data-prompt="{{ chat_prompt }}" data-title="{{ chat_title }}">Log in</a>
-          {% endif %}
-          <a class="button secondary" href="https://portal.311.nyc.gov/" target="_blank" rel="noopener noreferrer">Report a new problem to 311</a>
-        </div>
+            <li class="hint">District information is unavailable right now. Please try again later.</li>
+          {% endfor %}
+        </ul>
+        {% if report.officials_as_of_label %}<p class="hint">Updated {{ report.officials_as_of_label }}.{{ info_tip("We check for changes after every election.") }}</p>{% endif %}
       </section>
 
-      {% for cls, info, items in report.open_by_class() %}
-        <section class="card class-group" aria-labelledby="class-{{ cls }}">
-          <h2 id="class-{{ cls }}"><span class="class-pill {{ cls }}">{{ info.short }}</span> {{ info.name }} <span class="stat-label">({{ report.open_counts.get(cls, items|length) }} open)</span></h2>
-          <p class="class-deadline">{{ info.deadline }}{% if info.deadline_detail %}{{ info_tip(info.deadline_detail) }}{% endif %}</p>
-          {% for v in items[:max_per_class] %}
-            {% include "_violation.html" %}
-          {% endfor %}
-          {% if report.open_counts.get(cls, items|length) > max_per_class %}
-            <p class="more">Showing the {{ max_per_class }} most recent of {{ report.open_counts.get(cls) }}. <a href="{{ dataset_url }}" target="_blank" rel="noopener noreferrer">Full list</a></p>
-          {% endif %}
+      {% for b in report.community_boards %}
+        <section class="card board" aria-label="{{ b.name }}">
+          <h2>{{ b.name }}</h2>
+          {% if b.neighborhoods %}<p>{{ b.neighborhoods }}</p>{% endif %}
+          <dl>
+            {% if b.phone %}<dt>Phone</dt><dd><a href="tel:{{ b.phone|replace(' ', '')|replace('(', '')|replace(')', '')|replace('-', '') }}">{{ b.phone }}</a></dd>{% endif %}
+            {% if b.email %}<dt>Email</dt><dd><a href="mailto:{{ b.email }}">{{ b.email }}</a></dd>{% endif %}
+            {% if b.address %}<dt>Office</dt><dd>{{ b.address }}</dd>{% endif %}
+            {% if b.meeting %}<dt>Meets</dt><dd>{{ b.meeting }}</dd>{% endif %}
+            {% if b.website %}<dt>Website</dt><dd><a href="{{ b.website }}" target="_blank" rel="noopener noreferrer">Visit</a></dd>{% endif %}
+          </dl>
         </section>
       {% endfor %}
 
+      <section class="card" aria-label="Area facts">
+        <dl class="facts">
+          {% if report.zip_codes %}<div><dt>ZIP code{{ "s" if report.zip_codes|length > 1 }}</dt><dd>{{ report.zip_codes|join(", ") }}</dd></div>{% endif %}
+          {% if report.precincts %}<div><dt>Police precinct{{ "s" if report.precincts|length > 1 }}</dt><dd>{{ report.precincts|join(", ") }}</dd></div>{% endif %}
+          {% if report.school_districts %}<div><dt>School district{{ "s" if report.school_districts|length > 1 }}</dt><dd>{{ report.school_districts|join(", ") }}</dd></div>{% endif %}
+          {% if report.community_districts %}<div><dt>Community district{{ "s" if report.community_districts|length > 1 }}</dt><dd>{% for cd in report.community_districts %}{{ cd[1:]|int }}{{ ", " if not loop.last }}{% endfor %}</dd></div>{% endif %}
+        </dl>
+      </section>
+
+      <section class="card" aria-labelledby="bldg-heading">
+        <h2 id="bldg-heading">Homes on this street</h2>
+        {% if report.buildings %}
+          <p class="hint">Tap your building to see its open violations.{% if not report.violations_available %} Violation counts are unavailable right now.{% endif %}</p>
+          <ul class="buildings">
+            {% for b in report.buildings %}
+              <li>
+                <div>
+                  <a href="{{ url_for('main.building_lookup', address=b.address ~ ', ' ~ report.borough) }}">{{ b.address }}</a>
+                  {% if b.homes %}<div class="bldg-meta">{{ b.homes }} home{{ "s" if b.homes != 1 }}</div>{% endif %}
+                </div>
+                {% if report.violations_available %}
+                  <div class="counts">
+                    {% if b.open_total %}
+                      {% if b.open_counts.get("C") %}<span class="count c">{{ b.open_counts["C"] }} hazardous</span>{% endif %}
+                      <span class="count">{{ b.open_total }} open</span>
+                    {% else %}
+                      <span class="count none">None open</span>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+          {% if report.buildings_total > report.buildings|length %}<p class="more">Showing {{ report.buildings|length }} of {{ report.buildings_total }}. Add a cross street to narrow it down.</p>{% endif %}
+        {% else %}
+          <p class="hint">No homes are recorded on this part of the street.</p>
+        {% endif %}
+      </section>
+
+      <p class="hint"><a href="{{ url_for('main.resources', borough=report.borough, cd=report.community_districts[0] if report.community_districts else None) }}">Local resources for this area</a></p>
+
       <div class="source-note">
-        <p>Source: <a href="{{ dataset_url }}" target="_blank" rel="noopener noreferrer">HPD violations</a> on NYC Open Data, updated daily.{% call info_tip() %}New violations can take time to appear after an inspection. A closed violation wasn't necessarily re-inspected; many close when the owner certifies the repair.{% endcall %}</p>
-        {% if report.list_truncated %}<p>Not every violation is listed; the counts above are complete.</p>{% endif %}
+        <p>From public City and State records.{% call info_tip(label="About this data") %}Property, district, community board and violation records published by the City of New York, and member lists published by the State. "Hazardous" counts Class C violations, the most serious kind.{% endcall %}</p>
       </div>
     {% endif %}
   </main>
@@ -454,36 +506,18 @@
   <footer>
     <p>{{ short_disclaimer }} <a href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a></p>
   </footer>
-
   <script>
     (function () {
       var form = document.querySelector("[data-lookup-form]");
       if (form) {
         form.addEventListener("submit", function () {
-          var button = form.querySelector("button");
+          var button = form.querySelector("button[type=submit]");
           if (button) {
             button.disabled = true;
             button.textContent = "Looking up…";
           }
         });
       }
-      document.querySelectorAll("[data-prompt]").forEach(function (el) {
-        el.addEventListener("click", function () {
-          try {
-            sessionStorage.setItem("pendingChatPrompt", el.dataset.prompt);
-            sessionStorage.setItem("pendingChatTitle", el.dataset.title || "");
-          } catch (error) {}
-        });
-      });
-      document.querySelectorAll("[data-new-chat-form]").forEach(function (f) {
-        f.addEventListener("submit", function () {
-          try {
-            sessionStorage.setItem("pendingChatArmedAt", String(Date.now()));
-          } catch (error) {}
-          var b = f.querySelector("button");
-          if (b) b.disabled = true;
-        });
-      });
     })();
   </script>
   {{ info_assets() }}

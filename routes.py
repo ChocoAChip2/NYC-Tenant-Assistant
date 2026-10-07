@@ -7,6 +7,7 @@ stored in the Flask app config to handle authentication and chat persistence.
 import base64
 import io
 import json
+import re
 import time
 import logging
 from datetime import date
@@ -14,6 +15,7 @@ import os
 from flask import Blueprint, abort, current_app, flash, jsonify, make_response, redirect, render_template, request, session, url_for, send_file
 
 import account_requirements
+import area_service
 import branding
 import building_service
 import law_service
@@ -21,6 +23,7 @@ import citation_guard
 import conversation_titles
 import password_safety
 import profile_service
+import resources as resources_data
 import retrieval_service
 from ai_service import AIService
 from markdown_service import render_markdown
@@ -198,7 +201,7 @@ def favicon():
 # connection (a library, a tenant meeting) lock everyone out of the front
 # door. Both from the 2026-09-30 review.
 def _no_lookup_requested() -> bool:
-    return not (request.args.get("address") or "").strip()
+    return not ((request.args.get("address") or "").strip() or (request.args.get("street") or "").strip())
 
 
 _building_lookup_limit = limiter.shared_limit(
@@ -225,7 +228,102 @@ def home():
     """
     if request.method == "POST":
         return redirect(url_for("main.signup"), code=307)
-    return _render_building_lookup()
+    if (request.args.get("address") or "").strip():
+        # Shared links from before the street search became the default.
+        return _render_building_lookup()
+    return _render_area_lookup()
+
+
+@main_bp.route("/area")
+@_building_lookup_limit
+def area_lookup():
+    """Public: a street and borough -> representatives, community board,
+    what the street is like, and its buildings (area_service.py)."""
+    return _render_area_lookup()
+
+
+def _render_area_lookup():
+    street = (request.args.get("street") or "").strip()[: area_service.MAX_STREET_LENGTH]
+    borough = (request.args.get("borough") or "").strip()
+    zip_code = (request.args.get("zip") or "").strip()[:5]
+    cross = (request.args.get("cross") or "").strip()[: area_service.MAX_STREET_LENGTH]
+    report = None
+    error = error_title = None
+    narrow_error = False
+    status = 200
+
+    if street:
+        try:
+            report = area_service.lookup(
+                street, borough, zip_code or None, cross or None,
+                client=getattr(get_supabase_service(), "client", None),
+            )
+        except area_service.InvalidArea as exc:
+            error_title, error, status = "Check your search", str(exc), 400
+            narrow_error = bool(zip_code)
+        except area_service.StreetNotFound:
+            error_title = "We couldn't find that street"
+            error = "Check the spelling and the borough. Try the full name, like Echo Place."
+            status = 404
+        except area_service.CrossStreetNotFound:
+            error_title = "Those streets don't seem to meet"
+            error = "Check the cross street, or try your ZIP code instead."
+            status, narrow_error = 404, True
+        except building_service.LookupUnavailable:
+            logger.warning("Area lookup unavailable for a request.", exc_info=True)
+            error_title = "The city's data service didn't respond"
+            error = "This is usually brief. Please try again in a minute."
+            status = 503
+        except Exception:
+            logger.exception("Unexpected failure in area lookup.")
+            error_title = "Something went wrong"
+            error = "We couldn't complete that lookup. Please try again."
+            status = 500
+
+    try:
+        borough_value = area_service.borough_from(borough) if borough else ""
+    except area_service.InvalidArea:
+        borough_value = ""
+
+    return render_template(
+        "area.html",
+        street=street,
+        borough=borough_value,
+        zip_code=zip_code,
+        cross=cross,
+        boroughs=list(area_service.BOROUGHS),
+        report=report,
+        error=error,
+        error_title=error_title,
+        narrow_error=narrow_error,
+        office_titles=area_service.OFFICE_TITLES,
+        display_street=area_service.display_street,
+        max_street_length=area_service.MAX_STREET_LENGTH,
+        logged_in=bool(session.get("user_id")),
+    ), status
+
+
+@main_bp.route("/resources")
+def resources():
+    """Public, read-only: official places to get help, by borough."""
+    try:
+        borough = area_service.borough_from(request.args.get("borough")) if request.args.get("borough") else None
+    except area_service.InvalidArea:
+        borough = None
+    board = None
+    cd = (request.args.get("cd") or "").strip()
+    if borough and re.fullmatch(r"[1-5]\d{2}", cd) and cd[0] == area_service.BOROUGHS[borough][3]:
+        board = area_service.community_boards().get(cd)
+    return render_template(
+        "resources.html",
+        boroughs=list(area_service.BOROUGHS),
+        borough=borough,
+        board=board,
+        courts=resources_data.courts_for(borough),
+        help_resources=branding.HELP_RESOURCES,
+        report_links=resources_data.REPORT_LINKS,
+        logged_in=bool(session.get("user_id")),
+    )
 
 
 @main_bp.route("/signup", methods=["GET", "POST"])

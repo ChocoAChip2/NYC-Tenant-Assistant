@@ -906,7 +906,8 @@
               <button type="submit" class="suggestion-chip continue-chip" data-continue-button>Continue with your building</button>
             </form>
             <div class="suggestions">
-              <a class="suggestion-chip" href="{{ url_for('main.building_lookup') }}">Look up my building's violations</a>
+              <a class="suggestion-chip" href="{{ url_for('main.home') }}">Look up my street</a>
+              <a class="suggestion-chip" href="{{ url_for('main.resources') }}">Free help near me</a>
               <form method="POST" action="{{ url_for('main.create_conversation') }}" data-new-chat-form>
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="title" value="Repairs and heat">

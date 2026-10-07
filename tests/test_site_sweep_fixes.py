@@ -229,7 +229,7 @@ class BrandedErrorPageTests(unittest.TestCase):
         self.assertIn(branding.PRODUCT_NAME, body)
         self.assertIn(branding.SHORT_DISCLAIMER, body)
         self.assertIn(f"Error {status}", body)
-        self.assertIn('href="/building"', body)
+        self.assertIn('href="/"', body)  # the lookup (street search since 2026-10-07)
         self.assertNotIn("<!--", body)
 
     def test_404(self):
