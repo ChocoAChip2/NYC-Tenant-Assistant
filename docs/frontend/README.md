@@ -24,6 +24,8 @@ CSS rule you don't recognise in these templates.**
 | [building-lookup.md](building-lookup.md) | `/building`: the public violation lookup, its honesty rules, and the chat hand-off |
 | [law-page.md](law-page.md) | `/law/<citation>`: one section of official law, verbatim, and the building-page chip links |
 | [info-tips.md](info-tips.md) | The "i" button that holds detail, and how short page copy should be |
+| [area-lookup.md](area-lookup.md) | The street + borough search (front page), officials refresh, and the Resources tab |
+| [case-workspace.md](case-workspace.md) | The per-chat "Your situation" panel and reviewed RA-81 drafts |
 
 For *why a feature exists* (as opposed to how it's built), see `log/` —
 one file per shipped branch, with the requirement it came from.

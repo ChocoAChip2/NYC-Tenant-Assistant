@@ -1,0 +1,29 @@
+2026-10-08 -- Codex review pass merged with the street lookup
+
+REQUIREMENT (owner, 2026-10-07): "Codex implemented those changes, merge
+and adopt their changes assuming functionality and security", alongside
+correcting the site address in the docs.
+
+WHAT
+- Adopted unchanged the owner's 2026-10-06 Codex work (uncommitted in the
+  laptop clone): per-chat "Your situation" panel, reviewed RA-81 drafts,
+  isolated auth clients, no raw exception text in public pages, no-store
+  on signed-in pages, retry without duplicate messages, paginated reads,
+  mobile archive menu, removal of the empty-chat sweep. Details and
+  evidence: docs/review-2026-10-06.md; behavior: docs/frontend/case-workspace.md.
+- Privacy line is now Codex's "Your details stay confidential. Used for
+  your account." (owner chose to adopt it after it was flagged).
+- Merged with feat/street-area-and-resources; no conflicts.
+- The live site is https://tenantrightsandformsassistant.onrender.com
+  (nyc-tenant-assistant.onrender.com returns Not Found); test fixture
+  hostname corrected.
+
+REVIEW NOTES
+- Migration 20261006_case_context_and_form_drafts.sql: additive; RLS on
+  form_drafts scoped to the owner and their conversation; no update
+  policy (drafts immutable). Must be applied before the code deploys,
+  because chat will not send until the situation panel loads.
+- Situation and draft routes check conversation ownership first and
+  require the CSRF token; draft reads filter by conversation as well as RLS.
+- Drafts and situation are encrypted; saving fails closed if encryption
+  is not configured.

@@ -1,0 +1,2074 @@
+{
+ "geo_echo": {
+  "features": [
+   {
+    "properties": {
+     "label": "179 ECHO PLACE, Bronx, NY, USA",
+     "street": "ECHO PLACE",
+     "borough": "Bronx",
+     "addendum": {
+      "pad": {
+       "bbl": "2028080021",
+       "bin": "2086655",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "171 ECHO PLACE, Bronx, NY, USA",
+     "street": "ECHO PLACE",
+     "borough": "Bronx",
+     "addendum": {
+      "pad": {
+       "bbl": "2028080026",
+       "bin": "2007684",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "214 ECHO PLACE, Bronx, NY, USA",
+     "street": "ECHO PLACE",
+     "borough": "Bronx",
+     "addendum": {
+      "pad": {
+       "bbl": "2028090012",
+       "bin": "2007702",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "248 ECHO PLACE, Bronx, NY, USA",
+     "street": "ECHO PLACE",
+     "borough": "Bronx",
+     "addendum": {
+      "pad": {
+       "bbl": "2028090026",
+       "bin": "2000000",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "203 ECHO PLACE, Bronx, NY, USA",
+     "street": "ECHO PLACE",
+     "borough": "Bronx",
+     "addendum": {
+      "pad": {
+       "bbl": "2028100001",
+       "bin": "2007721",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "207 ECHO PLACE, Bronx, NY, USA",
+     "street": "ECHO PLACE",
+     "borough": "Bronx",
+     "addendum": {
+      "pad": {
+       "bbl": "2028100001",
+       "bin": "2007721",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "304 ECHO PLACE, Bronx, NY, USA",
+     "street": "ECHO PLACE",
+     "borough": "Bronx",
+     "addendum": {
+      "pad": {
+       "bbl": "2028140008",
+       "bin": "2127530",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "315 ECHO PLACE, Bronx, NY, USA",
+     "street": "ECHO PLACE",
+     "borough": "Bronx",
+     "addendum": {
+      "pad": {
+       "bbl": "2028140045",
+       "bin": "2007768",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "181 ECHO PLACE, Bronx, NY, USA",
+     "street": "ECHO PLACE",
+     "borough": "Bronx",
+     "addendum": {
+      "pad": {
+       "bbl": "2028080021",
+       "bin": "2086655",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "200 ECHO PLACE, Bronx, NY, USA",
+     "street": "ECHO PLACE",
+     "borough": "Bronx",
+     "addendum": {
+      "pad": {
+       "bbl": "2028090005",
+       "bin": "2007701",
+       "version": "26c"
+      }
+     }
+    }
+   }
+  ]
+ },
+ "geo_grand_concourse": {
+  "features": [
+   {
+    "properties": {
+     "label": "2384 GRAND CONCOURSE, Bronx, NY, USA",
+     "street": "GRAND CONCOURSE",
+     "borough": "Bronx",
+     "addendum": {
+      "pad": {
+       "bbl": "2031520036",
+       "bin": "2013583",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "2390 GRAND CONCOURSE, Bronx, NY, USA",
+     "street": "GRAND CONCOURSE",
+     "borough": "Bronx",
+     "addendum": {
+      "pad": {
+       "bbl": "2031520043",
+       "bin": "2013584",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "2404A GRAND CONCOURSE, Bronx, NY, USA",
+     "street": "GRAND CONCOURSE",
+     "borough": "Bronx",
+     "addendum": {
+      "pad": {
+       "bbl": "2031520049",
+       "bin": "2013588",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "2406 GRAND CONCOURSE, Bronx, NY, USA",
+     "street": "GRAND CONCOURSE",
+     "borough": "Bronx",
+     "addendum": {
+      "pad": {
+       "bbl": "2031520050",
+       "bin": "2013589",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "2438 GRAND CONCOURSE, Bronx, NY, USA",
+     "street": "GRAND CONCOURSE",
+     "borough": "Bronx",
+     "addendum": {
+      "pad": {
+       "bbl": "2031520060",
+       "bin": "2013591",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "2442 GRAND CONCOURSE, Bronx, NY, USA",
+     "street": "GRAND CONCOURSE",
+     "borough": "Bronx",
+     "addendum": {
+      "pad": {
+       "bbl": "2031520060",
+       "bin": "2013591",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "2452 GRAND CONCOURSE, Bronx, NY, USA",
+     "street": "GRAND CONCOURSE",
+     "borough": "Bronx",
+     "addendum": {
+      "pad": {
+       "bbl": "2031520069",
+       "bin": "2013592",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "2454 GRAND CONCOURSE, Bronx, NY, USA",
+     "street": "GRAND CONCOURSE",
+     "borough": "Bronx",
+     "addendum": {
+      "pad": {
+       "bbl": "2031520069",
+       "bin": "2013592",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "2468 GRAND CONCOURSE, Bronx, NY, USA",
+     "street": "GRAND CONCOURSE",
+     "borough": "Bronx",
+     "addendum": {
+      "pad": {
+       "bbl": "2031530001",
+       "bin": "2094664",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "2464 GRAND CONCOURSE, Bronx, NY, USA",
+     "street": "GRAND CONCOURSE",
+     "borough": "Bronx",
+     "addendum": {
+      "pad": {
+       "bbl": "2031530001",
+       "bin": "2094665",
+       "version": "26c"
+      }
+     }
+    }
+   }
+  ]
+ },
+ "geo_nonsense": {
+  "features": [
+   {
+    "properties": {
+     "label": "8979 211 STREET, Queens Village, NY, USA",
+     "street": "211 STREET",
+     "borough": "Queens",
+     "addendum": {
+      "pad": {
+       "bbl": "4105770052",
+       "bin": "4225688",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "8961 211 STREET, Queens Village, NY, USA",
+     "street": "211 STREET",
+     "borough": "Queens",
+     "addendum": {
+      "pad": {
+       "bbl": "4105770060",
+       "bin": "4225693",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "8950 212 STREET, Queens Village, NY, USA",
+     "street": "212 STREET",
+     "borough": "Queens",
+     "addendum": {
+      "pad": {
+       "bbl": "4105780020",
+       "bin": "4225709",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "8962 212 STREET, Queens Village, NY, USA",
+     "street": "212 STREET",
+     "borough": "Queens",
+     "addendum": {
+      "pad": {
+       "bbl": "4105780026",
+       "bin": "4225713",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "8984 212 STREET, Queens Village, NY, USA",
+     "street": "212 STREET",
+     "borough": "Queens",
+     "addendum": {
+      "pad": {
+       "bbl": "4105780036",
+       "bin": "4225719",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "8915 211 STREET, Queens Village, NY, USA",
+     "street": "211 STREET",
+     "borough": "Queens",
+     "addendum": {
+      "pad": {
+       "bbl": "4105790086",
+       "bin": "4225740",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "8919 211 STREET, Queens Village, NY, USA",
+     "street": "211 STREET",
+     "borough": "Queens",
+     "addendum": {
+      "pad": {
+       "bbl": "4105790088",
+       "bin": "4225741",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "8929 211 STREET, Queens Village, NY, USA",
+     "street": "211 STREET",
+     "borough": "Queens",
+     "addendum": {
+      "pad": {
+       "bbl": "4105790092",
+       "bin": "4225743",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "8939 211 STREET, Queens Village, NY, USA",
+     "street": "211 STREET",
+     "borough": "Queens",
+     "addendum": {
+      "pad": {
+       "bbl": "4105790098",
+       "bin": "4225746",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "8926 212 STREET, Queens Village, NY, USA",
+     "street": "212 STREET",
+     "borough": "Queens",
+     "addendum": {
+      "pad": {
+       "bbl": "4105800025",
+       "bin": "4225763",
+       "version": "26c"
+      }
+     }
+    }
+   }
+  ]
+ },
+ "geo_broadway": {
+  "features": [
+   {
+    "properties": {
+     "label": "23 B'WAY, New York, NY, USA",
+     "street": "B'WAY",
+     "borough": "Manhattan",
+     "addendum": {
+      "pad": {
+       "bbl": "1000130027",
+       "bin": "1000045",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "23 BROADWAY, New York, NY, USA",
+     "street": "BROADWAY",
+     "borough": "Manhattan",
+     "addendum": {
+      "pad": {
+       "bbl": "1000130027",
+       "bin": "1000045",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "1 BROADWAY, New York, NY, USA",
+     "street": "BROADWAY",
+     "borough": "Manhattan",
+     "addendum": {
+      "pad": {
+       "bbl": "1000130001",
+       "bin": "1000043",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "5 BROADWAY, New York, NY, USA",
+     "street": "BROADWAY",
+     "borough": "Manhattan",
+     "addendum": {
+      "pad": {
+       "bbl": "1000130005",
+       "bin": "1000044",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "98 BROADWAY, New York, NY, USA",
+     "street": "BROADWAY",
+     "borough": "Manhattan",
+     "addendum": {
+      "pad": {
+       "bbl": "1000460003",
+       "bin": "1001024",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "104 B'WAY, New York, NY, USA",
+     "street": "B'WAY",
+     "borough": "Manhattan",
+     "addendum": {
+      "pad": {
+       "bbl": "1000477501",
+       "bin": "1001026",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "106 B'WAY, New York, NY, USA",
+     "street": "B'WAY",
+     "borough": "Manhattan",
+     "addendum": {
+      "pad": {
+       "bbl": "1000477501",
+       "bin": "1001026",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "110 B'WAY, New York, NY, USA",
+     "street": "B'WAY",
+     "borough": "Manhattan",
+     "addendum": {
+      "pad": {
+       "bbl": "1000477501",
+       "bin": "1001026",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "112 B'WAY, New York, NY, USA",
+     "street": "B'WAY",
+     "borough": "Manhattan",
+     "addendum": {
+      "pad": {
+       "bbl": "1000477501",
+       "bin": "1001026",
+       "version": "26c"
+      }
+     }
+    }
+   },
+   {
+    "properties": {
+     "label": "122 BROADWAY, New York, NY, USA",
+     "street": "BROADWAY",
+     "borough": "Manhattan",
+     "addendum": {
+      "pad": {
+       "bbl": "1000477501",
+       "bin": "1001026",
+       "version": "26c"
+      }
+     }
+    }
+   }
+  ]
+ },
+ "lots_echo": [
+  {
+   "bbl": "2028100050.00000000",
+   "address": "219 ECHO PLACE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "3",
+   "unitsres": "31",
+   "zonedist1": "R8",
+   "latitude": "40.8499183",
+   "longitude": "-73.9045642"
+  },
+  {
+   "bbl": "2028080028.00000000",
+   "address": "165 ECHO PLACE",
+   "zipcode": "10453",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "8",
+   "unitsres": "0",
+   "zonedist1": "R8",
+   "latitude": "40.8503261",
+   "longitude": "-73.9064866"
+  },
+  {
+   "bbl": "2028090012.00000000",
+   "address": "214 ECHO PLACE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "2",
+   "unitsres": "44",
+   "zonedist1": "R8",
+   "latitude": "40.8495397",
+   "longitude": "-73.9047852"
+  },
+  {
+   "bbl": "2028090017.00000000",
+   "address": "222 ECHO PLACE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "3",
+   "unitsres": "44",
+   "zonedist1": "R8",
+   "latitude": "40.8494818",
+   "longitude": "-73.9045070"
+  },
+  {
+   "bbl": "2028090020.00000000",
+   "address": "230 ECHO PLACE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "3",
+   "unitsres": "29",
+   "zonedist1": "R8",
+   "latitude": "40.8494487",
+   "longitude": "-73.9043263"
+  },
+  {
+   "bbl": "2028100037.00000000",
+   "address": "243 ECHO PLACE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "3",
+   "unitsres": "119",
+   "zonedist1": "R8",
+   "latitude": "40.8497557",
+   "longitude": "-73.9037476"
+  },
+  {
+   "bbl": "2028100045.00000000",
+   "address": "231 ECHO PLACE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "2",
+   "unitsres": "44",
+   "zonedist1": "R8",
+   "latitude": "40.8498632",
+   "longitude": "-73.9042860"
+  },
+  {
+   "bbl": "2028090026.00000000",
+   "address": "246 ECHO PLACE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "4",
+   "unitsres": "90",
+   "zonedist1": "R8",
+   "latitude": "40.8493247",
+   "longitude": "-73.9037120"
+  },
+  {
+   "bbl": "2028090022.00000000",
+   "address": "240 ECHO PLACE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "3",
+   "unitsres": "42",
+   "zonedist1": "R8",
+   "latitude": "40.8493964",
+   "longitude": "-73.9040662"
+  },
+  {
+   "bbl": "2028090031.00000000",
+   "address": "264 ECHO PLACE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "2",
+   "unitsres": "39",
+   "zonedist1": "R8",
+   "latitude": "40.8492887",
+   "longitude": "-73.9033542"
+  },
+  {
+   "bbl": "2028080026.00000000",
+   "address": "171 ECHO PLACE",
+   "zipcode": "10453",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "1",
+   "unitsres": "2",
+   "zonedist1": "R8",
+   "latitude": "40.8502820",
+   "longitude": "-73.9063240"
+  },
+  {
+   "bbl": "2028140045.00000000",
+   "address": "315 ECHO PLACE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "2",
+   "unitsres": "22",
+   "zonedist1": "R7-1",
+   "latitude": "40.8494773",
+   "longitude": "-73.9023527"
+  },
+  {
+   "bbl": "2028140008.00000000",
+   "address": "304 ECHO PLACE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "3",
+   "unitsres": "55",
+   "zonedist1": "R7-1",
+   "latitude": "40.8491290",
+   "longitude": "-73.9027002"
+  }
+ ],
+ "lots_grand_concourse_near_echo": [
+  {
+   "bbl": "2028260062.00000000",
+   "address": "1777 GRAND CONCOURSE",
+   "zipcode": "10453",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "4",
+   "unitsres": "170",
+   "zonedist1": "R8",
+   "latitude": "40.8469087",
+   "longitude": "-73.9096323"
+  },
+  {
+   "bbl": "2028260072.00000000",
+   "address": "1815 GRAND CONCOURSE",
+   "zipcode": "10453",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "4",
+   "unitsres": "32",
+   "zonedist1": "R8",
+   "latitude": "40.8474760",
+   "longitude": "-73.9085255"
+  },
+  {
+   "bbl": "2028260083.00000000",
+   "address": "1829 GRAND CONCOURSE",
+   "zipcode": "10453",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "4",
+   "unitsres": "3",
+   "zonedist1": "R8",
+   "latitude": "40.8477556",
+   "longitude": "-73.9081312"
+  },
+  {
+   "bbl": "2028260054.00000000",
+   "address": "1791 GRAND CONCOURSE",
+   "zipcode": "10453",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "3",
+   "unitsres": "66",
+   "zonedist1": "R8",
+   "latitude": "40.8471142",
+   "longitude": "-73.9092200"
+  },
+  {
+   "bbl": "2028250017.00000000",
+   "address": "1770 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "4",
+   "unitsres": "185",
+   "zonedist1": "R8",
+   "latitude": "40.8456818",
+   "longitude": "-73.9096232"
+  },
+  {
+   "bbl": "2027950014.00000000",
+   "address": "1780 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "5",
+   "unitsres": "0",
+   "zonedist1": "R8",
+   "latitude": "40.8461094",
+   "longitude": "-73.9089322"
+  },
+  {
+   "bbl": "2028260087.00000000",
+   "address": "1800 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "8",
+   "unitsres": "0",
+   "zonedist1": "R8",
+   "latitude": "40.8469732",
+   "longitude": "-73.9079732"
+  },
+  {
+   "bbl": "2028260088.00000000",
+   "address": "1808 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "8",
+   "unitsres": "0",
+   "zonedist1": "R8",
+   "latitude": "40.8471296",
+   "longitude": "-73.9078573"
+  },
+  {
+   "bbl": "2028260094.00000000",
+   "address": "1814 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "2",
+   "unitsres": "11",
+   "zonedist1": "R8",
+   "latitude": "40.8472255",
+   "longitude": "-73.9076910"
+  },
+  {
+   "bbl": "2028260097.00000000",
+   "address": "1820 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "4",
+   "unitsres": "29",
+   "zonedist1": "R8",
+   "latitude": "40.8472940",
+   "longitude": "-73.9075210"
+  },
+  {
+   "bbl": "2027950026.00000000",
+   "address": "1796 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "2",
+   "unitsres": "24",
+   "zonedist1": "R8",
+   "latitude": "40.8465620",
+   "longitude": "-73.9085087"
+  },
+  {
+   "bbl": "2028010001.00000000",
+   "address": "1840 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "4",
+   "unitsres": "57",
+   "zonedist1": "R8",
+   "latitude": "40.8479055",
+   "longitude": "-73.9067828"
+  },
+  {
+   "bbl": "2028010031.00000000",
+   "address": "1882 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "3",
+   "unitsres": "44",
+   "zonedist1": "R8",
+   "latitude": "40.8487832",
+   "longitude": "-73.9060912"
+  },
+  {
+   "bbl": "2028010007.00000000",
+   "address": "1850 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "5",
+   "unitsres": "0",
+   "zonedist1": "R8",
+   "latitude": "40.8481579",
+   "longitude": "-73.9067101"
+  },
+  {
+   "bbl": "2028010013.00000000",
+   "address": "1860 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "3",
+   "unitsres": "52",
+   "zonedist1": "R8",
+   "latitude": "40.8482071",
+   "longitude": "-73.9064281"
+  },
+  {
+   "bbl": "2028010025.00000000",
+   "address": "1870 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "8",
+   "unitsres": "0",
+   "zonedist1": "R8",
+   "latitude": "40.8485857",
+   "longitude": "-73.9062107"
+  },
+  {
+   "bbl": "2031600020.00000000",
+   "address": "2075 GRAND CONCOURSE",
+   "zipcode": "10453",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "10",
+   "landuse": "4",
+   "unitsres": "40",
+   "zonedist1": "R8",
+   "latitude": "40.8534991",
+   "longitude": "-73.9033228"
+  },
+  {
+   "bbl": "2031610030.00000000",
+   "address": "2081 GRAND CONCOURSE",
+   "zipcode": "10453",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "10",
+   "landuse": "4",
+   "unitsres": "43",
+   "zonedist1": "R8",
+   "latitude": "40.8538529",
+   "longitude": "-73.9030223"
+  },
+  {
+   "bbl": "2031610025.00000000",
+   "address": "2101 GRAND CONCOURSE",
+   "zipcode": "10453",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "10",
+   "landuse": "5",
+   "unitsres": "0",
+   "zonedist1": "R8",
+   "latitude": "40.8542287",
+   "longitude": "-73.9027181"
+  },
+  {
+   "bbl": "2031610018.00000000",
+   "address": "2103 GRAND CONCOURSE",
+   "zipcode": "10453",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "10",
+   "landuse": "4",
+   "unitsres": "43",
+   "zonedist1": "R8",
+   "latitude": "40.8544399",
+   "longitude": "-73.9025334"
+  },
+  {
+   "bbl": "2028080082.00000000",
+   "address": "2029 GRAND CONCOURSE",
+   "zipcode": "10453",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "5",
+   "unitsres": "0",
+   "zonedist1": "R8",
+   "latitude": "40.8521963",
+   "longitude": "-73.9044380"
+  },
+  {
+   "bbl": "2028080090.00000000",
+   "address": "2017 GRAND CONCOURSE",
+   "zipcode": "10453",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "3",
+   "unitsres": "34",
+   "zonedist1": "R8",
+   "latitude": "40.8518671",
+   "longitude": "-73.9046554"
+  },
+  {
+   "bbl": "2028080021.00000000",
+   "address": "1925 GRAND CONCOURSE",
+   "zipcode": "10453",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "8",
+   "unitsres": "0",
+   "zonedist1": "R8",
+   "latitude": "40.8502159",
+   "longitude": "-73.9060422"
+  },
+  {
+   "bbl": "2028080051.00000000",
+   "address": "1955 GRAND CONCOURSE",
+   "zipcode": "10453",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "2",
+   "unitsres": "59",
+   "zonedist1": "R8",
+   "latitude": "40.8508304",
+   "longitude": "-73.9055714"
+  },
+  {
+   "bbl": "2028080094.00000000",
+   "address": "2011 GRAND CONCOURSE",
+   "zipcode": "10453",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "8",
+   "unitsres": "0",
+   "zonedist1": "R8",
+   "latitude": "40.8515763",
+   "longitude": "-73.9048763"
+  },
+  {
+   "bbl": "2028080096.00000000",
+   "address": "2001 GRAND CONCOURSE",
+   "zipcode": "10453",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "2",
+   "unitsres": "41",
+   "zonedist1": "R8",
+   "latitude": "40.8513981",
+   "longitude": "-73.9050103"
+  },
+  {
+   "bbl": "2028080093.00000000",
+   "address": "2015 GRAND CONCOURSE",
+   "zipcode": "10453",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "5",
+   "unitsres": "0",
+   "zonedist1": "R8",
+   "latitude": "40.8516724",
+   "longitude": "-73.9048220"
+  },
+  {
+   "bbl": "2028080044.00000000",
+   "address": "1963 GRAND CONCOURSE",
+   "zipcode": "10453",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "5",
+   "unitsres": "0",
+   "zonedist1": "R8",
+   "latitude": "40.8510581",
+   "longitude": "-73.9054265"
+  },
+  {
+   "bbl": "2028080012.00000000",
+   "address": "1939 GRAND CONCOURSE",
+   "zipcode": "10453",
+   "council": "14",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "3",
+   "unitsres": "85",
+   "zonedist1": "R8",
+   "latitude": "40.8504683",
+   "longitude": "-73.9059044"
+  },
+  {
+   "bbl": "2031560108.00000000",
+   "address": "2102 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "10",
+   "landuse": "5",
+   "unitsres": "0",
+   "zonedist1": "R8",
+   "latitude": "40.8542222",
+   "longitude": "-73.9016120"
+  },
+  {
+   "bbl": "2031560001.00000000",
+   "address": "2050 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "10",
+   "landuse": "4",
+   "unitsres": "96",
+   "zonedist1": "R8",
+   "latitude": "40.8522911",
+   "longitude": "-73.9029667"
+  },
+  {
+   "bbl": "2028100007.00000000",
+   "address": "1940 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "11",
+   "unitsres": "0",
+   "zonedist1": "R8",
+   "latitude": "40.8501984",
+   "longitude": "-73.9047951"
+  },
+  {
+   "bbl": "2031560009.00000000",
+   "address": "2070 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "10",
+   "landuse": "4",
+   "unitsres": "90",
+   "zonedist1": "R8",
+   "latitude": "40.8530620",
+   "longitude": "-73.9025138"
+  },
+  {
+   "bbl": "2028130009.00000000",
+   "address": "2034 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "2",
+   "unitsres": "46",
+   "zonedist1": "R8",
+   "latitude": "40.8519237",
+   "longitude": "-73.9034263"
+  },
+  {
+   "bbl": "2031560003.00000000",
+   "address": "2060 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "10",
+   "landuse": "2",
+   "unitsres": "40",
+   "zonedist1": "R8",
+   "latitude": "40.8525491",
+   "longitude": "-73.9029266"
+  },
+  {
+   "bbl": "2031560007.00000000",
+   "address": "2064 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "10",
+   "landuse": "4",
+   "unitsres": "85",
+   "zonedist1": "R8",
+   "latitude": "40.8527466",
+   "longitude": "-73.9027672"
+  },
+  {
+   "bbl": "2028100010.00000000",
+   "address": "1942 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "11",
+   "unitsres": "0",
+   "zonedist1": "R8",
+   "latitude": "40.8503274",
+   "longitude": "-73.9047227"
+  },
+  {
+   "bbl": "2028090005.00000000",
+   "address": "1916 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "4",
+   "unitsres": "50",
+   "zonedist1": "R8",
+   "latitude": "40.8496197",
+   "longitude": "-73.9052189"
+  },
+  {
+   "bbl": "2028100001.00000000",
+   "address": "1930 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "4",
+   "unitsres": "62",
+   "zonedist1": "R8",
+   "latitude": "40.8499817",
+   "longitude": "-73.9049111"
+  },
+  {
+   "bbl": "2028090001.00000000",
+   "address": "1900 GRAND CONCOURSE",
+   "zipcode": "10457",
+   "council": "15",
+   "cd": "205",
+   "policeprct": "46",
+   "schooldist": "9",
+   "landuse": "4",
+   "unitsres": "40",
+   "zonedist1": "R8",
+   "latitude": "40.8493975",
+   "longitude": "-73.9054180"
+  }
+ ],
+ "lots_grand_concourse_far": [
+  {
+   "bbl": "2023430006.00000000",
+   "address": "416 GRAND CONCOURSE",
+   "zipcode": "10451",
+   "council": "17",
+   "cd": "201",
+   "policeprct": "40",
+   "schooldist": "7",
+   "landuse": "7",
+   "unitsres": "0",
+   "zonedist1": "C4-4",
+   "latitude": "40.8165924",
+   "longitude": "-73.9278060"
+  },
+  {
+   "bbl": "2024430400.00000000",
+   "address": "558 GRAND CONCOURSE",
+   "zipcode": "10451",
+   "council": "17",
+   "cd": "204",
+   "policeprct": "44",
+   "schooldist": "7",
+   "landuse": "5",
+   "unitsres": "0",
+   "zonedist1": "C4-4",
+   "latitude": "40.8189137",
+   "longitude": "-73.9265643"
+  },
+  {
+   "bbl": "2024580072.00000000",
+   "address": "760 GRAND CONCOURSE",
+   "zipcode": "10451",
+   "council": "16",
+   "cd": "204",
+   "policeprct": "44",
+   "schooldist": "7",
+   "landuse": "4",
+   "unitsres": "91",
+   "zonedist1": "R8",
+   "latitude": "40.8236328",
+   "longitude": "-73.9239070"
+  },
+  {
+   "bbl": "2024580080.00000000",
+   "address": "774 GRAND CONCOURSE",
+   "zipcode": "10451",
+   "council": "16",
+   "cd": "204",
+   "policeprct": "44",
+   "schooldist": "7",
+   "landuse": "3",
+   "unitsres": "86",
+   "zonedist1": "R8",
+   "latitude": "40.8240636",
+   "longitude": "-73.9237295"
+  },
+  {
+   "bbl": "2024580090.00000000",
+   "address": "800 GRAND CONCOURSE",
+   "zipcode": "10451",
+   "council": "16",
+   "cd": "204",
+   "policeprct": "44",
+   "schooldist": "7",
+   "landuse": "3",
+   "unitsres": "254",
+   "zonedist1": "R8",
+   "latitude": "40.8248454",
+   "longitude": "-73.9230168"
+  },
+  {
+   "bbl": "2024680001.00000000",
+   "address": "851 GRAND CONCOURSE",
+   "zipcode": "10451",
+   "council": "16",
+   "cd": "204",
+   "policeprct": "44",
+   "schooldist": "7",
+   "landuse": "8",
+   "unitsres": "0",
+   "zonedist1": "R8",
+   "latitude": "40.8262897",
+   "longitude": "-73.9237992"
+  },
+  {
+   "bbl": "2023410058.00000000",
+   "address": "390 GRAND CONCOURSE",
+   "zipcode": "10451",
+   "council": "8",
+   "cd": "201",
+   "policeprct": "40",
+   "schooldist": "7",
+   "landuse": "4",
+   "unitsres": "25",
+   "zonedist1": "C4-4",
+   "latitude": "40.8162988",
+   "longitude": "-73.9279147"
+  },
+  {
+   "bbl": "2023430032.00000000",
+   "address": "500 GRAND CONCOURSE",
+   "zipcode": "10451",
+   "council": "17",
+   "cd": "201",
+   "policeprct": "40",
+   "schooldist": "7",
+   "landuse": "8",
+   "unitsres": "0",
+   "zonedist1": "C4-4",
+   "latitude": "40.8178874",
+   "longitude": "-73.9269303"
+  },
+  {
+   "bbl": "2023460043.00000000",
+   "address": "485 GRAND CONCOURSE",
+   "zipcode": "10451",
+   "council": "17",
+   "cd": "201",
+   "policeprct": "40",
+   "schooldist": "7",
+   "landuse": "11",
+   "unitsres": "0",
+   "zonedist1": "C4-4",
+   "latitude": "40.8184066",
+   "longitude": "-73.9276993"
+  },
+  {
+   "bbl": "2024670001.00000000",
+   "address": "613 GRAND CONCOURSE",
+   "zipcode": "10451",
+   "council": "16",
+   "cd": "204",
+   "policeprct": "44",
+   "schooldist": "7",
+   "landuse": "9",
+   "unitsres": "0",
+   "zonedist1": "PARK",
+   "latitude": "40.8233622",
+   "longitude": "-73.9255079"
+  },
+  {
+   "bbl": "2023467501.00000000",
+   "address": "425 GRAND CONCOURSE",
+   "zipcode": "10451",
+   "council": "17",
+   "cd": "201",
+   "policeprct": "40",
+   "schooldist": "7",
+   "landuse": "4",
+   "unitsres": "277",
+   "latitude": "40.8169881",
+   "longitude": "-73.9285209"
+  },
+  {
+   "bbl": "2024430041.00000000",
+   "address": "596 GRAND CONCOURSE",
+   "zipcode": "10451",
+   "council": "17",
+   "cd": "204",
+   "policeprct": "44",
+   "schooldist": "7",
+   "landuse": "4",
+   "unitsres": "2",
+   "zonedist1": "C4-4",
+   "latitude": "40.8197040",
+   "longitude": "-73.9263936"
+  },
+  {
+   "bbl": "2024430043.00000000",
+   "address": "600 GRAND CONCOURSE",
+   "zipcode": "10451",
+   "council": "17",
+   "cd": "204",
+   "policeprct": "44",
+   "schooldist": "7",
+   "landuse": "11",
+   "unitsres": "0",
+   "zonedist1": "C4-4",
+   "latitude": "40.8197918",
+   "longitude": "-73.9262887"
+  },
+  {
+   "bbl": "2024430042.00000000",
+   "address": "598 GRAND CONCOURSE",
+   "zipcode": "10451",
+   "council": "17",
+   "cd": "204",
+   "policeprct": "44",
+   "schooldist": "7",
+   "landuse": "4",
+   "unitsres": "2",
+   "zonedist1": "C4-4",
+   "latitude": "40.8197094",
+   "longitude": "-73.9262671"
+  },
+  {
+   "bbl": "2024430029.00000000",
+   "address": "590 GRAND CONCOURSE",
+   "zipcode": "10451",
+   "council": "17",
+   "cd": "204",
+   "policeprct": "44",
+   "schooldist": "7",
+   "landuse": "5",
+   "unitsres": "0",
+   "zonedist1": "C4-4",
+   "latitude": "40.8195284",
+   "longitude": "-73.9263865"
+  },
+  {
+   "bbl": "2024430045.00000000",
+   "address": "612 GRAND CONCOURSE",
+   "zipcode": "10451",
+   "council": "17",
+   "cd": "204",
+   "policeprct": "44",
+   "schooldist": "7",
+   "landuse": "11",
+   "unitsres": "0",
+   "zonedist1": "C4-4",
+   "latitude": "40.8200114",
+   "longitude": "-73.9262849"
+  },
+  {
+   "bbl": "2024430044.00000000",
+   "address": "604 GRAND CONCOURSE",
+   "zipcode": "10451",
+   "council": "17",
+   "cd": "204",
+   "policeprct": "44",
+   "schooldist": "7",
+   "landuse": "8",
+   "unitsres": "0",
+   "zonedist1": "C4-4",
+   "latitude": "40.8198659",
+   "longitude": "-73.9262814"
+  },
+  {
+   "bbl": "2024430040.00000000",
+   "address": "594 GRAND CONCOURSE",
+   "zipcode": "10451",
+   "council": "17",
+   "cd": "204",
+   "policeprct": "44",
+   "schooldist": "7",
+   "landuse": "5",
+   "unitsres": "0",
+   "zonedist1": "C4-4",
+   "latitude": "40.8196574",
+   "longitude": "-73.9264153"
+  },
+  {
+   "bbl": "2023430009.00000000",
+   "address": "422 GRAND CONCOURSE",
+   "zipcode": "10451",
+   "council": "17",
+   "cd": "201",
+   "policeprct": "40",
+   "schooldist": "7",
+   "landuse": "10",
+   "unitsres": "0",
+   "zonedist1": "C4-4",
+   "latitude": "40.8167488",
+   "longitude": "-73.9277480"
+  },
+  {
+   "bbl": "2023410010.00000000",
+   "address": "276 GRAND CONCOURSE",
+   "zipcode": "10451",
+   "council": "8",
+   "cd": "201",
+   "policeprct": "40",
+   "schooldist": "7",
+   "landuse": "4",
+   "unitsres": "215",
+   "zonedist1": "C6-2A",
+   "latitude": "40.8137908",
+   "longitude": "-73.9289759"
+  }
+ ],
+ "hpd_echo": [
+  {
+   "bbl": "2028080021",
+   "housenumber": "175",
+   "zip": "10453",
+   "latitude": "40.850063",
+   "longitude": "-73.906241",
+   "class": "A",
+   "n": "7"
+  },
+  {
+   "bbl": "2028080021",
+   "housenumber": "175",
+   "zip": "10453",
+   "latitude": "40.850063",
+   "longitude": "-73.906241",
+   "class": "B",
+   "n": "30"
+  },
+  {
+   "bbl": "2028080021",
+   "housenumber": "175",
+   "zip": "10453",
+   "latitude": "40.850063",
+   "longitude": "-73.906241",
+   "class": "C",
+   "n": "5"
+  },
+  {
+   "bbl": "2028080021",
+   "housenumber": "175",
+   "zip": "10453",
+   "latitude": "40.850063",
+   "longitude": "-73.906241",
+   "class": "I",
+   "n": "2"
+  },
+  {
+   "bbl": "2028090012",
+   "housenumber": "214",
+   "zip": "10457",
+   "latitude": "40.849757",
+   "longitude": "-73.904832",
+   "class": "A",
+   "n": "13"
+  },
+  {
+   "bbl": "2028090012",
+   "housenumber": "214",
+   "zip": "10457",
+   "latitude": "40.849757",
+   "longitude": "-73.904832",
+   "class": "B",
+   "n": "25"
+  },
+  {
+   "bbl": "2028090012",
+   "housenumber": "214",
+   "zip": "10457",
+   "latitude": "40.849757",
+   "longitude": "-73.904832",
+   "class": "C",
+   "n": "25"
+  },
+  {
+   "bbl": "2028090017",
+   "housenumber": "222",
+   "zip": "10457",
+   "latitude": "40.849729",
+   "longitude": "-73.904695",
+   "class": "A",
+   "n": "11"
+  },
+  {
+   "bbl": "2028090017",
+   "housenumber": "222",
+   "zip": "10457",
+   "latitude": "40.849729",
+   "longitude": "-73.904695",
+   "class": "B",
+   "n": "20"
+  },
+  {
+   "bbl": "2028090017",
+   "housenumber": "222",
+   "zip": "10457",
+   "latitude": "40.849729",
+   "longitude": "-73.904695",
+   "class": "C",
+   "n": "23"
+  },
+  {
+   "bbl": "2028090020",
+   "housenumber": "230",
+   "zip": "10457",
+   "latitude": "40.849702",
+   "longitude": "-73.904557",
+   "class": "B",
+   "n": "3"
+  },
+  {
+   "bbl": "2028090020",
+   "housenumber": "230",
+   "zip": "10457",
+   "latitude": "40.849702",
+   "longitude": "-73.904557",
+   "class": "C",
+   "n": "3"
+  },
+  {
+   "bbl": "2028090022",
+   "housenumber": "240",
+   "zip": "10457",
+   "latitude": "40.849666",
+   "longitude": "-73.904384",
+   "class": "A",
+   "n": "3"
+  },
+  {
+   "bbl": "2028090022",
+   "housenumber": "240",
+   "zip": "10457",
+   "latitude": "40.849666",
+   "longitude": "-73.904384",
+   "class": "B",
+   "n": "21"
+  },
+  {
+   "bbl": "2028090022",
+   "housenumber": "240",
+   "zip": "10457",
+   "latitude": "40.849666",
+   "longitude": "-73.904384",
+   "class": "C",
+   "n": "23"
+  },
+  {
+   "bbl": "2028090026",
+   "housenumber": "246",
+   "zip": "10457",
+   "latitude": "40.849647",
+   "longitude": "-73.904283",
+   "class": "A",
+   "n": "1"
+  },
+  {
+   "bbl": "2028090031",
+   "housenumber": "264",
+   "zip": "10457",
+   "latitude": "40.849583",
+   "longitude": "-73.903976",
+   "class": "A",
+   "n": "1"
+  },
+  {
+   "bbl": "2028090031",
+   "housenumber": "264",
+   "zip": "10457",
+   "latitude": "40.849583",
+   "longitude": "-73.903976",
+   "class": "B",
+   "n": "4"
+  },
+  {
+   "bbl": "2028090031",
+   "housenumber": "264",
+   "zip": "10457",
+   "latitude": "40.849583",
+   "longitude": "-73.903976",
+   "class": "C",
+   "n": "3"
+  },
+  {
+   "bbl": "2028100045",
+   "housenumber": "231",
+   "zip": "10457",
+   "latitude": "40.849718",
+   "longitude": "-73.904550",
+   "class": "A",
+   "n": "18"
+  },
+  {
+   "bbl": "2028100045",
+   "housenumber": "231",
+   "zip": "10457",
+   "latitude": "40.849718",
+   "longitude": "-73.904550",
+   "class": "B",
+   "n": "21"
+  },
+  {
+   "bbl": "2028100045",
+   "housenumber": "231",
+   "zip": "10457",
+   "latitude": "40.849718",
+   "longitude": "-73.904550",
+   "class": "C",
+   "n": "26"
+  },
+  {
+   "bbl": "2028100050",
+   "housenumber": "219",
+   "zip": "10457",
+   "latitude": "40.849760",
+   "longitude": "-73.904756",
+   "class": "A",
+   "n": "11"
+  },
+  {
+   "bbl": "2028100050",
+   "housenumber": "219",
+   "zip": "10457",
+   "latitude": "40.849760",
+   "longitude": "-73.904756",
+   "class": "B",
+   "n": "28"
+  },
+  {
+   "bbl": "2028100050",
+   "housenumber": "219",
+   "zip": "10457",
+   "latitude": "40.849760",
+   "longitude": "-73.904756",
+   "class": "C",
+   "n": "10"
+  },
+  {
+   "bbl": "2028140008",
+   "housenumber": "304",
+   "zip": "10457",
+   "latitude": "40.849346",
+   "longitude": "-73.902790",
+   "class": "A",
+   "n": "5"
+  },
+  {
+   "bbl": "2028140008",
+   "housenumber": "304",
+   "zip": "10457",
+   "latitude": "40.849346",
+   "longitude": "-73.902790",
+   "class": "B",
+   "n": "3"
+  },
+  {
+   "bbl": "2028140008",
+   "housenumber": "304",
+   "zip": "10457",
+   "latitude": "40.849346",
+   "longitude": "-73.902790",
+   "class": "C",
+   "n": "3"
+  },
+  {
+   "bbl": "2028140045",
+   "housenumber": "315",
+   "zip": "10457",
+   "latitude": "40.849305",
+   "longitude": "-73.902490",
+   "class": "A",
+   "n": "30"
+  },
+  {
+   "bbl": "2028140045",
+   "housenumber": "315",
+   "zip": "10457",
+   "latitude": "40.849305",
+   "longitude": "-73.902490",
+   "class": "B",
+   "n": "144"
+  },
+  {
+   "bbl": "2028140045",
+   "housenumber": "315",
+   "zip": "10457",
+   "latitude": "40.849305",
+   "longitude": "-73.902490",
+   "class": "C",
+   "n": "27"
+  },
+  {
+   "bbl": "2028140045",
+   "housenumber": "315",
+   "zip": "10457",
+   "latitude": "40.849305",
+   "longitude": "-73.902490",
+   "class": "I",
+   "n": "1"
+  },
+  {
+   "housenumber": "239",
+   "zip": "10457",
+   "latitude": "40.849691",
+   "longitude": "-73.904413",
+   "class": "A",
+   "n": "11"
+  },
+  {
+   "housenumber": "239",
+   "zip": "10457",
+   "latitude": "40.849691",
+   "longitude": "-73.904413",
+   "class": "B",
+   "n": "3"
+  },
+  {
+   "housenumber": "239",
+   "zip": "10457",
+   "latitude": "40.849691",
+   "longitude": "-73.904413",
+   "class": "C",
+   "n": "1"
+  }
+ ],
+ "community_boards": [
+  {
+   "borough": "Bronx",
+   "community_board": "Community Board 9",
+   "neighborhoods": "Parkchester, Westchester Square, Unionport, Soundview, Castle Hill, Bruckner, Harding Park, and Clason Point",
+   "cb_office_address": "1967 Turnbull Ave, Rm 7  Bronx, NY 10473",
+   "cb_office_phone": "(718) 823-3034",
+   "cb_office_fax": "(718) 823-6461",
+   "cb_office_email": "bxbrd09@optonline.net",
+   "cb_website": {
+    "url": "http://www.nyc.gov/html/bxcb9/html/home/home.shtml"
+   },
+   "cb_chair": "Mohammed Mujumder",
+   "cb_district_manager": "William Rivera",
+   "cb_board_meeting": "Third Thursday, 7:00pm",
+   "cb_cabinet_meeting": "Third Tuesday, 1:00pm",
+   "cb_precinct_s": "43",
+   "cb_precinct_phone_s": "(718) 542-0888",
+   "latitude": "40.823018",
+   "longitude": "-73.856686",
+   "community_board_1": "209",
+   "council_district": "18",
+   "bin": "2094835",
+   "bbl": "2036730001",
+   "census_tract": "42",
+   "nta": "Soundview-Castle Hill-Clason Point-Harding Park",
+   "postcode": "10473",
+   "locationpoint": {
+    "type": "Point",
+    "coordinates": [
+     -73.856686,
+     40.823018
+    ]
+   },
+   ":@computed_region_yeji_bk3q": "5",
+   ":@computed_region_92fq_4b7q": "31",
+   ":@computed_region_sbqj_enih": "26",
+   ":@computed_region_efsh_h5xi": "11611",
+   ":@computed_region_f5dn_yrer": "58"
+  },
+  {
+   "borough": "Bronx",
+   "community_board": "Community Board 5",
+   "neighborhoods": "Fordham, University Heights, Morris Heights, Bathgate, and Mount Hope",
+   "cb_office_address": "2155 University Avenue,BCC Campus Gould Hall - Room 200",
+   "cb_address_line_2": "Bronx, NY 10453",
+   "cb_office_phone": "(718) 364-2030",
+   "cb_office_fax": "(718) 220-1767",
+   "cb_office_email": "bx05@cb.nyc.gov",
+   "cb_website": {
+    "url": "http://www.nyc.gov/html/bxcb5/html/home/home.shtml"
+   },
+   "cb_chair": "Angel Caballero",
+   "cb_district_manager": "Ken Brown",
+   "cb_board_meeting": "Fourth Wednesday, 6:00pm",
+   "cb_cabinet_meeting": "Second Wednesday, 10:00am",
+   "cb_precinct_s": "46",
+   "cb_precinct_phone_s": "(718) 220-5211",
+   "latitude": "40.857857",
+   "longitude": "-73.909343",
+   "community_board_1": "205",
+   "council_district": "14",
+   "bin": "2014731",
+   "bbl": "2032170060",
+   "census_tract": "255",
+   "nta": "Kingsbridge Heights",
+   "postcode": "10453",
+   "locationpoint": {
+    "type": "Point",
+    "coordinates": [
+     -73.909343,
+     40.857857
+    ]
+   },
+   ":@computed_region_yeji_bk3q": "5",
+   ":@computed_region_92fq_4b7q": "29",
+   ":@computed_region_sbqj_enih": "34",
+   ":@computed_region_efsh_h5xi": "10931",
+   ":@computed_region_f5dn_yrer": "24"
+  },
+  {
+   "borough": "Bronx",
+   "community_board": "Community Board 4",
+   "neighborhoods": "HighBridge, Concourse, Mt. Eden, and Concourse Village",
+   "cb_office_address": "1650 Selwyn Ave. Suite #11A  Bronx, NY 10457",
+   "cb_office_phone": "(718) 299-0800",
+   "cb_office_fax": "(718) 294-7870",
+   "cb_office_email": "bx04@cb.nyc.gov",
+   "cb_website": {
+    "url": "https://www1.nyc.gov/site/bronxcb4/index.page"
+   },
+   "cb_chair": "Beverly Bond",
+   "cb_district_manager": "Leonardo Coello",
+   "cb_board_meeting": "Fourth Tuesday, 6:00pm",
+   "cb_cabinet_meeting": "Third Wednesday, 9:30am",
+   "cb_precinct_s": "44",
+   "cb_precinct_phone_s": "(718) 590-5511",
+   "latitude": "40.843248",
+   "longitude": "-73.910407",
+   "community_board_1": "204",
+   "council_district": "16",
+   "bin": "2094530",
+   "bbl": "2028240005",
+   "census_tract": "22703",
+   "nta": "Mount Hope",
+   "postcode": "10457",
+   "locationpoint": {
+    "type": "Point",
+    "coordinates": [
+     -73.910407,
+     40.843248
+    ]
+   },
+   ":@computed_region_yeji_bk3q": "5",
+   ":@computed_region_92fq_4b7q": "42",
+   ":@computed_region_sbqj_enih": "27",
+   ":@computed_region_efsh_h5xi": "10935",
+   ":@computed_region_f5dn_yrer": "50"
+  }
+ ],
+ "arcgis": {
+  "assembly": {
+   "features": [
+    {
+     "attributes": {
+      "AssemDist": 86
+     }
+    }
+   ]
+  },
+  "state_senate": {
+   "features": [
+    {
+     "attributes": {
+      "StSenDist": 33
+     }
+    },
+    {
+     "attributes": {
+      "StSenDist": 32
+     }
+    }
+   ]
+  },
+  "congress": {
+   "features": [
+    {
+     "attributes": {
+      "CongDist": 15
+     }
+    }
+   ]
+  }
+ },
+ "captured": "2026-10-07"
+}

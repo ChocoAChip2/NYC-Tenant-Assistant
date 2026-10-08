@@ -1,0 +1,86 @@
+name: Refresh Elected Officials
+
+# Keeps the Council Members, Assembly Members and State Senators shown by
+# the street lookup current (tools/officials/refresh.py).
+#
+# WHEN (owner, 2026-10-07): about a month after election results are
+# called, so certification, ranked-choice counts and runoffs are done.
+#   Dec 15  -- after the November general election (new terms start Jan 1)
+#   Jan 15  -- catches late certifications and the new term's first weeks
+#   Apr 15, Jul 15, Oct 15 -- special elections and vacancies
+# Run it by hand (Actions -> Refresh Elected Officials -> Run workflow)
+# after a special election or a resignation.
+#
+# SECRETS (all already set for the legal library refresh)
+#   SUPABASE_URL, SUPABASE_KEY, CORPUS_INGEST_TOKEN, NYSENATE_API_KEY
+#
+# When anything changed, an issue lists every change so a person can
+# check it. A gate failure (a feed came back half empty) writes nothing
+# and fails the job.
+#
+# Same caveat as the other scheduled workflows: GitHub disables them after
+# 60 days without repository activity.
+
+on:
+  schedule:
+    - cron: "0 14 15 1,4,7,10,12 *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Fetch and check only; write nothing"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: refresh-officials
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Refresh officials
+        id: refresh
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          CORPUS_INGEST_TOKEN: ${{ secrets.CORPUS_INGEST_TOKEN }}
+          NYSENATE_API_KEY: ${{ secrets.NYSENATE_API_KEY }}
+          REQUESTED_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+        run: |
+          set +e
+          args=(--summary "$RUNNER_TEMP/summary.md")
+          if [ "$REQUESTED_DRY_RUN" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          python -m tools.officials.refresh "${args[@]}"
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Open an issue for what changed
+        if: steps.refresh.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Elected officials changed ($(date -u +%Y-%m-%d))" \
+            --body-file "$RUNNER_TEMP/summary.md"
+
+      - name: Fail the job if the refresh failed
+        if: steps.refresh.outputs.exit_code != '0'
+        run: |
+          echo "::error::tools.officials.refresh exited ${{ steps.refresh.outputs.exit_code }} (1 write failed, 2 could not run, 3 a gate refused). The run summary above says why."
+          exit 1

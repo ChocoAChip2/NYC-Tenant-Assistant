@@ -85,14 +85,14 @@ class ProxyFixWiringTests(unittest.TestCase):
             data={"email": "tenant@example.com"},
             headers={
                 "X-Forwarded-Proto": "https",
-                "X-Forwarded-Host": "nyc-tenant-assistant.onrender.com",
+                "X-Forwarded-Host": "tenantrightsandformsassistant.onrender.com",
             },
         )
 
         self.assertEqual(len(service.reset_email_calls), 1)
         self.assertEqual(
             service.reset_email_calls[0]["redirect_to"],
-            "https://nyc-tenant-assistant.onrender.com/reset-password",
+            "https://tenantrightsandformsassistant.onrender.com/reset-password",
         )
 
     def test_without_forwarded_headers_falls_back_to_the_direct_request_scheme(self):
