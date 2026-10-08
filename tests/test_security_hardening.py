@@ -138,6 +138,21 @@ class LogoutIsPostOnlyTests(SecurityHardeningTestCase):
 
 
 class SecurityHeaderTests(SecurityHardeningTestCase):
+    def test_account_and_private_responses_are_not_cacheable(self):
+        from tests.review_support import MemorySupabase, ReviewAI
+        app = create_app()
+        app.config.update(SUPABASE_SERVICE=MemorySupabase(), AI_SERVICE=ReviewAI())
+        client = app.test_client()
+        self.assertEqual(client.get("/login").headers.get("Cache-Control"), "no-store")
+        self.assertEqual(client.get("/reset-password").headers.get("Cache-Control"), "no-store")
+        with client.session_transaction() as sess:
+            sess.update(user_id="review-user", user_email="review@example.invalid", access_token="review-token")
+        for path in ("/chat", "/settings", "/settings/download-logs"):
+            with self.subTest(path=path):
+                response = client.get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.headers.get("Cache-Control"), "no-store")
+
     def test_standard_hardening_headers_are_present(self):
         app = create_app()
         client = app.test_client()
@@ -192,6 +207,10 @@ class FakeSupabaseServiceForChat:
 
     def fetch_messages_for_conversation(self, user_client, conversation_id):
         return []
+
+    def get_case_context(self, client, conversation_id):
+        import case_context
+        return {"context": case_context.defaults(), "revision": 0}
 
 
 class FakeAIServiceForChat:

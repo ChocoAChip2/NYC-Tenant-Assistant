@@ -38,6 +38,10 @@ class FakeSupabaseService:
     def get_pending_account_deletion(self, *args, **kwargs):
         return None
 
+    def get_case_context(self, client, conversation_id):
+        import case_context
+        return {"context": case_context.defaults(), "revision": 0}
+
 
 class FakeAIService:
     def is_ready(self):

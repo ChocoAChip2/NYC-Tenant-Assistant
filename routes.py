@@ -28,6 +28,8 @@ from login_lockout import format_duration, record_failure, record_success, secon
 from rate_limit import limiter, rate_limit_key
 from supabase_service import SupabaseService
 import form_service
+import case_context
+import form_review
 
 # The blueprint groups the page routes together so app.py can register them as
 # one unit.
@@ -301,7 +303,8 @@ def signup():
             )
             return redirect(url_for("main.login"))
         except Exception as exc:
-            flash(f"Sign-up failed: {exc}", "error")
+            logger.warning("Sign-up request failed (%s).", type(exc).__name__)
+            flash("Sign-up failed. Check your details and try again shortly.", "error")
             return retry()
 
     return render_template("signup.html", form={}, **form_limits)
@@ -359,8 +362,9 @@ def login():
             return redirect(url_for("main.chat"))
         except Exception as exc:
             record_failure(lockout_key)
+            logger.warning("Login request failed (%s).", type(exc).__name__)
             flash(
-                f"Login failed. Confirm your email first if needed. Details: {exc}",
+                "Login failed. Check your email and password, and confirm your email if needed.",
                 "error",
             )
 
@@ -534,6 +538,10 @@ def chat():
         max_message_length=MAX_MESSAGE_LENGTH,
         form_ready_message=form_service.READY_MESSAGE,
         form_ready_html=render_markdown(form_service.READY_MESSAGE),
+        situation_options=case_context.OPTIONS,
+        situation_labels=case_context.LABELS,
+        situation_choice_labels=case_context.CHOICE_LABELS,
+        situation_limits=case_context.TEXT_LIMITS,
     )
 
 
@@ -553,14 +561,8 @@ def create_conversation():
     title = request.form.get("title", "").strip()[:MAX_CONVERSATION_TITLE_LENGTH] or conversation_titles.DEFAULT_TITLE
     supabase_service = get_supabase_service()
 
-    # Best-effort cleanup, not a precondition for creating the new one --
-    # see delete_empty_conversations' docstring. A failure here shouldn't
-    # stop the user from starting a new conversation just because the
-    # sweep itself hit a problem.
-    try:
-        supabase_service.delete_empty_conversations(user_client, session["user_id"])
-    except Exception:
-        logger.exception("Failed to sweep empty conversations before creating a new one.")
+    # An empty conversation may hold an unsent draft in another tab.
+    # Only the explicit Delete action should remove a tenant's chats.
 
     try:
         conversation_id = supabase_service.create_conversation(user_client, session["user_id"], title)
@@ -694,7 +696,7 @@ def delete_conversation(conversation_id):
     return redirect(url_for("main.chat"))
 
 
-def _ground_reply(user_client, question, history):
+def _ground_reply(user_client, question, history, context=None):
     """Retrieve law, ask for a grounded answer, and check what comes back.
 
     Returns (reply, source_chips). Every step except the model call itself
@@ -711,6 +713,8 @@ def _ground_reply(user_client, question, history):
     LEGAL_GUARD_MODE is set to "enforce".
     """
     ai_service_instance = get_ai_service()
+    if context is not None:
+        history = [{"role": "system", "content": case_context.instructions(context)}, *history]
 
     passages = []
     try:
@@ -719,7 +723,7 @@ def _ground_reply(user_client, question, history):
                 supabase_client=user_client,
                 gemini_client=getattr(ai_service_instance, "client", None),
             )
-            passages = retriever.search(question)
+            passages = retriever.search(case_context.retrieval_query(question, context or {}))
     except Exception:
         logger.exception("Legal retrieval failed; answering without sources.")
         passages = []
@@ -734,7 +738,7 @@ def _ground_reply(user_client, question, history):
         sources_block = retrieval_service.format_for_prompt(passages)
     except Exception:
         logger.exception("Could not format retrieved sources; answering without them.")
-        return ai_service_instance.generate_reply(history), []
+        return citation_guard.strip_citations(ai_service_instance.generate_reply(history)), []
 
     reply = ai_service_instance.generate_reply(
         [{"role": "system", "content": sources_block}, *history]
@@ -876,20 +880,31 @@ def chat_message():
         supabase_service.ensure_conversation_for_user(user_client, conversation_id, user_id)
     except ValueError:
         return jsonify({"error": "Conversation not found."}), 404
+    except Exception:
+        logger.exception("Could not check the conversation before sending.")
+        return jsonify({"error": "Could not open this conversation right now. Please try again."}), 503
 
     try:
-        supabase_service.insert_message(user_client, {
-            "conversation_id": conversation_id,
-            "user_id": user_id,
-            "role": "user",
-            "content": content,
-        })
-
+        context = supabase_service.get_case_context(user_client, conversation_id)["context"]
         history = supabase_service.fetch_messages_for_conversation(user_client, conversation_id)
+        # A failed model call leaves a saved, unanswered tenant turn. Reuse
+        # it on retry, including after a page reload, rather than repeating
+        # it in the transcript and in the model's input.
+        retrying = bool(history and history[-1].get("role") == "user"
+                        and history[-1].get("content") == content)
+        if not retrying:
+            supabase_service.insert_message(user_client, {
+                "conversation_id": conversation_id,
+                "user_id": user_id,
+                "role": "user",
+                "content": content,
+            })
+            history.append({"role": "user", "content": content})
         reply, sources = _ground_reply(
             user_client,
             content,
             [{"role": message["role"], "content": message["content"]} for message in history],
+            context=context,
         )
 
         # The intake hand-off: the assistant answers with the RA-81 JSON
@@ -897,6 +912,16 @@ def chat_message():
         # checked here, not trusted: a form missing something DHCR needs is
         # never produced -- the tenant is asked for it instead.
         intake_data = form_service.parse_intake(reply)
+        if intake_data is not None and intake_data.get("form", "RA-81") != "RA-81":
+            # A different requested form must never silently become RA-81.
+            reply = (
+                "I can fill in RA-81 here, but I can't generate that other form. "
+                "Let's confirm which form fits your situation first. "
+                "You can find the official forms on [HCR's forms page]"
+                "(https://hcr.ny.gov/tenant-owner-forms)."
+            )
+            sources = []
+            intake_data = None
         if intake_data is not None:
             intake = form_service.normalize_intake(intake_data)
             missing = form_service.missing_fields(intake)
@@ -904,22 +929,10 @@ def chat_message():
                 reply = form_service.missing_message(missing)
                 sources = []
             else:
-                pdf_bytes = form_service.fill_to_bytes(intake_data)
-                supabase_service.insert_message(user_client, {
-                    "conversation_id": conversation_id,
-                    "user_id": user_id,
-                    "role": "assistant",
-                    "content": form_service.READY_MESSAGE,
-                })
-                _name_new_conversation(
-                    supabase_service, user_client, conversation_id, user_id, history, form_service.READY_MESSAGE
-                )
-                return send_file(
-                    io.BytesIO(pdf_bytes),
-                    as_attachment=True,
-                    download_name="RA-81_Rent_Reduction_Application.pdf",
-                    mimetype="application/pdf",
-                )
+                draft_id = supabase_service.create_form_draft(user_client, conversation_id, user_id, form_review.canonical(intake_data))
+                review_url = url_for("main.review_form", conversation_id=conversation_id, draft_id=draft_id)
+                reply = f"Your RA-81 draft is ready to review. [Review and confirm your form]({review_url}). Check every field before downloading. Nothing has been filed."
+                sources = []
 
         supabase_service.insert_message(user_client, {
             "conversation_id": conversation_id,
@@ -1233,8 +1246,7 @@ def update_profile():
 
     Mainly for accounts made before sign-up asked for them. Same rules and
     same encrypted envelope as sign-up (profile_service); with no
-    encryption key configured nothing is saved, because the page promises
-    it is stored encrypted.
+    encryption key configured nothing is saved.
     """
     if not session.get("user_id"):
         return redirect(url_for("main.login"))
@@ -1412,8 +1424,8 @@ def update_account():
         if new_password:
             flash("Password updated.", "success")
     except Exception as exc:
-        logger.exception("Failed to update account.")
-        flash(f"Could not update account: {exc}", "error")
+        logger.warning("Account update failed (%s).", type(exc).__name__)
+        flash("Could not update account. Check your details and try again shortly.", "error")
 
     return redirect(url_for("main.settings"))
 
@@ -1452,6 +1464,10 @@ def _render_conversations_as_markdown(conversations: list[dict]) -> str:
         lines.append(f"## {conversation.get('title') or 'Untitled conversation'}")
         lines.append(f"_Conversation ID: {conversation['id']} -- created {conversation.get('created_at', 'unknown')}_")
         lines.append("")
+        if conversation.get("situation"):
+            lines.extend(["### Your situation", json.dumps(conversation["situation"], ensure_ascii=False, indent=2), ""])
+        if conversation.get("form_drafts"):
+            lines.extend(["### Form drafts", json.dumps(conversation["form_drafts"], ensure_ascii=False, indent=2), ""])
         for message in conversation.get("messages", []):
             speaker = "You" if message.get("role") == "user" else "Assistant"
             content = message.get("content", "") or ""
@@ -1481,3 +1497,7 @@ def logout():
     """
     session.clear()
     return redirect(url_for("main.login"))
+
+
+import case_routes
+case_routes.register(main_bp)

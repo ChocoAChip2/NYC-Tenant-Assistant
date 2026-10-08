@@ -229,7 +229,7 @@ class SignupRouteTests(_Keys):
     def test_page_explains_confidentiality_and_limits_the_date_picker(self):
         body = _app(FakeSupabase()).test_client().get("/signup").get_data(as_text=True)
         self.assertIn("Your details stay confidential.", body)
-        self.assertIn("Encrypted and never shared.", body)
+        self.assertIn("Used for your account.", body)
         latest = profile_service.latest_allowed_birthday(date.today()).isoformat()
         self.assertIn(f'max="{latest}"', body)
         for field, hint in (("first_name", "given-name"), ("last_name", "family-name"), ("date_of_birth", "bday")):

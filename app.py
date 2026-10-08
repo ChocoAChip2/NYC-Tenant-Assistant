@@ -6,7 +6,7 @@ Supabase service, and registers the routes defined in routes.py.
 
 import os
 
-from flask import Flask, request
+from flask import Flask, request, session
 from flask_wtf import CSRFProtect
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -109,6 +109,11 @@ def create_app() -> Flask:
         framing, no plugins) without that larger template rewrite.
         """
 
+        if session.get("user_id") or request.endpoint in {
+            "main.login", "main.signup", "main.forgot_password", "main.reset_password",
+            "main.complete_account", "main.logout",
+        }:
+            response.headers["Cache-Control"] = "no-store"
         response.headers.setdefault("X-Content-Type-Options", "nosniff")
         response.headers.setdefault("X-Frame-Options", "DENY")
         response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")

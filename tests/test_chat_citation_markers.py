@@ -23,6 +23,10 @@ class LegacyMarkers(FakeSupabaseService):
         return [{"role": "assistant", "created_at": "",
                  "content": 'It must be at least "sixty-two degrees Fahrenheit" between 10 p.m. and 6 a.m. [S5].'}]
 
+    def get_case_context(self, client, conversation_id):
+        import case_context
+        return {"context": case_context.defaults(), "revision": 0}
+
 
 class FakeAI:
     def is_ready(self):

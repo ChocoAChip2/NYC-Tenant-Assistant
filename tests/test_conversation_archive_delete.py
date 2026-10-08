@@ -207,6 +207,9 @@ class ListConversationsArchivedFilterTests(unittest.TestCase):
     def test_active_filters_out_archived(self):
         user_client = mock.MagicMock()
         chain = user_client.table.return_value.select.return_value.order.return_value
+        chain.order.return_value = chain
+        chain.is_.return_value.range.return_value.execute.return_value.data = []
+        chain.not_.is_.return_value.range.return_value.execute.return_value.data = []
         chain.execute.return_value = mock.MagicMock(data=[{"id": "c1"}])
         service = SupabaseService(client=mock.MagicMock())
 
@@ -217,6 +220,9 @@ class ListConversationsArchivedFilterTests(unittest.TestCase):
     def test_archived_filters_to_only_archived(self):
         user_client = mock.MagicMock()
         chain = user_client.table.return_value.select.return_value.order.return_value
+        chain.order.return_value = chain
+        chain.is_.return_value.range.return_value.execute.return_value.data = []
+        chain.not_.is_.return_value.range.return_value.execute.return_value.data = []
         chain.execute.return_value = mock.MagicMock(data=[{"id": "c2"}])
         service = SupabaseService(client=mock.MagicMock())
 

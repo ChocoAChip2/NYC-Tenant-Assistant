@@ -1,5 +1,5 @@
-"""Tests for creating a conversation (including the empty-conversation
-sweep that runs first), and for the new rename-conversation feature.
+"""Tests for creating a conversation without deleting other chats,
+and for renaming conversations.
 
 Route tests use a fake SupabaseService. Service tests mock the Supabase
 SDK client directly, following the same mock-chain style as
@@ -68,6 +68,10 @@ class FakeSupabaseService:
         if self.fail_rename_with:
             raise self.fail_rename_with
 
+    def get_case_context(self, client, conversation_id):
+        import case_context
+        return {"context": case_context.defaults(), "revision": 0}
+
 
 class FakeAIService:
     def is_ready(self):
@@ -101,7 +105,7 @@ class CreateConversationRouteTests(unittest.TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(response.headers["Location"].endswith("/login"))
 
-    def test_sweeps_empty_conversations_before_creating_the_new_one(self):
+    def test_creating_a_chat_never_sweeps_other_conversations(self):
         service = FakeSupabaseService()
         app = _build_test_app(service)
         client = app.test_client()
@@ -110,7 +114,7 @@ class CreateConversationRouteTests(unittest.TestCase):
         response = client.post("/conversations", data={"title": "Broken heat"}, follow_redirects=False)
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(service.swept_for, ["user-1"])
+        self.assertEqual(service.swept_for, [])
         self.assertEqual(service.create_calls, [("user-1", "Broken heat")])
         self.assertTrue(response.headers["Location"].endswith("conversation_id=new-conversation-id"))
 
@@ -124,10 +128,8 @@ class CreateConversationRouteTests(unittest.TestCase):
 
         self.assertEqual(service.create_calls, [("user-1", "New conversation")])
 
-    def test_sweep_failure_does_not_block_creating_the_new_conversation(self):
-        """The sweep is best-effort cleanup, not a precondition -- a bug in
-        it (or a transient Supabase error) must not stop someone from
-        starting a new conversation."""
+    def test_legacy_sweep_is_never_called_even_when_it_would_fail(self):
+        """A new chat does not depend on the retired, destructive sweep."""
         service = FakeSupabaseService()
         service.fail_sweep = True
         app = _build_test_app(service)
@@ -241,59 +243,6 @@ class ChatConversationAccessScopeTests(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 404)
-
-
-class DeleteEmptyConversationsServiceTests(unittest.TestCase):
-    def _make_client(self):
-        user_client = mock.MagicMock()
-        conversations_table = mock.MagicMock()
-        messages_table = mock.MagicMock()
-        user_client.table.side_effect = lambda name: {
-            "conversations": conversations_table,
-            "messages": messages_table,
-        }[name]
-        return user_client, conversations_table, messages_table
-
-    def test_deletes_conversations_with_no_messages(self):
-        user_client, conversations_table, messages_table = self._make_client()
-        conversations_table.select.return_value.eq.return_value.execute.return_value = mock.MagicMock(
-            data=[{"id": "c1"}, {"id": "c2"}]
-        )
-        messages_table.select.return_value.in_.return_value.execute.return_value = mock.MagicMock(
-            data=[{"conversation_id": "c1"}]
-        )
-        conversations_table.delete.return_value.in_.return_value.execute.return_value = mock.MagicMock(
-            data=[{"id": "c2"}]
-        )
-        service = SupabaseService(client=mock.MagicMock())
-
-        service.delete_empty_conversations(user_client, "user-1")
-
-        conversations_table.delete.return_value.in_.assert_called_once_with("id", ["c2"])
-
-    def test_does_nothing_when_every_conversation_has_messages(self):
-        user_client, conversations_table, messages_table = self._make_client()
-        conversations_table.select.return_value.eq.return_value.execute.return_value = mock.MagicMock(
-            data=[{"id": "c1"}, {"id": "c2"}]
-        )
-        messages_table.select.return_value.in_.return_value.execute.return_value = mock.MagicMock(
-            data=[{"conversation_id": "c1"}, {"conversation_id": "c2"}]
-        )
-        service = SupabaseService(client=mock.MagicMock())
-
-        service.delete_empty_conversations(user_client, "user-1")
-
-        conversations_table.delete.assert_not_called()
-
-    def test_does_nothing_and_skips_the_messages_query_when_the_user_has_no_conversations(self):
-        user_client, conversations_table, messages_table = self._make_client()
-        conversations_table.select.return_value.eq.return_value.execute.return_value = mock.MagicMock(data=[])
-        service = SupabaseService(client=mock.MagicMock())
-
-        service.delete_empty_conversations(user_client, "user-1")
-
-        messages_table.select.assert_not_called()
-        conversations_table.delete.assert_not_called()
 
 
 class RenameConversationServiceTests(unittest.TestCase):

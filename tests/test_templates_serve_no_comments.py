@@ -42,6 +42,10 @@ class FakeSupabaseService:
     def get_pending_account_deletion(self, *args, **kwargs):
         return None
 
+    def get_case_context(self, client, conversation_id):
+        import case_context
+        return {"context": case_context.defaults(), "revision": 0}
+
 
 class FakeAIService:
     def is_ready(self):
@@ -58,7 +62,7 @@ def _build_test_app():
     return app
 
 
-PAGES = ["/login", "/", "/signup", "/forgot-password", "/reset-password", "/settings", "/chat", "/chat?conversation_id=c1"]
+PAGES = ["/login", "/", "/building", "/learn-more", "/signup", "/forgot-password", "/reset-password", "/settings", "/chat", "/chat?conversation_id=c1"]
 
 
 class ServedPagesCarryNoCommentsTests(unittest.TestCase):
@@ -80,6 +84,12 @@ class ServedPagesCarryNoCommentsTests(unittest.TestCase):
     def test_no_html_comments_are_served(self):
         for path, body in self._pages():
             self.assertNotIn("<!--", body, f"{path} serves an HTML comment")
+
+    def test_internal_configuration_and_providers_are_not_in_served_source(self):
+        for path, body in self._pages():
+            for internal in ("supabase", "gemini", "flask_secret_key", "data_encryption_keys",
+                             "service_role", "aes-gcm", "chacha20", "traceback (most recent call last)"):
+                self.assertNotIn(internal, body.lower(), f"{path} exposes {internal}")
 
     def test_no_jinja_comment_markers_leak_into_the_response(self):
         """Each template opens with a {# ... #} pointer to docs/frontend/.

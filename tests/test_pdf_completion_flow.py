@@ -29,12 +29,13 @@ import flask
 
 from routes import main_bp
 from tests.app_test_support import configure_test_app
+from tests.review_support import MemorySupabase
 
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _EXPECTED_TEMPLATE_PATH = "templates/ra-81-fillable.pdf"
 
 
-class FakeSupabaseService:
+class FakeSupabaseService(MemorySupabase):
     def build_user_scoped_client(self, access_token):
         return object()
 
@@ -88,6 +89,7 @@ class TemplateFileTests(unittest.TestCase):
 
 class RecordingSupabase(FakeSupabaseService):
     def __init__(self):
+        super().__init__()
         self.inserted = []
 
     def insert_message(self, user_client, message):
@@ -108,23 +110,34 @@ COMPLETE = json.dumps(FULL)
 
 
 class CompletionJsonTriggersPdfDownloadTests(unittest.TestCase):
+    def test_other_form_types_are_not_silently_rendered_as_ra81(self):
+        for requested_form in ("RA-84", "HHW-1", None, {"unexpected": "object"}):
+            with self.subTest(form=requested_form), mock.patch("routes.form_service.fill_to_bytes") as fill:
+                response, service = _post(json.dumps(dict(FULL, form=requested_form)))
+                fill.assert_not_called()
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.mimetype, "application/json")
+                self.assertIn("can't generate that other form", response.get_json()["reply"])
+                self.assertEqual(service.inserted[-1]["content"], response.get_json()["reply"])
+
     def test_a_complete_intake_downloads_a_filled_pdf(self):
-        response, service = _post(COMPLETE)
-        self.assertEqual(response.mimetype, "application/pdf")
-        self.assertIn("RA-81_Rent_Reduction_Application.pdf", response.headers["Content-Disposition"])
-        fields = PdfReader(io.BytesIO(response.get_data())).get_fields()
-        self.assertEqual(str(fields["Name"]["/V"]), "Maria Rodriguez")
-        self.assertEqual(str(fields["Name_2"]["/V"]), "Concourse Realty LLC")
+        with mock.patch("routes.form_service.fill_to_bytes") as fill:
+            response, service = _post(COMPLETE)
+        fill.assert_not_called()
+        self.assertEqual(response.mimetype, "application/json")
+        self.assertIn("Review and confirm", response.get_json()["reply"])
+        self.assertEqual(len(service.drafts), 1)
 
     def test_the_stored_message_is_the_next_steps_not_the_raw_json(self):
         _, service = _post(COMPLETE)
         assistant = [m for m in service.inserted if m["role"] == "assistant"]
-        self.assertEqual(assistant[-1]["content"], form_service.READY_MESSAGE)
+        self.assertIn("Review and confirm", assistant[-1]["content"])
         self.assertNotIn("Maria Rodriguez", assistant[-1]["content"])
 
     def test_a_fenced_intake_still_works(self):
         response, _ = _post(f"```json\n{COMPLETE}\n```")
-        self.assertEqual(response.mimetype, "application/pdf")
+        self.assertEqual(response.mimetype, "application/json")
+        self.assertIn("Review and confirm", response.get_json()["reply"])
 
     def test_an_incomplete_intake_asks_for_what_is_missing_instead_of_a_pdf(self):
         legacy = '{"status": "complete", "name": "A Tenant", "address": "123 Main St", "complaint": "No heat"}'

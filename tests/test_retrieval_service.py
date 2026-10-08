@@ -195,6 +195,10 @@ class ChatRouteGroundingTests(unittest.TestCase):
             def fetch_messages_for_conversation(self, *a, **k):
                 return [{"role": "user", "content": "my landlord will not fix the heat"}]
 
+            def get_case_context(self, client, conversation_id):
+                import case_context
+                return {"context": case_context.defaults(), "revision": 0}
+
         class FakeAI:
             client = object()
 

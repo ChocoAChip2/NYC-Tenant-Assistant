@@ -75,7 +75,9 @@ class ConfirmationEmailTests(unittest.TestCase):
                 return type("R", (), {"user": user})()
 
         client = type("C", (), {"auth": Auth()})()
-        return ss.SupabaseService(client=client), calls
+        service = ss.SupabaseService(client=client)
+        service._auth_client = lambda: client
+        return service, calls
 
     def test_redirect_is_passed_to_supabase_as_email_redirect_to(self):
         service, calls = self._service_with_recording_client()
