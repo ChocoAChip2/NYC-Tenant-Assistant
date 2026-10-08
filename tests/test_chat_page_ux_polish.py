@@ -58,6 +58,10 @@ class FakeSupabaseService:
     def fetch_messages_for_conversation(self, user_client, conversation_id):
         return []
 
+    def get_case_context(self, client, conversation_id):
+        import case_context
+        return {"context": case_context.defaults(), "revision": 0}
+
 
 class FakeAIService:
     def is_ready(self):

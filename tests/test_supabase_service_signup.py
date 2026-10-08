@@ -14,6 +14,7 @@ from supabase_service import SupabaseService
 def _service_with_fake_client():
     fake_client = mock.MagicMock()
     service = SupabaseService(client=fake_client)
+    service._auth_client = mock.Mock(return_value=fake_client)
     return service, fake_client
 
 

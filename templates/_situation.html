@@ -1,0 +1,46 @@
+{# See docs/frontend/case-workspace.md for behavior and storage boundaries. #}
+<style>
+  .situation { margin: 10px 18px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+  .situation summary { padding: 12px 14px; cursor: pointer; font-weight: 650; }
+  .situation-body { padding: 0 14px 14px; max-height: 45vh; overflow-y: auto; }
+  .situation-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .situation label { display: grid; gap: 5px; font-size: 13px; }
+  .situation input, .situation textarea, .situation select { box-sizing: border-box; width: 100%; padding: 9px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); font: inherit; }
+  .situation textarea { min-height: 76px; resize: vertical; }
+  .situation p { font-size: 13px; line-height: 1.5; }
+  .situation-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+  .situation button { padding: 9px 12px; min-height: 44px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--text); cursor: pointer; }
+  .situation button:disabled { opacity: .5; cursor: wait; }
+  .situation-status { margin: 8px 0 0; }
+  @media(max-width: 700px) { .situation { margin: 8px 12px; } .situation-grid { grid-template-columns: 1fr; } .situation-body { max-height: 38vh; } }
+</style>
+<details class="situation" id="situation-panel">
+  <summary>Your situation &amp; reply preferences</summary>
+  <div class="situation-body">
+    <p>Save the facts you want remembered for this chat. Include only actions you have actually taken. For a separate problem, start a new chat.</p>
+    <form id="situation-form" data-url="{{ url_for('main.situation', conversation_id=active_conversation_id) }}">
+      <fieldset id="situation-fields" disabled style="border:0;padding:0;margin:0">
+        <div class="situation-grid">
+          {% for key in ['borough', 'regulation', 'issue', 'started', 'completed_actions', 'language', 'length', 'goal'] %}
+            <label>{{ situation_labels[key] }}
+              {% if key in situation_options %}
+                <select name="{{ key }}">{% for value in situation_options[key] %}<option value="{{ value }}">{{ situation_choice_labels.get(value, value) }}</option>{% endfor %}</select>
+              {% elif key in ['issue', 'completed_actions'] %}
+                <textarea name="{{ key }}" maxlength="{{ situation_limits[key] }}"></textarea>
+              {% else %}
+                <input name="{{ key }}" maxlength="{{ situation_limits[key] }}">
+              {% endif %}
+            </label>
+          {% endfor %}
+        </div>
+        <div class="situation-actions">
+          <button type="submit">Save situation</button>
+          <button type="button" id="situation-clear">Clear saved details</button>
+        </div>
+      </fieldset>
+      <button type="button" id="situation-reload">Reload saved details</button>
+      <p class="situation-status" id="situation-status" role="status">Loading your saved details…</p>
+    </form>
+    <div id="saved-form-drafts"></div>
+  </div>
+</details>

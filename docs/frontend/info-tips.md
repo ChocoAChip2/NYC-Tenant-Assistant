@@ -11,18 +11,16 @@ goes behind a small "i" button next to the short version.
 - Put the part someone *must* see on the page (a deadline, "not legal
   advice", "can't be undone"). Put the explanation behind the "i".
 - Don't repeat what a label, placeholder or button already says.
-- **Say what's true for the tenant, not how it's built** (owner,
-  2026-10-02). "Encrypted and never shared", not which service stores it,
-  which model reads it or which key seals it. Those change as the app
-  develops; public wording shouldn't have to. Same for errors: "The
-  assistant is unavailable right now", never a config or vendor name.
-  `tests/test_info_tips.py` fails if a template or public string in
-  `branding.py` names the backend.
-- **General, but still true.** A general promise has to hold for every way
-  the data is handled. Profile details are never sent anywhere, so "never
-  shared" is accurate there. Chat messages go to the AI provider to be
-  answered, so no page says conversations are "never shared"; the Learn
-  More page says "encrypted and never sold".
+- **Describe the purpose and user controls, not implementation** (owner,
+  2026-10-06). The account note says "Used for your account" and points to
+  Settings. Keep storage architecture, providers, algorithms and configuration
+  out of both visible copy and rendered source. Errors must not interpolate
+  service exception text. Tests cover both the templates and failure responses.
+- **General, but still true.** Do not make blanket "never shared" claims about
+  chat data that is processed to generate a response. Keep user-facing information
+  useful without publishing internal security details. Frontend URLs, ordinary
+  JavaScript and per-user anti-forgery fields remain visible by design; hiding
+  them is not an access-control mechanism.
 - Reference points: JustFix's tool cards (a 4–8 word title and one short
   line) and NYC HPD's pages (short sentences, detail on linked pages).
 

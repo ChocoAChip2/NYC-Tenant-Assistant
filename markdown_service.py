@@ -36,7 +36,7 @@ import re
 _BOLD = re.compile(r"\*\*(?=\S)(.+?)(?<=\S)\*\*", re.S)
 _ITALIC = re.compile(r"(?<![\*\w])\*(?=\S)([^\*]+?)(?<=\S)\*(?![\*\w])")
 _INLINE_CODE = re.compile(r"`([^`\n]+)`")
-_MD_LINK = re.compile(r"\[([^\]\n]+)\]\((https?://[^\s)\"\'<>]+)\)")
+_MD_LINK = re.compile(r"\[([^\]\n]+)\]\((https?://[^\s)\"\'<>]+|/conversations/[a-zA-Z0-9-]+/forms/[a-zA-Z0-9-]+)\)")
 _BARE_URL = re.compile(r"(?<![\"'>=])(https?://[^\s<]+[^\s<.,;:!?)\]])")
 _HEADING = re.compile(r"^\s{0,3}(#{1,6})\s+(.*)$")
 _UNORDERED = re.compile(r"^\s{0,3}[-*+]\s+(.*)$")

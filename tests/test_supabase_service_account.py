@@ -93,6 +93,8 @@ class FetchAllConversationsWithMessagesTests(unittest.TestCase):
         service.fetch_messages_for_conversation = mock.MagicMock(
             side_effect=lambda user_client, conversation_id: [{"role": "user", "content": conversation_id}]
         )
+        service.get_case_context = mock.Mock(return_value={"context": {}})
+        service.list_form_drafts = mock.Mock(return_value=[])
 
         result = service.fetch_all_conversations_with_messages(user_client=object())
 

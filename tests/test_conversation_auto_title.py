@@ -49,6 +49,10 @@ class FakeSupabase:
         self.renames.append(title)
         self.title = title
 
+    def get_case_context(self, client, conversation_id):
+        import case_context
+        return {"context": case_context.defaults(), "revision": 0}
+
 
 class FakeAI:
     def __init__(self, title="Broken radiator in bedroom", fail_title=False):
@@ -182,6 +186,10 @@ class OlderChats(FakeSupabase):
 
     def get_pending_account_deletion(self, user_client, user_id):
         return None
+
+    def get_case_context(self, client, conversation_id):
+        import case_context
+        return {"context": case_context.defaults(), "revision": 0}
 
 
 OLD_CHAT = [{"role": "user", "content": "My landlord kept my deposit"}, {"role": "assistant", "content": "Under GOL 7-108..."}]

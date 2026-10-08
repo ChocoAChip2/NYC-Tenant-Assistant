@@ -720,26 +720,28 @@
       .sidebar-scroll {
         padding: 12px 14px;
         gap: 10px;
-        overflow-y: visible;
+        max-height: 30vh;
+        overflow-y: auto;
       }
       .new-chat-form button { flex: 1; }
       .conversation-list {
-        flex-direction: row;
+        flex-direction: column;
         gap: 8px;
-        overflow-x: auto;
+        overflow-x: visible;
         padding-bottom: 2px;
       }
       .conversation-row {
         flex: 0 0 auto;
-        max-width: 60vw;
+        max-width: 100%;
+        flex-wrap: wrap;
         border: 1px solid var(--border);
         background: var(--surface);
       }
       .conversation-row.active { border-color: var(--accent); }
       .conversation-link { padding: 7px 12px; }
 
-      .row-menu-trigger { display: none !important; }
-      .archived-section { display: none; }
+      .row-menu-trigger { display: inline-flex; min-width: 44px; min-height: 44px; }
+      .row-menu-panel { position: static; flex-basis: 100%; width: 100%; box-shadow: none; }
       .chat-area { min-height: 0; }
       #chat-box { padding: 14px 14px 8px; }
       form#chat-form { padding: 10px 14px 14px; }
@@ -868,6 +870,7 @@
 
     <div class="chat-area">
       {% if active_conversation_id %}
+        {% include '_situation.html' %}
         <main>
           <div id="chat-box">
             {% for message in messages %}
@@ -938,6 +941,65 @@
     const FORM_READY_HTML = {{ (form_ready_html or "")|tojson }};
     const chatBox = document.getElementById("chat-box");
     const chatForm = document.getElementById("chat-form");
+    let situationReady = false;
+    let situationDirty = false;
+    const situationForm = document.getElementById("situation-form");
+    if (situationForm) {
+      const fields = document.getElementById("situation-fields");
+      const status = document.getElementById("situation-status");
+      let revision = 0;
+      let busy = false;
+      function showState(state) {
+        Object.entries(state.context).forEach(([key, value]) => { situationForm.elements.namedItem(key).value = value; });
+        revision = state.revision;
+        situationReady = true;
+        situationDirty = false;
+        fields.disabled = false;
+      }
+      async function loadSituation() {
+        if (busy) return;
+        busy = true;
+        try {
+          const response = await fetch(situationForm.dataset.url);
+          if (!response.ok) throw new Error("Saved details are unavailable. Please reload them before sending.");
+          const state = await response.json();
+          showState(state);
+          status.textContent = "Saved for this chat. You can change or clear these details.";
+          const drafts = document.getElementById("saved-form-drafts");
+          drafts.replaceChildren();
+          (state.drafts || []).forEach((draft, index) => {
+            const p = document.createElement("p");
+            const a = document.createElement("a");
+            a.href = draft.url;
+            a.textContent = "Review RA-81 draft " + (index + 1);
+            p.appendChild(a); drafts.appendChild(p);
+          });
+        } catch (error) { status.textContent = error.message; }
+        finally { busy = false; }
+      }
+      situationForm.addEventListener("input", () => { situationDirty = true; status.textContent = "Unsaved changes — save before sending your message."; });
+      situationForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (busy || !situationReady) return;
+        busy = true;
+        const context = Object.fromEntries(new FormData(situationForm));
+        fields.disabled = true;
+        try {
+          const response = await fetch(situationForm.dataset.url, {method:"POST", headers:{"Content-Type":"application/json", "X-CSRFToken":CSRF_TOKEN}, body:JSON.stringify({context, revision})});
+          const state = await response.json();
+          if (!response.ok) throw new Error(state.error || "Could not save. Your changes are still here.");
+          showState(state);
+          status.textContent = "Saved. Your next reply will use these preferences and facts.";
+        } catch (error) { status.textContent = error.message; }
+        finally { busy = false; fields.disabled = false; }
+      });
+      document.getElementById("situation-reload").addEventListener("click", loadSituation);
+      document.getElementById("situation-clear").addEventListener("click", () => {
+        situationForm.reset(); situationDirty = true;
+        situationForm.requestSubmit();
+      });
+      loadSituation();
+    }
 
     function findScrollContainer(node) {
       let current = node && node.parentElement;
@@ -1217,7 +1279,7 @@
       const conversationId = chatForm.dataset.conversationId;
 
       messageInput.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" && !event.shiftKey) {
+        if (event.key === "Enter" && !event.shiftKey && !event.isComposing && event.keyCode !== 229) {
           event.preventDefault();
           if (!sendBtn.disabled) {
             chatForm.requestSubmit();
@@ -1329,16 +1391,32 @@
         return wrapper;
       }
 
+      let requestPending = false;
+      let requestError = null;
+      const downloadUrls = [];
+      window.addEventListener("pagehide", (event) => {
+        if (!event.persisted) downloadUrls.forEach((url) => window.URL.revokeObjectURL(url));
+      });
+
       chatForm.addEventListener("submit", async (event) => {
         event.preventDefault();
+        if (requestPending) return;
+        if (!situationReady || situationDirty) {
+          document.getElementById("situation-panel").open = true;
+          document.getElementById("situation-status").textContent = situationDirty ? "Save or reload your situation before sending." : "Reload your saved details before sending.";
+          return;
+        }
 
         const text = messageInput.value.trim();
         if (!text) return;
 
-        renderMessage("user", text);
-        messageInput.value = "";
-        autoGrowMessageInput();
-        updateCharCount();
+        if (requestError) { requestError.remove(); requestError = null; }
+        const lastMessage = chatBox.lastElementChild;
+        const retrying = lastMessage && lastMessage.classList.contains("user") &&
+          lastMessage.querySelector(".bubble").textContent === text;
+        if (!retrying) renderMessage("user", text);
+        requestPending = true;
+        messageInput.readOnly = true;
         sendBtn.disabled = true;
         const thinkingEl = renderThinking();
 
@@ -1355,30 +1433,54 @@
 
           const contentType = response.headers.get("content-type");
 
+          if (!response.ok) {
+            let message = "The request could not be completed. Your message is still below; please try again.";
+            if (contentType && contentType.includes("application/json")) {
+              const payload = await response.json();
+              if (typeof payload.error === "string") message = payload.error;
+            }
+            throw new Error(message);
+          }
+
           if (contentType && contentType.includes("application/pdf")) {
             const blob = await response.blob();
             const downloadUrl = window.URL.createObjectURL(blob);
+            downloadUrls.push(downloadUrl);
 
             const link = document.createElement('a');
             link.href = downloadUrl;
             link.download = "RA-81_Rent_Reduction_Application.pdf";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
             thinkingEl.remove();
-            renderMessage("assistant", FORM_READY_MESSAGE, FORM_READY_HTML);
+            const ready = renderMessage("assistant", FORM_READY_MESSAGE, FORM_READY_HTML);
+            link.textContent = "Download your completed RA-81";
+            ready.querySelector(".bubble").appendChild(link);
+            link.click();
           } else {
+            if (!contentType || !contentType.includes("application/json")) {
+              throw new Error("Please reload this page and log in again if asked. Your message is still below.");
+            }
             const payload = await response.json();
-            if (!response.ok) throw new Error(payload.error || "Request failed.");
+            if (typeof payload.reply !== "string" || !payload.reply.trim()) {
+              throw new Error("The assistant returned an empty response. Please try again.");
+            }
             thinkingEl.remove();
             renderMessage("assistant", payload.reply, payload.reply_html);
             if (payload.title) showConversationTitle(payload.title);
           }
+          messageInput.value = "";
+          autoGrowMessageInput();
+          updateCharCount();
         } catch (error) {
           thinkingEl.remove();
-          renderMessage("assistant", "Sorry, I couldn’t get a response right now. Please try again.");
+          requestError = document.createElement("p");
+          requestError.className = "flash error";
+          requestError.setAttribute("role", "alert");
+          requestError.textContent = error.message || "Connection interrupted. Your message is still below; please try again.";
+          chatBox.appendChild(requestError);
+          scrollChatToBottom();
         } finally {
+          requestPending = false;
+          messageInput.readOnly = false;
           sendBtn.disabled = false;
           messageInput.focus();
         }

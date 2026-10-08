@@ -153,9 +153,10 @@ plain "start a new chat" button.
 `+ New chat` and the chips are real page POST/redirects, not AJAX, so a slow
 connection leaves a window where a second click fires a second request and
 creates a second conversation. Every `[data-new-chat-form]` disables its
-button on submit to close that window. The backstop for whatever still slips
-through is server-side: `create_conversation()` sweeps the user's
-message-less conversations before creating a new one.
+button on submit to close that window. Creating a conversation never deletes another conversation: an empty chat may
+still be open in another tab with an unsent draft. The former automatic sweep
+was removed in the October 6 review because it invalidated those tabs and could
+mistake populated conversations for empty ones when the message query was capped.
 
 `+ New chat` takes no title — new conversations are created as "New
 conversation" and renamed afterward via the flow above.
@@ -227,8 +228,26 @@ query can't reach `scrollTo`'s `behavior` option.
 
 ## Mobile (below 700px)
 
-The sidebar becomes a short horizontal strip above the chat so the
-conversation keeps most of a phone screen. Per-row archive/delete is hidden
-there — the cramped chip strip has no room for a comfortable tap target.
-Those actions stay available from the Archived section on desktop, or from
-the conversation once opened.
+The sidebar becomes a vertical list above the chat, capped at 30vh and scrollable.
+Conversation menus have visible 44px targets and open in the row, so they are
+not clipped by the scroller. Rename, archive, restore, delete and the Archived
+section remain available on a phone. Previously the mobile rules hid every
+menu and the Archived section, leaving no way to restore a chat on mobile.
+
+
+## Failed requests and retries (October 6 review)
+
+The composer keeps the submitted text until a successful response and is read-only
+while that request is pending. Errors appear as alerts, using the server's actionable
+message when available; they are not presented as assistant replies. A second submit
+while pending is ignored, and IME composition does not trigger Enter-to-send.
+
+Retrying the same last unanswered tenant message reuses it on the server and in the
+browser, including after a reload. This is a sequential retry safeguard, not full
+cross-tab idempotency: simultaneous requests and a lost response after the assistant
+reply was committed still need request IDs and a database-backed turn record.
+
+A completed PDF has a visible download link for the current page in addition to the
+automatic download. Object URLs are released when leaving the page, except when the
+browser preserves the page in its back/forward cache. The PDF is not yet a persisted
+artifact and cannot be re-downloaded from a fresh page load without regeneration.

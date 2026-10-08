@@ -64,6 +64,8 @@ class MessagesAreEncryptedAtRestTests(EncryptedStorageTestCase):
         user_client = mock.MagicMock()
         sealed = crypto_service.encrypt("the boiler is broken")
         chain = user_client.table.return_value.select.return_value.eq.return_value.order.return_value
+        chain.order.return_value = chain
+        chain.range.return_value = chain
         chain.execute.return_value = mock.Mock(data=[{"id": "m1", "role": "user", "content": sealed, "created_at": ""}])
 
         messages = self.service.fetch_messages_for_conversation(user_client, "c1")
@@ -73,6 +75,8 @@ class MessagesAreEncryptedAtRestTests(EncryptedStorageTestCase):
     def test_fetch_messages_still_reads_rows_written_before_encryption(self):
         user_client = mock.MagicMock()
         chain = user_client.table.return_value.select.return_value.eq.return_value.order.return_value
+        chain.order.return_value = chain
+        chain.range.return_value = chain
         chain.execute.return_value = mock.Mock(data=[{"id": "m1", "role": "user", "content": "old plaintext", "created_at": ""}])
 
         messages = self.service.fetch_messages_for_conversation(user_client, "c1")
@@ -85,6 +89,8 @@ class MessagesAreEncryptedAtRestTests(EncryptedStorageTestCase):
         part of what routes.py and the templates consume."""
         user_client = mock.MagicMock()
         chain = user_client.table.return_value.select.return_value.eq.return_value.order.return_value
+        chain.order.return_value = chain
+        chain.range.return_value = chain
         chain.execute.return_value = mock.Mock(
             data=[{"id": "m1", "role": "user", "content": crypto_service.encrypt("hi"), "created_at": ""}]
         )
@@ -97,6 +103,8 @@ class MessagesAreEncryptedAtRestTests(EncryptedStorageTestCase):
     def test_plaintext_message_bodies_are_upgraded_when_read(self):
         user_client = mock.MagicMock()
         chain = user_client.table.return_value.select.return_value.eq.return_value.order.return_value
+        chain.order.return_value = chain
+        chain.range.return_value = chain
         chain.execute.return_value = mock.Mock(
             data=[{"id": "m1", "role": "user", "content": "old plaintext body", "created_at": ""}]
         )
@@ -111,6 +119,8 @@ class MessagesAreEncryptedAtRestTests(EncryptedStorageTestCase):
     def test_already_current_message_bodies_are_not_rewritten(self):
         user_client = mock.MagicMock()
         chain = user_client.table.return_value.select.return_value.eq.return_value.order.return_value
+        chain.order.return_value = chain
+        chain.range.return_value = chain
         chain.execute.return_value = mock.Mock(
             data=[{"id": "m1", "role": "user", "content": crypto_service.encrypt("current"), "created_at": ""}]
         )
@@ -125,6 +135,8 @@ class MessagesAreEncryptedAtRestTests(EncryptedStorageTestCase):
         page render."""
         user_client = mock.MagicMock()
         chain = user_client.table.return_value.select.return_value.eq.return_value.order.return_value
+        chain.order.return_value = chain
+        chain.range.return_value = chain
         chain.execute.return_value = mock.Mock(
             data=[{"id": f"m{i}", "role": "user", "content": f"plaintext {i}", "created_at": ""} for i in range(200)]
         )
@@ -141,6 +153,8 @@ class MessagesAreEncryptedAtRestTests(EncryptedStorageTestCase):
     def test_a_failed_message_rewrap_never_breaks_the_read(self):
         user_client = mock.MagicMock()
         chain = user_client.table.return_value.select.return_value.eq.return_value.order.return_value
+        chain.order.return_value = chain
+        chain.range.return_value = chain
         chain.execute.return_value = mock.Mock(
             data=[{"id": "m1", "role": "user", "content": "plaintext", "created_at": ""}]
         )
@@ -180,6 +194,8 @@ class ConversationTitlesAreEncryptedTests(EncryptedStorageTestCase):
         user_client = mock.MagicMock()
         sealed = crypto_service.encrypt("Broken heat")
         query = user_client.table.return_value.select.return_value.order.return_value
+        query.order.return_value = query
+        query.is_.return_value.range.return_value = query.is_.return_value
         query.is_.return_value.execute.return_value = mock.Mock(
             data=[{"id": "c1", "title": sealed, "created_at": "", "updated_at": "", "archived_at": None}]
         )
@@ -192,6 +208,8 @@ class ConversationTitlesAreEncryptedTests(EncryptedStorageTestCase):
 class BackgroundRewrapTests(EncryptedStorageTestCase):
     def _list_with_stored_title(self, user_client, stored_title):
         query = user_client.table.return_value.select.return_value.order.return_value
+        query.order.return_value = query
+        query.is_.return_value.range.return_value = query.is_.return_value
         query.is_.return_value.execute.return_value = mock.Mock(
             data=[{"id": "c1", "title": stored_title, "created_at": "", "updated_at": "", "archived_at": None}]
         )
@@ -295,6 +313,9 @@ class UnreadableRowResilienceTests(unittest.TestCase):
             return self
 
         def is_(self, *a, **k):
+            return self
+
+        def range(self, *a, **k):
             return self
 
         def limit(self, *a, **k):

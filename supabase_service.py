@@ -5,16 +5,40 @@ can focus on request handling instead of client setup details.
 """
 
 import logging
+import json
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 
-from supabase import Client, create_client
+from supabase import Client, ClientOptions, create_client
 
 import crypto_service
+import case_context
 from config import Settings
 
 logger = logging.getLogger(__name__)
+
+READ_PAGE_SIZE = 500
+
+
+class StaleCaseError(Exception):
+    """Another tab saved this case after the caller loaded it."""
+
+
+def _private_json(data):
+    if not crypto_service.is_enabled():
+        raise RuntimeError("Encrypted storage is required for case details and drafts.")
+    return crypto_service.encrypt(json.dumps(data, ensure_ascii=False))
+
+
+def _fetch_all(query) -> list[dict]:
+    """Read beyond PostgREST's per-response cap for histories and exports."""
+    rows = []
+    while True:
+        page = query.range(len(rows), len(rows) + READ_PAGE_SIZE - 1).execute().data or []
+        rows.extend(page)
+        if len(page) < READ_PAGE_SIZE:
+            return rows
 
 
 #: Shown in place of a row that will not decrypt. One unreadable row must
@@ -78,6 +102,15 @@ class SupabaseService:
 
         return self.client is not None
 
+    def _auth_client(self) -> Client:
+        """Auth mutates SDK session/Authorization state; never share it across tenants."""
+        if not self.client:
+            raise RuntimeError("Supabase is not configured yet.")
+        return create_client(
+            str(self.client.supabase_url), self.client.supabase_key,
+            options=ClientOptions(auto_refresh_token=False, persist_session=False),
+        )
+
     def sign_up(self, email: str, password: str, email_redirect_to: str | None = None,
                 metadata: dict | None = None) -> bool:
         """Create a new Supabase account for the signup route.
@@ -113,7 +146,7 @@ class SupabaseService:
                 options["data"] = metadata
             if options:
                 credentials["options"] = options
-            response = self.client.auth.sign_up(credentials)
+            response = self._auth_client().auth.sign_up(credentials)
         except Exception as exc:
             if "already registered" in str(exc).lower() or "already exists" in str(exc).lower():
                 return False
@@ -130,7 +163,7 @@ class SupabaseService:
 
         if not self.client:
             raise RuntimeError("Supabase is not configured yet.")
-        return self.client.auth.sign_in_with_password({"email": email, "password": password})
+        return self._auth_client().auth.sign_in_with_password({"email": email, "password": password})
 
     def verify_user_jwt(self, access_token: str):
         """Validate an incoming Supabase JWT and return the authenticated user."""
@@ -163,53 +196,6 @@ class SupabaseService:
             .execute()
         )
         return response.data[0]["id"]
-
-    def delete_empty_conversations(self, user_client: Client, user_id: str) -> None:
-        """Delete any of this user's conversations that were created but
-        never actually used (zero messages).
-
-        Called right before creating a new conversation (see routes.py's
-        create_conversation) as the server-side backstop for the sidebar's
-        disable-on-submit spam guard: that JS closes the common
-        double-click race, but doesn't stop two separate tabs (or a
-        scripted client) from each creating an empty conversation, so
-        without this a user who does that ends up with a pile of "New
-        conversation" rows they never sent a single message in. This only
-        ever touches conversations with zero messages -- anything with
-        even one message, however old or apparently abandoned, is left
-        alone.
-
-        There's no single postgrest call for "delete rows with no
-        matching child row", so this is three round trips: the user's
-        conversation ids, which of those ids appear in messages, and a
-        delete of the ones that don't. Fine at the scale one tenant's
-        conversation list runs at (same tradeoff already made by
-        fetch_all_conversations_with_messages above); not something to
-        reach for at a larger scale without a proper SQL view.
-        """
-
-        conversations = (
-            user_client.table("conversations").select("id").eq("user_id", user_id).execute()
-        ).data or []
-        if not conversations:
-            return
-
-        conversation_ids = [row["id"] for row in conversations]
-
-        messages = (
-            user_client
-            .table("messages")
-            .select("conversation_id")
-            .in_("conversation_id", conversation_ids)
-            .execute()
-        ).data or []
-        ids_with_messages = {row["conversation_id"] for row in messages}
-
-        empty_ids = [cid for cid in conversation_ids if cid not in ids_with_messages]
-        if not empty_ids:
-            return
-
-        user_client.table("conversations").delete().in_("id", empty_ids).execute()
 
     def ensure_conversation_for_user(self, user_client: Client, conversation_id: str, user_id: str) -> None:
         """Ensure the target conversation exists and belongs to the authenticated user."""
@@ -252,15 +238,15 @@ class SupabaseService:
         see _rewrap_messages.
         """
 
-        response = (
+        query = (
             user_client
             .table("messages")
             .select("id,role,content,created_at")
             .eq("conversation_id", conversation_id)
             .order("created_at", desc=False)
-            .execute()
+            .order("id", desc=False)
         )
-        rows = response.data or []
+        rows = _fetch_all(query)
 
         stale_ids = [
             row["id"] for row in rows
@@ -337,7 +323,50 @@ class SupabaseService:
         )
         for conversation in conversations:
             conversation["messages"] = self.fetch_messages_for_conversation(user_client, conversation["id"])
+            conversation["situation"] = self.get_case_context(user_client, conversation["id"])["context"]
+            conversation["form_drafts"] = self.list_form_drafts(user_client, conversation["id"], include_payload=True)
         return conversations
+
+    def get_case_context(self, user_client, conversation_id):
+        rows = user_client.table("conversations").select("case_context,case_revision").eq("id", conversation_id).execute().data
+        if not rows:
+            raise ValueError("Conversation not found")
+        row = rows[0]
+        context = case_context.defaults() if not row.get("case_context") else case_context.validate(
+            json.loads(crypto_service.decrypt(row["case_context"]))
+        )
+        return {"context": context, "revision": row.get("case_revision", 0)}
+
+    def save_case_context(self, user_client, conversation_id, user_id, context, revision):
+        context = case_context.validate(context)
+        rows = (user_client.table("conversations").update({
+            "case_context": _private_json(context), "case_revision": revision + 1,
+        }).eq("id", conversation_id).eq("user_id", user_id).eq("case_revision", revision).execute().data)
+        if not rows:
+            raise StaleCaseError()
+        return {"context": context, "revision": revision + 1}
+
+    def create_form_draft(self, user_client, conversation_id, user_id, intake):
+        row = user_client.table("form_drafts").insert({
+            "conversation_id": conversation_id, "user_id": user_id, "payload": _private_json(intake),
+        }).execute().data[0]
+        return row["id"]
+
+    def get_form_draft(self, user_client, conversation_id, draft_id):
+        rows = (user_client.table("form_drafts").select("payload,created_at")
+                .eq("id", draft_id).eq("conversation_id", conversation_id).execute().data)
+        if not rows:
+            raise ValueError("Draft not found")
+        return {"intake": json.loads(crypto_service.decrypt(rows[0]["payload"])), "created_at": rows[0]["created_at"]}
+
+    def list_form_drafts(self, user_client, conversation_id, include_payload=False):
+        columns = "id,created_at,payload" if include_payload else "id,created_at"
+        rows = _fetch_all(user_client.table("form_drafts").select(columns)
+                          .eq("conversation_id", conversation_id).order("created_at").order("id"))
+        if include_payload:
+            for row in rows:
+                row["intake"] = json.loads(crypto_service.decrypt(row.pop("payload")))
+        return rows
 
     def send_password_reset_email(self, email: str, redirect_to: str | None = None) -> None:
         """Ask Supabase to email a password-reset link to this address.
@@ -463,10 +492,10 @@ class SupabaseService:
             .table("conversations")
             .select("id,title,created_at,updated_at,archived_at")
             .order("updated_at", desc=True)
+            .order("id", desc=True)
         )
         query = query.not_.is_("archived_at", "null") if archived else query.is_("archived_at", "null")
-        response = query.execute()
-        conversations = response.data or []
+        conversations = _fetch_all(query)
         for conversation in conversations:
             stored_title = conversation.get("title")
             conversation["title"] = _safe_decrypt(

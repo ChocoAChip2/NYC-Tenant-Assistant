@@ -1,0 +1,142 @@
+<!doctype html>
+{# See docs/frontend/case-workspace.md. All implementation commentary stays server-side. #}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <title>{{ product_name }} | Review your RA-81</title>
+  <script>
+
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem("theme"); } catch (e) {}
+      if (saved === "light" || saved === "dark") {
+        document.documentElement.setAttribute("data-theme", saved);
+      }
+    })();
+  </script>
+  <style>
+    :root {
+
+      color-scheme: light;
+      --bg: #eef1f5;
+      --surface: #ffffff;
+      --border: #d7dde5;
+      --text: #1c2733;
+      --muted: #5b6b7c;
+      --accent: #1c5d8c;
+      --accent-hover: #164a70;
+      --accent-tint: #dce8f2;
+      --on-accent: #ffffff;
+      --warning: #8a5a1f;
+      --warning-tint: #f7ecd9;
+      --error: #a3312a;
+      --error-tint: #fbe9e7;
+      --success: #18733a;
+      --success-tint: #e6f4ea;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #000000;
+        --surface: #0a0a0a;
+        --border: #2a2f35;
+        --text: #e8edf2;
+        --muted: #9aa7b4;
+        --accent: #5b9bd5;
+        --accent-hover: #7db2e0;
+        --accent-tint: #0e1f2e;
+        --on-accent: #000000;
+        --warning: #e8c27a;
+        --warning-tint: #231c0e;
+        --error: #e28a83;
+        --error-tint: #2a1614;
+        --success: #7fcf9b;
+        --success-tint: #0f1f16;
+      }
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #000000;
+      --surface: #0a0a0a;
+      --border: #2a2f35;
+      --text: #e8edf2;
+      --muted: #9aa7b4;
+      --accent: #5b9bd5;
+      --accent-hover: #7db2e0;
+      --accent-tint: #0e1f2e;
+      --on-accent: #000000;
+      --warning: #e8c27a;
+      --warning-tint: #231c0e;
+      --error: #e28a83;
+      --error-tint: #2a1614;
+      --success: #7fcf9b;
+      --success-tint: #0f1f16;
+    }
+
+    :root { font-family: system-ui, sans-serif; }
+    body { margin: 0; background: var(--bg); color: var(--text); }
+    main { max-width: 850px; margin: 0 auto; padding: 24px 18px 48px; }
+    a { color: var(--accent); }
+    h1 { font-size: 28px; }
+    p { line-height: 1.55; }
+    fieldset { border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin: 20px 0; }
+    legend { font-weight: 650; padding: 0 8px; }
+    .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    label { display: grid; gap: 7px; font-size: 14px; }
+    input, select, textarea { box-sizing: border-box; width: 100%; padding: 11px; border: 1px solid var(--border); border-radius: 7px; font: inherit; background: var(--surface); color: inherit; }
+    textarea { min-height: 110px; resize: vertical; }
+    .check { display: flex; align-items: flex-start; gap: 10px; line-height: 1.5; }
+    .check input { width: 20px; height: 20px; flex-shrink: 0; }
+    button { margin: 18px 0; background: #1957a1; color: white; border: 0; border-radius: 9px; padding: 14px 20px; font: inherit; font-weight: 650; cursor: pointer; }
+    .errors { border: 1px solid #c54b46; border-radius: 8px; padding: 14px; }
+    .errors p { margin: 6px 0; }
+    @media(max-width:600px) { .fields { grid-template-columns: 1fr; } h1 { font-size: 24px; } fieldset { padding: 12px; } }
+  </style>
+</head>
+<body><main>
+  <a href="{{ url_for('main.chat', conversation_id=conversation_id) }}">← Back to your chat</a>
+  <h1>Review your RA-81</h1>
+  {% if unavailable %}
+    <p role="alert">{{ unavailable }}</p>
+  {% else %}
+    <p>Check and edit every detail below. A draft may contain mistakes. Downloading does not file the form or sign it for you.</p>
+    <p>RA-81 is for decreased services in an individual rent-regulated apartment. <a href="https://hcr.ny.gov/living-conditions-and-essential-services" target="_blank" rel="noopener noreferrer">Check HCR's form guidance</a>.</p>
+    {% if errors %}<div class="errors" role="alert">{% for error in errors %}<p>{{ error }}</p>{% endfor %}</div>{% endif %}
+    <form method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <fieldset><legend>Which problem is this form for?</legend>
+        <label>Service issue
+          <select name="service_scope" required>
+            <option value="">Choose before downloading</option>
+            <option value="individual_other" {% if scope == 'individual_other' %}selected{% endif %}>Services in my apartment, other than heat or hot water</option>
+            <option value="heat" {% if scope == 'heat' %}selected{% endif %}>Heat or hot water — HHW-1</option>
+            <option value="building" {% if scope == 'building' %}selected{% endif %}>Building-wide services — RA-84</option>
+          </select>
+        </label>
+      </fieldset>
+      {% for group, fields in groups.items() %}
+        <fieldset><legend>{{ group }}</legend><div class="fields">
+          {% for key, label in fields %}
+            <label>{{ label }}
+              {% if key in choices %}
+                <select name="{{ key }}">{% for value, title in choices[key].items() %}<option value="{{ value }}" {% if values[key] == value %}selected{% endif %}>{{ title }}</option>{% endfor %}</select>
+              {% elif key.startswith('conditions.') %}
+                <textarea name="{{ key }}" maxlength="2000" placeholder="What is wrong, where, and since when?">{{ values[key] }}</textarea>
+              {% else %}
+                <input name="{{ key }}" value="{{ values[key] }}" maxlength="250" {% if key in ['move_in_date', 'notice.date'] %}placeholder="YYYY-MM-DD or YYYY-MM"{% endif %}>
+              {% endif %}
+            </label>
+          {% endfor %}
+        </div></fieldset>
+      {% endfor %}
+      <label class="check"><input type="checkbox" name="confirmed" value="yes" required>I reviewed the details, corrected any mistakes, and confirm that this form matches my situation.</label>
+      <button type="submit">Confirm and download RA-81</button>
+      <p>After downloading, review the PDF again, sign and date it, and follow the instructions on the form. <a href="https://hcr.ny.gov/form-ra-81" target="_blank" rel="noopener noreferrer">Official blank RA-81</a></p>
+    </form>
+  {% endif %}
+  <p>{{ short_disclaimer }}</p>
+</main></body>
+</html>
