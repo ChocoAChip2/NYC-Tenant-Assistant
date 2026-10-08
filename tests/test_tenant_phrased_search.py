@@ -17,8 +17,8 @@ import unittest
 from tools.corpus import eval_search
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MIGRATION = os.path.join(ROOT, "supabase", "migrations", "20260930_tenant_phrased_search.sql")
-LIBRARY = os.path.join(ROOT, "supabase", "migrations", "20260929_legal_library.sql")
+MIGRATION = os.path.join(ROOT, "supabase", "migrations", "20260929232041_tenant_phrased_search.sql")
+LIBRARY = os.path.join(ROOT, "supabase", "migrations", "20260929173541_legal_library.sql")
 FIXTURE = os.path.join(ROOT, "tests", "fixtures", "tenant_questions.json")
 
 

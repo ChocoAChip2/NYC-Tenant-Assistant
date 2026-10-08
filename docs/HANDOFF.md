@@ -44,7 +44,7 @@ Shipped, in order: SideKick Tidbit rename + ST mark + disclaimers (#25), promine
 Test suite: **604 passing on main as of #38** (`python -m unittest discover -s tests`). Tests never touch the network: `tests/__init__.py` turns the HIBP check off (it used to call the real API, which failed 5 tests on a machine with internet).
 
 **The legal library is live (2026-09-29).**
-- **Migration:** `20260929_legal_library.sql` was applied after a rolled-back live test of the current version passed. `get_advisors` shows only expected findings: the token-checked anon `corpus_*` functions, RLS with no policies on the two private tables, and public law being visible to GraphQL.
+- **Migration:** `20260929173541_legal_library.sql` was applied after a rolled-back live test of the current version passed. `get_advisors` shows only expected findings: the token-checked anon `corpus_*` functions, RLS with no policies on the two private tables, and public law being visible to GraphQL.
 - **Ingest token:** created on the owner's Mac and never printed. Only its sha256 is in `corpus_ingest_tokens`, labelled `owner-mac-and-github-actions-2026-09-29`.
 - **Load:** the initial load from the Mac used ALP's zip, `Last-Modified` 29 Sep 2026. It added 308 sections and 521 chunks (18 sections are repealed). A second run changed nothing.
 - **Spot checks:** § 27-2029 says sixty-two degrees, with `last_amended` 2017-10-01.
@@ -72,7 +72,7 @@ Test suite: **604 passing on main as of #38** (`python -m unittest discover -s t
 
 **Goal:** load official, verbatim NYC (and later NYS) law into `legal_sources`/`legal_documents`, keep it current automatically (the owner asked for a check "every few months"), and put it to use: `/law/<citation>` pages, violation chips linking to the real text, and chat grounding.
 
-**On `main`:** `tools/corpus/model.py` (now tested; hash normalizes ASCII whitespace only, to match the DB), `tools/corpus/alp.py` (parser), `tools/corpus/registry.py`, `tools/corpus/refresh.py` (CLI), `supabase/migrations/20260929_legal_library.sql` (**written, NOT applied**), `supabase/checks/20260929_legal_library_checks.sql` (the rolled-back live verification), `tests/fixtures/alp/`, tests for all of it, `docs/legal-sources-catalog.md`, this file.
+**On `main`:** `tools/corpus/model.py` (now tested; hash normalizes ASCII whitespace only, to match the DB), `tools/corpus/alp.py` (parser), `tools/corpus/registry.py`, `tools/corpus/refresh.py` (CLI), `supabase/migrations/20260929173541_legal_library.sql` (**written, NOT applied**), `supabase/checks/20260929_legal_library_checks.sql` (the rolled-back live verification), `tests/fixtures/alp/`, tests for all of it, `docs/legal-sources-catalog.md`, this file.
 
 ### Decisions already made (with evidence)
 

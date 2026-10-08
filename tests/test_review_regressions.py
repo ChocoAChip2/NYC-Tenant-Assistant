@@ -104,7 +104,7 @@ class ReviewJourneyTests(unittest.TestCase):
 
     def test_source_and_configuration_files_are_not_web_routes(self):
         for path in ("/.env", "/.git/config", "/routes.py", "/config.py", "/templates/chat.html",
-                     "/docs/data-encryption.md", "/supabase/migrations/20260920_setup_vector_db.sql"):
+                     "/docs/data-encryption.md", "/supabase/migrations/20260920210714_setup_vector_db.sql"):
             with self.subTest(path=path):
                 self.assertEqual(self.client.get(path).status_code, 404)
 

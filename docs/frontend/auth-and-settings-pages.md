@@ -117,7 +117,7 @@ or wrong without JS) and then rewritten client-side into the visitor's own
 locale and timezone.
 
 The actual deletion runs as a `pg_cron` job inside Postgres, not in this
-app — see `supabase/migrations/20260907_account_deletion_requests.sql` and
+app — see `supabase/migrations/20260907033439_account_deletion_requests.sql` and
 `log/2026-09-07-account-deletion-and-message-cap.txt`.
 
 ---

@@ -1,4 +1,4 @@
--- Verification for supabase/migrations/20260929_legal_library.sql.
+-- Verification for supabase/migrations/20260929173541_legal_library.sql.
 --
 -- RUN IT ROLLED BACK, against the live project, BEFORE apply_migration:
 --

@@ -1,4 +1,4 @@
--- Builds on 20260920_setup_vector_db.sql rather than replacing it. That
+-- Builds on 20260920210714_setup_vector_db.sql rather than replacing it. That
 -- migration created `legal_documents`, the HNSW index and the
 -- `match_legal_documents` RPC; all three survive here with their names
 -- and signatures intact. What this adds is everything needed to cite a

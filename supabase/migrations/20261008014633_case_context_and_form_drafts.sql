@@ -1,5 +1,4 @@
 -- Apply before deploying the case-context/review UI. Existing rows stay valid.
-begin;
 alter table public.conversations add column if not exists case_context text;
 alter table public.conversations add column if not exists case_revision integer not null default 0;
 
@@ -24,4 +23,3 @@ create policy form_drafts_insert_own on public.form_drafts for insert to authent
   ));
 create policy form_drafts_delete_own on public.form_drafts for delete to authenticated
   using (user_id = (select auth.uid()));
-commit;

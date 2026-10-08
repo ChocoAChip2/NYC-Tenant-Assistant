@@ -7,7 +7,7 @@ test_conversation_create_rename_and_cleanup.py.
 What is deliberately NOT covered here: the actual deletion. That runs
 inside Postgres as a pg_cron job calling
 purge_expired_account_deletions() (see
-supabase/migrations/20260907_account_deletion_requests.sql) precisely so
+supabase/migrations/20260907033439_account_deletion_requests.sql) precisely so
 that the web app never holds the privilege to delete an auth user -- which
 also means there is nothing in this codebase for a Python test to call.
 The app's half of the feature, which is everything these tests cover, is

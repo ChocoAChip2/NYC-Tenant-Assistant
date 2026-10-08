@@ -162,7 +162,7 @@ class RunTests(unittest.TestCase):
 class MigrationTests(unittest.TestCase):
     def test_writes_are_token_checked_and_reads_are_public(self):
         root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        with open(os.path.join(root, "supabase", "migrations", "20261007_elected_officials.sql"), encoding="utf-8") as handle:
+        with open(os.path.join(root, "supabase", "migrations", "20261007204116_elected_officials.sql"), encoding="utf-8") as handle:
             sql = handle.read()
         self.assertIn("PERFORM public.corpus_check_token(p_token);", sql)
         self.assertIn("ENABLE ROW LEVEL SECURITY", sql)
