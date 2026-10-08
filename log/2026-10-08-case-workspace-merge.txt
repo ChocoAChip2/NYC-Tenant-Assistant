@@ -19,7 +19,7 @@ WHAT
   hostname corrected.
 
 REVIEW NOTES
-- Migration 20261006_case_context_and_form_drafts.sql: additive; RLS on
+- Migration 20261008014633_case_context_and_form_drafts.sql: additive; RLS on
   form_drafts scoped to the owner and their conversation; no update
   policy (drafts immutable). Must be applied before the code deploys,
   because chat will not send until the situation panel loads.
@@ -27,3 +27,18 @@ REVIEW NOTES
   require the CSRF token; draft reads filter by conversation as well as RLS.
 - Drafts and situation are encrypted; saving fails closed if encryption
   is not configured.
+
+FOLLOW-UP: "Supabase Preview" check on PR #55
+- Failed with "Remote migration versions not found in local migrations
+  directory". Cause: the live history records 14-digit versions
+  (e.g. 20261007204116) while the repo named files by date only
+  (20261007_...), and three live migrations had no file at all.
+- Every file is now <live version>_<live name>.sql; added
+  drop_unused_scaffold_tables and add_conversation_archived_at from the
+  live history, and split the pg_cron schedule out of
+  account_deletion_requests (it was applied as its own migration).
+  Contents match what was applied (comments aside).
+- tests/test_migration_names.py keeps new files in that form.
+- Not addressed: a brand-new database still can't be built from these
+  files alone -- the original conversations/messages tables were made in
+  the dashboard before migrations were tracked.

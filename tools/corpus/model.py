@@ -82,7 +82,7 @@ class Section:
 
 
 # ASCII whitespace only, spelled out. The database recomputes this hash
-# (corpus_law_hash in supabase/migrations/20260929_legal_library.sql) and
+# (corpus_law_hash in supabase/migrations/20260929173541_legal_library.sql) and
 # rejects any write where the two disagree, so both sides must mean the
 # same characters. Python's \s would also match U+00A0 and friends, which
 # Postgres's does not.

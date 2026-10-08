@@ -583,7 +583,7 @@ class SupabaseService:
         Writes one row into account_deletion_requests and returns the
         purge_after timestamp (ISO 8601) so the caller can tell the user the
         exact date. Nothing is deleted here and the account keeps working
-        normally -- see supabase/migrations/20260907_account_deletion_requests.sql
+        normally -- see supabase/migrations/20260907033439_account_deletion_requests.sql
         for the pg_cron job that does the actual deleting once the deadline
         passes, and why it lives in the database rather than in this app.
 

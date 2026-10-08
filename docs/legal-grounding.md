@@ -17,12 +17,12 @@ nothing to check against.
 
 | File | Job |
 | --- | --- |
-| `supabase/migrations/20260920_setup_vector_db.sql` | pgvector, `legal_documents`, HNSW index, `match_legal_documents` (from ChocoAChip2's branch) |
-| `supabase/migrations/20260921_legal_corpus_framework.sql` | Provenance, RLS, full-text column, hybrid `search_legal_documents` |
-| `supabase/migrations/20260922_harden_search_paths.sql` | Moves pgvector out of `public`, pins every function's `search_path` |
+| `supabase/migrations/20260920210714_setup_vector_db.sql` | pgvector, `legal_documents`, HNSW index, `match_legal_documents` (from ChocoAChip2's branch) |
+| `supabase/migrations/20260920210809_legal_corpus_framework.sql` | Provenance, RLS, full-text column, hybrid `search_legal_documents` |
+| `supabase/migrations/20260920210913_harden_extension_and_function_search_paths.sql` | Moves pgvector out of `public`, pins every function's `search_path` |
 | `retrieval_service.py` | Embed the question, call the hybrid search, apply the relevance floor |
 | `citation_guard.py` | Check markers, statutes, quotes and numbers |
-| `supabase/migrations/20260929_legal_library.sql` | One row per section, change log, token-checked `corpus_*` write RPCs |
+| `supabase/migrations/20260929173541_legal_library.sql` | One row per section, change log, token-checked `corpus_*` write RPCs |
 | `tools/corpus/` | ALP XML parser and the refresh CLI that loads and updates the library |
 | `.github/workflows/refresh-legal-library.yml` | Quarterly refresh; opens an issue when the law changed |
 

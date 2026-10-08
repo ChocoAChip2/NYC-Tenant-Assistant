@@ -32,7 +32,7 @@ Added 2026-10-06 (Codex review pass, `docs/review-2026-10-06.md`); merged
 
 ## Storage and access
 
-Migration `supabase/migrations/20261006_case_context_and_form_drafts.sql`:
+Migration `supabase/migrations/20261008014633_case_context_and_form_drafts.sql`:
 two columns on `conversations`, and `form_drafts` with RLS so a tenant can
 only read, insert or delete their own drafts on their own conversations.
 No update policy: drafts are immutable. Both are included in the

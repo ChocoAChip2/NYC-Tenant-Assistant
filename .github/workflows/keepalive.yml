@@ -25,7 +25,7 @@ name: Supabase Keep-Alive
 # Supabase's linter flagged those tables as discoverable in the generated
 # GraphQL schema for exactly that reason, and anon's SELECT has now been
 # revoked on all three of them (see
-# supabase/migrations/20260923_revoke_anon_read_on_user_tables.sql).
+# supabase/migrations/20260920222140_revoke_anon_read_on_user_tables.sql).
 #
 # `legal_sources` is the right target instead: it holds public law, it is
 # anon-readable ON PURPOSE (a citation should resolve without an account),
