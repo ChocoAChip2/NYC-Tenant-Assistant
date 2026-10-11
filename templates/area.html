@@ -206,6 +206,14 @@
     .alert strong { display: block; margin-bottom: 3px; }
     .alert p { margin: 0; }
     .alert a { color: inherit; font-weight: 600; }
+    .did-you-mean h2 { font-size: 15px; margin: 0 0 8px; }
+    .did-you-mean ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+    .did-you-mean li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; padding: 8px 0; border-top: 1px solid var(--border); }
+    .did-you-mean li:first-child { border-top: 0; padding-top: 0; }
+    .did-you-mean a { color: var(--accent); font-weight: 600; font-size: 15.5px; overflow-wrap: anywhere; }
+    .did-you-mean a.minor { font-weight: 400; font-size: 13px; }
+    .did-you-mean a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+    .did-you-mean .where { font-size: 12.5px; color: var(--muted); }
     .match-label { font-size: 22px; font-weight: 700; margin: 0; line-height: 1.3; }
     .match-meta { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
     .match-meta a { color: var(--muted); }
@@ -407,6 +415,17 @@
         <strong>{{ error_title }}</strong>
         <p>{{ error }}</p>
       </div>
+    {% endif %}
+
+    {% if suggestions %}
+      <section class="card did-you-mean" aria-labelledby="did-you-mean">
+        <h2 id="did-you-mean">Did you mean</h2>
+        <ul>
+          {% for s in suggestions %}
+            <li><a href="{{ url_for('main.area_lookup', street=s.street_label, borough=s.borough, zip=(zip_code or none) if not s.other_borough else none, cross=(cross or none) if not s.other_borough else none) }}">{{ s.label }}</a>{% if s.other_borough %}<span class="where">A different borough</span>{% endif %}</li>
+          {% endfor %}
+        </ul>
+      </section>
     {% endif %}
 
     {% if report %}

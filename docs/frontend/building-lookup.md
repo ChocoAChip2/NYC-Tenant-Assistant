@@ -79,6 +79,27 @@ to GeoSearch (tested).
 
 - **The matched address is always shown**, next to "Not your building?".
   A wrong geocode is visible instead of silent.
+- **A building on a different street is never shown** (2026-10-11). The
+  geocoder always answers with something: "231 Ecco Place, Bronx" came
+  back as 231 BROWN PLACE, and the page showed Brown Place's violations.
+  Its own confidence field can't be used: measured live, every result is
+  labelled "fallback", exact ones included. So `building_service.geocode`
+  compares the street and house number of each result with what was typed
+  (`street_suggestions.same_street` / `same_number`):
+  - same street and number: shown, as before;
+  - same street, different number: shown **with a notice above it** ("We
+    couldn't find 1 Echo Place. Showing 179 Echo Place.") and a link to all
+    buildings on the street. The chat hand-off then says "I looked up",
+    not "I live at";
+  - a different street, or a different borough than the one typed: not
+    found (404), with up to three "Did you mean" links. A corrected address
+    is offered only if it geocodes to exactly that number on that street;
+    otherwise the street alone is offered. See
+    [area-lookup.md](area-lookup.md#did-you-mean-street_suggestionspy).
+  Text that doesn't start with a house number can't be compared and
+  behaves as before (first result).
+- House numbers are compared after removing spaces and hyphens ("31-10" is
+  "3110"); "12A" is not "12".
 - **The "as of" date is the city's**, from the dataset's `rowsUpdatedAt`.
   If that can't be fetched, the page says the date is unavailable. It
   never falls back to today's date, because that would tell a tenant the

@@ -26,6 +26,7 @@ import password_safety
 import profile_service
 import resources as resources_data
 import retrieval_service
+import street_suggestions
 from ai_service import AIService
 from markdown_service import render_markdown
 from login_lockout import format_duration, record_failure, record_success, seconds_until_unlocked
@@ -337,6 +338,7 @@ def _render_area_lookup():
     report = None
     error = error_title = None
     narrow_error = False
+    suggestions = []
     status = 200
 
     if street:
@@ -348,10 +350,13 @@ def _render_area_lookup():
         except area_service.InvalidArea as exc:
             error_title, error, status = "Check your search", str(exc), 400
             narrow_error = bool(zip_code)
-        except area_service.StreetNotFound:
+        except area_service.StreetNotFound as exc:
             error_title = "We couldn't find that street"
             error = "Check the spelling and the borough. Try the full name, like Echo Place."
             status = 404
+            # Links the tenant can tap, never a redirect. Computed inside
+            # this (already counted) request; tapping one is a new lookup.
+            suggestions = street_suggestions.for_street(street, area_service.borough_from(borough), exc.returned)
         except area_service.CrossStreetNotFound:
             error_title = "Those streets don't seem to meet"
             error = "Check the cross street, or try your ZIP code instead."
@@ -383,6 +388,7 @@ def _render_area_lookup():
         error=error,
         error_title=error_title,
         narrow_error=narrow_error,
+        suggestions=suggestions,
         office_titles=area_service.OFFICE_TITLES,
         display_street=area_service.display_street,
         max_street_length=area_service.MAX_STREET_LENGTH,
@@ -1313,11 +1319,27 @@ def building_lookup():
     return _render_building_lookup()
 
 
+def _shown_instead(report):
+    """For a result on the right street but a different number: what was
+    asked for, what is shown, and where the street's other buildings are."""
+    match = report.match if report else None
+    if not match or not match.requested:
+        return None
+    street = area_service.display_street(match.street)
+    return {
+        "requested": match.requested,
+        "shown": f"{match.house_number} {street}",
+        "street": street,
+        "borough": match.borough if match.borough in area_service.BOROUGHS else None,
+    }
+
+
 def _render_building_lookup():
     address = (request.args.get("address") or "").strip()
     apt = (request.args.get("apt") or "").strip()
     report = None
     error = error_title = None
+    suggestions = []
     status = 200
 
     if address:
@@ -1326,7 +1348,10 @@ def _render_building_lookup():
         except building_service.InvalidAddress as exc:
             error_title, error = "Check the address", str(exc)
             status = 400
-        except building_service.AddressNotFound:
+        except building_service.AddressNotFound as exc:
+            # Also where a result on a different street ends up: that
+            # building is not shown; a corrected address is offered instead.
+            suggestions = street_suggestions.for_address(exc.typed, exc.returned)
             error_title = "We couldn't find that building"
             error = (
                 "No NYC building matched that address. Check the house number, "
@@ -1353,6 +1378,8 @@ def _render_building_lookup():
         address=address,
         apt=apt,
         report=report,
+        suggestions=suggestions,
+        shown_instead=_shown_instead(report),
         error=error,
         error_title=error_title,
         chat_prompt=chat_prompt,
