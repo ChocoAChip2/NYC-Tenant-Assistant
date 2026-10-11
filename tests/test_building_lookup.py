@@ -625,8 +625,8 @@ class ChatContinuationTests(unittest.TestCase):
 
     def test_the_empty_state_links_to_the_lookup(self):
         body = self._chat_body()
-        self.assertIn('href="/"', body)  # street search, the default lookup since 2026-10-07
-        self.assertIn('href="/resources"', body)
+        self.assertIn('href="/?chip=look_up_street"', body)  # street search, the default lookup since 2026-10-07
+        self.assertIn('href="/resources?chip=free_help"', body)
 
     def test_plain_new_chat_clears_a_stale_pending_prompt(self):
         """Without this, a prompt stored on the building page and never

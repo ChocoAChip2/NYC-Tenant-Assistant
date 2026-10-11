@@ -168,6 +168,15 @@ auto-deletion fits naturally here: a `retention_policy` column on
 job that already runs the account purge. Retention is a property of the
 data, which means it survives the data moving — the same principle as § 3.
 
+## 11. Usage counts hold no personal data (2026-10-11)
+
+The daily usage counts are the one table that is deliberately outside the
+classification in section 1, because no column in it can hold tenant
+data: a day, an event name, one value from a fixed list, and a number. See
+[usage-counts.md](usage-counts.md) for how that is enforced in the code and
+again in the database, and for what it does not fix (section 9's webhook
+scrub is still open).
+
 ## Suggested order
 
 1. § 9 (the webhook scrub) — smallest, closes a live path.

@@ -25,6 +25,7 @@ import password_safety
 import profile_service
 import resources as resources_data
 import retrieval_service
+import usage_metrics
 from ai_service import AIService
 from markdown_service import render_markdown
 from login_lockout import format_duration, record_failure, record_success, seconds_until_unlocked
@@ -864,6 +865,7 @@ def _ground_reply(user_client, question, history, context=None):
         )
         for violation in result.violations:
             logger.warning("citation_guard: %s -- %s", violation.kind, violation.detail)
+            usage_metrics.record("guard_violation", violation.kind)
 
         if _guard_mode() == citation_guard.GuardMode.ENFORCE:
             # The prose may still be useful; the authority it claimed is
@@ -1031,6 +1033,7 @@ def chat_message():
                 sources = []
             else:
                 draft_id = supabase_service.create_form_draft(user_client, conversation_id, user_id, form_review.canonical(intake_data))
+                usage_metrics.record("ra81", "draft_started")
                 review_url = url_for("main.review_form", conversation_id=conversation_id, draft_id=draft_id)
                 reply = f"Your RA-81 draft is ready to review. [Review and confirm your form]({review_url}). Check every field before downloading. Nothing has been filed."
                 sources = []
@@ -1649,3 +1652,6 @@ def logout():
 
 import case_routes
 case_routes.register(main_bp)
+
+import usage_routes
+usage_routes.register(main_bp)

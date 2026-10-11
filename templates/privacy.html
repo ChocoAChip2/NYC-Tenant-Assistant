@@ -1,0 +1,221 @@
+<!doctype html>
+{# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments. All of its wording comes from branding.py (PRIVACY_*): every sentence is a promise the code has to keep. See docs/usage-counts.md. #}
+{% from "_info.html" import info as info_tip, info_assets %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#eef1f5" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ product_name }} | {{ title }}</title>
+  <script>
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem("theme"); } catch (e) {}
+      if (saved === "light" || saved === "dark") {
+        document.documentElement.setAttribute("data-theme", saved);
+      }
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #eef1f5;
+      --surface: #ffffff;
+      --border: #d7dde5;
+      --text: #1c2733;
+      --muted: #5b6b7c;
+      --accent: #1c5d8c;
+      --accent-hover: #164a70;
+      --accent-tint: #dce8f2;
+      --on-accent: #ffffff;
+      --warning: #8a5a1f;
+      --warning-tint: #f7ecd9;
+      --error: #a3312a;
+      --error-tint: #fbe9e7;
+      --success: #18733a;
+      --success-tint: #e6f4ea;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #000000;
+        --surface: #0a0a0a;
+        --border: #2a2f35;
+        --text: #e8edf2;
+        --muted: #9aa7b4;
+        --accent: #5b9bd5;
+        --accent-hover: #7db2e0;
+        --accent-tint: #0e1f2e;
+        --on-accent: #000000;
+        --warning: #e8c27a;
+        --warning-tint: #231c0e;
+        --error: #e28a83;
+        --error-tint: #2a1614;
+        --success: #7fcf9b;
+        --success-tint: #0f1f16;
+      }
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #000000;
+      --surface: #0a0a0a;
+      --border: #2a2f35;
+      --text: #e8edf2;
+      --muted: #9aa7b4;
+      --accent: #5b9bd5;
+      --accent-hover: #7db2e0;
+      --accent-tint: #0e1f2e;
+      --on-accent: #000000;
+      --warning: #e8c27a;
+      --warning-tint: #231c0e;
+      --error: #e28a83;
+      --error-tint: #2a1614;
+      --success: #7fcf9b;
+      --success-tint: #0f1f16;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: var(--on-accent);
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .brand-name { font-size: 15px; font-weight: 600; }
+    header a.back { color: var(--muted); font-size: 13px; text-decoration: none; }
+    header a.back:hover { color: var(--accent); }
+    main {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 32px 20px 72px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    h1 { font-size: 24px; margin: 0; }
+    .lede { color: var(--muted); font-size: 15px; margin: 0; }
+    section .lede { font-size: 14px; margin: 0 0 18px; }
+    section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 22px;
+    }
+    section h2 { margin: 0 0 12px; font-size: 16px; }
+    section p { margin: 0 0 12px; font-size: 14px; }
+    section p:last-child { margin-bottom: 0; }
+    section.important {
+      border-color: var(--warning);
+      background: var(--warning-tint);
+      color: var(--warning);
+    }
+    section.important h2 { color: var(--warning); }
+    section ul.points { margin: 0; padding-left: 1.1rem; display: grid; gap: 8px; line-height: 1.5; font-size: 14px; }
+    section p + ul.points { margin-top: -2px; }
+    section a { color: var(--accent); }
+    .two-col { display: grid; gap: 10px; }
+    .can-cannot { display: grid; gap: 18px; }
+    @media (min-width: 620px) {
+      .can-cannot { grid-template-columns: 1fr 1fr; }
+    }
+    .can-cannot h3 { margin: 0 0 8px; font-size: 14px; }
+    .can-cannot ul { margin: 0; padding-left: 20px; font-size: 14px; }
+    .can-cannot li { margin: 5px 0; }
+    .yes h3 { color: var(--success); }
+    .no h3 { color: var(--error); }
+    .resource {
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+      margin-top: 14px;
+    }
+    .resource:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+    .resource-name { font-weight: 600; font-size: 14px; margin: 0 0 3px; }
+    .resource-name a { color: var(--accent); text-decoration: none; }
+    .resource-name a:hover { text-decoration: underline; }
+    .resource-detail { color: var(--muted); font-size: 13px; margin: 0 0 3px; }
+    .resource-contact { font-size: 13px; margin: 0; }
+    footer {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 20px 40px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+    footer a { color: var(--muted); text-decoration: underline; }
+    footer a:hover { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="{{ url_for('main.chat') if logged_in else url_for('main.home') }}">
+      <span class="brand-mark" aria-hidden="true">{{ logo_monogram }}</span>
+      <span class="brand-name">{{ product_name }}</span>
+    </a>
+    {% if logged_in %}<a class="back" href="{{ url_for('main.chat') }}">&larr; Back to chat</a>{% else %}<a class="back" href="{{ url_for('main.home') }}">&larr; Look up your street</a>{% endif %}
+  </header>
+
+  <main>
+    <div>
+      <h1>{{ title }}</h1>
+      <p class="lede">{{ lede }}</p>
+    </div>
+
+    {% for section in sections %}
+    <section>
+      <h2>{{ section.title }}</h2>
+      <p>{{ section.intro }}</p>
+      {% if section.points %}
+      <ul class="points">
+        {% for point in section.points %}
+        <li>{{ point }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </section>
+    {% endfor %}
+
+    <section>
+      <h2>{{ account_title }}</h2>
+      <p>{{ account_text }} <a href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>{{ short_disclaimer }} <a href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a></p>
+  </footer>
+  {{ info_assets() }}
+</body>
+</html>

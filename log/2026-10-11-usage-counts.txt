@@ -1,0 +1,86 @@
+2026-10-11  Privacy-safe usage counts and a privacy page
+
+Request (owner): answer "what do tenants use, where do they get stuck, did
+an update help?" from daily aggregate counts in our own database, with
+nothing stored or sent that can be tied to a person, an address or a
+conversation, and a plain privacy notice saying exactly what is counted.
+
+The three open questions in the brief were sent with the planner's
+answers, so those were built: our own database table (no outside tool); no
+banner, with Global Privacy Control honoured; 12 months of retention.
+
+Changed
+- usage_metrics.py: the allowlist of events and values, an in-memory
+  buffer, one database call per 50 events or 60 seconds on a background
+  thread. record(event, dim) has no parameter that could carry an id or
+  text.
+- usage_routes.py: one after_request hook that turns the route name and
+  response status into counts; POST /usage/click for outbound help links;
+  the /privacy page.
+- Migration *_usage_daily_counts.sql (NOT APPLIED): table usage_daily
+  (day, event, dim, n), allowlist table usage_allowed, SECURITY DEFINER
+  function record_usage(jsonb) with an empty search_path that re-checks
+  the allowlist, a daily pg_cron purge after 12 months. anon and
+  authenticated can execute the function and nothing else.
+- supabase/checks: a rolled-back check script for the database side, and
+  report queries that hide totals under 5.
+- /privacy, with all wording in branding.py, linked from every footer,
+  from sign-up and from Learn more.
+- Chips carry a fixed id (a hidden field, or ?chip= on the two link
+  chips); Resources links carry an id made from the fixed lists.
+- routes.py: two one-line counts (guard violation kind, RA-81 draft
+  started) and the registration. app.py: the click endpoint is exempt from
+  the CSRF token.
+
+Choices made
+- The click endpoint has no CSRF token. A token needs a session cookie and
+  Resources is read by people who get no cookie from us; adding one for
+  counting would have been the wrong trade. It accepts only same-origin
+  requests instead, is rate limited, and can only add 1 to a listed
+  counter. The brief said "CSRF-protected"; this protects against the same
+  thing by a different means.
+- Chip clicks are counted on the server (the forms already post), so no
+  script is needed for them.
+- "Ambiguous" street searches are not counted (see docs/usage-counts.md).
+- The day is stamped by the database in New York time.
+
+Evidence
+- tests/test_usage_counts.py, 45 tests, offline: the recorder rejects
+  addresses, emails, long strings and unknown events for every event;
+  searches for an address and a street leave no address, apartment, ZIP or
+  cross street in the counts, the log, the database call or the alert
+  webhook payload; the migration's table has exactly four columns and its
+  allowlist equals the Python one; app roles get execute and nothing else;
+  purge and report thresholds; no cookie on public pages and none but the
+  session cookie anywhere; no external scripts; the privacy page and its
+  links; Global Privacy Control; the click endpoint.
+- Full suite on the Mac: 975 OK (1 skipped); 930 on main before.
+- Privacy page in headless Chrome: light at 1280 px, dark in a 390 px
+  frame.
+
+NOT verified
+- The SQL has never been run. There is no local database here and the
+  live one needs the owner's go-ahead. The migration and the check script
+  were written and read, not executed; a syntax error is possible.
+- Keyboard use on the privacy page was not driven by hand (it is text and
+  links).
+- Whether the host's request logs keep query strings (addresses) was not
+  checked.
+- The privacy wording has not been reviewed by a lawyer. Questions the
+  brief raised for one: whether this audience warrants stronger promises,
+  whether New York or federal rules apply that were not considered (health
+  information in chats, minors), and whether "no banner" is acceptable for
+  visitors outside the US.
+
+Not done (listed in the brief as separate small changes)
+- Scrubbing the error webhook; removing reply fragments from citation
+  guard warnings; moving address lookups off GET if the host logs query
+  strings.
+
+Release order (owner)
+1. Merge and deploy. Nothing is recorded yet and nothing breaks: a failed
+   write is dropped and retried five minutes later.
+2. With your go-ahead for that run, test the migration in a rolled-back
+   transaction, then apply it, rename the file to the recorded version,
+   run supabase/checks/20261011_usage_counts_checks.sql and the advisors.
+3. A day later, run the report queries.

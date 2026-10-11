@@ -241,12 +241,13 @@
     <section>
       <h2>Your data</h2>
       <p>You can manage your saved chats and account details in Settings.</p>
+      <p>We keep anonymous daily counts of how the site is used. <a href="{{ url_for('main.privacy') }}">See what we count</a></p>
       <p>Download your chat history or request account deletion there.{{ info_tip("Deletion happens 30 days after you ask, and you can cancel any time before then.") }}</p>
     </section>
   </main>
 
   <footer>
-    <p>{{ short_disclaimer }} Facing eviction or a court deadline? Contact a housing attorney.</p>
+    <p>{{ short_disclaimer }} Facing eviction or a court deadline? Contact a housing attorney. <a href="{{ url_for('main.privacy') }}">{{ privacy_label }}</a></p>
   </footer>
   {{ info_assets() }}
 </body>
