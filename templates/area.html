@@ -9,8 +9,8 @@
   <meta name="theme-color" content="#eef1f5" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ product_name }} | {% if report %}{{ report.label }}{% else %}What's on your street?{% endif %}</title>
-  <meta name="description" content="Enter a NYC street and borough to see its representatives, community board and buildings. Free, no account needed.">
+  <title>{{ product_name }} | {% if report %}{{ report.label }}{% else %}{{ _("What's on your street?") }}{% endif %}</title>
+  <meta name="description" content="{{ _("Enter a NYC street and borough to see its representatives, community board and buildings. Free, no account needed.") }}">
   <script>
     (function () {
       var saved = null;
@@ -360,15 +360,15 @@
       <span class="brand-mark" aria-hidden="true">{{ logo_monogram }}</span>
       <span class="brand-name">{{ product_name }}</span>
     </a>
-    <nav aria-label="Site">
+    <nav aria-label="{{ _("Site") }}">
       {{ language_form() }}
-      <a href="{{ url_for('main.resources') }}">Resources</a>
+      <a href="{{ url_for('main.resources') }}">{{ _("Resources") }}</a>
       <a class="hide-narrow" href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a>
       {% if logged_in %}
-        <a class="primary" href="{{ url_for('main.chat') }}">Open chat</a>
+        <a class="primary" href="{{ url_for('main.chat') }}">{{ _("Open chat") }}</a>
       {% else %}
-        <a class="hide-narrow" href="{{ url_for('main.login') }}">Log in</a>
-        <a class="primary" href="{{ url_for('main.signup') }}">Sign up free</a>
+        <a class="hide-narrow" href="{{ url_for('main.login') }}">{{ _("Log in") }}</a>
+        <a class="primary" href="{{ url_for('main.signup') }}">{{ _("Sign up free") }}</a>
       {% endif %}
     </nav>
   </header>
@@ -376,40 +376,40 @@
   <main>
     {% if not report %}
       <div>
-        <h1>What's on your street?</h1>
-        <p class="lede">Enter your street and borough. No house number needed.</p>
+        <h1>{{ _("What's on your street?") }}</h1>
+        <p class="lede">{{ _("Enter your street and borough. No house number needed.") }}</p>
       </div>
     {% endif %}
 
     <form class="card lookup-form" method="GET" action="{{ url_for('main.area_lookup') }}" role="search" data-lookup-form>
       <div class="field-row two">
         <div>
-          <label for="street">Street</label>
-          <input type="text" id="street" name="street" value="{{ street }}" placeholder="Echo Place" maxlength="{{ max_street_length }}" autocomplete="off" required>
+          <label for="street">{{ _("Street") }}</label>
+          <input type="text" id="street" name="street" value="{{ street }}" placeholder="{{ _("Echo Place") }}" maxlength="{{ max_street_length }}" autocomplete="off" required>
         </div>
         <div>
-          <label for="borough">Borough</label>
+          <label for="borough">{{ _("Borough") }}</label>
           <select id="borough" name="borough" required>
-            <option value="">Choose a borough</option>
+            <option value="">{{ _("Choose a borough") }}</option>
             {% for name in boroughs %}<option value="{{ name }}"{% if name == borough %} selected{% endif %}>{{ name }}</option>{% endfor %}
           </select>
         </div>
       </div>
       <details class="more-fields"{% if zip_code or cross or (report and report.spans_districts) or narrow_error %} open{% endif %}>
-        <summary>Add a ZIP code or cross street (optional)</summary>
+        <summary>{{ _("Add a ZIP code or cross street (optional)") }}</summary>
         <div class="field-row two">
           <div>
-            <label for="cross">Cross street</label>
-            <input type="text" id="cross" name="cross" value="{{ cross }}" placeholder="Grand Concourse" maxlength="{{ max_street_length }}" autocomplete="off">
+            <label for="cross">{{ _("Cross street") }}</label>
+            <input type="text" id="cross" name="cross" value="{{ cross }}" placeholder="{{ _("Grand Concourse") }}" maxlength="{{ max_street_length }}" autocomplete="off">
           </div>
           <div>
-            <label for="zip">ZIP code</label>
+            <label for="zip">{{ _("ZIP code") }}</label>
             <input type="text" id="zip" name="zip" value="{{ zip_code }}" placeholder="10457" maxlength="5" inputmode="numeric" pattern="[0-9]{5}" autocomplete="postal-code">
           </div>
         </div>
       </details>
-      <div><button type="submit">Look up</button></div>
-      <p class="hint">Know your building number? <a href="{{ url_for('main.building_lookup') }}">Search by address</a></p>
+      <div><button type="submit">{{ _("Look up") }}</button></div>
+      <p class="hint">{{ _("Know your building number?") }} <a href="{{ url_for('main.building_lookup') }}">{{ _("Search by address") }}</a></p>
     </form>
 
     {% if error %}
@@ -421,10 +421,10 @@
 
     {% if suggestions %}
       <section class="card did-you-mean" aria-labelledby="did-you-mean">
-        <h2 id="did-you-mean">Did you mean</h2>
+        <h2 id="did-you-mean">{{ _("Did you mean") }}</h2>
         <ul>
           {% for s in suggestions %}
-            <li><a href="{{ url_for('main.area_lookup', street=s.street_label, borough=s.borough, zip=(zip_code or none) if not s.other_borough else none, cross=(cross or none) if not s.other_borough else none) }}">{{ s.label }}</a>{% if s.other_borough %}<span class="where">A different borough</span>{% endif %}</li>
+            <li><a href="{{ url_for('main.area_lookup', street=s.street_label, borough=s.borough, zip=(zip_code or none) if not s.other_borough else none, cross=(cross or none) if not s.other_borough else none) }}">{{ s.label }}</a>{% if s.other_borough %}<span class="where">{{ _("A different borough") }}</span>{% endif %}</li>
           {% endfor %}
         </ul>
       </section>
@@ -434,33 +434,33 @@
       <section class="card" aria-labelledby="area-label">
         <h1 class="match-label" id="area-label">{{ report.label }}</h1>
         <p class="match-meta">
-          {{ report.summary }}{% if report.zoning %} · zoned {{ report.zoning }}{{ info_tip("Zoning: " ~ report.zoning_codes|join(", ")) }}{% endif %}
+          {{ report.summary }}{% if report.zoning %} · {{ _("zoned") }} {{ report.zoning }}{{ info_tip(gettext("Zoning: %(codes)s", codes=report.zoning_codes|join(", "))) }}{% endif %}
         </p>
         {% if report.cross_street or report.zip_code %}
-          <p class="match-meta">{% if report.cross_street %}Near {{ display_street(report.cross_street) }}{% endif %}{% if report.cross_street and report.zip_code %} · {% endif %}{% if report.zip_code %}ZIP {{ report.zip_code }}{% endif %}</p>
+          <p class="match-meta">{% if report.cross_street %}{{ _("Near") }} {{ display_street(report.cross_street) }}{% endif %}{% if report.cross_street and report.zip_code %} · {% endif %}{% if report.zip_code %}{{ _("ZIP") }} {{ report.zip_code }}{% endif %}</p>
         {% endif %}
       </section>
 
       {% if report.spans_districts %}
         <div class="alert warning" role="note">
-          <strong>This street crosses more than one district.</strong>
-          <p>Add your cross street or ZIP code above to narrow it down.</p>
+          <strong>{{ _("This street crosses more than one district.") }}</strong>
+          <p>{{ _("Add your cross street or ZIP code above to narrow it down.") }}</p>
         </div>
       {% endif %}
 
       <section class="card" aria-labelledby="reps-heading">
-        <h2 id="reps-heading">Your representatives</h2>
+        <h2 id="reps-heading">{{ _("Your representatives") }}</h2>
         <ul class="reps">
           {% for o in report.officials %}
             <li>
-              <span class="rep-title">{{ office_titles[o.office] }} · District {{ o.district }}</span>
-              <a href="{{ o.url }}" target="_blank" rel="noopener noreferrer">{% if o.name %}{{ o.name }}{% elif o.office == "congress" %}Find your representative{% else %}See who represents District {{ o.district }}{% endif %}</a>
+              <span class="rep-title">{{ office_titles[o.office] }} · {{ _("District") }} {{ o.district }}</span>
+              <a href="{{ o.url }}" target="_blank" rel="noopener noreferrer">{% if o.name %}{{ o.name }}{% elif o.office == "congress" %}{{ _("Find your representative") }}{% else %}{{ _("See who represents District") }} {{ o.district }}{% endif %}</a>
             </li>
           {% else %}
-            <li class="hint">District information is unavailable right now. Please try again later.</li>
+            <li class="hint">{{ _("District information is unavailable right now. Please try again later.") }}</li>
           {% endfor %}
         </ul>
-        {% if report.officials_as_of_label %}<p class="hint">Updated {{ report.officials_as_of_label }}.{{ info_tip("We check for changes after every election.") }}</p>{% endif %}
+        {% if report.officials_as_of_label %}<p class="hint">{{ _("Updated %(officials_as_of_label)s.", officials_as_of_label=report.officials_as_of_label) }}{{ info_tip(gettext("We check for changes after every election.")) }}</p>{% endif %}
       </section>
 
       {% for b in report.community_boards %}
@@ -468,58 +468,58 @@
           <h2>{{ b.name }}</h2>
           {% if b.neighborhoods %}<p>{{ b.neighborhoods }}</p>{% endif %}
           <dl>
-            {% if b.phone %}<dt>Phone</dt><dd><a href="tel:{{ b.phone|replace(' ', '')|replace('(', '')|replace(')', '')|replace('-', '') }}">{{ b.phone }}</a></dd>{% endif %}
-            {% if b.email %}<dt>Email</dt><dd><a href="mailto:{{ b.email }}">{{ b.email }}</a></dd>{% endif %}
-            {% if b.address %}<dt>Office</dt><dd>{{ b.address }}</dd>{% endif %}
-            {% if b.meeting %}<dt>Meets</dt><dd>{{ b.meeting }}</dd>{% endif %}
-            {% if b.website %}<dt>Website</dt><dd><a href="{{ b.website }}" target="_blank" rel="noopener noreferrer">Visit</a></dd>{% endif %}
+            {% if b.phone %}<dt>{{ _("Phone") }}</dt><dd><a href="tel:{{ b.phone|replace(' ', '')|replace('(', '')|replace(')', '')|replace('-', '') }}">{{ b.phone }}</a></dd>{% endif %}
+            {% if b.email %}<dt>{{ _("Email") }}</dt><dd><a href="mailto:{{ b.email }}">{{ b.email }}</a></dd>{% endif %}
+            {% if b.address %}<dt>{{ _("Office") }}</dt><dd>{{ b.address }}</dd>{% endif %}
+            {% if b.meeting %}<dt>{{ _("Meets") }}</dt><dd>{{ b.meeting }}</dd>{% endif %}
+            {% if b.website %}<dt>{{ _("Website") }}</dt><dd><a href="{{ b.website }}" target="_blank" rel="noopener noreferrer">{{ _("Visit") }}</a></dd>{% endif %}
           </dl>
         </section>
       {% endfor %}
 
-      <section class="card" aria-label="Area facts">
+      <section class="card" aria-label="{{ _("Area facts") }}">
         <dl class="facts">
-          {% if report.zip_codes %}<div><dt>ZIP code{{ "s" if report.zip_codes|length > 1 }}</dt><dd>{{ report.zip_codes|join(", ") }}</dd></div>{% endif %}
-          {% if report.precincts %}<div><dt>Police precinct{{ "s" if report.precincts|length > 1 }}</dt><dd>{{ report.precincts|join(", ") }}</dd></div>{% endif %}
-          {% if report.school_districts %}<div><dt>School district{{ "s" if report.school_districts|length > 1 }}</dt><dd>{{ report.school_districts|join(", ") }}</dd></div>{% endif %}
-          {% if report.community_districts %}<div><dt>Community district{{ "s" if report.community_districts|length > 1 }}</dt><dd>{% for cd in report.community_districts %}{{ cd[1:]|int }}{{ ", " if not loop.last }}{% endfor %}</dd></div>{% endif %}
+          {% if report.zip_codes %}<div><dt>{{ _("ZIP codes") if report.zip_codes|length > 1 else _("ZIP code") }}</dt><dd>{{ report.zip_codes|join(", ") }}</dd></div>{% endif %}
+          {% if report.precincts %}<div><dt>{{ _("Police precincts") if report.precincts|length > 1 else _("Police precinct") }}</dt><dd>{{ report.precincts|join(", ") }}</dd></div>{% endif %}
+          {% if report.school_districts %}<div><dt>{{ _("School districts") if report.school_districts|length > 1 else _("School district") }}</dt><dd>{{ report.school_districts|join(", ") }}</dd></div>{% endif %}
+          {% if report.community_districts %}<div><dt>{{ _("Community districts") if report.community_districts|length > 1 else _("Community district") }}</dt><dd>{% for cd in report.community_districts %}{{ cd[1:]|int }}{{ ", " if not loop.last }}{% endfor %}</dd></div>{% endif %}
         </dl>
       </section>
 
       <section class="card" aria-labelledby="bldg-heading">
-        <h2 id="bldg-heading">Homes on this street</h2>
+        <h2 id="bldg-heading">{{ _("Homes on this street") }}</h2>
         {% if report.buildings %}
-          <p class="hint">Tap your building to see its open violations.{% if not report.violations_available %} Violation counts are unavailable right now.{% endif %}</p>
+          <p class="hint">{{ _("Tap your building to see its open violations.") }}{% if not report.violations_available %} {{ _("Violation counts are unavailable right now.") }}{% endif %}</p>
           <ul class="buildings">
             {% for b in report.buildings %}
               <li>
                 <div>
                   <a href="{{ url_for('main.building_lookup', address=b.address ~ ', ' ~ report.borough) }}">{{ b.address }}</a>
-                  {% if b.homes %}<div class="bldg-meta">{{ b.homes }} home{{ "s" if b.homes != 1 }}</div>{% endif %}
+                  {% if b.homes %}<div class="bldg-meta">{{ _("%(count)s home", count=b.homes) if b.homes == 1 else _("%(count)s homes", count=b.homes) }}</div>{% endif %}
                 </div>
                 {% if report.violations_available %}
                   <div class="counts">
                     {% if b.open_total %}
-                      {% if b.open_counts.get("C") %}<span class="count c">{{ b.open_counts["C"] }} hazardous</span>{% endif %}
-                      <span class="count">{{ b.open_total }} open</span>
+                      {% if b.open_counts.get("C") %}<span class="count c">{{ b.open_counts["C"] }} {{ _("hazardous") }}</span>{% endif %}
+                      <span class="count">{{ b.open_total }} {{ _("open") }}</span>
                     {% else %}
-                      <span class="count none">None open</span>
+                      <span class="count none">{{ _("None open") }}</span>
                     {% endif %}
                   </div>
                 {% endif %}
               </li>
             {% endfor %}
           </ul>
-          {% if report.buildings_total > report.buildings|length %}<p class="more">Showing {{ report.buildings|length }} of {{ report.buildings_total }}. Add a cross street to narrow it down.</p>{% endif %}
+          {% if report.buildings_total > report.buildings|length %}<p class="more">{{ _("Showing %(value)s of %(buildings_total)s. Add a cross street to narrow it down.", value=report.buildings|length, buildings_total=report.buildings_total) }}</p>{% endif %}
         {% else %}
-          <p class="hint">No homes are recorded on this part of the street.</p>
+          <p class="hint">{{ _("No homes are recorded on this part of the street.") }}</p>
         {% endif %}
       </section>
 
-      <p class="hint"><a href="{{ url_for('main.resources', borough=report.borough, cd=report.community_districts[0] if report.community_districts else None) }}">Local resources for this area</a></p>
+      <p class="hint"><a href="{{ url_for('main.resources', borough=report.borough, cd=report.community_districts[0] if report.community_districts else None) }}">{{ _("Local resources for this area") }}</a></p>
 
       <div class="source-note">
-        <p>From public City and State records.{% call info_tip(label="About this data") %}Property, district, community board and violation records published by the City of New York, and member lists published by the State. "Hazardous" counts Class C violations, the most serious kind.{% endcall %}</p>
+        <p>{{ _("From public City and State records.") }}{% call info_tip(label=gettext("About this data")) %}{{ _("Property, district, community board and violation records published by the City of New York, and member lists published by the State. \"Hazardous\" counts Class C violations, the most serious kind.") }}{% endcall %}</p>
       </div>
     {% endif %}
   </main>
@@ -535,7 +535,7 @@
           var button = form.querySelector("button[type=submit]");
           if (button) {
             button.disabled = true;
-            button.textContent = "Looking up…";
+            button.textContent = {{ gettext("Looking up…")|tojson }};
           }
         });
       }

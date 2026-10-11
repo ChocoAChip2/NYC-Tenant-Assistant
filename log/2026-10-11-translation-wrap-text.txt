@@ -1,0 +1,58 @@
+2026-10-11  All page text wrapped for translation; decisions changed
+
+Request (owner, updated brief): finish the five-language work. This is
+step 1 of it: wrap the remaining text. English is unchanged and no other
+language is live.
+
+Decisions that changed (owner, 2026-10-11, after the foundation merged)
+- Machine translation, with no fluent-reader approval gate. English stays
+  the reference: translated pages will say so and link to English, and
+  high-stakes wording will show its English original. REVIEW in the
+  catalogues now means "shown with its English original".
+- Simplified Chinese only. zh_Hant stays defined, never live, catalogue
+  empty. A browser asking for Traditional Chinese gets Simplified.
+- Sign-in, confirmation, reset and code emails stay English.
+
+Changed
+- Templates: every piece of literal text and every placeholder,
+  aria-label, title, alt and chip prompt goes through _(). About 470
+  strings were wrapped by a one-off script and the rest by hand: plurals
+  became two whole messages, sentences with a value in them became one
+  message with a placeholder, the "i" button texts and hidden chip titles.
+- Scripts: strings shown to people come from the catalogue
+  ({{ gettext(...)|tojson }}); built sentences use a placeholder; dates
+  formatted in scripts follow the page language.
+- Python: JSON error messages, lookup error titles and the two assistant
+  messages written by the app in routes.py and case_routes.py; messages
+  raised in profile_service, account_requirements, case_context,
+  form_review, form_service, area_service, building_service; the error
+  page table; the labels of "Your data" and the RA-81 review screen where
+  they are shown.
+- i18n.py: templates translate through markup_gettext, so English output
+  is byte for byte what it was; mark(); the extractor also reads ordinary
+  calls in a constants file; Traditional falls back to Simplified.
+- The language menu drops to its own row at 700 px and below.
+- translations/: 699 messages, 117 marked REVIEW (the RA-81 review
+  screen's labels and messages joined them). Catalogues still empty.
+
+Evidence
+- Full suite on the Mac: 1122 OK (1 skipped); 1115 on main before. Two
+  existing tests changed: one read a template's source text, and the
+  catalogue rule "not live means empty" now applies to zh_Hant only.
+- New tests: no literal text left between tags or in shown or spoken
+  attributes in any template; script strings come from the catalogue;
+  messages raised in other modules are in the catalogue template;
+  translations may not contain "<" or ">" and must keep their source's
+  placeholders; Traditional falls back to Simplified.
+- The wrapping script was rerun over its own output and changed nothing.
+
+Not verified
+- Pages were not looked at one by one after wrapping. The suite renders
+  most of them in English and its ~570 text assertions pass unchanged.
+- The menu's new position was looked at on one page at 390 px.
+
+Known rough edges
+- A sentence with a link or bold text in the middle is several messages,
+  so word order cannot change across the pieces.
+- Text the assistant model writes, and anything already saved in a chat,
+  is not translated by this and was never meant to be.

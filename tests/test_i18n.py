@@ -158,6 +158,13 @@ class ChoosingTheLanguageTests(_Case):
             with self.subTest(header=header):
                 self.assertEqual(i18n.from_accept_language(header), expected)
 
+    def test_a_browser_asking_for_traditional_chinese_gets_simplified_when_only_that_is_live(self):
+        with mock.patch.object(i18n, "LIVE_LANGUAGES", ("en", "es", "zh_Hans")):
+            for header in ("zh-TW", "zh-HK,zh;q=0.9", "zh-Hant", "zh-Hant-US,en;q=0.5", "zh-CN", "zh"):
+                with self.subTest(header=header):
+                    self.assertEqual(i18n.from_accept_language(header), "zh_Hans")
+            self.assertEqual(i18n.from_accept_language("en,zh-TW;q=0.5"), "en")
+
     def test_junk_in_the_cookie_or_session_is_ignored(self):
         client = self.app().test_client()
         client.set_cookie(i18n.COOKIE_NAME, "<script>")
@@ -372,13 +379,81 @@ class CatalogueTests(unittest.TestCase):
                     self.assertTrue(message.string, f"{code}: {str(message.id)[:40]!r} is live but untranslated")
                     self.assertFalse(message.fuzzy, f"{code}: {str(message.id)[:40]!r} is still marked fuzzy")
 
-    def test_catalogues_that_are_not_live_hold_no_unreviewed_translations(self):
-        for code in i18n.LANGUAGES:
-            if code == "en" or code in i18n.LIVE_LANGUAGES:
-                continue
-            filled = [m.id for m in self.read(code) if m.id and m.string]
-            self.assertEqual(filled, [], f"{code} has translations but is not live")
+    def test_traditional_chinese_is_defined_but_never_live_and_stays_empty(self):
+        self.assertIn("zh_Hant", i18n.LANGUAGES)
+        self.assertNotIn("zh_Hant", i18n.LIVE_LANGUAGES)
+        self.assertEqual([m.id for m in self.read("zh_Hant") if m.id and m.string], [])
 
+    def test_translations_keep_their_placeholders_and_hold_no_markup(self):
+        """Template text is trusted as markup once translated (i18n.markup_gettext),
+        so a translation may never introduce a tag, and must keep every
+        %(name)s of its source or the page would fail to render."""
+        for code in i18n.LANGUAGES:
+            if code == "en":
+                continue
+            for message in self.read(code):
+                if not message.id or not message.string:
+                    continue
+                with self.subTest(code=code, id=str(message.id)[:40]):
+                    self.assertNotRegex(message.string, r"[<>]")
+                    self.assertEqual(sorted(re.findall(r"%\(\w+\)s", message.string)),
+                                     sorted(re.findall(r"%\(\w+\)s", message.id)))
+
+    def test_the_source_text_holds_no_markup_either(self):
+        with open(os.path.join(_TRANSLATIONS, "messages.pot"), "rb") as handle:
+            for message in read_po(handle):
+                if message.id:
+                    self.assertNotRegex(message.id, r"<[a-zA-Z/]", str(message.id)[:60])
+
+
+class NothingLeftUnwrappedTests(unittest.TestCase):
+    """Every piece of literal page text goes through _() or gettext()."""
+
+    SKIP = re.compile(r"<(style|script|svg)\b.*?</\1>|\{#.*?#\}", re.S)
+    JINJA = re.compile(r"\{\{.*?\}\}|\{%.*?%\}", re.S)
+    ATTRIBUTE = re.compile(r'\b(placeholder|aria-label|title|alt|data-prompt)="([^"]*)"')
+
+    def sources(self):
+        for path in sorted(glob.glob(os.path.join(_TEMPLATES, "*.html"))):
+            with open(path, encoding="utf-8") as handle:
+                yield os.path.basename(path), self.SKIP.sub("", handle.read())
+
+    def test_no_literal_text_between_tags(self):
+        for name, source in self.sources():
+            attributes_removed = self.ATTRIBUTE.sub("", source)
+            bare = self.JINJA.sub("\x00", attributes_removed)
+            text_only = re.sub(r"<[^<>]*>", "\x01", bare)
+            text_only = re.sub(r"&[#A-Za-z0-9]+;", "", text_only)
+            for found in re.findall(r"[A-Za-z][A-Za-z' ,.\-]{2,}", text_only):
+                self.fail(f"{name}: literal text {found.strip()!r} is not wrapped for translation")
+
+    def test_no_literal_text_in_spoken_or_shown_attributes(self):
+        for name, source in self.sources():
+            for attribute, value in self.ATTRIBUTE.findall(source):
+                literal = self.JINJA.sub("", value)
+                self.assertNotRegex(literal, r"[A-Za-z]{3}", f"{name}: {attribute}={value[:50]!r}")
+
+    def test_script_strings_shown_to_people_come_from_the_catalogue(self):
+        with open(os.path.join(_TEMPLATES, "chat.html"), encoding="utf-8") as handle:
+            chat = handle.read()
+        for text in ("Assistant is thinking", "Good morning", "Connection interrupted. Your message is still below; please try again.",
+                     "Saved. Your next reply will use it.", "%(count)s characters left", "Review RA-81 draft %(number)s"):
+            self.assertIn('{{ gettext("%s")|tojson }}' % text, chat)
+        for name, source in ((n, s) for n, s in ((os.path.basename(p), open(p, encoding="utf-8").read())
+                                                 for p in glob.glob(os.path.join(_TEMPLATES, "*.html")))):
+            for block in re.findall(r"<script\b[^>]*>(.*?)</script>", source, re.S):
+                for literal in re.findall(r'(?<!gettext\()"([A-Z][a-z]+(?: [a-z\']+){2,}[.…]?)"', block):
+                    self.fail(f"{name}: script string {literal!r} is not passed through gettext")
+
+    def test_messages_raised_in_other_modules_are_in_the_template(self):
+        with open(os.path.join(_TRANSLATIONS, "messages.pot"), "rb") as handle:
+            ids = {message.id for message in read_po(handle)}
+        for text in ("Please enter your %(label)s.", "first name", "Choose a borough.", "Enter a street name.",
+                     "Include the building number, e.g. 231 Echo Place, Bronx.", "%(label)s must be %(limit)s characters or fewer.",
+                     "Review the details and check the confirmation box before downloading.", "your full name",
+                     "We couldn't find that page", "Full name", "Owner or agent", "Certified mail", "Apartment status",
+                     "Your name and date of birth", "Message is too long (max %(limit)s characters).", "Conversation not found."):
+            self.assertIn(text, ids)
 
 if __name__ == "__main__":
     unittest.main()

@@ -5,11 +5,11 @@
     <div class="chips">{% for c in v.citations %}{% set href = chip_links.get(c) if chip_links else None %}{% if href %}<a class="chip" href="{{ href }}">{{ c }}</a>{% else %}<span class="chip">{{ c }}</span>{% endif %}{% endfor %}</div>
   {% endif %}
   <div class="violation-meta">
-    {% if v.inspection_date %}<span>Inspected {{ format_date(v.inspection_date, "medium") }}</span>{% endif %}
-    {% if v.apartment %}<span>Apt {{ v.apartment }}</span>{% endif %}
-    {% if v.story %}<span>Floor {{ v.story }}</span>{% endif %}
+    {% if v.inspection_date %}<span>{{ _("Inspected") }} {{ format_date(v.inspection_date, "medium") }}</span>{% endif %}
+    {% if v.apartment %}<span>{{ _("Apt") }} {{ v.apartment }}</span>{% endif %}
+    {% if v.story %}<span>{{ _("Floor") }} {{ v.story }}</span>{% endif %}
     <span>{{ v.status }}</span>
-    {% if v.certified %}<span class="badge certified">Certified by landlord</span>{% endif %}
-    {% if v.rent_impairing %}<span class="badge rent">Rent impairing</span>{% endif %}
+    {% if v.certified %}<span class="badge certified">{{ _("Certified by landlord") }}</span>{% endif %}
+    {% if v.rent_impairing %}<span class="badge rent">{{ _("Rent impairing") }}</span>{% endif %}
   </div>
 </div>

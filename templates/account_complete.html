@@ -11,7 +11,7 @@
   <meta name="theme-color" content="#eef1f5" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ product_name }} | A few details</title>
+  <title>{{ product_name }} | {{ _("A few details") }}</title>
   <script>
     (function () {
       var saved = null;
@@ -278,8 +278,8 @@
       <span class="brand-name">{{ product_name }}</span>
     </div>
 
-    <h1>A few details before you continue</h1>
-    <p class="subtitle">This only takes a moment.</p>
+    <h1>{{ _("A few details before you continue") }}</h1>
+    <p class="subtitle">{{ _("This only takes a moment.") }}</p>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -294,22 +294,22 @@
       <input type="hidden" name="next" value="{{ next_url }}">
       {% for requirement in requirements %}
       <section class="requirement" id="requirement-{{ requirement.key }}">
-        <h2>{{ requirement.title }}</h2>
-        <p class="why">{{ requirement.why }}{% if requirement.why_detail %}{{ info_tip(requirement.why_detail) }}{% endif %}</p>
+        <h2>{{ gettext(requirement.title) }}</h2>
+        <p class="why">{{ gettext(requirement.why) }}{% if requirement.why_detail %}{{ info_tip(gettext(requirement.why_detail)) }}{% endif %}</p>
         {% include requirement.template %}
       </section>
       {% endfor %}
       <div class="actions">
-        <button class="primary" type="submit" name="action" value="save">Save and continue</button>
+        <button class="primary" type="submit" name="action" value="save">{{ _("Save and continue") }}</button>
         {% if can_skip %}
-        <button class="secondary" type="submit" name="action" value="skip" formnovalidate>Remind me next time</button>
+        <button class="secondary" type="submit" name="action" value="skip" formnovalidate>{{ _("Remind me next time") }}</button>
         {% endif %}
       </div>
     </form>
 
     <form method="POST" action="{{ url_for('main.logout') }}" class="footer-link">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      Not you? <button type="submit" class="link-button">Log out</button>
+      {{ _("Not you?") }} <button type="submit" class="link-button">{{ _("Log out") }}</button>
     </form>
   </div>
   {{ language_form() }}
@@ -326,7 +326,7 @@
       hidden.name = "action";
       hidden.value = "save";
       event.target.appendChild(hidden);
-      btn.textContent = "Saving…";
+      btn.textContent = {{ gettext("Saving…")|tojson }};
     });
   </script>
   {{ info_assets() }}

@@ -9,8 +9,8 @@
   <meta name="theme-color" content="#eef1f5" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ product_name }} | {% if report %}{{ report.match.label }}{% else %}Look up your building{% endif %}</title>
-  <meta name="description" content="See every open NYC housing violation HPD has on record for your building. Free, no account needed.">
+  <title>{{ product_name }} | {% if report %}{{ report.match.label }}{% else %}{{ _("Look up your building") }}{% endif %}</title>
+  <meta name="description" content="{{ _("See every open NYC housing violation HPD has on record for your building. Free, no account needed.") }}">
   <script>
     (function () {
       var saved = null;
@@ -320,15 +320,15 @@
       <span class="brand-mark" aria-hidden="true">{{ logo_monogram }}</span>
       <span class="brand-name">{{ product_name }}</span>
     </a>
-    <nav aria-label="Site">
+    <nav aria-label="{{ _("Site") }}">
       {{ language_form() }}
-      <a href="{{ url_for('main.resources') }}">Resources</a>
+      <a href="{{ url_for('main.resources') }}">{{ _("Resources") }}</a>
       <a class="hide-narrow" href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a>
       {% if logged_in %}
-        <a class="primary" href="{{ url_for('main.chat') }}">Open chat</a>
+        <a class="primary" href="{{ url_for('main.chat') }}">{{ _("Open chat") }}</a>
       {% else %}
-        <a class="hide-narrow" href="{{ url_for('main.login') }}">Log in</a>
-        <a class="primary" href="{{ url_for('main.signup') }}">Sign up free</a>
+        <a class="hide-narrow" href="{{ url_for('main.login') }}">{{ _("Log in") }}</a>
+        <a class="primary" href="{{ url_for('main.signup') }}">{{ _("Sign up free") }}</a>
       {% endif %}
     </nav>
   </header>
@@ -336,24 +336,24 @@
   <main>
     {% if not report %}
       <div>
-        <h1>What does the city already know about your building?</h1>
-        <p class="lede">See open housing violations for any NYC address. Free, no account needed.</p>
+        <h1>{{ _("What does the city already know about your building?") }}</h1>
+        <p class="lede">{{ _("See open housing violations for any NYC address. Free, no account needed.") }}</p>
       </div>
     {% endif %}
 
     <form class="card lookup-form" method="GET" action="{{ url_for('main.building_lookup') }}" role="search" data-lookup-form>
       <div class="field-row">
         <div>
-          <label for="address">Building address</label>
-          <input type="text" id="address" name="address" value="{{ address }}" placeholder="231 Echo Place, Bronx" autocomplete="street-address" maxlength="{{ max_address_length }}" required>
+          <label for="address">{{ _("Building address") }}</label>
+          <input type="text" id="address" name="address" value="{{ address }}" placeholder="{{ _("231 Echo Place, Bronx") }}" autocomplete="street-address" maxlength="{{ max_address_length }}" required>
         </div>
         <div>
-          <label for="apt">Apartment <span class="optional">(optional)</span></label>
+          <label for="apt">{{ _("Apartment") }} <span class="optional">{{ _("(optional)") }}</span></label>
           <input type="text" id="apt" name="apt" value="{{ apt }}" placeholder="4B" maxlength="{{ max_apartment_length }}" autocomplete="off">
         </div>
       </div>
-      <p class="hint">Include the house number. Borough or ZIP helps. Rather not? <a href="{{ url_for('main.home') }}">Search by street</a></p>
-      <div><button type="submit">Look up</button></div>
+      <p class="hint">{{ _("Include the house number. Borough or ZIP helps. Rather not?") }} <a href="{{ url_for('main.home') }}">{{ _("Search by street") }}</a></p>
+      <div><button type="submit">{{ _("Look up") }}</button></div>
     </form>
 
     {% if error %}
@@ -365,12 +365,12 @@
 
     {% if suggestions %}
       <section class="card did-you-mean" aria-labelledby="did-you-mean">
-        <h2 id="did-you-mean">Did you mean</h2>
+        <h2 id="did-you-mean">{{ _("Did you mean") }}</h2>
         <ul>
           {% for s in suggestions %}
             <li>
               {% if s.address %}<a href="{{ url_for('main.building_lookup', address=s.address, apt=apt or none) }}">{{ s.address }}</a>{% endif %}
-              <a{% if s.address %} class="minor"{% endif %} href="{{ url_for('main.area_lookup', street=s.street_label, borough=s.borough) }}">{% if s.address %}All buildings on {{ s.street_label }}{% else %}Buildings on {{ s.street_label }}, {{ s.borough }}{% endif %}</a>
+              <a{% if s.address %} class="minor"{% endif %} href="{{ url_for('main.area_lookup', street=s.street_label, borough=s.borough) }}">{% if s.address %}{{ _("All buildings on") }} {{ s.street_label }}{% else %}{{ _("Buildings on %(street_label)s,", street_label=s.street_label) }} {{ s.borough }}{% endif %}</a>
             </li>
           {% endfor %}
         </ul>
@@ -379,8 +379,8 @@
 
     {% if shown_instead %}
       <div class="alert warning" role="status">
-        <strong>We couldn't find {{ shown_instead.requested }}</strong>
-        <p>Showing {{ shown_instead.shown }}.{% if shown_instead.borough %} <a href="{{ url_for('main.area_lookup', street=shown_instead.street, borough=shown_instead.borough) }}">See all buildings on {{ shown_instead.street }}</a>{% endif %}</p>
+        <strong>{{ _("We couldn't find") }} {{ shown_instead.requested }}</strong>
+        <p>{{ _("Showing %(shown)s.", shown=shown_instead.shown) }}{% if shown_instead.borough %} <a href="{{ url_for('main.area_lookup', street=shown_instead.street, borough=shown_instead.borough) }}">{{ _("See all buildings on") }} {{ shown_instead.street }}</a>{% endif %}</p>
       </div>
     {% endif %}
 
@@ -388,96 +388,96 @@
       <section class="card" aria-labelledby="match-label">
         <h1 class="match-label" id="match-label">{{ report.match.label }}</h1>
         <p class="match-meta">
-          {% if report.data_as_of %}City data as of {{ format_date(report.data_as_of) }}.{% else %}City data date unavailable.{% endif %}
-          Not your building? Add the borough or ZIP.
+          {% if report.data_as_of %}{{ _("City data as of %(value)s.", value=format_date(report.data_as_of)) }}{% else %}{{ _("City data date unavailable.") }}{% endif %}
+          {{ _("Not your building? Add the borough or ZIP.") }}
         </p>
 
         <div class="stats">
           <div class="stat class-c">
             <div class="stat-value">{{ report.open_counts.get("C", 0) }}</div>
-            <div class="stat-label">Open Class C<br>immediately hazardous</div>
+            <div class="stat-label">{{ _("Open Class C") }}<br>{{ _("immediately hazardous") }}</div>
           </div>
           <div class="stat class-b">
             <div class="stat-value">{{ report.open_counts.get("B", 0) }}</div>
-            <div class="stat-label">Open Class B<br>hazardous</div>
+            <div class="stat-label">{{ _("Open Class B") }}<br>{{ _("hazardous") }}</div>
           </div>
           <div class="stat">
             <div class="stat-value">{{ report.open_counts.get("A", 0) }}</div>
-            <div class="stat-label">Open Class A<br>non-hazardous</div>
+            <div class="stat-label">{{ _("Open Class A") }}<br>{{ _("non-hazardous") }}</div>
           </div>
           <div class="stat">
             <div class="stat-value">{{ report.open_total }}</div>
-            <div class="stat-label">Open in total</div>
+            <div class="stat-label">{{ _("Open in total") }}</div>
           </div>
         </div>
 
         {% if report.history_total %}
-          <p class="history">{{ report.history_total }} violation{{ "" if report.history_total == 1 else "s" }} issued at this building in the last two years{% if report.rent_impairing_open %}, and {{ report.rent_impairing_open }} open one{{ "" if report.rent_impairing_open == 1 else "s" }} the city classifies as <strong>rent impairing</strong>{% endif %}.</p>
+          <p class="history">{% if report.history_total == 1 %}{{ _("%(count)s violation issued at this building in the last two years", count=report.history_total) }}{% else %}{{ _("%(count)s violations issued at this building in the last two years", count=report.history_total) }}{% endif %}{% if report.rent_impairing_open %}{% if report.rent_impairing_open == 1 %}{{ _(", and %(count)s open one the city classifies as", count=report.rent_impairing_open) }}{% else %}{{ _(", and %(count)s open ones the city classifies as", count=report.rent_impairing_open) }}{% endif %} <strong>{{ _("rent impairing") }}</strong>{% endif %}.</p>
         {% endif %}
       </section>
 
       {% if report.open_total == 0 %}
         <div class="alert success">
-          <strong>No open violations on record.</strong>
-          <p>That doesn't mean nothing is wrong. Problem at home? Call 311 or <a href="https://portal.311.nyc.gov/" target="_blank" rel="noopener noreferrer">file online</a>.{% call info_tip() %}A 311 complaint asks HPD to inspect. Violations appear here only after an inspector records them.{% endcall %}</p>
+          <strong>{{ _("No open violations on record.") }}</strong>
+          <p>{{ _("That doesn't mean nothing is wrong. Problem at home? Call 311 or") }} <a href="https://portal.311.nyc.gov/" target="_blank" rel="noopener noreferrer">{{ _("file online") }}</a>.{% call info_tip() %}{{ _("A 311 complaint asks HPD to inspect. Violations appear here only after an inspector records them.") }}{% endcall %}</p>
         </div>
       {% endif %}
 
       {% if report.certified_open %}
         <div class="alert warning">
-          <strong>{{ report.certified_open }} {{ "is" if report.certified_open == 1 else "are" }} certified as fixed by the landlord.</strong>
-          <p>Still a problem? You can challenge it and HPD will re-inspect. <a href="{{ hpd_clear_violations_url }}" target="_blank" rel="noopener noreferrer">How it works</a>{% call info_tip() %}A certification is the owner telling HPD the problem is corrected. HPD says tenants are notified when this happens.{% endcall %}</p>
+          <strong>{% if report.certified_open == 1 %}{{ _("%(count)s is certified as fixed by the landlord.", count=report.certified_open) }}{% else %}{{ _("%(count)s are certified as fixed by the landlord.", count=report.certified_open) }}{% endif %}</strong>
+          <p>{{ _("Still a problem? You can challenge it and HPD will re-inspect.") }} <a href="{{ hpd_clear_violations_url }}" target="_blank" rel="noopener noreferrer">{{ _("How it works") }}</a>{% call info_tip() %}{{ _("A certification is the owner telling HPD the problem is corrected. HPD says tenants are notified when this happens.") }}{% endcall %}</p>
         </div>
       {% endif %}
 
       {% if report.apartment %}
         <section class="card class-group" aria-labelledby="apt-heading">
-          <h2 id="apt-heading">In apartment {{ report.apartment }}</h2>
+          <h2 id="apt-heading">{{ _("In apartment") }} {{ report.apartment }}</h2>
           {% if report.apartment_violations %}
-            <p class="class-deadline">{{ report.apartment_violations|length }} open in your unit.</p>
+            <p class="class-deadline">{{ report.apartment_violations|length }} {{ _("open in your unit.") }}</p>
             {% for v in report.apartment_violations %}
               {% include "_violation.html" %}
             {% endfor %}
           {% else %}
-            <p class="class-deadline">None recorded for your unit. Building-wide problems below can still affect you.{{ info_tip("Like the boiler, hallways or the roof.") }}</p>
+            <p class="class-deadline">{{ _("None recorded for your unit. Building-wide problems below can still affect you.") }}{{ info_tip(gettext("Like the boiler, hallways or the roof.")) }}</p>
           {% endif %}
         </section>
       {% endif %}
 
       <section class="card cta" aria-labelledby="cta-heading">
-        <h2 id="cta-heading">What do these mean for you?</h2>
-        <p>Ask {{ product_name }} what this record means and what your landlord must do.</p>
+        <h2 id="cta-heading">{{ _("What do these mean for you?") }}</h2>
+        <p>{{ _("Ask %(product_name)s what this record means and what your landlord must do.", product_name=product_name) }}</p>
         <div class="cta-actions">
           {% if logged_in %}
             <form method="POST" action="{{ url_for('main.create_conversation') }}" data-new-chat-form>
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <input type="hidden" name="title" value="{{ chat_title }}">
-              <button type="submit" data-prompt="{{ chat_prompt }}" data-title="{{ chat_title }}">Talk this through</button>
+              <button type="submit" data-prompt="{{ chat_prompt }}" data-title="{{ chat_title }}">{{ _("Talk this through") }}</button>
             </form>
           {% else %}
-            <a class="button" href="{{ url_for('main.signup') }}" data-prompt="{{ chat_prompt }}" data-title="{{ chat_title }}">Create a free account to talk this through</a>
-            <a class="button secondary" href="{{ url_for('main.login') }}" data-prompt="{{ chat_prompt }}" data-title="{{ chat_title }}">Log in</a>
+            <a class="button" href="{{ url_for('main.signup') }}" data-prompt="{{ chat_prompt }}" data-title="{{ chat_title }}">{{ _("Create a free account to talk this through") }}</a>
+            <a class="button secondary" href="{{ url_for('main.login') }}" data-prompt="{{ chat_prompt }}" data-title="{{ chat_title }}">{{ _("Log in") }}</a>
           {% endif %}
-          <a class="button secondary" href="https://portal.311.nyc.gov/" target="_blank" rel="noopener noreferrer">Report a new problem to 311</a>
+          <a class="button secondary" href="https://portal.311.nyc.gov/" target="_blank" rel="noopener noreferrer">{{ _("Report a new problem to 311") }}</a>
         </div>
       </section>
 
       {% for cls, info, items in report.open_by_class() %}
         <section class="card class-group" aria-labelledby="class-{{ cls }}">
-          <h2 id="class-{{ cls }}"><span class="class-pill {{ cls }}">{{ info.short }}</span> {{ info.name }} <span class="stat-label">({{ report.open_counts.get(cls, items|length) }} open)</span></h2>
+          <h2 id="class-{{ cls }}"><span class="class-pill {{ cls }}">{{ info.short }}</span> {{ info.name }} <span class="stat-label">{{ _("(%(value)s open)", value=report.open_counts.get(cls, items|length)) }}</span></h2>
           <p class="class-deadline">{{ info.deadline }}{% if info.deadline_detail %}{{ info_tip(info.deadline_detail) }}{% endif %}</p>
           {% for v in items[:max_per_class] %}
             {% include "_violation.html" %}
           {% endfor %}
           {% if report.open_counts.get(cls, items|length) > max_per_class %}
-            <p class="more">Showing the {{ max_per_class }} most recent of {{ report.open_counts.get(cls) }}. <a href="{{ dataset_url }}" target="_blank" rel="noopener noreferrer">Full list</a></p>
+            <p class="more">{{ _("Showing the %(max_per_class)s most recent of %(value)s.", max_per_class=max_per_class, value=report.open_counts.get(cls)) }} <a href="{{ dataset_url }}" target="_blank" rel="noopener noreferrer">{{ _("Full list") }}</a></p>
           {% endif %}
         </section>
       {% endfor %}
 
       <div class="source-note">
-        <p>Source: <a href="{{ dataset_url }}" target="_blank" rel="noopener noreferrer">HPD violations</a> on NYC Open Data, updated daily.{% call info_tip() %}New violations can take time to appear after an inspection. A closed violation wasn't necessarily re-inspected; many close when the owner certifies the repair.{% endcall %}</p>
-        {% if report.list_truncated %}<p>Not every violation is listed; the counts above are complete.</p>{% endif %}
+        <p>{{ _("Source:") }} <a href="{{ dataset_url }}" target="_blank" rel="noopener noreferrer">{{ _("HPD violations") }}</a> {{ _("on NYC Open Data, updated daily.") }}{% call info_tip() %}{{ _("New violations can take time to appear after an inspection. A closed violation wasn't necessarily re-inspected; many close when the owner certifies the repair.") }}{% endcall %}</p>
+        {% if report.list_truncated %}<p>{{ _("Not every violation is listed; the counts above are complete.") }}</p>{% endif %}
       </div>
     {% endif %}
   </main>
@@ -494,7 +494,7 @@
           var button = form.querySelector("button");
           if (button) {
             button.disabled = true;
-            button.textContent = "Looking up…";
+            button.textContent = {{ gettext("Looking up…")|tojson }};
           }
         });
       }

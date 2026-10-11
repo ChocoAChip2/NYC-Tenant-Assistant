@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
-  <title>{{ product_name }} | Review your RA-81</title>
+  <title>{{ product_name }} | {{ _("Review your RA-81") }}</title>
   <script>
 
     (function () {
@@ -98,44 +98,44 @@
   </style>
 </head>
 <body><main>
-  <a href="{{ url_for('main.chat', conversation_id=conversation_id) }}">← Back to your chat</a>
-  <h1>Review your RA-81</h1>
+  <a href="{{ url_for('main.chat', conversation_id=conversation_id) }}">{{ _("← Back to your chat") }}</a>
+  <h1>{{ _("Review your RA-81") }}</h1>
   {% if unavailable %}
     <p role="alert">{{ unavailable }}</p>
   {% else %}
-    <p>Check and edit every detail below. A draft may contain mistakes. Downloading does not file the form or sign it for you.</p>
-    <p>RA-81 is for decreased services in an individual rent-regulated apartment. <a href="https://hcr.ny.gov/living-conditions-and-essential-services" target="_blank" rel="noopener noreferrer">Check HCR's form guidance</a>.</p>
+    <p>{{ _("Check and edit every detail below. A draft may contain mistakes. Downloading does not file the form or sign it for you.") }}</p>
+    <p>{{ _("RA-81 is for decreased services in an individual rent-regulated apartment.") }} <a href="https://hcr.ny.gov/living-conditions-and-essential-services" target="_blank" rel="noopener noreferrer">{{ _("Check HCR's form guidance") }}</a>.</p>
     {% if errors %}<div class="errors" role="alert">{% for error in errors %}<p>{{ error }}</p>{% endfor %}</div>{% endif %}
     <form method="POST">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <fieldset><legend>Which problem is this form for?</legend>
-        <label>Service issue
+      <fieldset><legend>{{ _("Which problem is this form for?") }}</legend>
+        <label>{{ _("Service issue") }}
           <select name="service_scope" required>
-            <option value="">Choose before downloading</option>
-            <option value="individual_other" {% if scope == 'individual_other' %}selected{% endif %}>Services in my apartment, other than heat or hot water</option>
-            <option value="heat" {% if scope == 'heat' %}selected{% endif %}>Heat or hot water — HHW-1</option>
-            <option value="building" {% if scope == 'building' %}selected{% endif %}>Building-wide services — RA-84</option>
+            <option value="">{{ _("Choose before downloading") }}</option>
+            <option value="individual_other" {% if scope == 'individual_other' %}selected{% endif %}>{{ _("Services in my apartment, other than heat or hot water") }}</option>
+            <option value="heat" {% if scope == 'heat' %}selected{% endif %}>{{ _("Heat or hot water — HHW-1") }}</option>
+            <option value="building" {% if scope == 'building' %}selected{% endif %}>{{ _("Building-wide services — RA-84") }}</option>
           </select>
         </label>
       </fieldset>
       {% for group, fields in groups.items() %}
-        <fieldset><legend>{{ group }}</legend><div class="fields">
+        <fieldset><legend>{{ gettext(group) }}</legend><div class="fields">
           {% for key, label in fields %}
-            <label>{{ label }}
+            <label>{{ gettext(label) }}
               {% if key in choices %}
-                <select name="{{ key }}">{% for value, title in choices[key].items() %}<option value="{{ value }}" {% if values[key] == value %}selected{% endif %}>{{ title }}</option>{% endfor %}</select>
+                <select name="{{ key }}">{% for value, title in choices[key].items() %}<option value="{{ value }}" {% if values[key] == value %}selected{% endif %}>{{ gettext(title) }}</option>{% endfor %}</select>
               {% elif key.startswith('conditions.') %}
-                <textarea name="{{ key }}" maxlength="2000" placeholder="What is wrong, where, and since when?">{{ values[key] }}</textarea>
+                <textarea name="{{ key }}" maxlength="2000" placeholder="{{ _("What is wrong, where, and since when?") }}">{{ values[key] }}</textarea>
               {% else %}
-                <input name="{{ key }}" value="{{ values[key] }}" maxlength="250" {% if key in ['move_in_date', 'notice.date'] %}placeholder="YYYY-MM-DD or YYYY-MM"{% endif %}>
+                <input name="{{ key }}" value="{{ values[key] }}" maxlength="250" {% if key in ['move_in_date', 'notice.date'] %}placeholder="{{ _("YYYY-MM-DD or YYYY-MM") }}"{% endif %}>
               {% endif %}
             </label>
           {% endfor %}
         </div></fieldset>
       {% endfor %}
-      <label class="check"><input type="checkbox" name="confirmed" value="yes" required>I reviewed the details, corrected any mistakes, and confirm that this form matches my situation.</label>
-      <button type="submit">Confirm and download RA-81</button>
-      <p>After downloading, review the PDF again, sign and date it, and follow the instructions on the form. <a href="https://hcr.ny.gov/form-ra-81" target="_blank" rel="noopener noreferrer">Official blank RA-81</a></p>
+      <label class="check"><input type="checkbox" name="confirmed" value="yes" required>{{ _("I reviewed the details, corrected any mistakes, and confirm that this form matches my situation.") }}</label>
+      <button type="submit">{{ _("Confirm and download RA-81") }}</button>
+      <p>{{ _("After downloading, review the PDF again, sign and date it, and follow the instructions on the form.") }} <a href="https://hcr.ny.gov/form-ra-81" target="_blank" rel="noopener noreferrer">{{ _("Official blank RA-81") }}</a></p>
     </form>
   {% endif %}
   {{ language_form() }}

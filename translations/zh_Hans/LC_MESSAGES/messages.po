@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SideKick Tidbit VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-11 17:38-0400\n"
+"POT-Creation-Date: 2026-10-11 18:01-0400\n"
 "PO-Revision-Date: 2026-10-11 17:36-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_Hans\n"
@@ -19,48 +19,515 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
+msgid " (done)"
+msgstr ""
+
+msgid " (still needed)"
+msgstr ""
+
+#, python-format
+msgid "%(count)s are certified as fixed by the landlord."
+msgstr ""
+
+#, python-format
+msgid "%(count)s characters left"
+msgstr ""
+
+#, python-format
+msgid "%(count)s home"
+msgstr ""
+
+#, python-format
+msgid "%(count)s homes"
+msgstr ""
+
+#, python-format
+msgid "%(count)s is certified as fixed by the landlord."
+msgstr ""
+
 #, python-format
 msgid "%(count)s seconds"
+msgstr ""
+
+#, python-format
+msgid "%(count)s section"
+msgstr ""
+
+#, python-format
+msgid "%(count)s sections"
+msgstr ""
+
+#, python-format
+msgid "%(count)s violation issued at this building in the last two years"
+msgstr ""
+
+#, python-format
+msgid "%(count)s violations issued at this building in the last two years"
+msgstr ""
+
+#, python-format
+msgid "%(label)s is too long (maximum %(limit)s characters)."
+msgstr ""
+
+#, python-format
+msgid "%(label)s must be %(limit)s characters or fewer."
+msgstr ""
+
+#, python-format
+msgid "%(label)s must be a valid date no later than today."
+msgstr ""
+
+#, python-format
+msgid "&#128193; Archived (%(value)s)"
+msgstr ""
+
+msgid "&larr; Back to chat"
+msgstr ""
+
+msgid "&larr; Look up your street"
+msgstr ""
+
+msgid "&lsaquo; Your data"
+msgstr ""
+
+#, python-format
+msgid "(%(value)s open)"
+msgstr ""
+
+msgid "(City) or"
+msgstr ""
+
+msgid "(State)."
+msgstr ""
+
+#, python-format
+msgid "(available in %(resend_wait)s seconds)"
+msgstr ""
+
+#, python-format
+msgid "(available in %(sign_in_code_resend_wait)s seconds)"
+msgstr ""
+
+msgid "(optional)"
+msgstr ""
+
+msgid ") below."
+msgstr ""
+
+msgid "+ New chat"
+msgstr ""
+
+#, python-format
+msgid ", and %(count)s open one the city classifies as"
+msgstr ""
+
+#, python-format
+msgid ", and %(count)s open ones the city classifies as"
+msgstr ""
+
+msgid ", as published by"
+msgstr ""
+
+msgid ", or try"
+msgstr ""
+
+msgid ". Don't rely on it as current law."
+msgstr ""
+
+msgid ". Enter it to finish logging in."
+msgstr ""
+
+msgid "1 character left"
 msgstr ""
 
 msgid "1 second"
 msgstr ""
 
+msgid "231 Echo Place, Bronx"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "7A administrator"
+msgstr ""
+
+msgid ""
+"A 311 complaint asks HPD to inspect. Violations appear here only after an"
+" inspector records them."
+msgstr ""
+
+msgid ""
+"A certification is the owner telling HPD the problem is corrected. HPD "
+"says tenants are notified when this happens."
+msgstr ""
+
+msgid "A conversation and message are required."
+msgstr ""
+
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "A count is a day, a category and a number. It does not say who did what."
 msgstr ""
 
+msgid "A different borough"
+msgstr ""
+
+msgid "A few details"
+msgstr ""
+
+msgid "A few details before you continue"
+msgstr ""
+
 #. RULES
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "A lowercase letter"
 msgstr ""
 
+msgid "A new email takes effect after you confirm it from your inbox."
+msgstr ""
+
 #. RULES
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "A number"
 msgstr ""
 
+msgid ""
+"A password alone then can't open your account. Keep access to your email:"
+" without it you can't log in. We'll email a code to confirm this change."
+msgstr ""
+
 #. RULES
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "A symbol, like ! or #"
 msgstr ""
 
-#. RULES
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
-msgid "An uppercase letter"
+msgid "About"
+msgstr ""
+
+msgid "About &amp; Support"
+msgstr ""
+
+msgid "About the library"
+msgstr ""
+
+msgid "About this data"
+msgstr ""
+
+msgid "About this notice"
+msgstr ""
+
+msgid "About your account details"
+msgstr ""
+
+msgid "Account"
+msgstr ""
+
+#. LABELS
+msgid "Actions you have already taken (include dates)"
+msgstr ""
+
+msgid "Add a ZIP code or cross street (optional)"
+msgstr ""
+
+msgid "Add your cross street or ZIP code above to narrow it down."
+msgstr ""
+
+msgid "Add your name so we can greet you."
+msgstr ""
+
+msgid "Added by the publisher for reference. Not part of the law."
+msgstr ""
+
+msgid ""
+"After downloading, review the PDF again, sign and date it, and follow the"
+" instructions on the form."
+msgstr ""
+
+msgid "All buildings on"
+msgstr ""
+
+msgid "Already confirmed?"
+msgstr ""
+
+#. SUMMARY_LABELS
+msgid "Already done"
+msgstr ""
+
+msgid "Amendment history"
+msgstr ""
+
+msgid "American Legal Publishing"
+msgstr ""
+
+msgid "An account already exists for"
 msgstr ""
 
 #. RULES
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "An uppercase letter"
+msgstr ""
+
+#. LABELS
+msgid "Answer length"
+msgstr ""
+
+#. SUMMARY_LABELS
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Apartment"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Apartment regulation"
+msgstr ""
+
+#. LABELS
+msgid "Apartment status"
+msgstr ""
+
+msgid "Appearance"
+msgstr ""
+
+msgid "Apt"
+msgstr ""
+
+msgid "Archive"
+msgstr ""
+
+msgid "Area facts"
+msgstr ""
+
+#, python-format
+msgid ""
+"Ask %(product_name)s what this record means and what your landlord must "
+"do."
+msgstr ""
+
+msgid "Assistant"
+msgstr ""
+
+msgid "Assistant is thinking"
+msgstr ""
+
+#. RULES
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "At least 8 characters"
+msgstr ""
+
+msgid "Back to log in"
+msgstr ""
+
+msgid "Back to login"
+msgstr ""
+
+#. CHOICE_LABELS
+msgid "Balanced"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Bathroom"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Bedroom"
+msgstr ""
+
+msgid "Before I can fill in your RA-81, I still need:"
+msgstr ""
+
+#. LABELS
+msgid "Borough"
+msgstr ""
+
+#. CHOICE_LABELS
+msgid "Brief"
+msgstr ""
+
+msgid "Browse the law library"
+msgstr ""
+
+msgid ""
+"Browse the official text of New York City and New York State tenant law, "
+"section by section."
+msgstr ""
+
+msgid "Building address"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Building address, if different"
+msgstr ""
+
+msgid "Building-wide services — RA-84"
+msgstr ""
+
+#, python-format
+msgid "Buildings on %(street_label)s,"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Cancel deletion, keep my account"
+msgstr ""
+
+msgid "Certified by landlord"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Certified mail"
 msgstr ""
 
 msgid "Change"
 msgstr ""
 
+msgid "Chat"
+msgstr ""
+
+msgid "Chats"
+msgstr ""
+
 #, python-format
 msgid "Check %(email)s for a confirmation link before the new email takes effect."
+msgstr ""
+
+msgid "Check HCR's form guidance"
+msgstr ""
+
+msgid ""
+"Check and edit every detail below. A draft may contain mistakes. "
+"Downloading does not file the form or sign it for you."
+msgstr ""
+
+msgid "Check each one's chapter to find yours."
+msgstr ""
+
+msgid "Check the address"
+msgstr ""
+
+msgid "Check the cross street, or try your ZIP code instead."
+msgstr ""
+
+msgid "Check the spelling and the borough. Try the full name, like Echo Place."
+msgstr ""
+
+msgid "Check your email"
+msgstr ""
+
+msgid "Check your search"
+msgstr ""
+
+msgid "Checked"
+msgstr ""
+
+msgid "Checking…"
+msgstr ""
+
+msgid "Choose a borough"
+msgstr ""
+
+msgid "Choose a borough."
+msgstr ""
+
+msgid "Choose a new password"
+msgstr ""
+
+#, python-format
+msgid "Choose a valid value for %(label)s."
+msgstr ""
+
+msgid "Choose before downloading"
+msgstr ""
+
+#. CHOICE_LABELS
+msgid "Choose next steps"
+msgstr ""
+
+#, python-format
+msgid "City data as of %(value)s."
+msgstr ""
+
+msgid "City data date unavailable."
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "City, state and ZIP"
+msgstr ""
+
+msgid ""
+"City: the Housing Maintenance Code, Rent Stabilization Law, Unlawful "
+"Eviction, Right to Counsel, Human Rights Law and Rent Control. State: "
+"Real Property Law Articles 6-A and 7, RPAPL Articles 7 and 7-A, and the "
+"security deposit rules. All copied word for word from the official text."
+msgstr ""
+
+msgid "Clear details"
+msgstr ""
+
+msgid "Clear details?"
+msgstr ""
+
+msgid "Close chats"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Co-op or condo unit owner"
+msgstr ""
+
+msgid "Code"
+msgstr ""
+
+msgid "Community district"
+msgstr ""
+
+msgid "Community districts"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Conditions"
+msgstr ""
+
+msgid "Confirm"
+msgstr ""
+
+msgid "Confirm and download RA-81"
+msgstr ""
+
+msgid "Confirm new password"
+msgstr ""
+
+msgid "Connection interrupted. Your message is still below; please try again."
+msgstr ""
+
+msgid "Continue with your building"
+msgstr ""
+
+#, python-format
+msgid "Continue: %(title)s"
 msgstr ""
 
 msgid "Conversation archived."
@@ -69,10 +536,30 @@ msgstr ""
 msgid "Conversation deleted."
 msgstr ""
 
+msgid "Conversation name"
+msgstr ""
+
 msgid "Conversation name cannot be empty."
 msgstr ""
 
+msgid "Conversation not found."
+msgstr ""
+
+msgid "Conversation options"
+msgstr ""
+
 msgid "Conversation restored."
+msgstr ""
+
+msgid ""
+"Copied word for word from the official publishers and checked against "
+"them regularly. Open a section to read it with its history."
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Corporation"
 msgstr ""
 
 msgid "Could not archive that conversation. Please try again."
@@ -82,6 +569,9 @@ msgid "Could not cancel the deletion. Please try again."
 msgstr ""
 
 msgid "Could not delete that conversation. Please try again."
+msgstr ""
+
+msgid "Could not open this conversation right now. Please try again."
 msgstr ""
 
 msgid "Could not rename that conversation. Please try again."
@@ -104,87 +594,456 @@ msgstr ""
 msgid "Could not update account. Check your details and try again shortly."
 msgstr ""
 
+msgid "Create a free account to talk this through"
+msgstr ""
+
+msgid "Create one"
+msgstr ""
+
+msgid "Create your account"
+msgstr ""
+
+msgid "Creating account…"
+msgstr ""
+
+msgid "Cross street"
+msgstr ""
+
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid ""
 "Daily totals are deleted after 12 months. When we look at them, any total"
 " under 5 is hidden."
 msgstr ""
 
+msgid "Dark"
+msgstr ""
+
+msgid "Date of birth"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Date you notified the owner in writing"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Daytime phone"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Delete account"
+msgstr ""
+
+msgid "Delete my account"
+msgstr ""
+
+#, python-format
+msgid ""
+"Deletes your account and all conversations. You have "
+"%(deletion_grace_period_days)s days to cancel; after that it can't be "
+"undone."
+msgstr ""
+
+msgid ""
+"Deletion happens 30 days after you ask, and you can cancel any time "
+"before then."
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Delivered by hand"
+msgstr ""
+
+#. CHOICE_LABELS
+msgid "Detailed"
+msgstr ""
+
+msgid "Details"
+msgstr ""
+
+msgid "Details cleared."
+msgstr ""
+
+msgid "Did you mean"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Dining room"
+msgstr ""
+
+msgid "District"
+msgstr ""
+
+msgid "District information is unavailable right now. Please try again later."
+msgstr ""
+
+msgid "Download all your conversations as a Markdown file."
+msgstr ""
+
+msgid "Download my chat history"
+msgstr ""
+
+msgid "Download your chat history or request account deletion there."
+msgstr ""
+
+msgid "Download your completed RA-81"
+msgstr ""
+
+#. CHOICE_LABELS
+msgid "Draft a landlord message"
+msgstr ""
+
+msgid "Echo Place"
+msgstr ""
+
+msgid "Edit details"
+msgstr ""
+
+msgid "Effective"
+msgstr ""
+
+msgid "Email"
+msgstr ""
+
+msgid "Enter a 5-digit NYC ZIP code."
+msgstr ""
+
+msgid ""
+"Enter a NYC street and borough to see its representatives, community "
+"board and buildings. Free, no account needed."
+msgstr ""
+
+msgid "Enter a cross street name."
+msgstr ""
+
 msgid "Enter a new email and/or password to update your account."
+msgstr ""
+
+msgid "Enter a new password for your account."
+msgstr ""
+
+msgid "Enter a street address."
+msgstr ""
+
+msgid "Enter a street name."
+msgstr ""
+
+msgid "Enter all three to save."
 msgstr ""
 
 #, python-format
 msgid "Enter the %(digits)s-digit code from your email."
 msgstr ""
 
+#, python-format
+msgid "Enter the 6-digit code we emailed to %(email)s to turn sign-in codes off."
+msgstr ""
+
+#, python-format
+msgid "Enter the 6-digit code we emailed to %(email)s to turn sign-in codes on."
+msgstr ""
+
+msgid "Enter your code"
+msgstr ""
+
+msgid "Enter your street and borough. No house number needed."
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid "Eviction notice"
+msgstr ""
+
+msgid "Explain how NYC housing rules generally work"
+msgstr ""
+
+msgid "Facing eviction or a court deadline? Contact a housing attorney."
+msgstr ""
+
 #. HELP_RESOURCES
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "File a repair, heat or hot water complaint against a landlord."
 msgstr ""
 
+#. CHOICE_LABELS
+msgid "Find help"
+msgstr ""
+
+msgid "Find your representative"
+msgstr ""
+
+msgid "First name"
+msgstr ""
+
+msgid "Floor"
+msgstr ""
+
+msgid ""
+"For heat or hot water use HHW-1; for building-wide services use RA-84. "
+"Confirm an individual-apartment service issue for RA-81."
+msgstr ""
+
+msgid "For this chat only. It fills in from what you write."
+msgstr ""
+
+msgid "Forgot Password"
+msgstr ""
+
+msgid "Forgot password?"
+msgstr ""
+
 #. FULL_DISCLAIMER_POINTS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "Forms it fills are drafts. Read every field before you sign or file."
 msgstr ""
 
+msgid "Free help"
+msgstr ""
+
+msgid "Free help for NYC tenants, by borough."
+msgstr ""
+
+msgid ""
+"Free help for NYC tenants: housing court, community boards, hotlines and "
+"where to report problems."
+msgstr ""
+
+msgid "Free help near me"
+msgstr ""
+
 #. HELP_RESOURCES
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "Free housing advice and referrals, run by the City."
 msgstr ""
 
 #. HELP_RESOURCES
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "Free legal representation in eviction cases for tenants who qualify."
 msgstr ""
 
+msgid ""
+"Free or low-cost. Court date, signed papers or a deadline? Start here, "
+"not with us."
+msgstr ""
+
 #. HELP_RESOURCES
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid ""
 "Free tenant-rights advice by phone, Monday, Wednesday and Friday "
 "afternoons."
 msgstr ""
 
+msgid "From public City and State records."
+msgstr ""
+
+msgid "Full list"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Full name"
+msgstr ""
+
 #. PER_MESSAGE_DISCLAIMER
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "General information, not legal advice."
 msgstr ""
 
+msgid "Give you legal advice about your case"
+msgstr ""
+
+msgid "Go"
+msgstr ""
+
+#. COPY
+msgid "Go back and use the page's own buttons and forms."
+msgstr ""
+
+msgid "Go to a section"
+msgstr ""
+
+msgid "Go to login"
+msgstr ""
+
+msgid "Go to the start page"
+msgstr ""
+
+#. SUMMARY_LABELS
+msgid "Goal"
+msgstr ""
+
+msgid "Good afternoon"
+msgstr ""
+
+msgid "Good evening"
+msgstr ""
+
+msgid "Good morning"
+msgstr ""
+
+msgid "Grand Concourse"
+msgstr ""
+
+msgid "Guarantee a rule still applies today"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "HOUSING CHOICE VOUCHER"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "HPD"
+msgstr ""
+
+msgid "HPD violations"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "HUD"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Hall inside apartment"
+msgstr ""
+
+msgid "Heat or hot water — HHW-1"
+msgstr ""
+
 #. HELP_RESOURCES
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "Help understanding a Housing Court case, notice, or paper you were served."
 msgstr ""
 
+msgid "Help you describe a situation clearly"
+msgstr ""
+
+msgid "Hide password"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Home phone"
+msgstr ""
+
+msgid "Homes on this street"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Hotel Stabilized"
+msgstr ""
+
+#. CHOICE_LABELS
+msgid "Hotel stabilized"
+msgstr ""
+
+msgid "Housing Court in"
+msgstr ""
+
+msgid "How can I help you today?"
+msgstr ""
+
+msgid "How it works"
+msgstr ""
+
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "How long we keep them"
 msgstr ""
 
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "How many chat messages were sent, and how many replies cited the law."
 msgstr ""
 
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "How many errors happened, and on which kind of page."
 msgstr ""
 
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid ""
 "How many street and building searches found a result, and how many did "
 "not."
 msgstr ""
 
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "How many times each kind of page was opened."
 msgstr ""
 
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "How many times each step of sign-up or a form was reached."
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "How you delivered the notice"
+msgstr ""
+
+#. CHOICE_LABELS
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "I don't know"
+msgstr ""
+
+msgid "I got an eviction notice"
+msgstr ""
+
+msgid "I got an eviction notice. What should I do?"
+msgstr ""
+
+msgid "I have a question about my security deposit."
+msgstr ""
+
+msgid ""
+"I reviewed the details, corrected any mistakes, and confirm that this "
+"form matches my situation."
+msgstr ""
+
+#, python-format
+msgid ""
+"I understand my conversations will be permanently deleted after "
+"%(deletion_grace_period_days)s days."
 msgstr ""
 
 msgid ""
@@ -193,33 +1052,137 @@ msgid ""
 msgstr ""
 
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid ""
 "If you pick a language, that choice is remembered on this device, and on "
 "your account if you are signed in. It is not used for the counts."
 msgstr ""
 
+#. COPY
+msgid "If you think you should, log in again and retry."
+msgstr ""
+
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid ""
 "If your browser sends the Global Privacy Control signal, your visits are "
 "not counted at all."
 msgstr ""
 
+msgid "In apartment"
+msgstr ""
+
+msgid "Include the building number, e.g. 231 Echo Place, Bronx."
+msgstr ""
+
+msgid "Include the house number. Borough or ZIP helps. Rather not?"
+msgstr ""
+
+msgid "Inspected"
+msgstr ""
+
+#. SUMMARY_LABELS
+msgid "Issue"
+msgstr ""
+
+msgid "It can"
+msgstr ""
+
 #. FULL_DISCLAIMER_POINTS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid ""
 "It can misstate a rule, miss an exception, or be out of date. Check "
 "deadlines, dollar amounts and anything about a court case with an "
 "official source or a housing attorney."
 msgstr ""
 
+msgid "It cannot"
+msgstr ""
+
+#. COPY
+msgid "It has been logged. Please try again in a moment."
+msgstr ""
+
+msgid "It may be outside our library, or the number may be mistyped."
+msgstr ""
+
+#, python-format
+msgid "It will be permanently deleted on %(value)s."
+msgstr ""
+
+msgid "It works normally until then. Cancel any time."
+msgstr ""
+
+msgid "Keep a record of what you discussed"
+msgstr ""
+
+msgid "Kept here so older links still work."
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Kitchen"
+msgstr ""
+
+msgid "Know your building number?"
+msgstr ""
+
 msgid "Language"
 msgstr ""
 
+msgid "Last amended"
+msgstr ""
+
+msgid "Last name"
+msgstr ""
+
+msgid "Law library"
+msgstr ""
+
 #. LEARN_MORE_LABEL
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "Learn more"
+msgstr ""
+
+msgid "Leave blank to keep your current email"
+msgstr ""
+
+msgid "Leave blank to keep your current password"
+msgstr ""
+
+msgid "Light"
+msgstr ""
+
+msgid "Like the boiler, hallways or the roof."
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Living room"
+msgstr ""
+
+msgid "Local resources for this area"
+msgstr ""
+
+msgid "Log in"
+msgstr ""
+
+msgid "Log in instead, or use a different email below."
+msgstr ""
+
+msgid "Log out"
+msgstr ""
+
+msgid "Logging in…"
+msgstr ""
+
+msgid "Login"
 msgstr ""
 
 msgid ""
@@ -227,70 +1190,369 @@ msgid ""
 "needed."
 msgstr ""
 
+msgid "Look up"
+msgstr ""
+
+msgid "Look up my street"
+msgstr ""
+
+msgid "Look up your building"
+msgstr ""
+
+msgid "Look up your building first. No account needed."
+msgstr ""
+
+msgid "Look up your street"
+msgstr ""
+
+msgid "Looking up…"
+msgstr ""
+
+msgid "Manage all your data"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Managing agent"
+msgstr ""
+
+#. CHOICE_LABELS
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Market rate"
+msgstr ""
+
+#. CHOICE_LABELS
+msgid "Match my message"
+msgstr ""
+
+msgid "Match system"
+msgstr ""
+
+msgid "Matched the official code on"
+msgstr ""
+
+msgid "Meets"
+msgstr ""
+
+msgid "Message"
+msgstr ""
+
+msgid "Message input"
+msgstr ""
+
+#, python-format
+msgid "Message is too long (max %(limit)s characters)."
+msgstr ""
+
+msgid "Missing from the official code"
+msgstr ""
+
+#, python-format
+msgid "More than one section is numbered § %(citation)s."
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Move-in date"
+msgstr ""
+
+msgid "My building"
+msgstr ""
+
+msgid "My landlord won't fix something"
+msgstr ""
+
+msgid ""
+"My landlord won't fix something in my apartment. What are my rights and "
+"next steps?"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "NONE"
+msgstr ""
+
+msgid "NY State HCR"
+msgstr ""
+
+msgid "NYC HPD"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "NYCHA"
+msgstr ""
+
+msgid "Near"
+msgstr ""
+
+msgid "Need an account?"
+msgstr ""
+
+msgid "Never mind"
+msgstr ""
+
+msgid "New chat"
+msgstr ""
+
+msgid "New email"
+msgstr ""
+
+msgid "New password"
+msgstr ""
+
 msgid "New password and confirmation do not match."
 msgstr ""
 
+msgid ""
+"New violations can take time to appear after an inspection. A closed "
+"violation wasn't necessarily re-inspected; many close when the owner "
+"certifies the repair."
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "No"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "No / not specified"
+msgstr ""
+
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "No IP address, and no cookie or code that follows you from visit to visit."
 msgstr ""
 
+msgid ""
+"No NYC building matched that address. Check the house number, and try "
+"adding the borough or ZIP code."
+msgstr ""
+
+msgid "No amendment date in the official history"
+msgstr ""
+
+#, python-format
+msgid "No buildings on %(street)s are in ZIP code %(zip)s."
+msgstr ""
+
+msgid "No conversations yet."
+msgstr ""
+
+msgid "No email? Check spam, or"
+msgstr ""
+
+msgid "No homes are recorded on this part of the street."
+msgstr ""
+
+msgid "No longer in force. See the history below."
+msgstr ""
+
+msgid "No longer in the code"
+msgstr ""
+
+msgid "No longer in the official code"
+msgstr ""
+
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "No name, email address or account."
 msgstr ""
 
+msgid "No open violations on record."
+msgstr ""
+
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "No street, address, apartment number, ZIP code or cross street."
 msgstr ""
 
+msgid "No valid messages were provided."
+msgstr ""
+
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "No web addresses, which can contain what you searched for."
 msgstr ""
 
+msgid "None open"
+msgstr ""
+
+msgid ""
+"None recorded for your unit. Building-wide problems below can still "
+"affect you."
+msgstr ""
+
 #. FULL_DISCLAIMER_POINTS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "Not a law firm. Using it does not make us your lawyer."
 msgstr ""
 
+msgid "Not every violation is listed; the counts above are complete."
+msgstr ""
+
 #. TOP_DISCLAIMER
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid ""
 "Not legal advice. Need a lawyer? Tell the chat and it will list free "
 "legal help near you."
 msgstr ""
 
+msgid "Not now?"
+msgstr ""
+
+msgid "Not ready to sign up?"
+msgstr ""
+
+#. CHOICE_LABELS
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Not specified"
+msgstr ""
+
+msgid "Not you?"
+msgstr ""
+
+msgid "Not your building? Add the borough or ZIP."
+msgstr ""
+
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "Nothing from other websites. We use no advertising or tracking services."
 msgstr ""
 
 #. FULL_DISCLAIMER_POINTS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid ""
 "Nothing here replaces advice from a licensed attorney about your specific"
 " situation."
 msgstr ""
 
+msgid "Nothing saved yet."
+msgstr ""
+
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "Nothing you typed, including your chat messages and their topics."
 msgstr ""
 
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Notice to owner"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Number of apartments in building"
+msgstr ""
+
+msgid "Off."
+msgstr ""
+
+msgid "Office"
+msgstr ""
+
+msgid "Official blank RA-81"
+msgstr ""
+
+msgid "Official sources"
+msgstr ""
+
 #. LAW_PAGE_NOTE
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid ""
 "Official text. How it applies depends on your facts; this is not legal "
 "advice."
 msgstr ""
 
+msgid "On."
+msgstr ""
+
+msgid "Open Class A"
+msgstr ""
+
+msgid "Open Class B"
+msgstr ""
+
+msgid "Open Class C"
+msgstr ""
+
+msgid "Open chat"
+msgstr ""
+
+msgid "Open chats"
+msgstr ""
+
+msgid "Open in total"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Other"
+msgstr ""
+
 #. LAW_PAGE_NOTE_DETAIL
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid ""
 "Other laws and court decisions can change how a section applies to you, "
 "so treat the text as a starting point."
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Owner city, state and ZIP"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Owner or agent"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Owner or agent name"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Owner phone"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Owner street address"
+msgstr ""
+
+msgid "Password"
 msgstr ""
 
 msgid "Password updated."
@@ -299,28 +1561,331 @@ msgstr ""
 msgid "Passwords do not match."
 msgstr ""
 
+msgid "Phone"
+msgstr ""
+
+msgid "Please check your date of birth."
+msgstr ""
+
+msgid "Please check your situation details."
+msgstr ""
+
+#, python-format
+msgid "Please enter your %(label)s."
+msgstr ""
+
+msgid "Please enter your date of birth."
+msgstr ""
+
 msgid "Please enter your email."
+msgstr ""
+
+#. _FALLBACK
+msgid "Please go back and try again."
+msgstr ""
+
+msgid "Please log in again."
+msgstr ""
+
+msgid "Please log in first."
 msgstr ""
 
 msgid "Please provide both email and password."
 msgstr ""
 
+msgid ""
+"Please reload this page and log in again if asked. Your message is still "
+"below."
+msgstr ""
+
+msgid "Point you to the right agency for your problem"
+msgstr ""
+
+msgid "Police precinct"
+msgstr ""
+
+msgid "Police precincts"
+msgstr ""
+
+msgid "Prepare a draft RA-81 complaint form"
+msgstr ""
+
+#. CHOICE_LABELS
+msgid "Prepare a form"
+msgstr ""
+
 #. PRIVACY_LABEL
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "Privacy"
 msgstr ""
 
+msgid ""
+"Property, district, community board and violation records published by "
+"the City of New York, and member lists published by the State. "
+"\"Hazardous\" counts Class C violations, the most serious kind."
+msgstr ""
+
+msgid "Publisher's notes"
+msgstr ""
+
 #. HELP_RESOURCES
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "Questions about rent-stabilized apartments, rent history and overcharges."
+msgstr ""
+
+msgid "RA-81 drafts"
+msgstr ""
+
+msgid "RA-81 is for decreased services in an individual rent-regulated apartment."
+msgstr ""
+
+msgid ""
+"RA-81 needs a confirmed rent-regulated apartment. If you are unsure, "
+"confirm your status with HCR first."
+msgstr ""
+
+msgid "Read it on the official site"
+msgstr ""
+
+msgid "Read the official text of City and State tenant law."
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Regular mail"
+msgstr ""
+
+msgid "Reload this chat and try again."
+msgstr ""
+
+msgid "Remind me next time"
+msgstr ""
+
+msgid "Rename"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Rent Controlled"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Rent Stabilized"
+msgstr ""
+
+#. CHOICE_LABELS
+msgid "Rent controlled"
+msgstr ""
+
+msgid "Rent impairing"
+msgstr ""
+
+#. CHOICE_LABELS
+msgid "Rent stabilized"
+msgstr ""
+
+msgid "Repairs and heat"
+msgstr ""
+
+msgid "Repealed"
+msgstr ""
+
+msgid "Replace a housing attorney"
+msgstr ""
+
+msgid "Replies"
+msgstr ""
+
+#. LABELS
+msgid "Reply language"
+msgstr ""
+
+msgid "Report a new problem to 311"
+msgstr ""
+
+msgid "Report a problem"
+msgstr ""
+
+msgid "Represent you or file anything for you"
+msgstr ""
+
+msgid "Request a new link"
+msgstr ""
+
+msgid "Reset Password"
+msgstr ""
+
+msgid "Reset password"
+msgstr ""
+
+msgid "Reset your password"
+msgstr ""
+
+msgid "Resetting…"
+msgstr ""
+
+msgid "Resources"
+msgstr ""
+
+msgid "Restore"
+msgstr ""
+
+#, python-format
+msgid "Review RA-81 draft %(number)s"
+msgstr ""
+
+msgid "Review the details and check the confirmation box before downloading."
+msgstr ""
+
+msgid "Review your RA-81"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "SCRIE or DRIE"
+msgstr ""
+
+#. CHOICE_LABELS
+msgid "SRO"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "Save account changes"
+msgstr ""
+
+msgid "Save and continue"
+msgstr ""
+
+msgid "Save name"
+msgstr ""
+
+msgid "Saved on this device only."
+msgstr ""
+
+msgid "Saved."
 msgstr ""
 
 #, python-format
 msgid "Saved. We'll greet you as %(name)s."
 msgstr ""
 
+msgid "Saved. Your next reply will use it."
+msgstr ""
+
+msgid "Saving…"
+msgstr ""
+
+msgid "Schedule my account for deletion"
+msgstr ""
+
+msgid "Scheduling…"
+msgstr ""
+
+msgid "School district"
+msgstr ""
+
+msgid "School districts"
+msgstr ""
+
+msgid "Search by address"
+msgstr ""
+
+msgid "Search by street"
+msgstr ""
+
+msgid "Search your street"
+msgstr ""
+
+msgid ""
+"Search your street to see your Council Member, Assembly Member and State "
+"Senator."
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Section 8 program"
+msgstr ""
+
+msgid "Security deposit"
+msgstr ""
+
+msgid "Security deposit question"
+msgstr ""
+
+msgid "See all buildings on"
+msgstr ""
+
+msgid ""
+"See every open NYC housing violation HPD has on record for your building."
+" Free, no account needed."
+msgstr ""
+
+msgid "See open housing violations for any NYC address. Free, no account needed."
+msgstr ""
+
+msgid "See what we count"
+msgstr ""
+
+msgid "See what we count and what we never keep:"
+msgstr ""
+
+msgid "See who represents District"
+msgstr ""
+
+msgid "Send message"
+msgstr ""
+
+msgid "Send reset link"
+msgstr ""
+
+msgid "Sending…"
+msgstr ""
+
+msgid "Service issue"
+msgstr ""
+
+msgid "Services in my apartment, other than heat or hot water"
+msgstr ""
+
+msgid "Set a new password"
+msgstr ""
+
+msgid "Set a new password to continue."
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+msgid "Show password"
+msgstr ""
+
+#, python-format
+msgid "Showing %(shown)s."
+msgstr ""
+
+#, python-format
+msgid ""
+"Showing %(value)s of %(buildings_total)s. Add a cross street to narrow it"
+" down."
+msgstr ""
+
+#, python-format
+msgid "Showing the %(max_per_class)s most recent of %(value)s."
+msgstr ""
+
 #. FULL_DISCLAIMER_POINTS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid ""
 "SideKick Tidbit explains how NYC housing rules generally work and helps "
 "you prepare a complaint form. It does not provide legal advice, and using"
@@ -328,7 +1893,8 @@ msgid ""
 msgstr ""
 
 #. TOP_DISCLAIMER_DETAIL
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid ""
 "SideKick Tidbit gives general information about NYC tenant law. It is not"
 " a law firm and should never be used as legal advice. For your own "
@@ -336,8 +1902,21 @@ msgid ""
 msgstr ""
 
 #. SHORT_DISCLAIMER
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "SideKick Tidbit gives general information, not legal advice."
+msgstr ""
+
+msgid "Sign Up"
+msgstr ""
+
+msgid "Sign up"
+msgstr ""
+
+msgid "Sign up free"
+msgstr ""
+
+msgid "Sign-in codes"
 msgstr ""
 
 msgid ""
@@ -351,7 +1930,77 @@ msgstr ""
 msgid "Sign-up successful. Please confirm your email, then log in."
 msgstr ""
 
+msgid "Signed in as"
+msgstr ""
+
+msgid "Site"
+msgstr ""
+
+msgid ""
+"Some characters cannot be printed by this form. Use an accurate Latin-"
+"script spelling or download the official blank form to complete it "
+"yourself."
+msgstr ""
+
+#. COPY
+msgid "Something about that request didn't work"
+msgstr ""
+
+#. _FALLBACK
+msgid "Something went wrong"
+msgstr ""
+
+#. COPY
+msgid "Something went wrong on our side"
+msgstr ""
+
+msgid "Source"
+msgstr ""
+
+msgid "Source:"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Sro"
+msgstr ""
+
+#. SUMMARY_LABELS
+msgid "Started"
+msgstr ""
+
+msgid "Still a problem? You can challenge it and HPD will re-inspect."
+msgstr ""
+
+msgid "Street"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Street address"
+msgstr ""
+
+msgid "Talk this through"
+msgstr ""
+
+msgid "Tap your building to see its open violations."
+msgstr ""
+
+msgid "Tell you how a judge will rule"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Tenant"
+msgstr ""
+
 msgid "Thanks, you're all set."
+msgstr ""
+
+msgid "That address is too long."
 msgstr ""
 
 msgid "That code didn't work. Check it, or send a new one."
@@ -363,8 +2012,25 @@ msgstr ""
 msgid "That conversation could not be found."
 msgstr ""
 
+msgid "That cross street name is too long."
+msgstr ""
+
+msgid "That didn't save. Please try again."
+msgstr ""
+
+msgid "That doesn't look like a section number"
+msgstr ""
+
+msgid "That doesn't mean nothing is wrong. Problem at home? Call 311 or"
+msgstr ""
+
+#. COPY
+msgid "That page can't be used that way"
+msgstr ""
+
 #. MESSAGE
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid ""
 "That password has appeared in public data breaches, so attackers already "
 "have it on their lists. Please choose a different one."
@@ -373,48 +2039,219 @@ msgstr ""
 msgid "That sign-in timed out. Please log in again."
 msgstr ""
 
+msgid "That street name is too long."
+msgstr ""
+
+#. COPY
+msgid "That was too much to send at once"
+msgstr ""
+
 #. FULL_DISCLAIMER_POINTS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "The AI can be wrong. Confirm before you act."
+msgstr ""
+
+msgid "The AI service is currently unavailable. Please try again shortly."
+msgstr ""
+
+msgid "The assistant is unavailable right now"
+msgstr ""
+
+msgid "The assistant is unavailable right now. Please try again later."
+msgstr ""
+
+msgid "The assistant returned an empty response. Please try again."
+msgstr ""
+
+msgid "The city's data service didn't respond"
 msgstr ""
 
 msgid "The email you typed does not match this account. Nothing was deleted."
 msgstr ""
 
+msgid "The law"
+msgstr ""
+
+msgid "The law library didn't respond"
+msgstr ""
+
+msgid "The library has no sections right now. Read the law on"
+msgstr ""
+
+#. COPY
+msgid "The link may be old or mistyped."
+msgstr ""
+
+msgid "The official text of City and State tenant law."
+msgstr ""
+
+msgid ""
+"The official text of New York City and New York State tenant law, with "
+"its history and a link to the official publisher."
+msgstr ""
+
+#. COPY
+msgid ""
+"The page may have been open for a long time, or a form was sent twice. Go"
+" back, reload the page and try again."
+msgstr ""
+
+msgid ""
+"The request could not be completed. Your message is still below; please "
+"try again."
+msgstr ""
+
 msgid "There was no pending deletion to cancel."
 msgstr ""
 
+msgid "This draft could not be found."
+msgstr ""
+
+msgid "This draft is unavailable right now. Please try again."
+msgstr ""
+
+msgid "This is not legal advice"
+msgstr ""
+
+msgid "This is usually brief. Please try again in a minute."
+msgstr ""
+
+msgid "This only takes a moment."
+msgstr ""
+
 #. PRIVACY_ACCOUNT_TEXT
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid ""
 "This page is about usage counts. Your account details and saved chats are"
 " separate: you can download your chats or delete your account in "
 "Settings."
 msgstr ""
 
+msgid ""
+"This removes what's saved for this chat. Your messages and reply settings"
+" stay."
+msgstr ""
+
+msgid "This reset link is invalid or has expired."
+msgstr ""
+
 msgid "This reset link is invalid or has expired. Request a new one below."
 msgstr ""
 
+msgid "This section has been repealed"
+msgstr ""
+
+msgid "This street crosses more than one district."
+msgstr ""
+
+msgid "Those streets don't seem to meet"
+msgstr ""
+
 msgid "Tick the confirmation box to schedule your account for deletion."
+msgstr ""
+
+msgid "To confirm, type your email address ("
 msgstr ""
 
 #, python-format
 msgid "Too many failed login attempts. Try again in %(wait)s."
 msgstr ""
 
+#. COPY
+msgid "Too many requests in a short time. Wait a minute, then try again."
+msgstr ""
+
 msgid "Too many wrong codes. Please start again."
 msgstr ""
 
+msgid "Try a number like 27-2005 or 235-b."
+msgstr ""
+
+msgid "Try again in a minute, or read it on"
+msgstr ""
+
+#. COPY
+msgid "Try again with a shorter message."
+msgstr ""
+
+msgid "Turn off sign-in codes"
+msgstr ""
+
+msgid "Turn on sign-in codes"
+msgstr ""
+
+msgid "Turn this on and we'll email you a code each time you log in."
+msgstr ""
+
+#. CHOICE_LABELS
+msgid "Understand my rights"
+msgstr ""
+
+msgid "Untitled conversation"
+msgstr ""
+
+#, python-format
+msgid "Updated %(officials_as_of_label)s."
+msgstr ""
+
 #. RULE_MESSAGE
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid ""
 "Use at least 8 characters, with a lowercase letter, an uppercase letter, "
 "a number and a symbol."
 msgstr ""
 
+msgid "Use your confirmed account to continue."
+msgstr ""
+
 #. PRIVACY_NOTE
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "Used for your account."
+msgstr ""
+
+#. TRANSLATABLE
+msgid "Used to greet you and confirm you're 13 or older."
+msgstr ""
+
+msgid "Used to greet you."
+msgstr ""
+
+msgid "Violation counts are unavailable right now."
+msgstr ""
+
+msgid "Visit"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Voucher number"
+msgstr ""
+
+msgid "We check for changes after every election."
+msgstr ""
+
+msgid "We couldn't check this setting right now. Reload the page to try again."
+msgstr ""
+
+msgid "We couldn't complete that lookup. Please try again."
+msgstr ""
+
+msgid "We couldn't find"
+msgstr ""
+
+msgid "We couldn't find that building"
+msgstr ""
+
+#. COPY
+msgid "We couldn't find that page"
+msgstr ""
+
+msgid "We couldn't find that street"
 msgstr ""
 
 msgid "We couldn't save that just now. Please try again."
@@ -437,37 +2274,100 @@ msgstr ""
 msgid "We couldn't send your sign-in code. Please try again in a minute."
 msgstr ""
 
+msgid "We email you a code each time you log in."
+msgstr ""
+
 #, python-format
 msgid "We emailed a code to %(email)s. Enter it below to finish."
 msgstr ""
 
+msgid "We keep anonymous daily counts of how the site is used."
+msgstr ""
+
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid ""
 "We keep simple daily totals so we can see what is useful and where people"
 " get stuck."
 msgstr ""
 
+#. TRANSLATABLE
+msgid "We now ask everyone for these. Your account was made before we asked."
+msgstr ""
+
+msgid "We sent a 6-digit code to"
+msgstr ""
+
 msgid "We sent a new code. The earlier one no longer works."
 msgstr ""
 
+msgid "We'll email you a link to choose a new one."
+msgstr ""
+
+msgid "Website"
+msgstr ""
+
+msgid "Welcome"
+msgstr ""
+
+msgid "What do these mean for you?"
+msgstr ""
+
+msgid "What does the city already know about your building?"
+msgstr ""
+
+#. LABELS
+msgid "What is happening?"
+msgstr ""
+
+msgid "What is wrong, where, and since when?"
+msgstr ""
+
+msgid "What it can and cannot do"
+msgstr ""
+
+msgid "What it does, what it doesn't, and where to get real help."
+msgstr ""
+
+msgid "What our library holds"
+msgstr ""
+
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "What these counts never include"
 msgstr ""
 
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "What we count"
 msgstr ""
 
 #. PRIVACY_LEDE
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "What we count to improve the site, and what we never keep in those counts."
 msgstr ""
 
+#. LABELS
+msgid "What would help you?"
+msgstr ""
+
+msgid "What's on your street?"
+msgstr ""
+
+#. LABELS
+msgid "When did it start?"
+msgstr ""
+
+msgid "Where to get real help"
+msgstr ""
+
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid ""
 "Whether visits were on a phone or a computer, the browser's main "
 "language, and whether a visit came from a search engine, social media or "
@@ -475,25 +2375,50 @@ msgid ""
 msgstr ""
 
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid ""
 "Which borough was searched, and whether a ZIP code or cross street was "
 "added (yes or no, never the value)."
 msgstr ""
 
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "Which help links and suggestion buttons were used."
 msgstr ""
 
+msgid "Which problem is this form for?"
+msgstr ""
+
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "Which sections of the law were opened."
 msgstr ""
 
+msgid "Working late"
+msgstr ""
+
+msgid "YYYY-MM-DD or YYYY-MM"
+msgstr ""
+
+#. TRANSLATABLE
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Yes"
+msgstr ""
+
+msgid "You"
+msgstr ""
+
 #. FULL_DISCLAIMER_POINTS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "You are responsible for what you submit to an agency or a court."
+msgstr ""
+
+msgid "You can manage your saved chats and account details in Settings."
 msgstr ""
 
 #, python-format
@@ -501,12 +2426,50 @@ msgid "You can send a new code in %(wait)s."
 msgstr ""
 
 #. PRIVACY_NOTE_DETAIL
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "You can update these details in Settings."
 msgstr ""
 
+#. COPY
+msgid "You don't have access to that page"
+msgstr ""
+
+#, python-format
+msgid "You must be at least %(age)s years old to create an account."
+msgstr ""
+
+#, python-format
+msgid "You must be at least %(min_age)s years old."
+msgstr ""
+
+msgid "You'll confirm your email before your first login."
+msgstr ""
+
+#. COPY
+msgid "You're going a little fast"
+msgstr ""
+
+#, python-format
+msgid "Your %(label)s can be at most %(limit)s characters."
+msgstr ""
+
+#, python-format
+msgid ""
+"Your %(label)s can only contain letters, spaces, hyphens, apostrophes and"
+" periods."
+msgstr ""
+
+#, python-format
+msgid ""
+"Your RA-81 draft is ready to review. [Review and confirm your "
+"form](%(url)s). Check every field before downloading. Nothing has been "
+"filed."
+msgstr ""
+
 #. PRIVACY_ACCOUNT_TITLE
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "Your account and chats"
 msgstr ""
 
@@ -519,24 +2482,77 @@ msgid ""
 "any time before then from this page."
 msgstr ""
 
+msgid "Your account is scheduled for deletion."
+msgstr ""
+
+msgid "Your account keeps working until then. Cancel from this page."
+msgstr ""
+
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "Your choice"
 msgstr ""
 
+msgid "Your data"
+msgstr ""
+
+msgid "Your data changed in another tab. Reload it before saving your changes."
+msgstr ""
+
+msgid "Your data could not be loaded or saved. Please try again."
+msgstr ""
+
+msgid "Your data could not be updated."
+msgstr ""
+
+msgid "Your data didn't load. Close this and open it again to retry."
+msgstr ""
+
+#, python-format
+msgid "Your data for this chat: what %(product_name)s knows about your situation"
+msgstr ""
+
+msgid "Your date of birth can't be in the future."
+msgstr ""
+
 #. PRIVACY_NOTE_TITLE
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "Your details stay confidential."
 msgstr ""
 
+msgid "Your elected officials"
+msgstr ""
+
+msgid "Your email address"
+msgstr ""
+
 #. FULL_DISCLAIMER_POINTS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "Your facts matter. One changed date can change the answer."
 msgstr ""
 
+msgid ""
+"Your form could not be downloaded. Your edits are still below; please try"
+" again."
+msgstr ""
+
 #. PRIVACY_SECTIONS
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "Your language"
+msgstr ""
+
+msgid "Your name"
+msgstr ""
+
+#. TRANSLATABLE
+msgid "Your name and date of birth"
+msgstr ""
+
+msgid "Your name can't be saved right now."
 msgstr ""
 
 msgid "Your name can't be saved right now. Please try again later."
@@ -548,31 +2564,139 @@ msgstr ""
 msgid "Your password has been reset. Please log in."
 msgstr ""
 
+msgid "Your password needs"
+msgstr ""
+
+msgid "Your password no longer meets our rules. Choose a new one to continue."
+msgstr ""
+
+msgid "Your representatives"
+msgstr ""
+
 msgid "Your session expired. Please log in again."
 msgstr ""
 
-#. RULES
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
-msgid "digit"
+msgid "ZIP"
+msgstr ""
+
+msgid "ZIP code"
+msgstr ""
+
+msgid "ZIP codes"
+msgstr ""
+
+#, python-format
+msgid "Zoning: %(codes)s"
+msgstr ""
+
+msgid "as of"
 msgstr ""
 
 #. RULES
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "digit"
+msgstr ""
+
+msgid "file online"
+msgstr ""
+
+msgid "first name"
+msgstr ""
+
+msgid "hazardous"
+msgstr ""
+
+msgid "immediately hazardous"
+msgstr ""
+
+msgid "in"
+msgstr ""
+
+msgid "last name"
+msgstr ""
+
+#. RULES
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "length"
 msgstr ""
 
 #. RULES
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "lower"
 msgstr ""
 
-#. RULES
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
-msgid "symbol"
+msgid "non-hazardous"
+msgstr ""
+
+msgid "not_found"
+msgstr ""
+
+msgid "on NYC Open Data, updated daily."
+msgstr ""
+
+msgid "open"
+msgstr ""
+
+msgid "open in your unit."
+msgstr ""
+
+msgid "rent impairing"
+msgstr ""
+
+msgid "sections. Pick a law to see its sections."
+msgstr ""
+
+msgid "send a new code"
 msgstr ""
 
 #. RULES
-#. REVIEW: legal or high-stakes wording; a fluent reader must approve it.
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "symbol"
+msgstr ""
+
+msgid "the State Senate's site"
+msgstr ""
+
+msgid "unavailable"
+msgstr ""
+
+#. RULES
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
 msgid "upper"
+msgstr ""
+
+msgid ""
+"whether your apartment is rent stabilized, rent controlled, hotel "
+"stabilized or an SRO"
+msgstr ""
+
+msgid "which room each problem is in, and what the problem is"
+msgstr ""
+
+msgid "your full mailing address (street, apartment, city, state and ZIP)"
+msgstr ""
+
+msgid "your full name"
+msgstr ""
+
+msgid "your landlord's mailing address"
+msgstr ""
+
+msgid "your landlord's or managing agent's name"
+msgstr ""
+
+msgid "zoned"
+msgstr ""
+
+#, python-format
+msgid "§ %(citation)s isn't in our library"
+msgstr ""
+
+msgid "← Back to your chat"
 msgstr ""
 

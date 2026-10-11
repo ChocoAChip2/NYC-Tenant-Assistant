@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#eef1f5" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ product_name }} | About &amp; Support</title>
+  <title>{{ product_name }} | {{ _("About &amp; Support") }}</title>
   <script>
     (function () {
       var saved = null;
@@ -183,18 +183,18 @@
       <span class="brand-mark" aria-hidden="true">{{ logo_monogram }}</span>
       <span class="brand-name">{{ product_name }}</span>
     </a>
-    {% if logged_in %}<a class="back" href="{{ url_for('main.chat') }}">&larr; Back to chat</a>{% else %}<a class="back" href="{{ url_for('main.home') }}">&larr; Look up your street</a>{% endif %}
+    {% if logged_in %}<a class="back" href="{{ url_for('main.chat') }}">{{ _("&larr; Back to chat") }}</a>{% else %}<a class="back" href="{{ url_for('main.home') }}">{{ _("&larr; Look up your street") }}</a>{% endif %}
     {{ language_form() }}
   </header>
 
   <main>
     <div>
-      <h1>About {{ product_name }}</h1>
-      <p class="lede">What it does, what it doesn't, and where to get real help.</p>
+      <h1>{{ _("About") }} {{ product_name }}</h1>
+      <p class="lede">{{ _("What it does, what it doesn't, and where to get real help.") }}</p>
     </div>
 
     <section class="important">
-      <h2>This is not legal advice</h2>
+      <h2>{{ _("This is not legal advice") }}</h2>
       <ul class="points">
       {% for point in full_disclaimer_points %}
         <li>{{ point.lead }}{{ info_tip(point.detail) }}</li>
@@ -203,34 +203,34 @@
     </section>
 
     <section>
-      <h2>What it can and cannot do</h2>
+      <h2>{{ _("What it can and cannot do") }}</h2>
       <div class="can-cannot">
         <div class="yes">
-          <h3>It can</h3>
+          <h3>{{ _("It can") }}</h3>
           <ul>
-            <li>Explain how NYC housing rules generally work</li>
-            <li>Point you to the right agency for your problem</li>
-            <li>Help you describe a situation clearly</li>
-            <li>Prepare a draft RA-81 complaint form</li>
-            <li>Keep a record of what you discussed</li>
+            <li>{{ _("Explain how NYC housing rules generally work") }}</li>
+            <li>{{ _("Point you to the right agency for your problem") }}</li>
+            <li>{{ _("Help you describe a situation clearly") }}</li>
+            <li>{{ _("Prepare a draft RA-81 complaint form") }}</li>
+            <li>{{ _("Keep a record of what you discussed") }}</li>
           </ul>
         </div>
         <div class="no">
-          <h3>It cannot</h3>
+          <h3>{{ _("It cannot") }}</h3>
           <ul>
-            <li>Give you legal advice about your case</li>
-            <li>Represent you or file anything for you</li>
-            <li>Tell you how a judge will rule</li>
-            <li>Guarantee a rule still applies today</li>
-            <li>Replace a housing attorney</li>
+            <li>{{ _("Give you legal advice about your case") }}</li>
+            <li>{{ _("Represent you or file anything for you") }}</li>
+            <li>{{ _("Tell you how a judge will rule") }}</li>
+            <li>{{ _("Guarantee a rule still applies today") }}</li>
+            <li>{{ _("Replace a housing attorney") }}</li>
           </ul>
         </div>
       </div>
     </section>
 
     <section>
-      <h2>Where to get real help</h2>
-      <p class="lede">Free or low-cost. Court date, signed papers or a deadline? Start here, not with us.</p>
+      <h2>{{ _("Where to get real help") }}</h2>
+      <p class="lede">{{ _("Free or low-cost. Court date, signed papers or a deadline? Start here, not with us.") }}</p>
       {% for resource in help_resources %}
         <div class="resource">
           <p class="resource-name"><a href="{{ resource.url }}" target="_blank" rel="noopener noreferrer">{{ resource.name }}</a></p>
@@ -241,15 +241,15 @@
     </section>
 
     <section>
-      <h2>Your data</h2>
-      <p>You can manage your saved chats and account details in Settings.</p>
-      <p>We keep anonymous daily counts of how the site is used. <a href="{{ url_for('main.privacy') }}">See what we count</a></p>
-      <p>Download your chat history or request account deletion there.{{ info_tip("Deletion happens 30 days after you ask, and you can cancel any time before then.") }}</p>
+      <h2>{{ _("Your data") }}</h2>
+      <p>{{ _("You can manage your saved chats and account details in Settings.") }}</p>
+      <p>{{ _("We keep anonymous daily counts of how the site is used.") }} <a href="{{ url_for('main.privacy') }}">{{ _("See what we count") }}</a></p>
+      <p>{{ _("Download your chat history or request account deletion there.") }}{{ info_tip(gettext("Deletion happens 30 days after you ask, and you can cancel any time before then.")) }}</p>
     </section>
   </main>
 
   <footer>
-    <p>{{ short_disclaimer }} Facing eviction or a court deadline? Contact a housing attorney. <a href="{{ url_for('main.privacy') }}">{{ privacy_label }}</a></p>
+    <p>{{ short_disclaimer }} {{ _("Facing eviction or a court deadline? Contact a housing attorney.") }} <a href="{{ url_for('main.privacy') }}">{{ privacy_label }}</a></p>
   </footer>
   {{ info_assets() }}
 </body>

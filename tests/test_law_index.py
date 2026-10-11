@@ -200,7 +200,7 @@ class WaysInTests(_IndexCase):
     def test_resources_template_has_its_line(self):
         with open(os.path.join(_TEMPLATES, "resources.html"), encoding="utf-8") as handle:
             source = handle.read()
-        self.assertIn("<a href=\"{{ url_for('main.law_index') }}\">Browse the law library</a>", source)
+        self.assertIn("<a href=\"{{ url_for('main.law_index') }}\">{{ _(\"Browse the law library\") }}</a>", source)
 
     def test_index_is_not_in_the_header_nav(self):
         _, body, _ = self.get()

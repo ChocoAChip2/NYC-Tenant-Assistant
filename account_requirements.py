@@ -36,6 +36,7 @@ from typing import Callable
 
 import crypto_service
 import profile_service
+from i18n import gettext
 
 SESSION_KEY = "account_requirements"
 SKIPPED_KEY = "account_requirements_skipped"
@@ -75,7 +76,7 @@ def _profile_collect(form: dict, today: date) -> Collected:
         raise RequirementError(str(exc)) from None
     metadata = profile_service.to_metadata(profile)
     if metadata is None:
-        raise RequirementError("Your name can't be saved right now.")
+        raise RequirementError(gettext("Your name can't be saved right now."))
     return Collected(metadata, {"first_name": profile.first_name})
 
 
@@ -95,6 +96,10 @@ PROFILE = Requirement(
 )
 
 REQUIREMENTS: tuple[Requirement, ...] = (PROFILE,)
+
+# What the requirements page shows for each, for the catalogues (babel.cfg).
+# Translated where the page shows them.
+TRANSLATABLE = [text for r in REQUIREMENTS for text in (r.title, r.why, r.why_detail) if text]
 
 REQUIREMENTS_VERSION = hashlib.sha256(
     ",".join(f"{r.key}:{r.version}" for r in REQUIREMENTS).encode()
