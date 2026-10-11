@@ -38,11 +38,45 @@ for anyone it is shown to.
 text: this is the law as written, how it applies depends on the facts, not
 legal advice. The standing footer disclaimer is there too.
 
+## The index (`/law`)
+
+`templates/law_index.html`, served by `routes.law_index`, reading through
+`law_service.get_index`. Public and rate-limited like the section page. It
+exists so someone without a link can find a section; it is linked from the
+section page, its not-found message and Resources, not from the header.
+
+- **Every section, grouped by law.** City law first, then State, one group
+  per law in `tools/corpus/registry.py` order, sections in number order.
+  The group heading is the registry name up to its bracket ("Housing
+  Maintenance Code") with the bracketed part beside it in muted text. A
+  source key is never shown; rows from a source the registry doesn't know
+  go under "Other sections".
+- **Groups are native `<details>`, closed.** The Housing Maintenance Code
+  alone is 211 sections. Native elements mean keyboard and screen-reader
+  behaviour come from the browser and nothing needs JavaScript. The
+  browser's find-in-page opens a closed group in current browsers.
+- **Nothing is hidden.** Repealed sections carry a "Repealed" tag, ones
+  that left the code "No longer in the code", same rule as the section
+  page.
+- **Entries link by number.** Where two sections share a number, both
+  entries open the section page, which shows every match.
+- **"Go to a section"** is a plain GET form (`/law?section=27-2005`). The
+  route tidies the number (`§`, spaces, a trailing full stop, capitals) and
+  redirects to the section page; something that isn't shaped like a section
+  number comes back as a 400 with a message beside the box. Whether the
+  library holds the number is left to the section page.
+- **One read, shared.** The list comes from the same hourly in-memory
+  index as the building page's chip links (`law_service._library_index`),
+  so the page usually makes no library call. A library that can't be read
+  and was never loaded is a 503 with the official sites; an empty library
+  is a plain notice.
+
 ## Styling
 
 Standalone like every template. The tokens, header, buttons and alerts are
 copied from `building.html`, so a palette change there must be made here
-too. `law.html` is in the contrast test's `THEMED` list.
+too. `law.html` and `law_index.html` (which copies `law.html`'s head) are
+in the contrast test's `THEMED` list.
 
 ## Chip links from `/building`
 
