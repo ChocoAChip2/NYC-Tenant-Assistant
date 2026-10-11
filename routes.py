@@ -115,7 +115,7 @@ _IDENTITY_KEYS = ("user_id", "user_email", "access_token", "refresh_token", "fir
 @main_bp.app_context_processor
 def _password_rule_for_templates():
     return {
-        "password_rules": password_safety.RULES,
+        "password_rules": [(key, i18n.with_original(label)) for key, label in password_safety.RULES],
         "password_symbols": password_safety.SYMBOLS,
         "password_min_length": password_safety.MIN_LENGTH,
     }
@@ -417,7 +417,7 @@ def resources():
         borough=borough,
         board=board,
         courts=resources_data.courts_for(borough),
-        help_resources=i18n.translated(branding.HELP_RESOURCES, keys={"detail"}),
+        help_resources=i18n.translated(branding.HELP_RESOURCES, keys={"detail"}, original=True),
         report_links=resources_data.REPORT_LINKS,
         logged_in=bool(session.get("user_id")),
     )
@@ -462,14 +462,14 @@ def signup():
             return retry()
 
         if not password_safety.meets_rules(password):
-            flash(_(password_safety.RULE_MESSAGE), "error")
+            flash(i18n.with_original(password_safety.RULE_MESSAGE), "error")
             return retry()
 
         # Checked against public breach corpora (see password_safety.py).
         # Fails open by design: an unreachable API must never stop someone
         # making an account.
         if password_safety.is_breached(password):
-            flash(_(password_safety.MESSAGE), "error")
+            flash(i18n.with_original(password_safety.MESSAGE), "error")
             return retry()
 
         try:
@@ -686,13 +686,13 @@ def change_password():
     confirm_password = request.form.get("confirm_password", "")
     problem = None
     if not new_password or new_password != confirm_password:
-        problem = "Passwords do not match."
+        problem = _("Passwords do not match.")
     elif not password_safety.meets_rules(new_password):
-        problem = password_safety.RULE_MESSAGE
+        problem = i18n.with_original(password_safety.RULE_MESSAGE)
     elif password_safety.is_breached(new_password):
-        problem = password_safety.MESSAGE
+        problem = i18n.with_original(password_safety.MESSAGE)
     if problem:
-        flash(_(problem), "error")
+        flash(problem, "error")
         return render_template("password_required.html", next_url=next_url), 400
 
     access_token = session.get("access_token")
@@ -795,14 +795,14 @@ def reset_password():
             return retry()
 
         if not password_safety.meets_rules(new_password):
-            flash(_(password_safety.RULE_MESSAGE), "error")
+            flash(i18n.with_original(password_safety.RULE_MESSAGE), "error")
             return retry()
 
         # Checked against public breach corpora (see password_safety.py).
         # Fails open by design: an unreachable API must never stop someone
         # making an account.
         if password_safety.is_breached(new_password):
-            flash(_(password_safety.MESSAGE), "error")
+            flash(i18n.with_original(password_safety.MESSAGE), "error")
             return retry()
 
         try:
@@ -1532,8 +1532,8 @@ def learn_more():
 
     return render_template(
         "learn_more.html",
-        full_disclaimer_points=i18n.translated(branding.FULL_DISCLAIMER_POINTS),
-        help_resources=i18n.translated(branding.HELP_RESOURCES, keys={"detail"}),
+        full_disclaimer_points=i18n.translated(branding.FULL_DISCLAIMER_POINTS, original=True),
+        help_resources=i18n.translated(branding.HELP_RESOURCES, keys={"detail"}, original=True),
         logged_in=bool(session.get("user_id")),
     )
 
@@ -1920,14 +1920,14 @@ def update_account():
         return redirect(url_for("main.settings"))
 
     if new_password and not password_safety.meets_rules(new_password):
-        flash(_(password_safety.RULE_MESSAGE), "error")
+        flash(i18n.with_original(password_safety.RULE_MESSAGE), "error")
         return redirect(url_for("main.settings"))
 
     # Checked against public breach corpora (see password_safety.py).
     # Fails open by design: an unreachable API must never stop someone
     # changing their password.
     if new_password and password_safety.is_breached(new_password):
-        flash(_(password_safety.MESSAGE), "error")
+        flash(i18n.with_original(password_safety.MESSAGE), "error")
         return redirect(url_for("main.settings"))
 
     try:

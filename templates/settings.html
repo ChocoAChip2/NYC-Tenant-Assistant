@@ -2,7 +2,7 @@
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. Jinja comments like this one are stripped before the response is written. Read docs/frontend/css-gotchas.md before deleting a CSS rule here you don't recognise. #}
 {% from "_info.html" import info as info_tip, info_assets %}
 {% from "_password_rules.html" import password_checklist, password_checklist_assets with context %}
-{% from "_language.html" import language_form with context %}
+{% from "_language.html" import language_form, translation_notice with context %}
 <html lang="{{ html_lang() }}">
 <head>
   <meta charset="UTF-8">
@@ -321,6 +321,7 @@
   </style>
 </head>
 <body>
+  {{ translation_notice() }}
   <header>
     <a class="brand" href="{{ url_for('main.chat') }}">
       <span class="brand-mark" aria-hidden="true">{{ logo_monogram }}</span>

@@ -19,10 +19,11 @@ Done:
   `error_pages`. 699 messages; 117 marked `REVIEW`.
 - Catalogues exist for `es`, `fr`, `sw`, `zh_Hans`, `zh_Hant`, all empty.
 
+- **English as the reference** (2026-10-11): the machine-translation
+  notice on every translated page, and English originals under
+  high-stakes wording. See "English stays the reference" below.
+
 Not done yet:
-- The English-reference display: the machine-translation notice with a
-  link to the English page, and each `REVIEW` string shown with its
-  English original.
 - Filling the four live catalogues by machine translation.
 - Chat: new reply-language choices, the interface-language tiebreaker,
   the "quote the law in English" rule, the note on `/law`, the fact-sheet
@@ -66,8 +67,44 @@ English.
 To look at a language before it is live, run locally with
 `PREVIEW_LANGUAGES=es` (comma separated). Not for production.
 
+## English stays the reference
+
+Translations are machine-made, so nothing a tenant relies on is shown in
+translation alone.
+
+- **The notice.** `translation_notice()` is the first thing in the body of
+  every page. On a translated page it is one line, in the page language,
+  saying the page was translated by a machine and that English is the
+  reference, with a link to the same page in English. On an English page
+  it renders nothing.
+- **The link** is the page's own address with `?lang=en`. That applies to
+  the one request and is not remembered, so it needs no JavaScript, no
+  form and no cookie. Its label ("Read this page in English") is
+  deliberately not translated.
+- **English originals.** `i18n.with_original(text)` returns the
+  translation followed by the English original in a smaller
+  `<span class="english-original" lang="en">`. It is the one helper for
+  this, used where the wording is produced rather than per template:
+  - every legal string `branding.py` injects (the disclaimers, the privacy
+    note, the law page note);
+  - the privacy page, the full disclaimer points, the help-resource
+    descriptions (`i18n.translated(..., original=True)`);
+  - the password rule: the checklist labels and both refusal messages;
+  - the RA-81 review screen: each field label and group name, so the
+    English form label sits beside the translated one (`original(label)`).
+  On an English page, or where there is no translation, it returns the
+  plain English string, so English output is unchanged.
+- **In the chat script** the per-message note is built from two values
+  (`per_message_disclaimer_text`, `per_message_disclaimer_english`),
+  because the script sets text, not markup.
+- The span is styled inline, not from a stylesheet: every template is
+  standalone and the helper is called from Python.
+
+Not looked at yet: the notice above the chat page's full-height layout.
+
 ## How the language is chosen
 
+0. `?lang=` on the address, for that one request only.
 1. The signed-in tenant's saved choice (`user_metadata.language`, copied
    into the session at sign-in).
 2. The choice remembered on this device (the `lang` cookie).

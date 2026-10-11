@@ -3,7 +3,7 @@
 {% from "_info.html" import info as info_tip, info_assets %}
 {% from "_your_data.html" import your_data_button, your_data_popover with context %}
 {% from "_greeting.html" import greeting with context %}
-{% from "_language.html" import language_form with context %}
+{% from "_language.html" import language_form, translation_notice with context %}
 <html lang="{{ html_lang() }}">
 <head>
   <meta charset="UTF-8">
@@ -784,6 +784,7 @@
   </style>
 </head>
 <body>
+  {{ translation_notice() }}
   <header>
     <button id="chats-toggle" type="button" aria-label="{{ _("Open chats") }}" aria-controls="chats-sidebar" aria-expanded="false">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
@@ -999,7 +1000,8 @@
 
   <script>
     const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
-    const PER_MESSAGE_DISCLAIMER = {{ per_message_disclaimer|tojson }};
+    const PER_MESSAGE_DISCLAIMER = {{ per_message_disclaimer_text|tojson }};
+    const PER_MESSAGE_DISCLAIMER_ENGLISH = {{ per_message_disclaimer_english|tojson }};
     const FORM_READY_MESSAGE = {{ (form_ready_message or "")|tojson }};
     const FORM_READY_HTML = {{ (form_ready_html or "")|tojson }};
     const chatBox = document.getElementById("chat-box");
@@ -1695,6 +1697,14 @@
           const note = document.createElement("p");
           note.className = "message-disclaimer";
           note.textContent = PER_MESSAGE_DISCLAIMER;
+          if (PER_MESSAGE_DISCLAIMER_ENGLISH) {
+            const english = document.createElement("span");
+            english.className = "english-original";
+            english.lang = "en";
+            english.style.cssText = "display:block;font-size:0.85em;opacity:0.85;margin-top:2px";
+            english.textContent = PER_MESSAGE_DISCLAIMER_ENGLISH;
+            note.appendChild(english);
+          }
           wrapper.appendChild(note);
         }
 
