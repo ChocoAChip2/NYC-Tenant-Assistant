@@ -40,5 +40,7 @@ Evidence (2026-10-11, rebased on b7d7bae)
   The work remains isolated from the owner's feat/i18n-foundation worktree.
 
 Next
-Open a draft PR. Complete browser checks when access is allowed, then mark it
-ready for owner review. Do not merge.
+Branch feat/mobile-chat-drawer is pushed. Draft PR #64 is open:
+https://github.com/ChocoAChip2/NYC-Tenant-Assistant/pull/64
+Complete browser checks when access is allowed, then mark it ready for owner
+review. Nothing has been merged.
