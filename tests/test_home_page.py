@@ -7,6 +7,9 @@ before the move), and check that confirmation emails land on /login.
 """
 
 import inspect
+from pathlib import Path
+import re
+from unittest import mock
 from tests.app_test_support import SIGNUP_PROFILE
 import unittest
 
@@ -63,6 +66,65 @@ class HomeIsTheLookupTests(_CacheIsolation):
         source = inspect.getsource(routes)
         at = source.index('@main_bp.route("/signup", methods=["GET", "POST"])')
         self.assertIn('@limiter.limit("10 per minute", methods=["POST"])', source[at:at + 140])
+
+
+class PublicLogoLinkTests(_CacheIsolation):
+    def test_signed_out_logos_point_to_street_search(self):
+        client = _client()
+        for path in ("/", "/resources"):
+            with self.subTest(path=path):
+                response = client.get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertIn('class="brand" href="/"', response.get_data(as_text=True))
+
+    def test_signed_in_logos_point_to_chat_without_redirecting_public_pages(self):
+        client = _client(logged_in=True)
+        for path in ("/", "/resources"):
+            with self.subTest(path=path):
+                response = client.get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertIn('class="brand" href="/chat"', response.get_data(as_text=True))
+
+    def test_public_logos_use_the_shared_context_value(self):
+        templates = Path(routes.__file__).parent / "templates"
+        for template in templates.glob("*.html"):
+            with self.subTest(template=template.name):
+                for logo in re.findall(r'<a\b[^>]*class="brand"[^>]*>', template.read_text()):
+                    self.assertNotIn("url_for('main.home')", logo)
+        for name in ("area", "building", "resources", "law", "law_index", "learn_more", "privacy"):
+            with self.subTest(template=name):
+                self.assertIn('class="brand" href="{{ home_url }}"', (templates / f"{name}.html").read_text())
+
+    def test_in_page_search_links_still_point_to_search_when_signed_in(self):
+        client = _client(logged_in=True)
+        for path, text in (("/building", "Search by street"), ("/resources", "Search your street")):
+            with self.subTest(path=path):
+                body = client.get(path).get_data(as_text=True)
+                self.assertIn(f'<a href="/">{text}</a>', body)
+
+    def test_signed_in_street_search_logo_returns_to_chat(self):
+        import account_requirements
+        import area_service
+        from tests.review_support import MemorySupabase, ReviewAI
+        from tests.test_area_lookup import FakeOfficialsClient, fake_get_json
+
+        area_service.clear_caches()
+        self.addCleanup(area_service.clear_caches)
+        client = _client(logged_in=True)
+        service = MemorySupabase()
+        service.client = FakeOfficialsClient()
+        client.application.config.update(SUPABASE_SERVICE=service, AI_SERVICE=ReviewAI())
+        with client.session_transaction() as session:
+            account_requirements.record_unknown(session)
+        getter, _ = fake_get_json()
+        with mock.patch.object(area_service, "_get_json", getter):
+            response = client.get("/?street=Echo+Place&borough=Bronx")
+        self.assertEqual(response.status_code, 200)
+        body = response.get_data(as_text=True)
+        self.assertIn("Echo Place, Bronx", body)
+        target = re.search(r'class="brand" href="([^"]+)"', body).group(1)
+        self.assertEqual(target, "/chat")
+        self.assertEqual(client.get(target).status_code, 200)
 
 
 class ConfirmationEmailTests(unittest.TestCase):

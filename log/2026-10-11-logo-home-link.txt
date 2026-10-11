@@ -1,0 +1,35 @@
+Requirement
+A public-page logo takes a signed-in tenant to /chat and a signed-out visitor
+to /. Keep / as street search, /building as address lookup, and all in-page
+search links unchanged. Decide the target once in template context.
+
+Implementation
+- Added home_url through a main_bp app_context_processor in routes.py, based
+  only on session.get("user_id"). No new dependency or shared header abstraction.
+- area.html, building.html, resources.html, law.html, law_index.html,
+  learn_more.html and privacy.html now use home_url for a.brand.
+- chat.html, settings.html, error.html and in-page search links are unchanged.
+- Based on current main 610f456 (PR #66), preserving the merged drawer and i18n.
+
+Evidence (2026-10-11)
+- Required six modules: 177 tests OK, including ErrorPageTests.
+- venv/bin/python -m unittest discover -s tests: 1120 tests OK, 1 skipped.
+- New regressions cover signed-out and signed-in / and /resources, every public
+  logo template using home_url, and unchanged in-page search links.
+- An offline Flask journey searches Echo Place using the existing mocked city
+  records, extracts the rendered logo href, and follows it successfully to /chat.
+- git diff --check passes; protected template diff is empty. Template edits
+  change only the seven logo href values; no CSS or layout changed.
+- Manual browser clicking and visual checks were not performed. The saved
+  browser access restriction from the prior task remains unresolved. The
+  automated route journey above covers the requested signed-in navigation.
+
+Claude Code handoff
+The full working branch is accessible at:
+~/Desktop/Github/sidekick-logo-home-link
+Branch: fix/logo-home-link
+Read AGENTS.md and docs/HANDOFF.md there. ~/Desktop/Github/INDEX.md points to it.
+Review/integrate through the PR; the owner merges. No agent merge is authorized.
+
+PR: https://github.com/ChocoAChip2/NYC-Tenant-Assistant/pull/67
+The branch is pushed; no merge performed.
