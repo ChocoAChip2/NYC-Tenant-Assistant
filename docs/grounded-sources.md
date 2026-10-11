@@ -201,7 +201,7 @@ cited the old text.
 1. Migration: `create extension vector`, the two tables, RLS, the search
    function.
 2. The loader — fetch, split by section, embed, upsert. Built as
-   `tools/corpus/` (reads the official ALP XML; see docs/HANDOFF.md);
+   `tools/corpus/` (reads the official ALP XML; see docs/legal-library-record.md);
    the first draft, `tools/ingest_corpus.py`, was retired.
 3. `retrieval_service.py` — hybrid query, relevance floor, returns chunks
    with their source rows.

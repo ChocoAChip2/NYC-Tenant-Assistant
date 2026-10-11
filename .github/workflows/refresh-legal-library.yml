@@ -4,7 +4,7 @@ name: Refresh Legal Library
 # NYC Admin Code bulk XML from American Legal Publishing. Downloads it,
 # parses it, runs the sanity gates, and loads whatever changed through the
 # token-checked corpus_* RPCs (tools/corpus/refresh.py; design in
-# docs/HANDOFF.md section 3). When the law changed, it opens an issue with
+# docs/legal-library-record.md section 3). When the law changed, it opens an issue with
 # the list of amended sections, so a person looks at every amendment.
 #
 # SECRETS
@@ -72,7 +72,7 @@ jobs:
           set +e
           args=(--summary "$RUNNER_TEMP/summary.md" --trigger "$TRIGGER")
           if [ -z "${CORPUS_INGEST_TOKEN:-}" ]; then
-            echo "::notice::CORPUS_INGEST_TOKEN is not set, so this is a parse-and-gate dry run that does not touch Supabase. See docs/HANDOFF.md."
+            echo "::notice::CORPUS_INGEST_TOKEN is not set, so this is a parse-and-gate dry run that does not touch Supabase. See docs/legal-library-record.md."
             # Without the migration the state read fails, so leave Supabase out entirely.
             unset SUPABASE_URL SUPABASE_KEY
             args+=(--dry-run)
