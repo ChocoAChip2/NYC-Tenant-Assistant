@@ -392,7 +392,7 @@
         <h2 id="court-heading">Housing Court in {{ borough }}</h2>
         {% for court in courts %}
           <div class="resource">
-            <a href="{{ court.url }}" target="_blank" rel="noopener noreferrer">{{ court.name }}</a>
+            <a href="{{ court.url }}" target="_blank" rel="noopener noreferrer" data-usage-resource="{{ usage_id(court.name) }}">{{ court.name }}</a>
             <p class="contact">{{ court.address }}</p>
           </div>
         {% endfor %}
@@ -413,7 +413,7 @@
       <h2 id="help-heading">Free help</h2>
       {% for r in help_resources %}
         <div class="resource">
-          <a href="{{ r.url }}" target="_blank" rel="noopener noreferrer">{{ r.name }}</a>
+          <a href="{{ r.url }}" target="_blank" rel="noopener noreferrer" data-usage-resource="{{ usage_id(r.name) }}">{{ r.name }}</a>
           <p>{{ r.detail }}</p>
           <p class="contact">{{ r.contact }}</p>
         </div>
@@ -424,7 +424,7 @@
       <h2 id="report-heading">Report a problem</h2>
       {% for r in report_links %}
         <div class="resource">
-          <a href="{{ r.url }}" target="_blank" rel="noopener noreferrer">{{ r.name }}</a>
+          <a href="{{ r.url }}" target="_blank" rel="noopener noreferrer" data-usage-resource="{{ usage_id(r.name) }}">{{ r.name }}</a>
           <p>{{ r.detail }}</p>
         </div>
       {% endfor %}
@@ -432,8 +432,21 @@
   </main>
 
   <footer>
-    <p>{{ short_disclaimer }} <a href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a></p>
+    <p>{{ short_disclaimer }} <a href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a> · <a href="{{ url_for('main.privacy') }}">{{ privacy_label }}</a></p>
   </footer>
   {{ info_assets() }}
+  <script>
+    (function () {
+      if (navigator.globalPrivacyControl) return;
+      var url = {{ url_for('main.usage_click')|tojson }};
+      document.addEventListener("click", function (event) {
+        var link = event.target.closest && event.target.closest("[data-usage-resource]");
+        if (!link || !navigator.sendBeacon) return;
+        var data = new FormData();
+        data.append("id", link.getAttribute("data-usage-resource"));
+        try { navigator.sendBeacon(url, data); } catch (error) {}
+      });
+    })();
+  </script>
 </body>
 </html>

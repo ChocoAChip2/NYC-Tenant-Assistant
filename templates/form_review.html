@@ -137,6 +137,6 @@
       <p>After downloading, review the PDF again, sign and date it, and follow the instructions on the form. <a href="https://hcr.ny.gov/form-ra-81" target="_blank" rel="noopener noreferrer">Official blank RA-81</a></p>
     </form>
   {% endif %}
-  <p>{{ short_disclaimer }}</p>
+  <p>{{ short_disclaimer }} <a href="{{ url_for('main.privacy') }}">{{ privacy_label }}</a></p>
 </main></body>
 </html>

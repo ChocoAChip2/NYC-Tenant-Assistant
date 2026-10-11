@@ -51,6 +51,64 @@ PRIVACY_NOTE_DETAIL = "You can update these details in Settings."
 # Shown next to the short disclaimer as the link out to the full page.
 LEARN_MORE_LABEL = "Learn more"
 
+# The privacy page (/privacy), linked from every footer and from sign-up.
+#
+# It describes the usage counts (usage_metrics.py) and points to where
+# account data is managed. Every sentence here is a promise the code has
+# to keep: tests/test_usage_counts.py checks the ones that can be checked
+# (what the recorder accepts, what the table can hold, no new cookies).
+# NOT REVIEWED BY A LAWYER as of 2026-10-11; see the log entry of that
+# date. Scope each "never" to the usage counts: the site as a whole does
+# handle account details and sends chat messages to be answered.
+PRIVACY_LABEL = "Privacy"
+PRIVACY_TITLE = "Privacy"
+PRIVACY_LEDE = "What we count to improve the site, and what we never keep in those counts."
+PRIVACY_SECTIONS = [
+    {
+        "title": "What we count",
+        "intro": "We keep simple daily totals so we can see what is useful and where people get stuck.",
+        "points": [
+            "How many times each kind of page was opened.",
+            "How many street and building searches found a result, and how many did not.",
+            "Which borough was searched, and whether a ZIP code or cross street was added (yes or no, never the value).",
+            "Which sections of the law were opened.",
+            "How many chat messages were sent, and how many replies cited the law.",
+            "Which help links and suggestion buttons were used.",
+            "How many times each step of sign-up or a form was reached.",
+            "How many errors happened, and on which kind of page.",
+            "Whether visits were on a phone or a computer, the browser's main language, and whether "
+            "a visit came from a search engine, social media or directly, and whether it was signed in.",
+        ],
+    },
+    {
+        "title": "What these counts never include",
+        "intro": "A count is a day, a category and a number. It does not say who did what.",
+        "points": [
+            "No name, email address or account.",
+            "No street, address, apartment number, ZIP code or cross street.",
+            "Nothing you typed, including your chat messages and their topics.",
+            "No IP address, and no cookie or code that follows you from visit to visit.",
+            "No web addresses, which can contain what you searched for.",
+            "Nothing from other websites. We use no advertising or tracking services.",
+        ],
+    },
+    {
+        "title": "How long we keep them",
+        "intro": "Daily totals are deleted after 12 months. When we look at them, any total under 5 is hidden.",
+        "points": [],
+    },
+    {
+        "title": "Your choice",
+        "intro": "If your browser sends the Global Privacy Control signal, your visits are not counted at all.",
+        "points": [],
+    },
+]
+PRIVACY_ACCOUNT_TITLE = "Your account and chats"
+PRIVACY_ACCOUNT_TEXT = (
+    "This page is about usage counts. Your account details and saved chats are separate: you can "
+    "download your chats or delete your account in Settings."
+)
+
 # The banner across the top of the app. Longer and louder than
 # SHORT_DISCLAIMER on purpose: the footer note is the standing reminder,
 # this is the thing someone in real trouble should hit before they start
@@ -197,5 +255,6 @@ def register(app) -> None:
             "law_page_note_detail": LAW_PAGE_NOTE_DETAIL,
             "per_message_disclaimer": PER_MESSAGE_DISCLAIMER,
             "learn_more_label": LEARN_MORE_LABEL,
+            "privacy_label": PRIVACY_LABEL,
             "law_page_note": LAW_PAGE_NOTE,
         }

@@ -73,7 +73,7 @@ def create_app() -> Flask:
     # password" page open for a while shouldn't have their submission
     # silently rejected.
     app.config["WTF_CSRF_TIME_LIMIT"] = None
-    CSRFProtect(app)
+    csrf = CSRFProtect(app)
 
     # Rate limiting: a blanket default (see rate_limit.py) plus tighter
     # limits on specific expensive or sensitive routes (login, signup,
@@ -170,6 +170,11 @@ def create_app() -> Flask:
 
     # Register the blueprint from routes.py so Flask knows about each page URL.
     app.register_blueprint(main_bp)
+    # The one POST with no token: a click count from the Resources page,
+    # which is read by people who are not signed in and get no cookie from
+    # us (a token would need one). It checks the request's origin itself
+    # and can only add 1 to a counter from a fixed list (usage_routes.py).
+    csrf.exempt(app.view_functions["main.usage_click"])
     # Every template gets the product name and the legal fine print without
     # each route having to remember to pass them. The wording lives in
     # branding.py precisely so six standalone templates cannot drift apart

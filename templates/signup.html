@@ -314,8 +314,9 @@
     </form>
 
     <p class="footer-link">Already confirmed? <a href="{{ url_for('main.login') }}">Go to login</a></p>
+    <p class="footer-link">See what we count and what we never keep: <a href="{{ url_for('main.privacy') }}">{{ privacy_label }}</a></p>
   </div>
-  <p class="legal-note">{{ short_disclaimer }} <a href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a></p>
+  <p class="legal-note">{{ short_disclaimer }} <a href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a> · <a href="{{ url_for('main.privacy') }}">{{ privacy_label }}</a></p>
   </div>
 
   <script>

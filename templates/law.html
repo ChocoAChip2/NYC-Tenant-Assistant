@@ -305,7 +305,7 @@
     {% endif %}
   </main>
   <footer>
-    <p>{{ short_disclaimer }} <a href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a></p>
+    <p>{{ short_disclaimer }} <a href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a> · <a href="{{ url_for('main.privacy') }}">{{ privacy_label }}</a></p>
   </footer>
   {{ info_assets() }}
 </body>

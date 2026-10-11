@@ -69,6 +69,14 @@ class Passage:
     official_url: str | None = None
 
 
+# Every kind check_reply() can report. usage_metrics counts violations by
+# kind (never by detail, which quotes the reply), so a new kind goes here.
+VIOLATION_KINDS = (
+    "unknown_marker", "ungrounded_statute", "citation_without_quote", "quote_not_in_source",
+    "number_not_in_source",
+)
+
+
 @dataclass(frozen=True)
 class Violation:
     kind: str
