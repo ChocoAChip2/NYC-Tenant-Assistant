@@ -6,7 +6,7 @@ where a test needs a malformed or unusual file, it takes a real fixture
 and changes one thing, so the rest of the document is still exactly what
 ALP publishes.
 
-The requirements come from docs/HANDOFF.md "Next steps" item 1.
+The requirements come from docs/legal-library-record.md "Next steps" item 1.
 """
 
 import io

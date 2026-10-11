@@ -6,7 +6,7 @@ must be present, and no empty sections that are not marked repealed. A
 parse that fails any of them writes nothing.
 
 Minimums are ~90% of the real section counts in the Admin Code as of the
-2026-09-23 ALP export (docs/HANDOFF.md section 0): HMC 211, Rent
+2026-09-23 ALP export (docs/legal-library-record.md section 0): HMC 211, Rent
 Stabilization Law 25, Unlawful Eviction 9, Right to Counsel 6, Human
 Rights Law 37. A source whose real count has not been measured is not
 enabled -- a guessed minimum is either useless or a false alarm.

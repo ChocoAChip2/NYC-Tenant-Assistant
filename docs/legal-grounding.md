@@ -136,4 +136,4 @@ write RPC refuses anything but https. Sanity gates (minimum section count,
 anchor sections, no empty unrepealed section, >= 80% of the current
 library) refuse a bad parse before anything is written. The quarterly
 workflow runs the same command. Full design and the load procedure:
-`docs/HANDOFF.md` section 3.
+`docs/legal-library-record.md` section 3.
