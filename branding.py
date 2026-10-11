@@ -254,22 +254,28 @@ def register(app) -> None:
 
     @app.context_processor
     def _inject_branding():
-        _ = i18n.gettext
         # The constants above stay plain English strings (everything that
-        # compares or reuses them depends on that); they are translated
-        # here, where they are used. The product name is a name: untouched.
+        # compares or reuses them depends on that). They are translated
+        # here, where they are used, and because this is the wording a
+        # tenant relies on, each comes with its English original on a
+        # translated page (i18n.with_original). On an English page these
+        # are the same strings as ever. The product name is a name.
+        legal = i18n.with_original
         return {
             "product_name": PRODUCT_NAME,
             "logo_monogram": LOGO_MONOGRAM,
-            "short_disclaimer": _(SHORT_DISCLAIMER),
-            "top_disclaimer": _(TOP_DISCLAIMER),
-            "top_disclaimer_detail": _(TOP_DISCLAIMER_DETAIL),
-            "privacy_note_title": _(PRIVACY_NOTE_TITLE),
-            "privacy_note": _(PRIVACY_NOTE),
-            "privacy_note_detail": _(PRIVACY_NOTE_DETAIL),
-            "law_page_note_detail": _(LAW_PAGE_NOTE_DETAIL),
-            "per_message_disclaimer": _(PER_MESSAGE_DISCLAIMER),
-            "learn_more_label": _(LEARN_MORE_LABEL),
-            "privacy_label": _(PRIVACY_LABEL),
-            "law_page_note": _(LAW_PAGE_NOTE),
+            "short_disclaimer": legal(SHORT_DISCLAIMER),
+            "top_disclaimer": legal(TOP_DISCLAIMER),
+            "top_disclaimer_detail": legal(TOP_DISCLAIMER_DETAIL),
+            "privacy_note_title": legal(PRIVACY_NOTE_TITLE),
+            "privacy_note": legal(PRIVACY_NOTE),
+            "privacy_note_detail": legal(PRIVACY_NOTE_DETAIL),
+            "law_page_note_detail": legal(LAW_PAGE_NOTE_DETAIL),
+            "per_message_disclaimer": legal(PER_MESSAGE_DISCLAIMER),
+            # For the chat script, which builds each note itself.
+            "per_message_disclaimer_text": i18n.gettext(PER_MESSAGE_DISCLAIMER),
+            "per_message_disclaimer_english": i18n.english_if_translated(PER_MESSAGE_DISCLAIMER),
+            "learn_more_label": i18n.gettext(LEARN_MORE_LABEL),
+            "privacy_label": i18n.gettext(PRIVACY_LABEL),
+            "law_page_note": legal(LAW_PAGE_NOTE),
         }

@@ -1,6 +1,6 @@
 {# The greeting shown on a chat with nothing in it yet: the no-conversation screen (with the date) and a brand-new conversation (without). Import with {% from "_greeting.html" import greeting with context %}. The text here is the fallback shown before the page's script swaps in a time-of-day greeting; keep the ids, the script looks them up. See docs/frontend/chat-page.md (Time-of-day greeting). #}
 {%- macro greeting(show_date=false) -%}
 {% if show_date %}<p class="greeting-eyebrow" id="greeting-date"></p>
-{% endif %}<h1 class="greeting-title" id="greeting-text">Welcome{% if first_name %}, {{ first_name }}{% elif user_email %}, {{ user_email.split("@")[0]|capitalize }}{% endif %}</h1>
-<p class="greeting-sub">How can I help you today?</p>
+{% endif %}<h1 class="greeting-title" id="greeting-text">{{ _("Welcome") }}{% if first_name %}, {{ first_name }}{% elif user_email %}, {{ user_email.split("@")[0]|capitalize }}{% endif %}</h1>
+<p class="greeting-sub">{{ _("How can I help you today?") }}</p>
 {%- endmacro -%}

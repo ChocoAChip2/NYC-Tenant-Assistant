@@ -2,7 +2,7 @@
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. Jinja comments like this one are stripped before the response is written. Read docs/frontend/css-gotchas.md before deleting a CSS rule here you don't recognise. #}
 {% from "_info.html" import info as info_tip, info_assets %}
 {% from "_password_rules.html" import password_checklist, password_checklist_assets with context %}
-{% from "_language.html" import language_form with context %}
+{% from "_language.html" import language_form, translation_notice with context %}
 <html lang="{{ html_lang() }}">
 <head>
   <meta charset="UTF-8">
@@ -10,7 +10,7 @@
   <meta name="theme-color" content="#eef1f5" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ product_name }} | Settings</title>
+  <title>{{ product_name }} | {{ _("Settings") }}</title>
   <script>
 
     (function () {
@@ -321,18 +321,19 @@
   </style>
 </head>
 <body>
+  {{ translation_notice() }}
   <header>
     <a class="brand" href="{{ url_for('main.chat') }}">
       <span class="brand-mark" aria-hidden="true">{{ logo_monogram }}</span>
-      <h1>Settings</h1>
+      <h1>{{ _("Settings") }}</h1>
     </a>
-    <a href="{{ url_for('main.chat') }}">&larr; Back to chat</a>
+    <a href="{{ url_for('main.chat') }}">{{ _("&larr; Back to chat") }}</a>
     {{ language_form() }}
   </header>
 
   <p class="top-disclaimer" role="note">
     <span class="warn-icon" aria-hidden="true">!</span>
-    <span>{{ top_disclaimer }}{{ info_tip(top_disclaimer_detail, label="About this notice") }}</span>
+    <span>{{ top_disclaimer }}{{ info_tip(top_disclaimer_detail, label=gettext("About this notice")) }}</span>
   </p>
 
   <main>
@@ -345,156 +346,156 @@
     {% endwith %}
 
     <section class="card">
-      <h2>Appearance</h2>
-      <p class="hint">Saved on this device only.</p>
+      <h2>{{ _("Appearance") }}</h2>
+      <p class="hint">{{ _("Saved on this device only.") }}</p>
       <div class="theme-options" id="theme-options">
         <label class="theme-option">
           <input type="radio" name="theme" value="light">
-          Light
+          {{ _("Light") }}
         </label>
         <label class="theme-option">
           <input type="radio" name="theme" value="dark">
-          Dark
+          {{ _("Dark") }}
         </label>
         <label class="theme-option">
           <input type="radio" name="theme" value="system">
-          Match system
+          {{ _("Match system") }}
         </label>
       </div>
     </section>
 
     <section class="card" id="profile">
-      <h2>Your name</h2>
+      <h2>{{ _("Your name") }}</h2>
       {% if has_profile %}
-      <p class="hint">Used to greet you.{% if not profile %} Enter all three to save.{% endif %}</p>
+      <p class="hint">{{ _("Used to greet you.") }}{% if not profile %} {{ _("Enter all three to save.") }}{% endif %}</p>
       {% else %}
-      <p class="hint">Add your name so we can greet you.</p>
+      <p class="hint">{{ _("Add your name so we can greet you.") }}</p>
       {% endif %}
       <form class="stack" id="profile-form" method="POST" action="{{ url_for('main.update_profile') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="name-row">
           <label>
-            First name
+            {{ _("First name") }}
             <input type="text" name="first_name" value="{{ profile.first_name or '' }}" maxlength="50" autocomplete="given-name" required>
           </label>
           <label>
-            Last name
+            {{ _("Last name") }}
             <input type="text" name="last_name" value="{{ profile.last_name or '' }}" maxlength="50" autocomplete="family-name" required>
           </label>
         </div>
         <label>
-          Date of birth
+          {{ _("Date of birth") }}
           <input type="date" name="date_of_birth" value="{{ profile.date_of_birth or '' }}" min="{{ dob_min }}" max="{{ dob_max }}" autocomplete="bday" required>
         </label>
         <p class="privacy-note">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-          <span><strong>{{ privacy_note_title }}</strong>{{ privacy_note }}{{ info_tip(privacy_note_detail, label="About your account details") }}</span>
+          <span><strong>{{ privacy_note_title }}</strong>{{ privacy_note }}{{ info_tip(privacy_note_detail, label=gettext("About your account details")) }}</span>
         </p>
-        <button type="submit">Save name</button>
+        <button type="submit">{{ _("Save name") }}</button>
       </form>
     </section>
 
     <section class="card">
-      <h2>Account</h2>
-      <p class="hint">Signed in as <strong>{{ user_email }}</strong>.{{ info_tip("A new email takes effect after you confirm it from your inbox.") }}</p>
+      <h2>{{ _("Account") }}</h2>
+      <p class="hint">{{ _("Signed in as") }} <strong>{{ user_email }}</strong>.{{ info_tip(gettext("A new email takes effect after you confirm it from your inbox.")) }}</p>
       <form class="stack" id="account-form" method="POST" action="{{ url_for('main.update_account') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <label>
-          New email
-          <input type="email" name="email" placeholder="Leave blank to keep your current email">
+          {{ _("New email") }}
+          <input type="email" name="email" placeholder="{{ _("Leave blank to keep your current email") }}">
         </label>
         <label>
-          New password
+          {{ _("New password") }}
           <div class="password-field">
-            <input id="new-password" type="password" name="password" minlength="{{ password_min_length }}" autocomplete="new-password" placeholder="Leave blank to keep your current password">
-            <button type="button" class="password-toggle" data-target="new-password" aria-label="Show password" title="Show password"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+            <input id="new-password" type="password" name="password" minlength="{{ password_min_length }}" autocomplete="new-password" placeholder="{{ _("Leave blank to keep your current password") }}">
+            <button type="button" class="password-toggle" data-target="new-password" aria-label="{{ _("Show password") }}" title="{{ _("Show password") }}"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
           </div>
           {{ password_checklist("new-password", optional=true) }}
         </label>
         <label>
-          Confirm new password
+          {{ _("Confirm new password") }}
           <div class="password-field">
             <input id="confirm-new-password" type="password" name="confirm_password" minlength="{{ password_min_length }}" autocomplete="new-password">
-            <button type="button" class="password-toggle" data-target="confirm-new-password" aria-label="Show password" title="Show password"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+            <button type="button" class="password-toggle" data-target="confirm-new-password" aria-label="{{ _("Show password") }}" title="{{ _("Show password") }}"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
           </div>
         </label>
-        <button type="submit">Save account changes</button>
+        <button type="submit">{{ _("Save account changes") }}</button>
       </form>
     </section>
 
     <section class="card" id="sign-in-codes">
-      <h2>Sign-in codes</h2>
+      <h2>{{ _("Sign-in codes") }}</h2>
       {% if sign_in_code_change %}
-        <p class="hint">Enter the 6-digit code we emailed to <strong>{{ user_email }}</strong> to turn sign-in codes {{ "on" if sign_in_code_change.enable else "off" }}.</p>
+        {% set bold_email = ("<strong>" ~ (user_email|e) ~ "</strong>")|safe %}
+        <p class="hint">{% if sign_in_code_change.enable %}{{ _("Enter the 6-digit code we emailed to %(email)s to turn sign-in codes on.", email=bold_email) }}{% else %}{{ _("Enter the 6-digit code we emailed to %(email)s to turn sign-in codes off.", email=bold_email) }}{% endif %}</p>
         <form class="stack" method="POST" action="{{ url_for('main.confirm_sign_in_code_change') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <label>
-            Code
+            {{ _("Code") }}
             <input class="code-input" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 \-]*" maxlength="8" required autofocus>
           </label>
           <div class="button-row">
-            <button type="submit">Confirm</button>
-            <button type="submit" class="secondary-button" name="action" value="cancel" formnovalidate>Cancel</button>
+            <button type="submit">{{ _("Confirm") }}</button>
+            <button type="submit" class="secondary-button" name="action" value="cancel" formnovalidate>{{ _("Cancel") }}</button>
           </div>
         </form>
         <form method="POST" action="{{ url_for('main.request_sign_in_code_change') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <input type="hidden" name="turn" value="{{ "on" if sign_in_code_change.enable else "off" }}">
-          <p class="hint">No email? Check spam, or <button type="submit" class="link-button">send a new code</button>{% if sign_in_code_resend_wait %} (available in {{ sign_in_code_resend_wait }} seconds){% endif %}.</p>
+          <p class="hint">{{ _("No email? Check spam, or") }} <button type="submit" class="link-button">{{ _("send a new code") }}</button>{% if sign_in_code_resend_wait %} {{ _("(available in %(sign_in_code_resend_wait)s seconds)", sign_in_code_resend_wait=sign_in_code_resend_wait) }}{% endif %}.</p>
         </form>
       {% elif sign_in_codes_on is none %}
-        <p class="hint">We couldn't check this setting right now. Reload the page to try again.</p>
+        <p class="hint">{{ _("We couldn't check this setting right now. Reload the page to try again.") }}</p>
       {% else %}
-        <p class="hint">{% if sign_in_codes_on %}<strong>On.</strong> We email you a code each time you log in.{% else %}<strong>Off.</strong> Turn this on and we'll email you a code each time you log in.{% endif %}{{ info_tip("A password alone then can't open your account. Keep access to your email: without it you can't log in. We'll email a code to confirm this change.", label="About sign-in codes") }}</p>
+        <p class="hint">{% if sign_in_codes_on %}<strong>{{ _("On.") }}</strong> {{ _("We email you a code each time you log in.") }}{% else %}<strong>{{ _("Off.") }}</strong> {{ _("Turn this on and we'll email you a code each time you log in.") }}{% endif %}{{ info_tip(gettext("A password alone then can't open your account. Keep access to your email: without it you can't log in. We'll email a code to confirm this change."), label="About sign-in codes") }}</p>
         <form method="POST" action="{{ url_for('main.request_sign_in_code_change') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <input type="hidden" name="turn" value="{{ "off" if sign_in_codes_on else "on" }}">
-          <button type="submit"{% if sign_in_codes_on %} class="secondary-button"{% endif %}>{{ "Turn off sign-in codes" if sign_in_codes_on else "Turn on sign-in codes" }}</button>
+          <button type="submit"{% if sign_in_codes_on %} class="secondary-button"{% endif %}>{{ gettext("Turn off sign-in codes") if sign_in_codes_on else gettext("Turn on sign-in codes") }}</button>
         </form>
       {% endif %}
     </section>
 
     <section class="card" id="your-data">
-      <h2>Your data</h2>
-      <p class="hint">Download all your conversations as a Markdown file.</p>
-      <a class="button secondary" href="{{ url_for('main.download_chat_history') }}">Download my chat history</a>
+      <h2>{{ _("Your data") }}</h2>
+      <p class="hint">{{ _("Download all your conversations as a Markdown file.") }}</p>
+      <a class="button secondary" href="{{ url_for('main.download_chat_history') }}">{{ _("Download my chat history") }}</a>
     </section>
 
     <section class="card danger-zone">
-      <h2>Delete account</h2>
+      <h2>{{ _("Delete account") }}</h2>
       {% if pending_deletion %}
         <div class="notice error">
-          <strong>Your account is scheduled for deletion.</strong>
+          <strong>{{ _("Your account is scheduled for deletion.") }}</strong>
           <span data-purge-at="{{ pending_deletion.purge_after }}" id="purge-date">
-            It will be permanently deleted on {{ pending_deletion.purge_after[:10] }}.
+            {{ _("It will be permanently deleted on %(value)s.", value=pending_deletion.purge_after[:10]) }}
           </span>
-          It works normally until then. Cancel any time.
+          {{ _("It works normally until then. Cancel any time.") }}
         </div>
         <form method="POST" action="{{ url_for('main.cancel_account_deletion') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button type="submit">Cancel deletion, keep my account</button>
+          <button type="submit">{{ _("Cancel deletion, keep my account") }}</button>
         </form>
       {% else %}
         <p class="hint">
-          Deletes your account and all conversations. You have
-          {{ deletion_grace_period_days }} days to cancel; after that it can't be undone.{{ info_tip("Your account keeps working until then. Cancel from this page.") }}
+          {{ _("Deletes your account and all conversations. You have %(deletion_grace_period_days)s days to cancel; after that it can't be undone.", deletion_grace_period_days=deletion_grace_period_days) }}{{ info_tip(gettext("Your account keeps working until then. Cancel from this page.")) }}
         </p>
-        <button type="button" class="danger" id="delete-account-start">Delete my account</button>
+        <button type="button" class="danger" id="delete-account-start">{{ _("Delete my account") }}</button>
 
         <form class="stack delete-confirm" method="POST" action="{{ url_for('main.request_account_deletion') }}" id="delete-account-form" hidden>
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <p class="hint confirm-lead">To confirm, type your email address (<strong>{{ user_email }}</strong>) below.</p>
+          <p class="hint confirm-lead">{{ _("To confirm, type your email address (") }}<strong>{{ user_email }}</strong>{{ _(") below.") }}</p>
           <label>
-            Your email address
+            {{ _("Your email address") }}
             <input type="email" name="confirm_email" id="confirm-email" autocomplete="off" placeholder="{{ user_email }}" required>
           </label>
           <label class="checkbox-row">
             <input type="checkbox" name="confirm_understood" value="yes" id="confirm-understood" required>
-            <span>I understand my conversations will be permanently deleted after {{ deletion_grace_period_days }} days.</span>
+            <span>{{ _("I understand my conversations will be permanently deleted after %(deletion_grace_period_days)s days.", deletion_grace_period_days=deletion_grace_period_days) }}</span>
           </label>
           <div class="confirm-actions">
-            <button type="submit" class="danger" id="delete-account-confirm" disabled>Schedule my account for deletion</button>
-            <button type="button" class="secondary-button" id="delete-account-cancel">Never mind</button>
+            <button type="submit" class="danger" id="delete-account-confirm" disabled>{{ _("Schedule my account for deletion") }}</button>
+            <button type="button" class="secondary-button" id="delete-account-cancel">{{ _("Never mind") }}</button>
           </div>
         </form>
       {% endif %}
@@ -532,7 +533,7 @@
         var revealing = input.type === "password";
         input.type = revealing ? "text" : "password";
         btn.innerHTML = revealing ? EYE_OFF_ICON : EYE_ICON;
-        var label = revealing ? "Hide password" : "Show password";
+        var label = revealing ? {{ gettext("Hide password")|tojson }} : {{ gettext("Show password")|tojson }};
         btn.setAttribute("aria-label", label);
         btn.title = label;
       });
@@ -545,7 +546,7 @@
         var btn = event.target.querySelector('button[type="submit"]');
         if (!btn || btn.disabled) return;
         btn.disabled = true;
-        btn.textContent = "Saving…";
+        btn.textContent = {{ gettext("Saving…")|tojson }};
       });
     });
 
@@ -586,7 +587,7 @@
 
       form.addEventListener("submit", function () {
         confirmBtn.disabled = true;
-        confirmBtn.textContent = "Scheduling…";
+        confirmBtn.textContent = {{ gettext("Scheduling…")|tojson }};
       });
 
       syncConfirmButton();
@@ -598,9 +599,7 @@
       var when = new Date(el.dataset.purgeAt);
       if (isNaN(when.getTime())) return;
       el.textContent =
-        "It will be permanently deleted on " +
-        when.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }) +
-        ".";
+        {{ gettext("It will be permanently deleted on %(value)s.")|tojson }}.replace("%(value)s", when.toLocaleDateString(document.documentElement.lang === "en" ? undefined : document.documentElement.lang, { year: "numeric", month: "long", day: "numeric" }));
     })();
   </script>
   {{ info_assets() }}

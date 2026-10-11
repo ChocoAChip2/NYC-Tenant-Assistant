@@ -1,7 +1,7 @@
 <!doctype html>
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. See docs/frontend/law-page.md for why sections that left the code are still shown and why the text is set apart from our own words. #}
 {% from "_info.html" import info as info_tip, info_assets %}
-{% from "_language.html" import language_form with context %}
+{% from "_language.html" import language_form, translation_notice with context %}
 <html lang="{{ html_lang() }}">
 <head>
   <meta charset="UTF-8">
@@ -10,7 +10,7 @@
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ product_name }} | {% if sections %}{{ sections[0].authority }} § {{ sections[0].citation }}{% else %}§ {{ citation }}{% endif %}</title>
-  <meta name="description" content="The official text of New York City and New York State tenant law, with its history and a link to the official publisher.">
+  <meta name="description" content="{{ _("The official text of New York City and New York State tenant law, with its history and a link to the official publisher.") }}">
   <script>
     (function () {
       var saved = null;
@@ -223,40 +223,41 @@
   </style>
 </head>
 <body>
+  {{ translation_notice() }}
   <header>
     <a class="brand" href="{{ home_url }}">
       <span class="brand-mark" aria-hidden="true">{{ logo_monogram }}</span>
       <span class="brand-name">{{ product_name }}</span>
     </a>
-    <nav aria-label="Site">
+    <nav aria-label="{{ _("Site") }}">
       {{ language_form() }}
-      <a href="{{ url_for('main.resources') }}">Resources</a>
+      <a href="{{ url_for('main.resources') }}">{{ _("Resources") }}</a>
       <a class="hide-narrow" href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a>
       {% if logged_in %}
-        <a class="primary" href="{{ url_for('main.chat') }}">Open chat</a>
+        <a class="primary" href="{{ url_for('main.chat') }}">{{ _("Open chat") }}</a>
       {% else %}
-        <a class="hide-narrow" href="{{ url_for('main.login') }}">Log in</a>
-        <a class="primary" href="{{ url_for('main.signup') }}">Sign up free</a>
+        <a class="hide-narrow" href="{{ url_for('main.login') }}">{{ _("Log in") }}</a>
+        <a class="primary" href="{{ url_for('main.signup') }}">{{ _("Sign up free") }}</a>
       {% endif %}
     </nav>
   </header>
   <main>
     {% if error == "unavailable" %}
       <div class="alert error" role="alert">
-        <strong>The law library didn't respond</strong>
-        <p>Try again in a minute, or read it on <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">American Legal Publishing</a> (City) or <a href="{{ nys_laws_url }}" target="_blank" rel="noopener noreferrer">the State Senate's site</a> (State).</p>
+        <strong>{{ _("The law library didn't respond") }}</strong>
+        <p>{{ _("Try again in a minute, or read it on") }} <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">{{ _("American Legal Publishing") }}</a> {{ _("(City) or") }} <a href="{{ nys_laws_url }}" target="_blank" rel="noopener noreferrer">{{ _("the State Senate's site") }}</a> {{ _("(State).") }}</p>
       </div>
     {% elif error == "not_found" %}
       <section class="card">
-        <h1 class="law-title">§ {{ citation }} isn't in our library</h1>
-        <p class="note">It may be outside our library, or the number may be mistyped.{% call info_tip(label="What our library holds") %}City: the Housing Maintenance Code, Rent Stabilization Law, Unlawful Eviction, Right to Counsel, Human Rights Law and Rent Control. State: Real Property Law Articles 6-A and 7, RPAPL Articles 7 and 7-A, and the security deposit rules. All copied word for word from the official text.{% endcall %} <a href="{{ url_for('main.law_index') }}">Browse the law library</a>, or try <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">American Legal Publishing</a> (City) or <a href="{{ nys_laws_url }}" target="_blank" rel="noopener noreferrer">the State Senate's site</a> (State).</p>
+        <h1 class="law-title">{{ _("§ %(citation)s isn't in our library", citation=citation) }}</h1>
+        <p class="note">{{ _("It may be outside our library, or the number may be mistyped.") }}{% call info_tip(label=gettext("What our library holds")) %}{{ _("City: the Housing Maintenance Code, Rent Stabilization Law, Unlawful Eviction, Right to Counsel, Human Rights Law and Rent Control. State: Real Property Law Articles 6-A and 7, RPAPL Articles 7 and 7-A, and the security deposit rules. All copied word for word from the official text.") }}{% endcall %} <a href="{{ url_for('main.law_index') }}">{{ _("Browse the law library") }}</a>{{ _(", or try") }} <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">{{ _("American Legal Publishing") }}</a> {{ _("(City) or") }} <a href="{{ nys_laws_url }}" target="_blank" rel="noopener noreferrer">{{ _("the State Senate's site") }}</a> {{ _("(State).") }}</p>
       </section>
     {% else %}
-      <p class="browse"><a href="{{ url_for('main.law_index') }}">Browse the law library</a></p>
+      <p class="browse"><a href="{{ url_for('main.law_index') }}">{{ _("Browse the law library") }}</a></p>
       {% if sections|length > 1 %}
         <div class="alert warning">
-          <strong>More than one section is numbered § {{ citation }}.</strong>
-          <p>Check each one's chapter to find yours.</p>
+          <strong>{{ _("More than one section is numbered § %(citation)s.", citation=citation) }}</strong>
+          <p>{{ _("Check each one's chapter to find yours.") }}</p>
         </div>
       {% endif %}
       {% for s in sections %}
@@ -265,13 +266,13 @@
           <h1 class="law-title" id="title-{{ loop.index }}"><span class="cite">§ {{ s.citation }}</span> {{ s.title }}</h1>
           {% if s.status != "active" %}
             <div class="alert warning" role="note">
-              <strong>No longer in the official code</strong>
-              <p>Missing from the official code{% if s.last_checked_at %} as of {{ format_date(s.last_checked_at) }}{% endif %}. Don't rely on it as current law.{{ info_tip("Kept here so older links still work.") }}</p>
+              <strong>{{ _("No longer in the official code") }}</strong>
+              <p>{{ _("Missing from the official code") }}{% if s.last_checked_at %} {{ _("as of") }} {{ format_date(s.last_checked_at) }}{% endif %}{{ _(". Don't rely on it as current law.") }}{{ info_tip(gettext("Kept here so older links still work.")) }}</p>
             </div>
           {% elif s.repealed %}
             <div class="alert warning" role="note">
-              <strong>This section has been repealed</strong>
-              <p>No longer in force. See the history below.</p>
+              <strong>{{ _("This section has been repealed") }}</strong>
+              <p>{{ _("No longer in force. See the history below.") }}</p>
             </div>
           {% endif %}
           {% if s.paragraphs %}
@@ -280,25 +281,25 @@
             </div>
           {% endif %}
           <dl class="facts">
-            <dt>Source</dt>
-            <dd>{{ s.authority }}, as published by {{ s.publisher }}</dd>
-            <dt>{% if s.repealed %}Repealed{% else %}Last amended{% endif %}</dt>
-            <dd>{% if s.last_amended %}Effective {{ format_date(s.last_amended) }}{% else %}No amendment date in the official history{% endif %}</dd>
+            <dt>{{ _("Source") }}</dt>
+            <dd>{{ s.authority }}{{ _(", as published by") }} {{ s.publisher }}</dd>
+            <dt>{% if s.repealed %}{{ _("Repealed") }}{% else %}{{ _("Last amended") }}{% endif %}</dt>
+            <dd>{% if s.last_amended %}{{ _("Effective") }} {{ format_date(s.last_amended) }}{% else %}{{ _("No amendment date in the official history") }}{% endif %}</dd>
             {% if s.last_checked_at %}
-              <dt>Checked</dt>
-              <dd>Matched the official code on {{ format_date(s.last_checked_at) }}</dd>
+              <dt>{{ _("Checked") }}</dt>
+              <dd>{{ _("Matched the official code on") }} {{ format_date(s.last_checked_at) }}</dd>
             {% endif %}
           </dl>
           <div class="actions">
-            <a class="button secondary" href="{{ s.official_url }}" target="_blank" rel="noopener noreferrer">Read it on the official site</a>
+            <a class="button secondary" href="{{ s.official_url }}" target="_blank" rel="noopener noreferrer">{{ _("Read it on the official site") }}</a>
           </div>
           {% if s.history %}
-            <h2>Amendment history</h2>
+            <h2>{{ _("Amendment history") }}</h2>
             <ul class="history">{% for h in s.history %}<li>{{ h }}</li>{% endfor %}</ul>
           {% endif %}
           {% if s.notes %}
-            <h2>Publisher's notes</h2>
-            <p class="hint">Added by the publisher for reference. Not part of the law.</p>
+            <h2>{{ _("Publisher's notes") }}</h2>
+            <p class="hint">{{ _("Added by the publisher for reference. Not part of the law.") }}</p>
             <ul class="notes">{% for n in s.notes %}<li>{{ n }}</li>{% endfor %}</ul>
           {% endif %}
           <p class="note">{{ law_page_note }}{{ info_tip(law_page_note_detail) }}</p>

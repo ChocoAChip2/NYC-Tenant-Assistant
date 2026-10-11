@@ -9,6 +9,8 @@ wrote it, passes validate() before it is saved.
 import json
 import re
 
+from i18n import gettext
+
 OPTIONS = {
     "borough": ["", "Bronx", "Brooklyn", "Manhattan", "Queens", "Staten Island"],
     "regulation": ["unknown", "market_rate", "rent_stabilized", "rent_controlled", "hotel_stabilized", "sro"],
@@ -71,17 +73,17 @@ def defaults():
 
 def validate(data):
     if not isinstance(data, dict):
-        raise ValueError("Please check your situation details.")
+        raise ValueError(gettext("Please check your situation details."))
     result = defaults()
     for key, choices in OPTIONS.items():
         value = data.get(key, result[key])
         if not isinstance(value, str) or value not in choices:
-            raise ValueError(f"Choose a valid value for {LABELS[key].lower()}.")
+            raise ValueError(gettext("Choose a valid value for %(label)s.", label=gettext(LABELS[key]).lower()))
         result[key] = value
     for key, limit in TEXT_LIMITS.items():
         value = data.get(key, "")
         if not isinstance(value, str) or len(value) > limit:
-            raise ValueError(f"{LABELS[key]} must be {limit} characters or fewer.")
+            raise ValueError(gettext("%(label)s must be %(limit)s characters or fewer.", label=gettext(LABELS[key]), limit=limit))
         result[key] = value.strip()
     return result
 

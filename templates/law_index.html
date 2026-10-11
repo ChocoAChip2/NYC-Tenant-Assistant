@@ -1,7 +1,7 @@
 <!doctype html>
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. See docs/frontend/law-page.md (The index) for why the groups start closed and why repealed sections are listed. #}
 {% from "_info.html" import info as info_tip, info_assets %}
-{% from "_language.html" import language_form with context %}
+{% from "_language.html" import language_form, translation_notice with context %}
 <html lang="{{ html_lang() }}">
 <head>
   <meta charset="UTF-8">
@@ -9,8 +9,8 @@
   <meta name="theme-color" content="#eef1f5" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ product_name }} | Law library</title>
-  <meta name="description" content="Browse the official text of New York City and New York State tenant law, section by section.">
+  <title>{{ product_name }} | {{ _("Law library") }}</title>
+  <meta name="description" content="{{ _("Browse the official text of New York City and New York State tenant law, section by section.") }}">
   <script>
     (function () {
       var saved = null;
@@ -250,64 +250,65 @@
   </style>
 </head>
 <body>
+  {{ translation_notice() }}
   <header>
     <a class="brand" href="{{ home_url }}">
       <span class="brand-mark" aria-hidden="true">{{ logo_monogram }}</span>
       <span class="brand-name">{{ product_name }}</span>
     </a>
-    <nav aria-label="Site">
+    <nav aria-label="{{ _("Site") }}">
       {{ language_form() }}
-      <a href="{{ url_for('main.resources') }}">Resources</a>
+      <a href="{{ url_for('main.resources') }}">{{ _("Resources") }}</a>
       <a class="hide-narrow" href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a>
       {% if logged_in %}
-        <a class="primary" href="{{ url_for('main.chat') }}">Open chat</a>
+        <a class="primary" href="{{ url_for('main.chat') }}">{{ _("Open chat") }}</a>
       {% else %}
-        <a class="hide-narrow" href="{{ url_for('main.login') }}">Log in</a>
-        <a class="primary" href="{{ url_for('main.signup') }}">Sign up free</a>
+        <a class="hide-narrow" href="{{ url_for('main.login') }}">{{ _("Log in") }}</a>
+        <a class="primary" href="{{ url_for('main.signup') }}">{{ _("Sign up free") }}</a>
       {% endif %}
     </nav>
   </header>
   <main>
     <div>
-      <h1>Law library</h1>
-      <p class="lede">The official text of City and State tenant law.{% call info_tip(label="About the library") %}Copied word for word from the official publishers and checked against them regularly. Open a section to read it with its history.{% endcall %}</p>
+      <h1>{{ _("Law library") }}</h1>
+      <p class="lede">{{ _("The official text of City and State tenant law.") }}{% call info_tip(label=gettext("About the library")) %}{{ _("Copied word for word from the official publishers and checked against them regularly. Open a section to read it with its history.") }}{% endcall %}</p>
     </div>
     <section class="card" aria-labelledby="goto-heading">
       <form class="goto" method="get" action="{{ url_for('main.law_index') }}">
         <div class="field">
-          <label id="goto-heading" for="section">Go to a section</label>
+          <label id="goto-heading" for="section">{{ _("Go to a section") }}</label>
           <input id="section" name="section" type="text" inputmode="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="40" placeholder="27-2005" value="{{ wanted }}" required{% if bad_section %} aria-invalid="true" aria-describedby="section-error"{% endif %}>
         </div>
-        <button type="submit">Go</button>
+        <button type="submit">{{ _("Go") }}</button>
       </form>
       {% if bad_section %}
         <div class="alert error" role="alert" id="section-error">
-          <strong>That doesn't look like a section number</strong>
-          <p>Try a number like 27-2005 or 235-b.</p>
+          <strong>{{ _("That doesn't look like a section number") }}</strong>
+          <p>{{ _("Try a number like 27-2005 or 235-b.") }}</p>
         </div>
       {% endif %}
     </section>
     {% if error == "unavailable" %}
       <div class="alert error" role="alert">
-        <strong>The law library didn't respond</strong>
-        <p>Try again in a minute, or read it on <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">American Legal Publishing</a> (City) or <a href="{{ nys_laws_url }}" target="_blank" rel="noopener noreferrer">the State Senate's site</a> (State).</p>
+        <strong>{{ _("The law library didn't respond") }}</strong>
+        <p>{{ _("Try again in a minute, or read it on") }} <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">{{ _("American Legal Publishing") }}</a> {{ _("(City) or") }} <a href="{{ nys_laws_url }}" target="_blank" rel="noopener noreferrer">{{ _("the State Senate's site") }}</a> {{ _("(State).") }}</p>
       </div>
     {% elif not jurisdictions %}
       <section class="card">
-        <p class="note">The library has no sections right now. Read the law on <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">American Legal Publishing</a> (City) or <a href="{{ nys_laws_url }}" target="_blank" rel="noopener noreferrer">the State Senate's site</a> (State).</p>
+        <p class="note">{{ _("The library has no sections right now. Read the law on") }} <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">{{ _("American Legal Publishing") }}</a> {{ _("(City) or") }} <a href="{{ nys_laws_url }}" target="_blank" rel="noopener noreferrer">{{ _("the State Senate's site") }}</a> {{ _("(State).") }}</p>
       </section>
     {% else %}
-      <p class="note">{{ total }} sections. Pick a law to see its sections.</p>
+      <p class="note">{{ total }} {{ _("sections. Pick a law to see its sections.") }}</p>
       {% for label, laws in jurisdictions %}
         <section aria-labelledby="jurisdiction-{{ loop.index }}">
           <h2 id="jurisdiction-{{ loop.index }}">{{ label }}</h2>
           <div class="laws">
             {% for law in laws %}
               <details>
-                <summary><span class="law-name">{{ law.name }}</span>{% if law.detail %} <span class="law-detail">{{ law.detail }}</span>{% endif %} <span class="count">{{ law.entries|length }} section{{ "" if law.entries|length == 1 else "s" }}</span></summary>
+                <summary><span class="law-name">{{ law.name }}</span>{% if law.detail %} <span class="law-detail">{{ law.detail }}</span>{% endif %} <span class="count">{{ _("%(count)s section", count=law.entries|length) if law.entries|length == 1 else _("%(count)s sections", count=law.entries|length) }}</span></summary>
                 <ul class="sections">
                   {% for e in law.entries %}
-                    <li>{% if is_valid_citation(e.citation) %}<a href="{{ url_for('main.law_section', citation=e.citation) }}"><span class="cite">§ {{ e.citation }}</span>{{ e.title }}</a>{% else %}<span class="cite">§ {{ e.citation }}</span>{{ e.title }}{% endif %}{% if e.status != "active" %}<span class="tag">No longer in the code</span>{% elif e.repealed %}<span class="tag">Repealed</span>{% endif %}</li>
+                    <li>{% if is_valid_citation(e.citation) %}<a href="{{ url_for('main.law_section', citation=e.citation) }}"><span class="cite">§ {{ e.citation }}</span>{{ e.title }}</a>{% else %}<span class="cite">§ {{ e.citation }}</span>{{ e.title }}{% endif %}{% if e.status != "active" %}<span class="tag">{{ _("No longer in the code") }}</span>{% elif e.repealed %}<span class="tag">{{ _("Repealed") }}</span>{% endif %}</li>
                   {% endfor %}
                 </ul>
               </details>

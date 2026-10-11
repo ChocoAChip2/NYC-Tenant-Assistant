@@ -8,15 +8,25 @@ source language and behaves exactly as before.
 
 A LANGUAGE IS OFFERED ONLY ONCE IT IS LIVE
 LIVE_LANGUAGES starts as English alone. The others are defined, with
-empty catalogues under translations/, but none appears in the menu and
-none is ever chosen automatically until it is added to LIVE_LANGUAGES.
-That is a deliberate gate: legal wording (the disclaimers in branding.py,
-the RA-81 review screen, what a tenant agrees to when deleting an
-account) has to be read by a fluent person before a tenant relies on it
-(owner, 2026-10-11). Adding a language is a one-line change plus a log
-entry naming who reviewed it. PREVIEW_LANGUAGES (an environment variable,
-comma separated) turns languages on for a local or staging run so a
-reviewer can see the pages; it is not for production.
+catalogues under translations/, but none appears in the menu and none is
+ever chosen automatically until it is added to LIVE_LANGUAGES. Adding a
+language is a one-line change plus a log entry saying how it was
+translated. PREVIEW_LANGUAGES (an environment variable, comma separated)
+turns languages on for a local or staging run; it is not for production.
+
+TRANSLATIONS ARE MACHINE-MADE, AND ENGLISH STAYS THE REFERENCE
+(owner, 2026-10-11, replacing the earlier "a fluent reader approves each
+language" gate). Every translated page says so and links to the same page
+in English. Wording marked REVIEW in the catalogues is the high-stakes
+wording: the disclaimers in branding.py, the RA-81 review screen, what a
+tenant agrees to when deleting an account. It is shown with its English
+original underneath, so nobody has to rely on the translation alone. A
+live language may still not have a REVIEW entry that is untranslated or
+fuzzy (tests/test_i18n.py).
+
+CHINESE IS SIMPLIFIED ONLY (owner, 2026-10-11). zh_Hant stays defined but
+is never made live, and a browser asking for Traditional Chinese gets
+Simplified rather than English.
 
 HOW THE LANGUAGE IS CHOSEN, IN ORDER
   1. the signed-in tenant's saved choice (their account, so it follows
@@ -26,6 +36,12 @@ HOW THE LANGUAGE IS CHOSEN, IN ORDER
   3. the browser's own language list (owner, 2026-10-11);
   4. English.
 A language that is not live is skipped at every step.
+
+ENGLISH FOR ONE PAGE
+A link can carry ?lang=en (or any live language): it applies to that one
+request and is not remembered. The machine-translation notice uses it for
+"read this page in English", so the link needs no JavaScript, no form and
+no cookie.
 
 HOW TEXT IS TRANSLATED
   * Templates and request-time Python call _("text") (gettext).
@@ -51,6 +67,7 @@ from urllib.parse import urlsplit
 
 import flask_babel
 from flask import current_app, redirect, request, session
+from markupsafe import Markup
 
 DEFAULT_LANGUAGE = "en"
 
@@ -104,7 +121,9 @@ def from_accept_language(header: str | None) -> str | None:
         if pieces[0] == "zh":
             # A script named outright wins over the region ("zh-Hans-HK").
             traditional = "hans" not in pieces and ("hant" in pieces or bool(_TRADITIONAL_REGIONS & set(pieces)))
-            code = _usable("zh_Hant" if traditional else "zh_Hans")
+            # Traditional is not offered (owner, 2026-10-11): a reader of
+            # Traditional Chinese is better served by Simplified than English.
+            code = (_usable("zh_Hant") if traditional else None) or _usable("zh_Hans")
         else:
             code = _usable(pieces[0])
         if code:
@@ -116,7 +135,8 @@ def current() -> str:
     """The language for this request (see the order in the module docstring)."""
     try:
         return (
-            _usable(session.get(SESSION_KEY))
+            _usable(request.args.get("lang"))
+            or _usable(session.get(SESSION_KEY))
             or _usable(request.cookies.get(COOKIE_NAME))
             or from_accept_language(request.headers.get("Accept-Language"))
             or DEFAULT_LANGUAGE
@@ -138,6 +158,16 @@ def remember_from_account(metadata) -> None:
         session.pop(SESSION_KEY, None)
 
 
+def mark(message):
+    """Marks a string for the catalogues without translating it (N_).
+
+    For wording raised or stored far from where it is shown, such as an
+    error message in a service module. It stays plain English there and is
+    translated with gettext() at the point it reaches a page.
+    """
+    return message
+
+
 def gettext(message, **variables):
     """Translate `message` for this request; `%(name)s` placeholders are filled after."""
     try:
@@ -150,18 +180,78 @@ def gettext(message, **variables):
 _ = gettext
 
 
-def translated(value, keys=None):
+def markup_gettext(message, **variables):
+    """gettext for templates: the result is page markup, as the text was
+    when it sat in the template.
+
+    Template text may hold entities ("&amp;", "&rsaquo;") and apostrophes
+    that must reach the page exactly as written, so the translated text is
+    trusted like template source. Values filled into it are escaped. A
+    test keeps "<" and ">" out of every translation.
+    """
+    text = Markup(gettext(message))
+    return text % variables if variables else text
+
+
+# The link back to English is deliberately not translated: it is for the
+# reader who wants the reference text, and it names the language in itself.
+ENGLISH_LINK_LABEL = "Read this page in English"
+_ORIGINAL = Markup(
+    '%s <span class="english-original" lang="en" dir="ltr" '
+    'style="display:block;font-size:0.85em;opacity:0.85;margin-top:2px">%s</span>'
+)
+
+
+def with_original(message, **variables):
+    """High-stakes wording: the translation, with its English original beneath.
+
+    English is the reference (owner, 2026-10-11): translations are
+    machine-made, so wording a tenant relies on (the disclaimers, privacy
+    wording, the password rule, the RA-81 review screen) is never shown in
+    translation alone. On an English page, or where there is no
+    translation, this is just the English text, unchanged.
+    """
+    english = message % variables if variables else message
+    if not message or current() == DEFAULT_LANGUAGE:
+        return english
+    shown = gettext(message, **variables)
+    if shown == english:
+        return english
+    return _ORIGINAL % (shown, english)
+
+
+def english_if_translated(message) -> str:
+    """The English original when the page shows a translation of it, else ''.
+    For scripts, which build the two lines themselves."""
+    if current() == DEFAULT_LANGUAGE or gettext(message) == message:
+        return ""
+    return message
+
+
+def english_url() -> str:
+    """This page, in English, for this one request."""
+    from urllib.parse import urlencode
+
+    args = request.args.to_dict(flat=False)
+    args["lang"] = [DEFAULT_LANGUAGE]
+    return request.path + "?" + urlencode(args, doseq=True)
+
+
+def translated(value, keys=None, original=False):
     """A copy of a constant with its strings translated.
 
     Walks lists and dicts. In a dict only `keys` are translated when given
     (so a resource's URL, phone number and official name stay as they are).
+    `original=True` is for high-stakes wording: see with_original().
     """
     if isinstance(value, str):
-        return gettext(value) if value else value
+        if not value:
+            return value
+        return with_original(value) if original else gettext(value)
     if isinstance(value, (list, tuple)):
-        return [translated(item, keys) for item in value]
+        return [translated(item, keys, original) for item in value]
     if isinstance(value, dict):
-        return {k: (translated(v, keys) if keys is None or k in keys or isinstance(v, (list, dict)) else v)
+        return {k: (translated(v, keys, original) if keys is None or k in keys or isinstance(v, (list, dict)) else v)
                 for k, v in value.items()}
     return value
 
@@ -200,7 +290,8 @@ def init_app(app) -> None:
                               os.path.join(os.path.dirname(os.path.abspath(__file__)), "translations"))
         flask_babel.Babel(app, locale_selector=current)
     app.jinja_env.globals.update(
-        _=gettext, gettext=gettext, html_lang=html_lang, language_menu=menu, format_date=format_date,
+        _=markup_gettext, gettext=gettext, html_lang=html_lang, language_menu=menu, format_date=format_date,
+        original=with_original, english_url=english_url, english_link_label=ENGLISH_LINK_LABEL,
     )
 
 
@@ -261,13 +352,13 @@ def extract_constants(fileobj, keywords, comment_tags, options):
 
     babel.cfg lists, per file, `names` (the constants), optionally `keys`
     (the only dict keys to take) and `review = true`, which marks every
-    string from that file with a "REVIEW" translator comment: wording a
-    fluent reader must sign off before the language goes live.
+    string from that file with a "REVIEW" translator comment: high-stakes
+    wording, which pages show together with its English original.
     """
     module = importlib.import_module(os.path.splitext(os.path.basename(fileobj.name))[0])
     names = [n.strip() for n in options.get("names", "").split(",") if n.strip()]
     keys = {k.strip() for k in options.get("keys", "").split(",") if k.strip()} or None
-    comments = ["REVIEW: legal or high-stakes wording; a fluent reader must approve it."] if options.get("review") == "true" else []
+    comments = ["REVIEW: legal or high-stakes wording; shown with its English original beneath it."] if options.get("review") == "true" else []
 
     def walk(value):
         if isinstance(value, str):
@@ -287,3 +378,9 @@ def extract_constants(fileobj, keywords, comment_tags, options):
             if text not in seen:
                 seen.add(text)
                 yield 1, "", text, [f"{name}"] + comments
+    # Babel gives each file to one extractor only, so the ordinary calls in
+    # the same file (gettext("..."), mark("...")) are read here too.
+    from babel.messages.extract import extract_python
+
+    fileobj.seek(0)
+    yield from extract_python(fileobj, keywords, comment_tags, options)

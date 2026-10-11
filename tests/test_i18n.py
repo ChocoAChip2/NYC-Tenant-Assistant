@@ -43,6 +43,8 @@ SPANISH = {
     "Please provide both email and password.": "Escribe tu correo y tu contraseña.",
     "You can send a new code in %(wait)s.": "Puedes pedir otro código en %(wait)s.",
     "%(count)s seconds": "%(count)s segundos",
+    "Full name": "Nombre completo",
+    branding.PER_MESSAGE_DISCLAIMER: "Información general, no asesoría legal.",
 }
 
 
@@ -158,6 +160,13 @@ class ChoosingTheLanguageTests(_Case):
             with self.subTest(header=header):
                 self.assertEqual(i18n.from_accept_language(header), expected)
 
+    def test_a_browser_asking_for_traditional_chinese_gets_simplified_when_only_that_is_live(self):
+        with mock.patch.object(i18n, "LIVE_LANGUAGES", ("en", "es", "zh_Hans")):
+            for header in ("zh-TW", "zh-HK,zh;q=0.9", "zh-Hant", "zh-Hant-US,en;q=0.5", "zh-CN", "zh"):
+                with self.subTest(header=header):
+                    self.assertEqual(i18n.from_accept_language(header), "zh_Hans")
+            self.assertEqual(i18n.from_accept_language("en,zh-TW;q=0.5"), "en")
+
     def test_junk_in_the_cookie_or_session_is_ignored(self):
         client = self.app().test_client()
         client.set_cookie(i18n.COOKIE_NAME, "<script>")
@@ -179,10 +188,12 @@ class ChoosingTheLanguageTests(_Case):
             with open(path, encoding="utf-8") as handle:
                 source = handle.read()
             name = os.path.basename(path)
-            self.assertNotIn('lang="en"', source, name)
+            if name != "_language.html":  # its link to the English page is marked as English
+                self.assertNotIn('lang="en"', source, name)
             if "<html" in source:
                 self.assertIn('<html lang="{{ html_lang() }}">', source, name)
                 self.assertIn("{{ language_form() }}", source, name)
+                self.assertRegex(source, r"<body>\s*\{\{ translation_notice\(\) \}\}", name)
 
 
 class SwitchingTests(_Case):
@@ -272,10 +283,101 @@ class TranslatedPagesTests(_Case):
         spanish = self.client.get("/learn-more", headers={"Accept-Language": "es"}).get_data(as_text=True)
         self.assertIn('<html lang="es">', spanish)
         self.assertIn(SPANISH[branding.SHORT_DISCLAIMER], spanish)
-        self.assertNotIn(branding.SHORT_DISCLAIMER, spanish)
         english = self.client.get("/learn-more").get_data(as_text=True)
         self.assertIn(branding.SHORT_DISCLAIMER, english)
         self.assertNotIn(SPANISH[branding.SHORT_DISCLAIMER], english)
+        self.assertNotIn("english-original", english)
+        self.assertNotIn("translation-notice", english)
+
+    def test_legal_wording_is_shown_with_its_english_original(self):
+        spanish = self.client.get("/learn-more", headers={"Accept-Language": "es"}).get_data(as_text=True)
+        self.assertRegex(spanish, re.escape(SPANISH[branding.SHORT_DISCLAIMER])
+                         + r' <span class="english-original" lang="en" dir="ltr" style="[^"]+">'
+                         + re.escape(branding.SHORT_DISCLAIMER) + "</span>")
+        with self.client.application.test_request_context("/", headers={"Accept-Language": "es"}):
+            self.assertEqual(i18n.with_original(branding.TOP_DISCLAIMER), branding.TOP_DISCLAIMER, "no translation: English alone, once")
+            self.assertEqual(i18n.english_if_translated(branding.SHORT_DISCLAIMER), branding.SHORT_DISCLAIMER)
+            self.assertEqual(i18n.english_if_translated(branding.TOP_DISCLAIMER), "")
+            both = i18n.with_original("You can send a new code in %(wait)s.", wait="<b>9</b>")
+            self.assertIn("Puedes pedir otro código en &lt;b&gt;9&lt;/b&gt;.", both)
+            self.assertIn(">You can send a new code in &lt;b&gt;9&lt;/b&gt;.</span>", both)
+        with self.client.application.test_request_context("/"):
+            self.assertEqual(i18n.with_original(branding.SHORT_DISCLAIMER), branding.SHORT_DISCLAIMER)
+            self.assertIsInstance(i18n.with_original(branding.SHORT_DISCLAIMER), str)
+            self.assertEqual(i18n.english_if_translated(branding.SHORT_DISCLAIMER), "")
+
+    def test_every_high_stakes_string_goes_through_the_original_helper(self):
+        calls = []
+        real = i18n.with_original
+
+        def spy(message, **variables):
+            calls.append(message)
+            return real(message, **variables)
+
+        import password_safety
+        with mock.patch.object(i18n, "with_original", side_effect=spy):
+            headers = {"Accept-Language": "es"}
+            self.client.get("/privacy", headers=headers)
+            self.client.get("/learn-more", headers=headers)
+            self.client.get("/signup", headers=headers)
+            self.client.post("/signup", data={"email": "t@example.invalid", "password": "abc", "first_name": "Ana",
+                                              "last_name": "Rivera", "date_of_birth": "1990-05-17"}, headers=headers)
+        expected = [branding.SHORT_DISCLAIMER, branding.PRIVACY_NOTE, branding.PRIVACY_NOTE_TITLE, branding.PRIVACY_LEDE,
+                    branding.PRIVACY_ACCOUNT_TEXT, password_safety.RULE_MESSAGE]
+        expected += [section["intro"] for section in branding.PRIVACY_SECTIONS]
+        expected += [point for section in branding.PRIVACY_SECTIONS for point in section["points"]]
+        expected += [point[key] for point in branding.FULL_DISCLAIMER_POINTS for key in ("lead", "detail")]
+        expected += [resource["detail"] for resource in branding.HELP_RESOURCES]
+        expected += [label for _key, label in password_safety.RULES]
+        for text in expected:
+            self.assertIn(text, calls, text[:50])
+
+    def test_the_ra81_review_screen_puts_the_english_label_beside_each_translated_one(self):
+        with open(os.path.join(_TEMPLATES, "form_review.html"), encoding="utf-8") as handle:
+            source = handle.read()
+        self.assertIn("<label>{{ original(label) }}", source)
+        self.assertIn("<legend>{{ original(group) }}</legend>", source)
+        with self.client.application.test_request_context("/", headers={"Accept-Language": "es"}):
+            label = flask.render_template_string('<label>{{ original("Full name") }}</label>')
+        self.assertRegex(label, r'<label>Nombre completo <span class="english-original" lang="en"[^>]*>Full name</span></label>')
+
+    def test_the_chat_script_gets_the_note_and_its_english_original_separately(self):
+        service = MemorySupabase()
+        client = self.app(service, translations=_catalogue_dir(self)).test_client()
+        with client.session_transaction() as session:
+            session.update(user_id="review-user", user_email="t@example.invalid", access_token="t")
+        cid = service.create_conversation(service, "review-user", "Chat")
+        spanish = client.get(f"/chat?conversation_id={cid}", headers={"Accept-Language": "es"}).get_data(as_text=True)
+        self.assertIn('const PER_MESSAGE_DISCLAIMER = "Informaci\\u00f3n general, no asesor\\u00eda legal.";', spanish)
+        self.assertIn('const PER_MESSAGE_DISCLAIMER_ENGLISH = "General information, not legal advice.";', spanish)
+        english = client.get(f"/chat?conversation_id={cid}").get_data(as_text=True)
+        self.assertIn('const PER_MESSAGE_DISCLAIMER = "General information, not legal advice.";', english)
+        self.assertIn('const PER_MESSAGE_DISCLAIMER_ENGLISH = "";', english)
+
+    def test_translated_pages_say_so_and_link_to_the_same_page_in_english(self):
+        body = self.client.get("/resources?borough=Bronx", headers={"Accept-Language": "es"}).get_data(as_text=True)
+        notice = body[body.index('<p class="translation-notice"'):]
+        notice = notice[:notice.index("</p>")]
+        self.assertLess(body.index("<body>"), body.index('<p class="translation-notice"'))
+        self.assertLess(body.index('<p class="translation-notice"'), body.index("<header"))
+        self.assertIn('<a href="/resources?borough=Bronx&amp;lang=en" lang="en" hreflang="en"', notice)
+        self.assertIn(">Read this page in English</a>", notice)
+        self.assertIn("This page was translated by a machine.", notice)
+        english = self.client.get("/resources?borough=Bronx&lang=en", headers={"Accept-Language": "es"})
+        page = english.get_data(as_text=True)
+        self.assertIn('<html lang="en">', page)
+        self.assertNotIn("translation-notice", page)
+        self.assertNotIn("Set-Cookie", english.headers, "one page in English, nothing remembered")
+        self.assertIn('<html lang="es">', self.client.get("/resources", headers={"Accept-Language": "es"}).get_data(as_text=True))
+
+    def test_the_one_page_override_only_takes_live_languages_and_keeps_the_query(self):
+        with self.client.application.test_request_context("/area?street=Echo+Place&borough=Bronx&lang=es"):
+            self.assertEqual(i18n.current(), "es")
+            self.assertEqual(i18n.english_url(), "/area?street=Echo+Place&borough=Bronx&lang=en")
+        with self.client.application.test_request_context("/learn-more?lang=klingon", headers={"Accept-Language": "fr"}):
+            self.assertEqual(i18n.current(), "fr")
+        with mock.patch.object(i18n, "LIVE_LANGUAGES", ("en",)), self.client.application.test_request_context("/?lang=es"):
+            self.assertEqual(i18n.current(), "en")
 
     def test_the_menu_names_each_language_in_itself_and_marks_the_current_one(self):
         body = self.client.get("/login", headers={"Accept-Language": "es"}).get_data(as_text=True)
@@ -372,13 +474,81 @@ class CatalogueTests(unittest.TestCase):
                     self.assertTrue(message.string, f"{code}: {str(message.id)[:40]!r} is live but untranslated")
                     self.assertFalse(message.fuzzy, f"{code}: {str(message.id)[:40]!r} is still marked fuzzy")
 
-    def test_catalogues_that_are_not_live_hold_no_unreviewed_translations(self):
-        for code in i18n.LANGUAGES:
-            if code == "en" or code in i18n.LIVE_LANGUAGES:
-                continue
-            filled = [m.id for m in self.read(code) if m.id and m.string]
-            self.assertEqual(filled, [], f"{code} has translations but is not live")
+    def test_traditional_chinese_is_defined_but_never_live_and_stays_empty(self):
+        self.assertIn("zh_Hant", i18n.LANGUAGES)
+        self.assertNotIn("zh_Hant", i18n.LIVE_LANGUAGES)
+        self.assertEqual([m.id for m in self.read("zh_Hant") if m.id and m.string], [])
 
+    def test_translations_keep_their_placeholders_and_hold_no_markup(self):
+        """Template text is trusted as markup once translated (i18n.markup_gettext),
+        so a translation may never introduce a tag, and must keep every
+        %(name)s of its source or the page would fail to render."""
+        for code in i18n.LANGUAGES:
+            if code == "en":
+                continue
+            for message in self.read(code):
+                if not message.id or not message.string:
+                    continue
+                with self.subTest(code=code, id=str(message.id)[:40]):
+                    self.assertNotRegex(message.string, r"[<>]")
+                    self.assertEqual(sorted(re.findall(r"%\(\w+\)s", message.string)),
+                                     sorted(re.findall(r"%\(\w+\)s", message.id)))
+
+    def test_the_source_text_holds_no_markup_either(self):
+        with open(os.path.join(_TRANSLATIONS, "messages.pot"), "rb") as handle:
+            for message in read_po(handle):
+                if message.id:
+                    self.assertNotRegex(message.id, r"<[a-zA-Z/]", str(message.id)[:60])
+
+
+class NothingLeftUnwrappedTests(unittest.TestCase):
+    """Every piece of literal page text goes through _() or gettext()."""
+
+    SKIP = re.compile(r"<(style|script|svg)\b.*?</\1>|\{#.*?#\}", re.S)
+    JINJA = re.compile(r"\{\{.*?\}\}|\{%.*?%\}", re.S)
+    ATTRIBUTE = re.compile(r'\b(placeholder|aria-label|title|alt|data-prompt)="([^"]*)"')
+
+    def sources(self):
+        for path in sorted(glob.glob(os.path.join(_TEMPLATES, "*.html"))):
+            with open(path, encoding="utf-8") as handle:
+                yield os.path.basename(path), self.SKIP.sub("", handle.read())
+
+    def test_no_literal_text_between_tags(self):
+        for name, source in self.sources():
+            attributes_removed = self.ATTRIBUTE.sub("", source)
+            bare = self.JINJA.sub("\x00", attributes_removed)
+            text_only = re.sub(r"<[^<>]*>", "\x01", bare)
+            text_only = re.sub(r"&[#A-Za-z0-9]+;", "", text_only)
+            for found in re.findall(r"[A-Za-z][A-Za-z' ,.\-]{2,}", text_only):
+                self.fail(f"{name}: literal text {found.strip()!r} is not wrapped for translation")
+
+    def test_no_literal_text_in_spoken_or_shown_attributes(self):
+        for name, source in self.sources():
+            for attribute, value in self.ATTRIBUTE.findall(source):
+                literal = self.JINJA.sub("", value)
+                self.assertNotRegex(literal, r"[A-Za-z]{3}", f"{name}: {attribute}={value[:50]!r}")
+
+    def test_script_strings_shown_to_people_come_from_the_catalogue(self):
+        with open(os.path.join(_TEMPLATES, "chat.html"), encoding="utf-8") as handle:
+            chat = handle.read()
+        for text in ("Assistant is thinking", "Good morning", "Connection interrupted. Your message is still below; please try again.",
+                     "Saved. Your next reply will use it.", "%(count)s characters left", "Review RA-81 draft %(number)s"):
+            self.assertIn('{{ gettext("%s")|tojson }}' % text, chat)
+        for name, source in ((n, s) for n, s in ((os.path.basename(p), open(p, encoding="utf-8").read())
+                                                 for p in glob.glob(os.path.join(_TEMPLATES, "*.html")))):
+            for block in re.findall(r"<script\b[^>]*>(.*?)</script>", source, re.S):
+                for literal in re.findall(r'(?<!gettext\()"([A-Z][a-z]+(?: [a-z\']+){2,}[.…]?)"', block):
+                    self.fail(f"{name}: script string {literal!r} is not passed through gettext")
+
+    def test_messages_raised_in_other_modules_are_in_the_template(self):
+        with open(os.path.join(_TRANSLATIONS, "messages.pot"), "rb") as handle:
+            ids = {message.id for message in read_po(handle)}
+        for text in ("Please enter your %(label)s.", "first name", "Choose a borough.", "Enter a street name.",
+                     "Include the building number, e.g. 231 Echo Place, Bronx.", "%(label)s must be %(limit)s characters or fewer.",
+                     "Review the details and check the confirmation box before downloading.", "your full name",
+                     "We couldn't find that page", "Full name", "Owner or agent", "Certified mail", "Apartment status",
+                     "Your name and date of birth", "Message is too long (max %(limit)s characters).", "Conversation not found."):
+            self.assertIn(text, ids)
 
 if __name__ == "__main__":
     unittest.main()

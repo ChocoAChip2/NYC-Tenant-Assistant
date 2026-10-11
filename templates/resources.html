@@ -1,7 +1,7 @@
 <!doctype html>
 {# Resources tab: read-only, curated and official contacts. No HTML/CSS/JS comments: they would be served. See docs/frontend/area-lookup.md. #}
 {% from "_info.html" import info as info_tip, info_assets %}
-{% from "_language.html" import language_form with context %}
+{% from "_language.html" import language_form, translation_notice with context %}
 <html lang="{{ html_lang() }}">
 <head>
   <meta charset="UTF-8">
@@ -9,8 +9,8 @@
   <meta name="theme-color" content="#eef1f5" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ product_name }} | Resources{% if borough %} in {{ borough }}{% endif %}</title>
-  <meta name="description" content="Free help for NYC tenants: housing court, community boards, hotlines and where to report problems.">
+  <title>{{ product_name }} | {{ _("Resources") }}{% if borough %} {{ _("in") }} {{ borough }}{% endif %}</title>
+  <meta name="description" content="{{ _("Free help for NYC tenants: housing court, community boards, hotlines and where to report problems.") }}">
   <script>
     (function () {
       var saved = null;
@@ -347,31 +347,32 @@
   </style>
 </head>
 <body>
+  {{ translation_notice() }}
   <header>
     <a class="brand" href="{{ home_url }}">
       <span class="brand-mark" aria-hidden="true">{{ logo_monogram }}</span>
       <span class="brand-name">{{ product_name }}</span>
     </a>
-    <nav aria-label="Site">
+    <nav aria-label="{{ _("Site") }}">
       {{ language_form() }}
-      <a href="{{ url_for('main.resources') }}">Resources</a>
+      <a href="{{ url_for('main.resources') }}">{{ _("Resources") }}</a>
       <a class="hide-narrow" href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a>
       {% if logged_in %}
-        <a class="primary" href="{{ url_for('main.chat') }}">Open chat</a>
+        <a class="primary" href="{{ url_for('main.chat') }}">{{ _("Open chat") }}</a>
       {% else %}
-        <a class="hide-narrow" href="{{ url_for('main.login') }}">Log in</a>
-        <a class="primary" href="{{ url_for('main.signup') }}">Sign up free</a>
+        <a class="hide-narrow" href="{{ url_for('main.login') }}">{{ _("Log in") }}</a>
+        <a class="primary" href="{{ url_for('main.signup') }}">{{ _("Sign up free") }}</a>
       {% endif %}
     </nav>
   </header>
 
   <main>
     <div>
-      <h1>Resources</h1>
-      <p class="lede">Free help for NYC tenants, by borough.</p>
+      <h1>{{ _("Resources") }}</h1>
+      <p class="lede">{{ _("Free help for NYC tenants, by borough.") }}</p>
     </div>
 
-    <nav class="borough-picker" aria-label="Borough">
+    <nav class="borough-picker" aria-label="{{ _("Borough") }}">
       {% for name in boroughs %}<a href="{{ url_for('main.resources', borough=name) }}"{% if name == borough %} class="active" aria-current="page"{% endif %}>{{ name }}</a>{% endfor %}
     </nav>
 
@@ -380,18 +381,18 @@
         <h2>{{ board.name }}</h2>
         {% if board.neighborhoods %}<p>{{ board.neighborhoods }}</p>{% endif %}
         <dl>
-          {% if board.phone %}<dt>Phone</dt><dd><a href="tel:{{ board.phone|replace(' ', '')|replace('(', '')|replace(')', '')|replace('-', '') }}">{{ board.phone }}</a></dd>{% endif %}
-          {% if board.email %}<dt>Email</dt><dd><a href="mailto:{{ board.email }}">{{ board.email }}</a></dd>{% endif %}
-          {% if board.address %}<dt>Office</dt><dd>{{ board.address }}</dd>{% endif %}
-          {% if board.meeting %}<dt>Meets</dt><dd>{{ board.meeting }}</dd>{% endif %}
-          {% if board.website %}<dt>Website</dt><dd><a href="{{ board.website }}" target="_blank" rel="noopener noreferrer">Visit</a></dd>{% endif %}
+          {% if board.phone %}<dt>{{ _("Phone") }}</dt><dd><a href="tel:{{ board.phone|replace(' ', '')|replace('(', '')|replace(')', '')|replace('-', '') }}">{{ board.phone }}</a></dd>{% endif %}
+          {% if board.email %}<dt>{{ _("Email") }}</dt><dd><a href="mailto:{{ board.email }}">{{ board.email }}</a></dd>{% endif %}
+          {% if board.address %}<dt>{{ _("Office") }}</dt><dd>{{ board.address }}</dd>{% endif %}
+          {% if board.meeting %}<dt>{{ _("Meets") }}</dt><dd>{{ board.meeting }}</dd>{% endif %}
+          {% if board.website %}<dt>{{ _("Website") }}</dt><dd><a href="{{ board.website }}" target="_blank" rel="noopener noreferrer">{{ _("Visit") }}</a></dd>{% endif %}
         </dl>
       </section>
     {% endif %}
 
     {% if borough %}
       <section class="card" aria-labelledby="court-heading">
-        <h2 id="court-heading">Housing Court in {{ borough }}</h2>
+        <h2 id="court-heading">{{ _("Housing Court in") }} {{ borough }}</h2>
         {% for court in courts %}
           <div class="resource">
             <a href="{{ court.url }}" target="_blank" rel="noopener noreferrer" data-usage-resource="{{ usage_id(court.name) }}">{{ court.name }}</a>
@@ -402,17 +403,17 @@
     {% endif %}
 
     <section class="card" aria-labelledby="officials-heading">
-      <h2 id="officials-heading">Your elected officials</h2>
-      <p class="hint">Search your street to see your Council Member, Assembly Member and State Senator. <a href="{{ url_for('main.home') }}">Search your street</a></p>
+      <h2 id="officials-heading">{{ _("Your elected officials") }}</h2>
+      <p class="hint">{{ _("Search your street to see your Council Member, Assembly Member and State Senator.") }} <a href="{{ url_for('main.home') }}">{{ _("Search your street") }}</a></p>
     </section>
 
     <section class="card" aria-labelledby="law-heading">
-      <h2 id="law-heading">The law</h2>
-      <p class="hint">Read the official text of City and State tenant law. <a href="{{ url_for('main.law_index') }}">Browse the law library</a></p>
+      <h2 id="law-heading">{{ _("The law") }}</h2>
+      <p class="hint">{{ _("Read the official text of City and State tenant law.") }} <a href="{{ url_for('main.law_index') }}">{{ _("Browse the law library") }}</a></p>
     </section>
 
     <section class="card" aria-labelledby="help-heading">
-      <h2 id="help-heading">Free help</h2>
+      <h2 id="help-heading">{{ _("Free help") }}</h2>
       {% for r in help_resources %}
         <div class="resource">
           <a href="{{ r.url }}" target="_blank" rel="noopener noreferrer" data-usage-resource="{{ usage_id(r.name) }}">{{ r.name }}</a>
@@ -423,7 +424,7 @@
     </section>
 
     <section class="card" aria-labelledby="report-heading">
-      <h2 id="report-heading">Report a problem</h2>
+      <h2 id="report-heading">{{ _("Report a problem") }}</h2>
       {% for r in report_links %}
         <div class="resource">
           <a href="{{ r.url }}" target="_blank" rel="noopener noreferrer" data-usage-resource="{{ usage_id(r.name) }}">{{ r.name }}</a>

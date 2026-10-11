@@ -1,6 +1,6 @@
 <!doctype html>
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. Jinja comments like this one are stripped before the response is written. See docs/frontend/error-pages.md for why every error page carries the disclaimer. #}
-{% from "_language.html" import language_form with context %}
+{% from "_language.html" import language_form, translation_notice with context %}
 <html lang="{{ html_lang() }}">
 <head>
   <meta charset="UTF-8">
@@ -111,17 +111,18 @@
   </style>
 </head>
 <body>
+  {{ translation_notice() }}
   <main class="card">
     <div class="brand">
       <div class="brand-mark" aria-hidden="true">{{ logo_monogram }}</div>
       <span class="brand-name">{{ product_name }}</span>
     </div>
-    <p class="code">Error {{ status }}</p>
+    <p class="code">{{ _("Error") }} {{ status }}</p>
     <h1>{{ heading }}</h1>
     <p class="message">{{ message }}</p>
     <div class="actions">
-      <a class="button" href="{{ url_for('main.home') }}">Go to the start page</a>
-      <a class="button secondary" href="{{ url_for('main.home') }}">Look up your street</a>
+      <a class="button" href="{{ url_for('main.home') }}">{{ _("Go to the start page") }}</a>
+      <a class="button secondary" href="{{ url_for('main.home') }}">{{ _("Look up your street") }}</a>
     </div>
   </main>
   {{ language_form() }}

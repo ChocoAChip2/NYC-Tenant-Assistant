@@ -32,9 +32,9 @@ Location: `~/Desktop/Github/nyc-tenant-assistant-push-2`, branch `main` at `610f
 
 ## Objective
 
-Make the site readable in English, Spanish, Chinese (Simplified and Traditional), Swahili and French (owner, 2026-10-11). In slices, each with English unchanged. The first slice (foundation) is merged; see `docs/frontend/translations.md` for what is and isn't done.
+Make the site readable in English, Spanish, Simplified Chinese, Swahili and French (owner, 2026-10-11). In slices, each with English unchanged. The first slice (foundation) is merged; see `docs/frontend/translations.md` for what is and isn't done.
 
-Done when: every page is wrapped, each language's catalogue is filled, a fluent reader has approved its `REVIEW` entries, and it has been added to `i18n.LIVE_LANGUAGES`.
+Done when: translated pages show the machine-translation notice and the English originals of high-stakes wording, the four catalogues are filled and compiled, the chat pieces are in, and `es`, `fr`, `sw`, `zh_Hans` are added to `i18n.LIVE_LANGUAGES`. All page text is wrapped as of `feat/i18n-wrap-text`.
 
 Merged on 2026-10-11: PRs #57 to #63 (workflow setup, `/law` index, "Your data", sign-in codes and password rule, new-chat greeting, "Did you mean", usage counts), then the phone chat drawer (PR #64, written with Codex) and the translation foundation (PR #65), combined and checked together on `integrate/drawer-and-i18n`. Several of them still have owner steps open; see Next action.
 
@@ -46,7 +46,7 @@ Waiting, not started: emailed PDF summary of a conversation. It needs a sending 
 - 2026-10-01: hold new features; prioritize testing, debugging and a clean `main`.
 - 2026-10-07: street + borough is the default search (exact address optional) and a read-only Resources tab is approved. Both shipped in PR #53. Community Q&A and the scaling fixes are on hold. The community board waits for a layout (posting 18+, no AI-written answers).
 - 2026-10-11: `/law` index defaults approved: every section as number + title; City then State, one closed group per law; a number-only "Go to a section" box (no full-text search); repealed and dropped sections labelled, never hidden; linked from the section page and Resources, not the header nav.
-- 2026-10-11: five languages. A fluent reader approves legal wording per language before it goes live; first visit follows the browser's language; sign-in emails stay English for now; Chinese ships as both Simplified and Traditional. Statutes, official data and anything a tenant or the assistant wrote are never translated.
+- 2026-10-11 (later the same day, replacing the first answers): translations are machine-made with no fluent-reader gate; English stays the reference, so translated pages say so and link to English, and high-stakes wording shows its English original. Chinese is Simplified only. First visit follows the browser's language. Sign-in, confirmation, reset and code emails stay English. Statutes, official data and anything a tenant or the assistant wrote are never translated.
 - 2026-10-11: usage counts live in our own database, with no banner (Global Privacy Control is honoured) and 12 months of retention.
 - 2026-10-11: second sign-in step is a 6-digit emailed code (no authenticator app, no SMS), optional, turned on in Settings. Passwords: minimum 8 with lowercase, uppercase, digit and symbol. Existing weak passwords are forced to change at next login, no skip. Losing access to email has no separate recovery. Dashboard changes are made from Claude Desktop, one named change at a time with the owner's go-ahead.
 - 2026-10-11: "Your situation" becomes "Your data": a pill in the composer toolbar left of Send, filled by the assistant from the tenant's own messages, correctable by the tenant, no send gate, no database change. Details: `docs/frontend/case-workspace.md`.
@@ -86,7 +86,7 @@ Owner steps left over from today's merges:
 3. Live checks on Render: `/law` shows 426 sections; a real chat fills in "Your data"; a new chat opens with the greeting; "231 Ecco Place, Bronx" offers 231 Echo Place. On a real phone: the chat list opens as a drawer from the menu button, and rotating to landscape with it open leaves a normal page.
 4. A lawyer's read of the privacy page wording.
 
-Translation work, in order:
-5. Wrap the remaining text (templates, JavaScript strings, JSON errors, messages raised in other modules), including the drawer's new labels, and fix the language menu's width at 390 px (the chat header now also holds the menu button and New chat).
-6. One language at a time: fill the catalogue, have a fluent reader approve the `REVIEW` entries, compile, add it to `LIVE_LANGUAGES`.
-7. Chat: reply-language tiebreaker and choices, the "quote the law in English" rule, the "not a translation" note on `/law`, the RA-81 character check.
+Translation work, in order (steps 1 and 2, wrapping the text and the English-reference display, are done):
+6. Fill `es`, `fr`, `sw` and `zh_Hans` by machine translation with one consistent tool, check nothing is empty or fuzzy, compile, commit the compiled files.
+7. Chat: add Kiswahili and Français to the reply-language choices (keep `中文` valid, meaning Simplified); interface language as the tiebreaker; non-English replies quote the law in English; a note on `/law`; link HCR Fact Sheet #14 on Spanish and Chinese pages.
+8. Go live: add the four languages to `LIVE_LANGUAGES` together, then the owner's live chat check in each language.
