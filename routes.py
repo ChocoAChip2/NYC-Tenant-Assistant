@@ -640,6 +640,9 @@ def chat():
         situation_labels=case_context.LABELS,
         situation_choice_labels=case_context.CHOICE_LABELS,
         situation_limits=case_context.TEXT_LIMITS,
+        situation_summary_labels=list(case_context.SUMMARY_LABELS.items()),
+        situation_defaults=case_context.defaults(),
+        situation_language_codes=case_context.LANGUAGE_CODES,
     )
 
 
@@ -1610,7 +1613,7 @@ def _render_conversations_as_markdown(conversations: list[dict]) -> str:
         lines.append(f"_Conversation ID: {conversation['id']} -- created {conversation.get('created_at', 'unknown')}_")
         lines.append("")
         if conversation.get("situation"):
-            lines.extend(["### Your situation", json.dumps(conversation["situation"], ensure_ascii=False, indent=2), ""])
+            lines.extend(["### Your data for this chat", json.dumps(conversation["situation"], ensure_ascii=False, indent=2), ""])
         if conversation.get("form_drafts"):
             lines.extend(["### Form drafts", json.dumps(conversation["form_drafts"], ensure_ascii=False, indent=2), ""])
         for message in conversation.get("messages", []):

@@ -1,6 +1,7 @@
 <!doctype html>
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. Jinja comments like this one are stripped before the response is written. Read docs/frontend/css-gotchas.md before deleting a CSS rule here you don't recognise. #}
 {% from "_info.html" import info as info_tip, info_assets %}
+{% from "_your_data.html" import your_data_button, your_data_popover with context %}
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -514,11 +515,11 @@
     form#chat-form {
       width: min(720px, 100%);
       margin: 0 auto;
-      padding: 12px 20px 20px;
+      padding: 8px 14px 12px 18px;
       display: flex;
-
-      align-items: flex-end;
-      gap: 6px;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 2px;
       border: 1px solid var(--border);
       border-radius: 22px;
       background: var(--surface);
@@ -529,7 +530,8 @@
       box-shadow: 0 0 0 3px var(--accent-tint);
     }
     textarea {
-      flex: 1;
+      flex: 0 0 auto;
+      width: 100%;
 
       resize: none;
       overflow-y: auto;
@@ -552,7 +554,7 @@
       width: 34px;
       height: 34px;
       min-width: 0;
-      margin: 7px 7px 7px 0;
+      margin: 0;
       padding: 0;
       border: 0;
       border-radius: 50%;
@@ -744,7 +746,7 @@
       .row-menu-panel { position: static; flex-basis: 100%; width: 100%; box-shadow: none; }
       .chat-area { min-height: 0; }
       #chat-box { padding: 14px 14px 8px; }
-      form#chat-form { padding: 10px 14px 14px; }
+      form#chat-form { padding: 6px 10px 10px 14px; }
       .greeting-title { font-size: 22px; }
     }
   </style>
@@ -870,7 +872,6 @@
 
     <div class="chat-area">
       {% if active_conversation_id %}
-        {% include '_situation.html' %}
         <main>
           <div id="chat-box">
             {% for message in messages %}
@@ -889,11 +890,17 @@
           </div>
         </main>
 
-        <form id="chat-form" data-conversation-id="{{ active_conversation_id }}">
-          <label for="message-input" class="sr-only">Message input</label>
-          <textarea id="message-input" placeholder="Message {{ product_name }}" maxlength="{{ max_message_length }}" required></textarea>
-          <button id="send-btn" type="submit" aria-label="Send message" title="{% if not ai_ready %}The assistant is unavailable right now{% else %}Send message{% endif %}" {% if not ai_ready %}disabled{% endif %}>&#8593;</button>
-        </form>
+        <div class="composer">
+          <form id="chat-form" data-conversation-id="{{ active_conversation_id }}">
+            <label for="message-input" class="sr-only">Message input</label>
+            <textarea id="message-input" rows="1" placeholder="Message {{ product_name }}" maxlength="{{ max_message_length }}" required></textarea>
+            <div class="composer-tools">
+              {{ your_data_button() }}
+              <button id="send-btn" type="submit" aria-label="Send message" title="{% if not ai_ready %}The assistant is unavailable right now{% else %}Send message{% endif %}" {% if not ai_ready %}disabled{% endif %}>&#8593;</button>
+            </div>
+          </form>
+          {{ your_data_popover(active_conversation_id) }}
+        </div>
 
         <p class="char-count" id="char-count" aria-live="polite"></p>
       {% else %}
@@ -941,64 +948,219 @@
     const FORM_READY_HTML = {{ (form_ready_html or "")|tojson }};
     const chatBox = document.getElementById("chat-box");
     const chatForm = document.getElementById("chat-form");
-    let situationReady = false;
-    let situationDirty = false;
-    const situationForm = document.getElementById("situation-form");
-    if (situationForm) {
-      const fields = document.getElementById("situation-fields");
-      const status = document.getElementById("situation-status");
-      let revision = 0;
-      let busy = false;
-      function showState(state) {
-        Object.entries(state.context).forEach(([key, value]) => { situationForm.elements.namedItem(key).value = value; });
-        revision = state.revision;
-        situationReady = true;
-        situationDirty = false;
-        fields.disabled = false;
+    let refreshYourData = () => {};
+    const yourData = document.getElementById("your-data-pop");
+    if (yourData) {
+      const YD_SUMMARY = {{ situation_summary_labels|tojson }};
+      const YD_CHOICES = {{ situation_choice_labels|tojson }};
+      const YD_DEFAULTS = {{ situation_defaults|tojson }};
+      const ydButton = document.getElementById("your-data-btn");
+      const ydBackdrop = document.getElementById("your-data-backdrop");
+      const ydStatus = document.getElementById("yd-status");
+      const ydSummary = document.getElementById("yd-summary");
+      const ydEmpty = document.getElementById("yd-empty");
+      const ydEdit = document.getElementById("yd-edit-form");
+      const ydViews = Array.from(yourData.querySelectorAll("[data-yd-view]"));
+      let ydState = null;
+      let ydView = "main";
+      let ydOpener = null;
+      let ydQueue = Promise.resolve();
+
+      function ydSay(text, isError) {
+        ydStatus.textContent = text || "";
+        ydStatus.classList.toggle("error", Boolean(isError));
       }
-      async function loadSituation() {
-        if (busy) return;
-        busy = true;
-        try {
-          const response = await fetch(situationForm.dataset.url);
-          if (!response.ok) throw new Error("Saved details are unavailable. Please reload them before sending.");
-          const state = await response.json();
-          showState(state);
-          status.textContent = "Saved for this chat. You can change or clear these details.";
-          const drafts = document.getElementById("saved-form-drafts");
-          drafts.replaceChildren();
-          (state.drafts || []).forEach((draft, index) => {
-            const p = document.createElement("p");
-            const a = document.createElement("a");
-            a.href = draft.url;
-            a.textContent = "Review RA-81 draft " + (index + 1);
-            p.appendChild(a); drafts.appendChild(p);
-          });
-        } catch (error) { status.textContent = error.message; }
-        finally { busy = false; }
+      function ydCurrent() { return ydViews.find((view) => view.dataset.ydView === ydView); }
+      function ydStops() {
+        return Array.from(ydCurrent().querySelectorAll("button, a[href], select, input, textarea"))
+          .filter((el) => !el.disabled && el.getClientRects().length);
       }
-      situationForm.addEventListener("input", () => { situationDirty = true; status.textContent = "Unsaved changes — save before sending your message."; });
-      situationForm.addEventListener("submit", async (event) => {
+      function ydShow(name, focusTarget) {
+        ydView = name;
+        ydViews.forEach((view) => { view.hidden = view.dataset.ydView !== name; });
+        yourData.scrollTop = 0;
+        const stops = ydStops();
+        const target = focusTarget || (name === "language" || name === "length"
+          ? ydCurrent().querySelector('[aria-checked="true"]') : null) || stops[name === "main" ? 0 : 1] || stops[0] || yourData;
+        target.focus();
+      }
+      function ydIsOpen() { return yourData.classList.contains("open"); }
+      function ydOpen() {
+        yourData.classList.add("open");
+        ydBackdrop.classList.add("open");
+        ydButton.setAttribute("aria-expanded", "true");
+        ydSay("");
+        ydShow("main");
+        if (!ydState) ydLoad();
+      }
+      function ydClose(restoreFocus) {
+        if (!ydIsOpen()) return;
+        yourData.classList.remove("open");
+        ydBackdrop.classList.remove("open");
+        ydButton.setAttribute("aria-expanded", "false");
+        if (restoreFocus) ydButton.focus();
+      }
+      function ydRender() {
+        if (!ydState) return;
+        const context = ydState.context;
+        ydSummary.replaceChildren();
+        YD_SUMMARY.forEach(([key, label]) => {
+          const value = context[key];
+          const guessed = !(ydState.tenant_set || []).includes(key);
+          if (!value || (value === YD_DEFAULTS[key] && guessed)) return;
+          const dt = document.createElement("dt");
+          const dd = document.createElement("dd");
+          dt.textContent = label;
+          dd.textContent = Object.prototype.hasOwnProperty.call(YD_CHOICES, value) && key !== "issue" && key !== "started" && key !== "completed_actions" ? YD_CHOICES[value] : value;
+          dd.title = dd.textContent;
+          ydSummary.append(dt, dd);
+        });
+        ydSummary.hidden = !ydSummary.children.length;
+        ydEmpty.hidden = !ydSummary.hidden;
+        yourData.querySelectorAll("[data-yd-value]").forEach((el) => {
+          const value = context[el.dataset.ydValue];
+          el.textContent = YD_CHOICES[value] || value;
+        });
+        yourData.querySelectorAll("[data-yd-pick]").forEach((row) => {
+          const checked = context[row.dataset.ydPick] === row.dataset.value;
+          row.setAttribute("aria-checked", String(checked));
+          row.querySelector(".yd-mark").textContent = checked ? "\u2713" : "";
+        });
+        Array.from(ydEdit.elements).forEach((field) => { if (field.name) field.value = context[field.name]; });
+        const drafts = document.getElementById("yd-drafts");
+        drafts.replaceChildren();
+        (ydState.drafts || []).forEach((draft, index) => {
+          const link = document.createElement("a");
+          link.className = "yd-row";
+          link.href = draft.url;
+          const text = document.createElement("span");
+          text.textContent = "Review RA-81 draft " + (index + 1);
+          link.appendChild(text);
+          drafts.appendChild(link);
+        });
+        document.getElementById("yd-drafts-group").hidden = !drafts.children.length;
+      }
+      async function ydFetch(url, options) {
+        const response = await fetch(url, options);
+        let body = null;
+        try { body = await response.json(); } catch (error) { body = null; }
+        return { ok: response.ok && body && typeof body.context === "object", status: response.status, body };
+      }
+      function ydPost(url, payload) {
+        return ydFetch(url, { method: "POST", headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF_TOKEN }, body: JSON.stringify(payload) });
+      }
+      function ydLoad() {
+        ydQueue = ydQueue.then(async () => {
+          try {
+            const result = await ydFetch(yourData.dataset.url);
+            if (!result.ok) throw new Error();
+            ydState = result.body;
+            ydRender();
+            ydSay("");
+          } catch (error) {
+            if (!ydState) ydSay("Your data didn't load. Close this and open it again to retry.", true);
+          }
+        });
+        return ydQueue;
+      }
+      function ydSave(change, extra, savedText) {
+        ydQueue = ydQueue.then(async () => {
+          yourData.setAttribute("aria-busy", "true");
+          try {
+            for (let attempt = 0; attempt < 2; attempt++) {
+              if (!ydState) {
+                const loaded = await ydFetch(yourData.dataset.url);
+                if (!loaded.ok) throw new Error();
+                ydState = loaded.body;
+              }
+              const result = await ydPost(yourData.dataset.url, Object.assign({ context: change(Object.assign({}, ydState.context)), revision: ydState.revision }, extra || {}));
+              if (result.ok) {
+                ydState = result.body;
+                ydRender();
+                ydSay(savedText);
+                return true;
+              }
+              if (result.status !== 409) throw new Error(result.body && typeof result.body.error === "string" ? result.body.error : "");
+              ydState = null;
+            }
+            throw new Error();
+          } catch (error) {
+            ydRender();
+            ydSay(error.message || "That didn't save. Please try again.", true);
+            return false;
+          } finally {
+            yourData.removeAttribute("aria-busy");
+          }
+        });
+        return ydQueue;
+      }
+      refreshYourData = () => {
+        ydQueue = ydQueue.then(async () => {
+          try {
+            const result = await ydPost(yourData.dataset.refreshUrl, {});
+            if (result.ok) { ydState = result.body; if (ydView !== "edit" || !ydIsOpen()) ydRender(); }
+          } catch (error) { return; }
+        });
+      };
+
+      ydButton.addEventListener("click", () => { if (ydIsOpen()) ydClose(true); else ydOpen(); });
+      ydBackdrop.addEventListener("click", () => ydClose(true));
+      document.addEventListener("click", (event) => {
+        if (ydIsOpen() && !yourData.contains(event.target) && !ydButton.contains(event.target) && event.target !== ydBackdrop) ydClose(false);
+      });
+      yourData.addEventListener("focusout", (event) => {
+        if (ydIsOpen() && event.relatedTarget && !yourData.contains(event.relatedTarget) && event.relatedTarget !== ydButton) ydClose(false);
+      });
+      yourData.addEventListener("click", (event) => {
+        const opener = event.target.closest("[data-yd-open]");
+        if (opener) {
+          const name = opener.dataset.ydOpen;
+          if (name === "main") { ydRender(); ydShow("main", ydOpener); return; }
+          ydOpener = opener;
+          ydSay("");
+          ydShow(name);
+          return;
+        }
+        const pick = event.target.closest("[data-yd-pick]");
+        if (pick) {
+          const key = pick.dataset.ydPick;
+          const value = pick.dataset.value;
+          ydSave((context) => Object.assign(context, { [key]: value }), null, "Saved. Your next reply will use it.");
+          ydShow("main", ydOpener);
+        }
+      });
+      ydEdit.addEventListener("submit", async (event) => {
         event.preventDefault();
-        if (busy || !situationReady) return;
-        busy = true;
-        const context = Object.fromEntries(new FormData(situationForm));
-        fields.disabled = true;
-        try {
-          const response = await fetch(situationForm.dataset.url, {method:"POST", headers:{"Content-Type":"application/json", "X-CSRFToken":CSRF_TOKEN}, body:JSON.stringify({context, revision})});
-          const state = await response.json();
-          if (!response.ok) throw new Error(state.error || "Could not save. Your changes are still here.");
-          showState(state);
-          status.textContent = "Saved. Your next reply will use these preferences and facts.";
-        } catch (error) { status.textContent = error.message; }
-        finally { busy = false; fields.disabled = false; }
+        const edits = Object.fromEntries(new FormData(ydEdit));
+        const saved = await ydSave((context) => Object.assign(context, edits), null, "Saved.");
+        if (saved && ydView === "edit") ydShow("main", ydOpener);
       });
-      document.getElementById("situation-reload").addEventListener("click", loadSituation);
-      document.getElementById("situation-clear").addEventListener("click", () => {
-        situationForm.reset(); situationDirty = true;
-        situationForm.requestSubmit();
+      document.getElementById("yd-clear-confirm").addEventListener("click", async () => {
+        const saved = await ydSave((context) => context, { clear: true }, "Details cleared.");
+        if (ydView === "clear") ydShow("main", saved ? null : ydOpener);
       });
-      loadSituation();
+      yourData.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          event.stopPropagation();
+          if (ydView === "main") ydClose(true); else { ydRender(); ydShow("main", ydOpener); }
+          return;
+        }
+        const onRow = event.target.matches("button, a[href]");
+        if (!onRow || !["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+        const stops = ydStops().filter((el) => el.matches("button, a[href]"));
+        if (!stops.length) return;
+        event.preventDefault();
+        const at = stops.indexOf(event.target);
+        const next = event.key === "Home" ? 0 : event.key === "End" ? stops.length - 1
+          : (at + (event.key === "ArrowDown" ? 1 : -1) + stops.length) % stops.length;
+        stops[next].focus();
+      });
+      ydButton.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && ydIsOpen()) { event.preventDefault(); ydClose(true); }
+        if (event.key === "ArrowUp" && !ydIsOpen()) { event.preventDefault(); ydOpen(); }
+      });
+      ydLoad();
     }
 
     function findScrollContainer(node) {
@@ -1401,11 +1563,6 @@
       chatForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         if (requestPending) return;
-        if (!situationReady || situationDirty) {
-          document.getElementById("situation-panel").open = true;
-          document.getElementById("situation-status").textContent = situationDirty ? "Save or reload your situation before sending." : "Reload your saved details before sending.";
-          return;
-        }
 
         const text = messageInput.value.trim();
         if (!text) return;
@@ -1470,6 +1627,7 @@
           messageInput.value = "";
           autoGrowMessageInput();
           updateCharCount();
+          refreshYourData();
         } catch (error) {
           thinkingEl.remove();
           requestError = document.createElement("p");

@@ -1,0 +1,69 @@
+2026-10-11  "Your situation" becomes an AI-filled "Your data" button in the message box
+
+Request (owner, 2026-10-11): the big "Your situation & reply preferences"
+form above each chat goes. In its place, a small "Your data" pill in the
+composer's toolbar, left of Send, that opens a popover with things to do.
+The assistant fills the summary from what the tenant writes; the tenant
+never has to type into a form, but can correct it.
+
+Changed
+- Composer: a toolbar row under the textarea with "Your data" (ID-card
+  icon, tooltip on hover and focus) and Send. The form above the transcript
+  and its template (_situation.html) are removed. New _your_data.html.
+- Popover (bottom sheet at 700 px and below): one-line summary with blanks
+  hidden; Reply language and Answer length as pick lists that save at
+  once; Edit details; Clear details with a confirmation; this chat's RA-81
+  drafts when there are any; "Manage all your data" to Settings.
+- Keyboard: Enter/Space opens, arrows move between rows, Escape goes back
+  or closes and returns focus to the button.
+- Filling it in: after a reply arrives the page calls a new route,
+  POST /conversations/<id>/situation/refresh. It sends a small model call
+  the summary so far and the tenant's unread messages only (never the
+  assistant's replies) and saves what passes case_context validation.
+- A fact the tenant edits is never overwritten by a later update. Clear
+  details keeps the reply settings and does not refill from old messages.
+- No send gate: chat sends whether or not the details have loaded.
+- No database change. The tenant-set fields and the read-message count
+  live inside the same encrypted case_context value.
+- The chat-history export heading is now "Your data for this chat".
+
+Decisions taken while building (planner defaults kept unless noted)
+- Reply language is not guessed by the extraction: the existing default,
+  "Match my message", already replies in the language the tenant writes
+  in, until they pick one.
+- The extraction runs in its own request after the reply, not inside the
+  chat request, so the reply is never slower. It has the chat route's
+  limit and asks the model at most once per tenant message.
+- An update can add or replace a fact but never blank one.
+
+Tests changed or replaced (tests/test_case_workspace.py)
+- test_clear_removes_facts_and_preferences -> replaced by
+  test_clear_removes_facts_and_keeps_reply_preferences (Clear now keeps
+  language and length) and test_saving_blank_values_still_blanks_everything
+  (the old request shape still works).
+- No test asserted the send gate; YourDataPageTests now asserts it is gone.
+- tests/review_support.py: the in-memory service stores tenant_set/seen and
+  the stand-in assistant gained extract_case_details.
+- New: YourDataExtractionTests (12), YourDataPageTests (5),
+  ExtractionCallTests (2), two storage tests.
+
+Evidence
+- Full suite on the Mac: 930 tests OK (1 skipped); 908 before.
+- Headless Chrome on the Mac against the in-memory app, light and dark, at
+  1280 px and in a 390 px frame: no form above the transcript; button,
+  tooltip, popover, language list, edit form and clear confirmation
+  rendered; no horizontal overflow.
+- Scripted in the same browser: tooltip visible on focus and hidden while
+  open; open moves focus to the first row; Down/Up/Home/End move and wrap;
+  Escape closes and returns focus to the button, and goes back from a
+  sub-view; picking "Español" saved and showed "Saved. Your next reply will
+  use it."; an edit of borough to Queens survived the next update, which
+  did add "Called 311"; clicking outside closed it.
+
+Not verified
+- No real model call was made: extraction quality (what the model actually
+  pulls out of a message, and that it leaves suggestions alone in its own
+  wording) is untested. The structural guarantees above are tested.
+- Enter/Space on the button and real hover were not driven; they rely on
+  native button behaviour and a CSS :hover rule.
+- Not checked on a real phone or on Render.

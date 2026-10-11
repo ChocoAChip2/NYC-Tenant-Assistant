@@ -332,19 +332,18 @@ class SupabaseService:
         if not rows:
             raise ValueError("Conversation not found")
         row = rows[0]
-        context = case_context.defaults() if not row.get("case_context") else case_context.validate(
-            json.loads(crypto_service.decrypt(row["case_context"]))
-        )
-        return {"context": context, "revision": row.get("case_revision", 0)}
+        saved = json.loads(crypto_service.decrypt(row["case_context"])) if row.get("case_context") else {}
+        context = case_context.validate(saved) if saved else case_context.defaults()
+        return {"context": context, "revision": row.get("case_revision", 0), **case_context.meta(saved)}
 
-    def save_case_context(self, user_client, conversation_id, user_id, context, revision):
-        context = case_context.validate(context)
+    def save_case_context(self, user_client, conversation_id, user_id, context, revision, tenant_set=(), seen=0):
+        saved = case_context.stored(context, tenant_set, seen)
         rows = (user_client.table("conversations").update({
-            "case_context": _private_json(context), "case_revision": revision + 1,
+            "case_context": _private_json(saved), "case_revision": revision + 1,
         }).eq("id", conversation_id).eq("user_id", user_id).eq("case_revision", revision).execute().data)
         if not rows:
             raise StaleCaseError()
-        return {"context": context, "revision": revision + 1}
+        return {"context": case_context.validate(saved), "revision": revision + 1, **case_context.meta(saved)}
 
     def create_form_draft(self, user_client, conversation_id, user_id, intake):
         row = user_client.table("form_drafts").insert({

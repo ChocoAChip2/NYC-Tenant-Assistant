@@ -5,9 +5,10 @@ Location: `~/Desktop/Github/nyc-tenant-assistant-push-2`, branch `main` at `08c6
 
 ## Objective
 
-Ship the public `/law` index page (owner chose it on 2026-10-11). Built on branch `feat/law-index`, which is stacked on `docs/agent-workflow` (PR #57) because this handoff lives there; merge #57 first. Done when the PR is merged and the live page's section count matches the library (expected about 426: 308 City, 118 State).
+Two owner-chosen features from 2026-10-11 are built and waiting for review, stacked in this order: PR #57 (workflow setup), PR #58 (`/law` index, `feat/law-index`), then "Your data" (`feat/your-data-button`). Merge in that order.
 
-The workflow setup (PR #57) is still waiting for review.
+- `/law` index: done when merged and the live page's section count matches the library (expected 426).
+- "Your data": done when merged and one real chat on Render shows the summary filling in after a reply.
 
 ## Decisions in force
 
@@ -15,6 +16,7 @@ The workflow setup (PR #57) is still waiting for review.
 - 2026-10-01: hold new features; prioritize testing, debugging and a clean `main`.
 - 2026-10-07: street + borough is the default search (exact address optional) and a read-only Resources tab is approved. Both shipped in PR #53. Community Q&A and the scaling fixes are on hold. The community board waits for a layout (posting 18+, no AI-written answers).
 - 2026-10-11: `/law` index defaults approved: every section as number + title; City then State, one closed group per law; a number-only "Go to a section" box (no full-text search); repealed and dropped sections labelled, never hidden; linked from the section page and Resources, not the header nav.
+- 2026-10-11: "Your situation" becomes "Your data": a pill in the composer toolbar left of Send, filled by the assistant from the tenant's own messages, correctable by the tenant, no send gate, no database change. Details: `docs/frontend/case-workspace.md`.
 - 2026-10-08: the owner adopted the Codex review pass, including the privacy line "Your details stay confidential. Used for your account."
 
 ## Recently completed
@@ -29,6 +31,7 @@ PRs #53, #55 and #56 (street lookup and Resources; case workspace and reviewed R
 ## Verification
 
 - Full suite on the Mac, 2026-10-11: **886 OK (1 skipped)** on `docs/agent-workflow` (`1f8a682`), **908 OK (1 skipped)** on `feat/law-index`.
+- "Your data" (`feat/your-data-button`): **930 OK (1 skipped)**. Rendered and scripted in headless Chrome against the in-memory app. No real model call was made, so extraction quality is untested. Details: `log/2026-10-11-your-data-button.txt`.
 - `/law` index: rendered locally with a faked library (light/dark, 1280 px and a 390 px frame). Live library counted read-only: 426 sections in 11 laws. Not yet opened on Render; keyboard use not driven by hand. Details: `log/2026-10-11-law-index.txt`.
 - Workflow setup (2026-10-11): changes agent instructions, docs, two Python comments/docstrings and one workflow notice string; app logic is unchanged. Checks: the two Python files compile, the workflow YAML parses, no stale `docs/HANDOFF.md` references, `git diff --check` passes. The test suite was not run for it.
 
@@ -47,5 +50,6 @@ PRs #53, #55 and #56 (street lookup and Resources; case workspace and reviewed R
 ## Next action
 
 1. Owner: review and merge PR #57 (workflow setup), then the `/law` index PR.
-2. After deploy: open `/law` on Render, confirm it says 426 sections and that a group opens and "Go to a section" works by keyboard.
-3. Confirm or close the owner items above, then set the next objective here.
+2. After "Your data" deploys: in a real chat, mention a borough, an issue and a start date, and check the popover shows them after the reply; check that a suggestion in the reply does not appear under "Already done".
+3. After deploy: open `/law` on Render, confirm it says 426 sections and that a group opens and "Go to a section" works by keyboard.
+4. Confirm or close the owner items above, then set the next objective here.
