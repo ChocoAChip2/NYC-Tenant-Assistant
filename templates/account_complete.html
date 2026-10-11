@@ -2,7 +2,8 @@
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. Jinja comments like this one are stripped before the response is written. See docs/frontend/account-requirements.md for what this page is for and how a feature adds a field to it. #}
 {% from "_info.html" import info as info_tip, info_assets %}
 {% set form = form or {} %}
-<html lang="en">
+{% from "_language.html" import language_form with context %}
+<html lang="{{ html_lang() }}">
 <head>
 
   <meta charset="UTF-8">
@@ -311,6 +312,7 @@
       Not you? <button type="submit" class="link-button">Log out</button>
     </form>
   </div>
+  {{ language_form() }}
   <p class="legal-note">{{ short_disclaimer }} <a href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a> · <a href="{{ url_for('main.privacy') }}">{{ privacy_label }}</a></p>
   </div>
 

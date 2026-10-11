@@ -269,5 +269,15 @@ class MessageLengthCapTests(unittest.TestCase):
         self.assertIn("characters left", body)
 
 
+class MobileDrawerLayoutTests(unittest.TestCase):
+    def test_mobile_sidebar_has_no_stacked_list_height_cap(self):
+        with open(os.path.join(_TEMPLATES_DIR, "chat.html")) as source:
+            template = source.read()
+        self.assertNotIn("30vh", template)
+        self.assertNotIn(".layout { flex-direction: column; }", template)
+        self.assertIn("height: 100dvh;", template)
+        self.assertIn("width: min(320px, 85vw);", template)
+
+
 if __name__ == "__main__":
     unittest.main()

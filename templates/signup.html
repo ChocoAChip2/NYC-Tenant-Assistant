@@ -3,7 +3,8 @@
 {% from "_info.html" import info as info_tip, info_assets %}
 {% set form = form or {} %}
 {% from "_password_rules.html" import password_checklist, password_checklist_assets with context %}
-<html lang="en">
+{% from "_language.html" import language_form with context %}
+<html lang="{{ html_lang() }}">
 <head>
 
   <meta charset="UTF-8">
@@ -316,6 +317,7 @@
     <p class="footer-link">Already confirmed? <a href="{{ url_for('main.login') }}">Go to login</a></p>
     <p class="footer-link">See what we count and what we never keep: <a href="{{ url_for('main.privacy') }}">{{ privacy_label }}</a></p>
   </div>
+  {{ language_form() }}
   <p class="legal-note">{{ short_disclaimer }} <a href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a> · <a href="{{ url_for('main.privacy') }}">{{ privacy_label }}</a></p>
   </div>
 

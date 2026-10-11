@@ -505,7 +505,7 @@ class PrivacyPageTests(_Case):
 
     def test_it_covers_what_is_counted_what_never_is_retention_and_the_opt_out(self):
         titles = [s["title"] for s in branding.PRIVACY_SECTIONS]
-        self.assertEqual(titles, ["What we count", "What these counts never include", "How long we keep them", "Your choice"])
+        self.assertEqual(titles, ["What we count", "What these counts never include", "How long we keep them", "Your choice", "Your language"])
         text = json.dumps(branding.PRIVACY_SECTIONS)
         self.assertIn(f"deleted after {usage_metrics.RETENTION_MONTHS} months", text)
         self.assertIn(f"any total under {usage_metrics.SMALL_COUNT} is hidden", text)

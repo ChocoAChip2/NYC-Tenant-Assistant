@@ -2,7 +2,8 @@
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. Jinja comments like this one are stripped before the response is written. Read docs/frontend/css-gotchas.md before deleting a CSS rule here you don't recognise. #}
 {% from "_info.html" import info as info_tip, info_assets %}
 {% from "_password_rules.html" import password_checklist, password_checklist_assets with context %}
-<html lang="en">
+{% from "_language.html" import language_form with context %}
+<html lang="{{ html_lang() }}">
 <head>
   <meta charset="UTF-8">
   <meta name="color-scheme" content="light dark">
@@ -326,6 +327,7 @@
       <h1>Settings</h1>
     </a>
     <a href="{{ url_for('main.chat') }}">&larr; Back to chat</a>
+    {{ language_form() }}
   </header>
 
   <p class="top-disclaimer" role="note">

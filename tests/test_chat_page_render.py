@@ -7,6 +7,7 @@ fake services -- no real Supabase or Gemini call is made.
 """
 
 import os
+from html.parser import HTMLParser
 import unittest
 
 import flask
@@ -65,7 +66,49 @@ def _logged_in_session(client):
         session["access_token"] = "fake-token"
 
 
+class ElementParser(HTMLParser):
+    def __init__(self, html):
+        super().__init__()
+        self.elements = []
+        self.feed(html)
+
+    def handle_starttag(self, tag, attrs):
+        self.elements.append((tag, dict(attrs)))
+
+
 class ChatPageRenderTests(unittest.TestCase):
+    def test_mobile_chat_toggle_controls_the_sidebar_and_starts_closed(self):
+        app = _build_test_app(FakeSupabaseService(), FakeAIService())
+        client = app.test_client()
+        _logged_in_session(client)
+        elements = ElementParser(client.get("/chat").get_data(as_text=True)).elements
+        toggle = next(attrs for tag, attrs in elements if tag == "button" and attrs.get("aria-label") == "Open chats")
+        self.assertEqual(toggle["aria-expanded"], "false")
+        self.assertEqual(toggle["type"], "button")
+        sidebar = next(attrs for tag, attrs in elements if tag == "aside" and attrs.get("id") == toggle["aria-controls"])
+        self.assertEqual(sidebar["class"], "sidebar")
+
+    def test_header_new_chat_posts_with_csrf_and_both_existing_hooks(self):
+        app = _build_test_app(FakeSupabaseService(), FakeAIService())
+        client = app.test_client()
+        _logged_in_session(client)
+        body = client.get("/chat").get_data(as_text=True)
+        header = body[body.index("<header>"):body.index("</header>")]
+        form_start = header.index('<form id="header-new-chat"')
+        elements = ElementParser(header[form_start:header.index("</form>", form_start)]).elements
+        form = elements[0][1]
+        self.assertEqual(form["method"], "POST")
+        self.assertEqual(form["action"], "/conversations")
+        self.assertEqual(form["class"], "new-chat-form")
+        self.assertIn("data-new-chat-form", form)
+        csrf = next(attrs for tag, attrs in elements if tag == "input" and attrs.get("name") == "csrf_token")
+        self.assertEqual(csrf["type"], "hidden")
+        self.assertTrue(csrf["value"])
+        self.assertIn(csrf["value"], body[body.index('<meta name="csrf-token"'):body.index('<title>')])
+        button = next(attrs for tag, attrs in elements if tag == "button")
+        self.assertEqual(button["type"], "submit")
+        self.assertEqual(button["aria-label"], "New chat")
+
     def test_active_conversation_renders_message_history(self):
         service = FakeSupabaseService(
             conversations=[{"id": "c1", "title": "Broken heat", "created_at": "", "updated_at": ""}],

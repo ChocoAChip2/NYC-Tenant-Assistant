@@ -1,7 +1,8 @@
 <!doctype html>
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. See docs/frontend/law-page.md (The index) for why the groups start closed and why repealed sections are listed. #}
 {% from "_info.html" import info as info_tip, info_assets %}
-<html lang="en">
+{% from "_language.html" import language_form with context %}
+<html lang="{{ html_lang() }}">
 <head>
   <meta charset="UTF-8">
   <meta name="color-scheme" content="light dark">
@@ -255,6 +256,7 @@
       <span class="brand-name">{{ product_name }}</span>
     </a>
     <nav aria-label="Site">
+      {{ language_form() }}
       <a href="{{ url_for('main.resources') }}">Resources</a>
       <a class="hide-narrow" href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a>
       {% if logged_in %}

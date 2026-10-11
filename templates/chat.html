@@ -3,7 +3,8 @@
 {% from "_info.html" import info as info_tip, info_assets %}
 {% from "_your_data.html" import your_data_button, your_data_popover with context %}
 {% from "_greeting.html" import greeting with context %}
-<html lang="en">
+{% from "_language.html" import language_form with context %}
+<html lang="{{ html_lang() }}">
 <head>
   <meta charset="UTF-8">
   <meta name="color-scheme" content="light dark">
@@ -145,6 +146,8 @@
     @media (max-width: 700px) {
       .ref-links span.label { display: none; }
     }
+
+    #chats-toggle, #header-new-chat, .drawer-heading, .chats-backdrop { display: none; }
 
     .layout {
       flex: 1;
@@ -717,38 +720,57 @@
     }
 
     @media (max-width: 700px) {
-      header { flex-wrap: wrap; gap: 8px; }
-      .header-actions { flex-wrap: wrap; gap: 10px; }
+      header { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; gap: 8px; padding: 10px 14px; }
+      .header-actions { grid-column: 1 / -1; grid-row: 2; justify-content: center; }
       .ref-links { padding-right: 0; border-right: 0; gap: 6px; }
-      .layout { flex-direction: column; }
+      #chats-toggle, #header-new-chat { display: flex; }
+      #header-new-chat { grid-column: 3; grid-row: 1; }
+      #chats-toggle, #header-new-chat button, #chats-close {
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        min-width: 44px;
+        height: 44px;
+        padding: 10px;
+        border: 0;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      #chats-toggle, #chats-close { background: transparent; color: var(--text); }
+      #chats-toggle:hover, #chats-close:hover { background: var(--bg); }
+      .drawer-heading { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; }
+      .drawer-heading h2 { margin: 0; font-size: 16px; }
       .sidebar {
-        width: auto;
-        border-right: 0;
-        border-bottom: 1px solid var(--border);
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 61;
+        width: min(320px, 85vw);
+        height: 100dvh;
+        visibility: hidden;
+        transform: translateX(-100%);
+        transition: transform .2s ease, visibility .2s;
+        overscroll-behavior: contain;
       }
-      .sidebar-scroll {
-        padding: 12px 14px;
-        gap: 10px;
-        max-height: 30vh;
-        overflow-y: auto;
+      .sidebar.is-open { visibility: visible; transform: translateX(0); }
+      .sidebar-scroll { padding: 12px 14px; gap: 10px; overscroll-behavior: contain; }
+      .sidebar .new-chat-form { display: none; }
+      .chats-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        background: rgba(0, 0, 0, .45);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity .2s ease, visibility .2s;
+        touch-action: none;
       }
-      .new-chat-form button { flex: 1; }
-      .conversation-list {
-        flex-direction: column;
-        gap: 8px;
-        overflow-x: visible;
-        padding-bottom: 2px;
-      }
-      .conversation-row {
-        flex: 0 0 auto;
-        max-width: 100%;
-        flex-wrap: wrap;
-        border: 1px solid var(--border);
-        background: var(--surface);
-      }
-      .conversation-row.active { border-color: var(--accent); }
-      .conversation-link { padding: 7px 12px; }
-
+      .chats-backdrop.is-open { opacity: 1; visibility: visible; }
+      html.chats-open { overflow: hidden; }
+      .chats-open body { position: fixed; width: 100%; overflow: hidden; }
+      .conversation-row { flex-wrap: wrap; }
+      .conversation-link { padding: 12px 10px; }
+      .row-menu-panel button { min-height: 44px; }
       .row-menu-trigger { display: inline-flex; min-width: 44px; min-height: 44px; }
       .row-menu-panel { position: static; flex-basis: 100%; width: 100%; box-shadow: none; }
       .chat-area { min-height: 0; }
@@ -756,13 +778,25 @@
       form#chat-form { padding: 6px 10px 10px 14px; }
       .greeting-title { font-size: 22px; }
     }
+    @media (prefers-reduced-motion: reduce) {
+      .sidebar, .chats-backdrop { transition: none; }
+    }
   </style>
 </head>
 <body>
   <header>
+    <button id="chats-toggle" type="button" aria-label="Open chats" aria-controls="chats-sidebar" aria-expanded="false">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
     <div>
       <h1><a href="{{ url_for('main.chat') }}"><span class="brand-mark" aria-hidden="true">{{ logo_monogram }}</span>{{ product_name }}</a></h1>
     </div>
+    <form id="header-new-chat" class="new-chat-form" method="POST" action="{{ url_for('main.create_conversation') }}" data-new-chat-form>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" aria-label="New chat">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M15 4l5 5M10 14l1-5 7-7 5 5-7 7z"/></svg>
+      </button>
+    </form>
     <div class="header-actions">
 
       <div class="ref-links">
@@ -771,7 +805,9 @@
         <a class="ref-link" href="https://hcr.ny.gov/" target="_blank" rel="noopener noreferrer">NY State HCR</a>
       </div>
     </div>
+    {{ language_form() }}
   </header>
+  <div id="chats-backdrop" class="chats-backdrop" aria-hidden="true"></div>
 
   <p class="top-disclaimer" role="note">
     <span class="warn-icon" aria-hidden="true">!</span>
@@ -791,7 +827,13 @@
   {% endwith %}
 
   <div class="layout">
-    <aside class="sidebar">
+    <aside class="sidebar" id="chats-sidebar" aria-label="Chats" tabindex="-1">
+      <div class="drawer-heading">
+        <h2>Chats</h2>
+        <button id="chats-close" type="button" aria-label="Close chats">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg>
+        </button>
+      </div>
       <div class="sidebar-scroll">
         <form class="new-chat-form" method="POST" action="{{ url_for('main.create_conversation') }}" data-new-chat-form>
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -1233,7 +1275,8 @@
       });
 
       document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && !menu.hidden) {
+        if (event.key === "Escape" && !event.defaultPrevented && !menu.hidden) {
+          event.preventDefault();
           closeMenu();
           trigger.focus();
         }
@@ -1274,7 +1317,13 @@
       });
 
       document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") closeAllMenus(null);
+        if (event.key !== "Escape" || event.defaultPrevented) return;
+        const trigger = document.querySelector('[data-row-menu-trigger][aria-expanded="true"]');
+        if (trigger) {
+          event.preventDefault();
+          closeAllMenus(null);
+          trigger.focus();
+        }
       });
     })();
 
@@ -1331,6 +1380,7 @@
         const href = link.getAttribute("href");
         pendingNavigation = window.setTimeout(() => {
           pendingNavigation = null;
+          closeChatsDrawer();
           window.location.href = href;
         }, 220);
       });
@@ -1356,11 +1406,117 @@
       );
 
       document.addEventListener("keydown", (event) => {
-        if (event.key !== "Escape") return;
+        if (event.key !== "Escape" || event.defaultPrevented) return;
         const form = event.target.closest && event.target.closest("[data-rename-form]");
-        if (form) cancelRename(form.closest(".conversation-row"));
+        if (form && !form.hidden) {
+          event.preventDefault();
+          const row = form.closest(".conversation-row");
+          cancelRename(row);
+          row.querySelector(".conversation-link").focus();
+        }
       });
     })();
+
+    const chatsSidebar = document.getElementById("chats-sidebar");
+    const chatsToggle = document.getElementById("chats-toggle");
+    const chatsBackdrop = document.getElementById("chats-backdrop");
+    const chatsMobile = window.matchMedia("(max-width: 700px)");
+    let chatsOpen = false;
+    let chatsScrollY = 0;
+    let chatsBodyTop = "";
+    let chatsBackground = [];
+
+    function chatsFocusStops() {
+      return Array.from(chatsSidebar.querySelectorAll('a[href], button, input, select, textarea, summary, [tabindex]'))
+        .filter((el) => !el.disabled && el.tabIndex >= 0 && !el.closest('[inert], [hidden]') && el.getClientRects().length);
+    }
+
+    function closeChatsDrawer(returnFocus = true) {
+      if (!chatsOpen) return;
+      chatsOpen = false;
+      chatsSidebar.classList.remove("is-open");
+      chatsBackdrop.classList.remove("is-open");
+      chatsToggle.setAttribute("aria-expanded", "false");
+      chatsSidebar.removeAttribute("role");
+      chatsSidebar.removeAttribute("aria-modal");
+      chatsBackground.forEach(([el, wasInert]) => { el.inert = wasInert; });
+      chatsBackground = [];
+      document.documentElement.classList.remove("chats-open");
+      document.body.style.top = chatsBodyTop;
+      window.scrollTo(0, chatsScrollY);
+      if (returnFocus) chatsToggle.focus();
+      chatsSidebar.inert = chatsMobile.matches;
+      if (chatsMobile.matches) chatsSidebar.setAttribute("aria-hidden", "true");
+      else chatsSidebar.removeAttribute("aria-hidden");
+    }
+
+    function openChatsDrawer() {
+      if (!chatsMobile.matches || chatsOpen) return;
+      chatsOpen = true;
+      chatsScrollY = window.scrollY;
+      chatsBodyTop = document.body.style.top;
+      document.body.style.top = -chatsScrollY + "px";
+      document.documentElement.classList.add("chats-open");
+      chatsSidebar.inert = false;
+      chatsSidebar.removeAttribute("aria-hidden");
+      chatsSidebar.setAttribute("role", "dialog");
+      chatsSidebar.setAttribute("aria-modal", "true");
+      chatsSidebar.classList.add("is-open");
+      chatsBackdrop.classList.add("is-open");
+      chatsToggle.setAttribute("aria-expanded", "true");
+      const activeChat = chatsSidebar.querySelector(".conversation-row.active .conversation-link");
+      const archivedGroup = activeChat && activeChat.closest("details");
+      if (archivedGroup) archivedGroup.open = true;
+      const stops = chatsFocusStops();
+      (stops.includes(activeChat) ? activeChat : stops[0] || chatsSidebar).focus();
+      let branch = chatsSidebar;
+      while (branch.parentElement) {
+        Array.from(branch.parentElement.children).forEach((el) => {
+          if (el !== branch && el !== chatsBackdrop && !el.matches("script, style")) {
+            chatsBackground.push([el, el.inert]);
+            el.inert = true;
+          }
+        });
+        branch = branch.parentElement;
+        if (branch === document.body) break;
+      }
+    }
+
+    function syncChatsViewport() {
+      if (!chatsMobile.matches) closeChatsDrawer(false);
+      if (!chatsOpen) {
+        if (chatsMobile.matches && chatsSidebar.contains(document.activeElement)) chatsToggle.focus();
+        chatsSidebar.inert = chatsMobile.matches;
+        if (chatsMobile.matches) chatsSidebar.setAttribute("aria-hidden", "true");
+        else chatsSidebar.removeAttribute("aria-hidden");
+        if (!chatsMobile.matches && document.activeElement === document.getElementById("chats-close")) {
+          (chatsFocusStops()[0] || chatsSidebar).focus();
+        }
+      }
+    }
+
+    chatsToggle.addEventListener("click", openChatsDrawer);
+    document.getElementById("chats-close").addEventListener("click", () => closeChatsDrawer());
+    chatsBackdrop.addEventListener("click", () => closeChatsDrawer());
+    chatsMobile.addEventListener("change", syncChatsViewport);
+    syncChatsViewport();
+
+    document.addEventListener("keydown", (event) => {
+      if (!chatsOpen || event.defaultPrevented) return;
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeChatsDrawer();
+      } else if (event.key === "Tab") {
+        const stops = chatsFocusStops();
+        const first = stops[0] || chatsSidebar;
+        const last = stops[stops.length - 1] || chatsSidebar;
+        if (!chatsSidebar.contains(document.activeElement) || document.activeElement === chatsSidebar ||
+            (event.shiftKey ? document.activeElement === first : document.activeElement === last)) {
+          event.preventDefault();
+          (event.shiftKey ? last : first).focus();
+        }
+      }
+    });
 
     document.querySelectorAll("[data-new-chat-form]").forEach((form) => {
       form.addEventListener("submit", () => {

@@ -22,6 +22,7 @@ import law_service
 import citation_guard
 import conversation_titles
 import email_codes
+import i18n
 import password_safety
 import profile_service
 import resources as resources_data
@@ -33,6 +34,7 @@ from markdown_service import render_markdown
 from login_lockout import format_duration, record_failure, record_success, seconds_until_unlocked
 from rate_limit import limiter, rate_limit_key
 from supabase_service import SupabaseService
+from i18n import gettext as _
 import form_service
 import case_context
 import form_review
@@ -88,7 +90,7 @@ def _keep_session_fresh():
         session["access_token"], session["refresh_token"] = tokens
         return None
     session.clear()
-    flash("Your session expired. Please log in again.", "error")
+    flash(_("Your session expired. Please log in again."), "error")
     return None
 
 
@@ -160,6 +162,7 @@ def _start_session(auth_response) -> None:
         session["first_name"] = first_name
     else:
         session.pop("first_name", None)
+    i18n.remember_from_account(metadata)
     # A fresh login re-checks everything and forgets earlier skips.
     session.pop(account_requirements.SKIPPED_KEY, None)
     account_requirements.record(session, metadata)
@@ -414,7 +417,7 @@ def resources():
         borough=borough,
         board=board,
         courts=resources_data.courts_for(borough),
-        help_resources=branding.HELP_RESOURCES,
+        help_resources=i18n.translated(branding.HELP_RESOURCES, keys={"detail"}),
         report_links=resources_data.REPORT_LINKS,
         logged_in=bool(session.get("user_id")),
     )
@@ -447,7 +450,7 @@ def signup():
             return render_template("signup.html", form=entered, **form_limits)
 
         if not email or not password:
-            flash("Please provide both email and password.", "error")
+            flash(_("Please provide both email and password."), "error")
             return retry()
 
         try:
@@ -455,18 +458,18 @@ def signup():
                 entered["first_name"], entered["last_name"], entered["date_of_birth"], today=today
             )
         except profile_service.ProfileError as exc:
-            flash(str(exc), "error")
+            flash(_(str(exc)), "error")
             return retry()
 
         if not password_safety.meets_rules(password):
-            flash(password_safety.RULE_MESSAGE, "error")
+            flash(_(password_safety.RULE_MESSAGE), "error")
             return retry()
 
         # Checked against public breach corpora (see password_safety.py).
         # Fails open by design: an unreachable API must never stop someone
         # making an account.
         if password_safety.is_breached(password):
-            flash(password_safety.MESSAGE, "error")
+            flash(_(password_safety.MESSAGE), "error")
             return retry()
 
         try:
@@ -492,13 +495,13 @@ def signup():
                 return render_template("signup.html", existing_account_email=email, form=entered, **form_limits)
 
             flash(
-                "Sign-up successful. Please confirm your email, then log in.",
+                _("Sign-up successful. Please confirm your email, then log in."),
                 "success",
             )
             return redirect(url_for("main.login"))
         except Exception as exc:
             logger.warning("Sign-up request failed (%s).", type(exc).__name__)
-            flash("Sign-up failed. Check your details and try again shortly.", "error")
+            flash(_("Sign-up failed. Check your details and try again shortly."), "error")
             return retry()
 
     return render_template("signup.html", form={}, **form_limits)
@@ -521,7 +524,7 @@ def login():
         wait_seconds = seconds_until_unlocked(lockout_key)
         if wait_seconds > 0:
             flash(
-                f"Too many failed login attempts. Try again in {format_duration(wait_seconds)}.",
+                _("Too many failed login attempts. Try again in %(wait)s.", wait=format_duration(wait_seconds)),
                 "error",
             )
             return render_template("login.html")
@@ -530,7 +533,7 @@ def login():
         password = request.form.get("password", "")
 
         if not email or not password:
-            flash("Please provide both email and password.", "error")
+            flash(_("Please provide both email and password."), "error")
             return render_template("login.html")
 
         try:
@@ -549,7 +552,7 @@ def login():
             record_failure(lockout_key)
             logger.warning("Login request failed (%s).", type(exc).__name__)
             flash(
-                "Login failed. Check your email and password, and confirm your email if needed.",
+                _("Login failed. Check your email and password, and confirm your email if needed."),
                 "error",
             )
 
@@ -575,7 +578,7 @@ def _begin_code_step(supabase_service, auth_response, weak_password: bool):
     except Exception as exc:
         logger.warning("Could not send a sign-in code (%s).", type(exc).__name__)
         session.pop(email_codes.SIGN_IN_KEY, None)
-        flash("We couldn't send your sign-in code. Please try again in a minute.", "error")
+        flash(_("We couldn't send your sign-in code. Please try again in a minute."), "error")
         return render_template("login.html")
     now = time.time()
     session[email_codes.SIGN_IN_KEY] = {
@@ -585,7 +588,7 @@ def _begin_code_step(supabase_service, auth_response, weak_password: bool):
 
 
 def _seconds(count: int) -> str:
-    return f"{count} second{'' if count == 1 else 's'}"
+    return _("1 second") if count == 1 else _("%(count)s seconds", count=count)
 
 
 @main_bp.route("/login/code", methods=["GET", "POST"])
@@ -601,7 +604,7 @@ def sign_in_code():
     pending = session.get(email_codes.SIGN_IN_KEY)
     if not email_codes.is_open(pending) or not pending.get("email"):
         if pending is not None or request.method == "POST":
-            flash("That sign-in timed out. Please log in again.", "error")
+            flash(_("That sign-in timed out. Please log in again."), "error")
         session.pop(email_codes.SIGN_IN_KEY, None)
         return redirect(url_for("main.login"))
 
@@ -618,28 +621,28 @@ def sign_in_code():
     lockout_key = rate_limit_key()
     wait_seconds = seconds_until_unlocked(lockout_key)
     if wait_seconds > 0:
-        flash(f"Too many failed login attempts. Try again in {format_duration(wait_seconds)}.", "error")
+        flash(_("Too many failed login attempts. Try again in %(wait)s.", wait=format_duration(wait_seconds)), "error")
         return page()
 
     if request.form.get("action") == "resend":
         wait = email_codes.seconds_until_resend(pending.get("sent_at"))
         if wait:
-            flash(f"You can send a new code in {_seconds(wait)}.", "error")
+            flash(_("You can send a new code in %(wait)s.", wait=_seconds(wait)), "error")
             return page()
         try:
             supabase_service.send_sign_in_code(pending["email"])
         except Exception as exc:
             logger.warning("Could not resend a sign-in code (%s).", type(exc).__name__)
-            flash("We couldn't send a new code. Please try again in a minute.", "error")
+            flash(_("We couldn't send a new code. Please try again in a minute."), "error")
             return page()
         pending = dict(pending, sent_at=time.time())
         session[email_codes.SIGN_IN_KEY] = pending
-        flash("We sent a new code. The earlier one no longer works.", "success")
+        flash(_("We sent a new code. The earlier one no longer works."), "success")
         return page()
 
     code = email_codes.clean_code(request.form.get("code"))
     if not code:
-        flash(f"Enter the {email_codes.CODE_LENGTH}-digit code from your email.", "error")
+        flash(_("Enter the %(digits)s-digit code from your email.", digits=email_codes.CODE_LENGTH), "error")
         return page()
 
     try:
@@ -655,9 +658,9 @@ def sign_in_code():
         logger.warning("Sign-in code check failed (%s).", type(exc).__name__)
         wait_seconds = seconds_until_unlocked(lockout_key)
         if wait_seconds > 0:
-            flash(f"Too many failed login attempts. Try again in {format_duration(wait_seconds)}.", "error")
+            flash(_("Too many failed login attempts. Try again in %(wait)s.", wait=format_duration(wait_seconds)), "error")
         else:
-            flash("That code didn't work. Check it, or send a new one.", "error")
+            flash(_("That code didn't work. Check it, or send a new one."), "error")
         return page()
     record_success(lockout_key)
     return _continue_after_sign_in(bool(pending.get("weak")))
@@ -689,24 +692,24 @@ def change_password():
     elif password_safety.is_breached(new_password):
         problem = password_safety.MESSAGE
     if problem:
-        flash(problem, "error")
+        flash(_(problem), "error")
         return render_template("password_required.html", next_url=next_url), 400
 
     access_token = session.get("access_token")
     refresh_token = session.get("refresh_token")
     if not access_token or not refresh_token:
         session.clear()
-        flash("Your session expired. Please log in again.", "error")
+        flash(_("Your session expired. Please log in again."), "error")
         return redirect(url_for("main.login"))
     try:
         get_supabase_service().update_account(
             access_token=access_token, refresh_token=refresh_token, password=new_password)
     except Exception as exc:
         logger.warning("Required password change failed (%s).", type(exc).__name__)
-        flash("We couldn't save your new password. Please try again.", "error")
+        flash(_("We couldn't save your new password. Please try again."), "error")
         return render_template("password_required.html", next_url=next_url), 503
     session.pop(PASSWORD_CHANGE_KEY, None)
-    flash("Password updated.", "success")
+    flash(_("Password updated."), "success")
     return redirect(next_url)
 
 
@@ -726,7 +729,7 @@ def forgot_password():
         email = request.form.get("email", "").strip()
 
         if not email:
-            flash("Please enter your email.", "error")
+            flash(_("Please enter your email."), "error")
             return render_template("forgot_password.html")
 
         try:
@@ -744,7 +747,7 @@ def forgot_password():
             logger.exception("Failed to send password reset email.")
 
         flash(
-            "If an account exists for that email, we've sent a link to reset your password.",
+            _("If an account exists for that email, we've sent a link to reset your password."),
             "success",
         )
         return redirect(url_for("main.login"))
@@ -775,7 +778,7 @@ def reset_password():
         confirm_password = request.form.get("confirm_password", "")
 
         if not access_token or not refresh_token:
-            flash("This reset link is invalid or has expired. Request a new one below.", "error")
+            flash(_("This reset link is invalid or has expired. Request a new one below."), "error")
             return redirect(url_for("main.forgot_password"))
 
         # A typo must not cost the tenant their reset link: the tokens came
@@ -788,18 +791,18 @@ def reset_password():
             return response
 
         if not new_password or new_password != confirm_password:
-            flash("Passwords do not match.", "error")
+            flash(_("Passwords do not match."), "error")
             return retry()
 
         if not password_safety.meets_rules(new_password):
-            flash(password_safety.RULE_MESSAGE, "error")
+            flash(_(password_safety.RULE_MESSAGE), "error")
             return retry()
 
         # Checked against public breach corpora (see password_safety.py).
         # Fails open by design: an unreachable API must never stop someone
         # making an account.
         if password_safety.is_breached(new_password):
-            flash(password_safety.MESSAGE, "error")
+            flash(_(password_safety.MESSAGE), "error")
             return retry()
 
         try:
@@ -808,12 +811,12 @@ def reset_password():
                 refresh_token=refresh_token,
                 password=new_password,
             )
-            flash("Your password has been reset. Please log in.", "success")
+            flash(_("Your password has been reset. Please log in."), "success")
             return redirect(url_for("main.login"))
         except Exception:
             logger.exception("Failed to reset password.")
             flash(
-                "Could not reset your password. The link may have expired -- request a new one.",
+                _("Could not reset your password. The link may have expired -- request a new one."),
                 "error",
             )
             return redirect(url_for("main.forgot_password"))
@@ -830,7 +833,7 @@ def chat():
     user_client = get_user_scoped_client()
     if not user_client:
         session.clear()
-        flash("Your session expired. Please log in again.", "error")
+        flash(_("Your session expired. Please log in again."), "error")
         return redirect(url_for("main.login"))
 
     supabase_service = get_supabase_service()
@@ -856,7 +859,7 @@ def chat():
                         message["content"] = content
                     message["content_html"] = render_markdown(content)
         except ValueError:
-            flash("That conversation could not be found.", "error")
+            flash(_("That conversation could not be found."), "error")
             conversation_id = None
 
     if conversation_id and messages and get_ai_service().is_ready():
@@ -897,7 +900,7 @@ def create_conversation():
     user_client = get_user_scoped_client()
     if not user_client:
         session.clear()
-        flash("Your session expired. Please log in again.", "error")
+        flash(_("Your session expired. Please log in again."), "error")
         return redirect(url_for("main.login"))
 
     title = request.form.get("title", "").strip()[:MAX_CONVERSATION_TITLE_LENGTH] or conversation_titles.DEFAULT_TITLE
@@ -911,7 +914,7 @@ def create_conversation():
         return redirect(url_for("main.chat", conversation_id=conversation_id))
     except Exception:
         logger.exception("Failed to create conversation.")
-        flash("Could not start a new conversation. Please try again.", "error")
+        flash(_("Could not start a new conversation. Please try again."), "error")
         return redirect(url_for("main.chat"))
 
 
@@ -925,19 +928,19 @@ def archive_conversation(conversation_id):
     user_client = get_user_scoped_client()
     if not user_client:
         session.clear()
-        flash("Your session expired. Please log in again.", "error")
+        flash(_("Your session expired. Please log in again."), "error")
         return redirect(url_for("main.login"))
 
     try:
         get_supabase_service().set_conversation_archived(
             user_client, conversation_id, session["user_id"], archived=True
         )
-        flash("Conversation archived.", "success")
+        flash(_("Conversation archived."), "success")
     except ValueError:
-        flash("That conversation could not be found.", "error")
+        flash(_("That conversation could not be found."), "error")
     except Exception:
         logger.exception("Failed to archive conversation.")
-        flash("Could not archive that conversation. Please try again.", "error")
+        flash(_("Could not archive that conversation. Please try again."), "error")
 
     return redirect(url_for("main.chat"))
 
@@ -952,19 +955,19 @@ def unarchive_conversation(conversation_id):
     user_client = get_user_scoped_client()
     if not user_client:
         session.clear()
-        flash("Your session expired. Please log in again.", "error")
+        flash(_("Your session expired. Please log in again."), "error")
         return redirect(url_for("main.login"))
 
     try:
         get_supabase_service().set_conversation_archived(
             user_client, conversation_id, session["user_id"], archived=False
         )
-        flash("Conversation restored.", "success")
+        flash(_("Conversation restored."), "success")
     except ValueError:
-        flash("That conversation could not be found.", "error")
+        flash(_("That conversation could not be found."), "error")
     except Exception:
         logger.exception("Failed to unarchive conversation.")
-        flash("Could not restore that conversation. Please try again.", "error")
+        flash(_("Could not restore that conversation. Please try again."), "error")
 
     return redirect(url_for("main.chat"))
 
@@ -981,7 +984,7 @@ def rename_conversation(conversation_id):
     user_client = get_user_scoped_client()
     if not user_client:
         session.clear()
-        flash("Your session expired. Please log in again.", "error")
+        flash(_("Your session expired. Please log in again."), "error")
         return redirect(url_for("main.login"))
 
     title = request.form.get("title", "").strip()[:MAX_CONVERSATION_TITLE_LENGTH]
@@ -990,7 +993,7 @@ def rename_conversation(conversation_id):
         # The conversation being renamed is presumably still right there in
         # the sidebar, so send the visitor back into it to retry rather
         # than dropping them out to the plain chat list.
-        flash("Conversation name cannot be empty.", "error")
+        flash(_("Conversation name cannot be empty."), "error")
         return redirect(url_for("main.chat", conversation_id=conversation_id))
 
     try:
@@ -1002,10 +1005,10 @@ def rename_conversation(conversation_id):
         # would just make /chat's own lookup immediately repeat this same
         # flash. Land on the plain chat list instead, matching
         # archive/unarchive/delete's error handling.
-        flash("That conversation could not be found.", "error")
+        flash(_("That conversation could not be found."), "error")
     except Exception:
         logger.exception("Failed to rename conversation.")
-        flash("Could not rename that conversation. Please try again.", "error")
+        flash(_("Could not rename that conversation. Please try again."), "error")
 
     return redirect(url_for("main.chat"))
 
@@ -1020,17 +1023,17 @@ def delete_conversation(conversation_id):
     user_client = get_user_scoped_client()
     if not user_client:
         session.clear()
-        flash("Your session expired. Please log in again.", "error")
+        flash(_("Your session expired. Please log in again."), "error")
         return redirect(url_for("main.login"))
 
     try:
         get_supabase_service().delete_conversation(user_client, conversation_id, session["user_id"])
-        flash("Conversation deleted.", "success")
+        flash(_("Conversation deleted."), "success")
     except ValueError:
-        flash("That conversation could not be found.", "error")
+        flash(_("That conversation could not be found."), "error")
     except Exception:
         logger.exception("Failed to delete conversation.")
-        flash("Could not delete that conversation. Please try again.", "error")
+        flash(_("Could not delete that conversation. Please try again."), "error")
 
     # If the conversation that was just deleted was the active one, this
     # redirect (with no conversation_id) naturally lands back on the
@@ -1405,7 +1408,7 @@ def _law_chip_links(report) -> dict[str, str]:
     """
     try:
         violations = list(report.apartment_violations or [])
-        for _, _, items in report.open_by_class():
+        for _cls, _info, items in report.open_by_class():
             violations.extend(items)
         numbers = {}
         for v in violations:
@@ -1529,8 +1532,8 @@ def learn_more():
 
     return render_template(
         "learn_more.html",
-        full_disclaimer_points=branding.FULL_DISCLAIMER_POINTS,
-        help_resources=branding.HELP_RESOURCES,
+        full_disclaimer_points=i18n.translated(branding.FULL_DISCLAIMER_POINTS),
+        help_resources=i18n.translated(branding.HELP_RESOURCES, keys={"detail"}),
         logged_in=bool(session.get("user_id")),
     )
 
@@ -1582,7 +1585,7 @@ def complete_account():
         updates.update(collected.session_updates)
     if errors:
         for message in errors:
-            flash(message, "error")
+            flash(_(message), "error")
         page["form"] = entered
         return render_template("account_complete.html", **page), 400
 
@@ -1593,14 +1596,14 @@ def complete_account():
     except Exception:
         logger.exception("Failed to save missing account details.")
         account_requirements.skip(session, [r.key for r in pending])
-        flash("We couldn't save that just now. You can carry on, and we'll ask again next time you log in.", "error")
+        flash(_("We couldn't save that just now. You can carry on, and we'll ask again next time you log in."), "error")
         return redirect(next_url)
 
     if tokens:
         session["access_token"], session["refresh_token"] = tokens
     session.update(updates)
     account_requirements.mark_met(session, [r.key for r in pending])
-    flash("Thanks, you're all set.", "success")
+    flash(_("Thanks, you're all set."), "success")
     return redirect(next_url)
 
 
@@ -1683,17 +1686,17 @@ def request_sign_in_code_change():
     current = session.get(email_codes.SETTINGS_KEY)
     wait = email_codes.seconds_until_resend(current.get("sent_at")) if email_codes.is_open(current) else 0
     if wait:
-        flash(f"You can send a new code in {_seconds(wait)}.", "error")
+        flash(_("You can send a new code in %(wait)s.", wait=_seconds(wait)), "error")
         return _settings_codes()
     try:
         get_supabase_service().send_sign_in_code(session["user_email"])
     except Exception as exc:
         logger.warning("Could not send a code for a sign-in codes change (%s).", type(exc).__name__)
-        flash("We couldn't send a code. Please try again in a minute.", "error")
+        flash(_("We couldn't send a code. Please try again in a minute."), "error")
         return _settings_codes()
     now = time.time()
     session[email_codes.SETTINGS_KEY] = {"enable": turn == "on", "at": now, "sent_at": now, "tries": 0}
-    flash(f"We emailed a code to {session['user_email']}. Enter it below to finish.", "success")
+    flash(_("We emailed a code to %(email)s. Enter it below to finish.", email=session["user_email"]), "success")
     return _settings_codes()
 
 
@@ -1709,11 +1712,11 @@ def confirm_sign_in_code_change():
         return _settings_codes()
     if not email_codes.is_open(change):
         session.pop(email_codes.SETTINGS_KEY, None)
-        flash("That code timed out. Please start again.", "error")
+        flash(_("That code timed out. Please start again."), "error")
         return _settings_codes()
     code = email_codes.clean_code(request.form.get("code"))
     if not code:
-        flash(f"Enter the {email_codes.CODE_LENGTH}-digit code from your email.", "error")
+        flash(_("Enter the %(digits)s-digit code from your email.", digits=email_codes.CODE_LENGTH), "error")
         return _settings_codes()
 
     supabase_service = get_supabase_service()
@@ -1728,10 +1731,10 @@ def confirm_sign_in_code_change():
         tries = int(change.get("tries") or 0) + 1
         if tries >= email_codes.MAX_SETTINGS_ATTEMPTS:
             session.pop(email_codes.SETTINGS_KEY, None)
-            flash("Too many wrong codes. Please start again.", "error")
+            flash(_("Too many wrong codes. Please start again."), "error")
         else:
             session[email_codes.SETTINGS_KEY] = dict(change, tries=tries)
-            flash("That code didn't work. Check it, or send a new one.", "error")
+            flash(_("That code didn't work. Check it, or send a new one."), "error")
         return _settings_codes()
 
     # The code's own session is this same tenant, freshly proven: keep it.
@@ -1742,13 +1745,13 @@ def confirm_sign_in_code_change():
         tokens = supabase_service.update_user_metadata(access_token, refresh_token, {email_codes.METADATA_KEY: enable})
     except Exception as exc:
         logger.warning("Could not save a sign-in codes change (%s).", type(exc).__name__)
-        flash("We couldn't save that just now. Please try again.", "error")
+        flash(_("We couldn't save that just now. Please try again."), "error")
         return _settings_codes()
     if tokens:
         session["access_token"], session["refresh_token"] = tokens
     flash(
-        "Sign-in codes are on. We'll email you a code each time you log in." if enable
-        else "Sign-in codes are off.",
+        _("Sign-in codes are on. We'll email you a code each time you log in." if enable
+        else "Sign-in codes are off."),
         "success",
     )
     return _settings_codes()
@@ -1770,7 +1773,7 @@ def update_profile():
     refresh_token = session.get("refresh_token")
     if not access_token or not refresh_token:
         session.clear()
-        flash("Your session expired. Please log in again.", "error")
+        flash(_("Your session expired. Please log in again."), "error")
         return redirect(url_for("main.login"))
 
     try:
@@ -1780,12 +1783,12 @@ def update_profile():
             request.form.get("date_of_birth", ""),
         )
     except profile_service.ProfileError as exc:
-        flash(str(exc), "error")
+        flash(_(str(exc)), "error")
         return redirect(url_for("main.settings") + "#profile")
 
     metadata = profile_service.to_metadata(profile)
     if metadata is None:
-        flash("Your name can't be saved right now. Please try again later.", "error")
+        flash(_("Your name can't be saved right now. Please try again later."), "error")
         return redirect(url_for("main.settings") + "#profile")
 
     try:
@@ -1794,10 +1797,10 @@ def update_profile():
             session["access_token"], session["refresh_token"] = tokens
         session["first_name"] = profile.first_name
         account_requirements.mark_met(session, [account_requirements.PROFILE.key])
-        flash(f"Saved. We'll greet you as {profile.first_name}.", "success")
+        flash(_("Saved. We'll greet you as %(name)s.", name=profile.first_name), "success")
     except Exception:
         logger.exception("Failed to save the account profile.")
-        flash("Your name couldn't be saved. Please try again.", "error")
+        flash(_("Your name couldn't be saved. Please try again."), "error")
     return redirect(url_for("main.settings") + "#profile")
 
 
@@ -1824,7 +1827,7 @@ def request_account_deletion():
     user_client = get_user_scoped_client()
     if not user_client:
         session.clear()
-        flash("Your session expired. Please log in again.", "error")
+        flash(_("Your session expired. Please log in again."), "error")
         return redirect(url_for("main.login"))
 
     acknowledged = request.form.get("confirm_understood") == "yes"
@@ -1832,11 +1835,11 @@ def request_account_deletion():
     account_email = (session.get("user_email") or "").strip().lower()
 
     if not acknowledged:
-        flash("Tick the confirmation box to schedule your account for deletion.", "error")
+        flash(_("Tick the confirmation box to schedule your account for deletion."), "error")
         return redirect(url_for("main.settings"))
 
     if not typed_email or typed_email != account_email:
-        flash("The email you typed does not match this account. Nothing was deleted.", "error")
+        flash(_("The email you typed does not match this account. Nothing was deleted."), "error")
         return redirect(url_for("main.settings"))
 
     try:
@@ -1844,13 +1847,13 @@ def request_account_deletion():
             user_client, session["user_id"], ACCOUNT_DELETION_GRACE_PERIOD_DAYS
         )
         flash(
-            f"Your account is scheduled for deletion in {ACCOUNT_DELETION_GRACE_PERIOD_DAYS} days. "
-            "You can cancel any time before then from this page.",
+            _("Your account is scheduled for deletion in %(days)s days. "
+              "You can cancel any time before then from this page.", days=ACCOUNT_DELETION_GRACE_PERIOD_DAYS),
             "success",
         )
     except Exception:
         logger.exception("Failed to schedule an account deletion.")
-        flash("Could not schedule your account for deletion. Please try again.", "error")
+        flash(_("Could not schedule your account for deletion. Please try again."), "error")
 
     return redirect(url_for("main.settings"))
 
@@ -1871,7 +1874,7 @@ def cancel_account_deletion():
     user_client = get_user_scoped_client()
     if not user_client:
         session.clear()
-        flash("Your session expired. Please log in again.", "error")
+        flash(_("Your session expired. Please log in again."), "error")
         return redirect(url_for("main.login"))
 
     try:
@@ -1879,12 +1882,12 @@ def cancel_account_deletion():
             user_client, session["user_id"]
         )
         if cancelled:
-            flash("Your account is no longer scheduled for deletion.", "success")
+            flash(_("Your account is no longer scheduled for deletion."), "success")
         else:
-            flash("There was no pending deletion to cancel.", "error")
+            flash(_("There was no pending deletion to cancel."), "error")
     except Exception:
         logger.exception("Failed to cancel an account deletion.")
-        flash("Could not cancel the deletion. Please try again.", "error")
+        flash(_("Could not cancel the deletion. Please try again."), "error")
 
     return redirect(url_for("main.settings"))
 
@@ -1901,7 +1904,7 @@ def update_account():
     refresh_token = session.get("refresh_token")
     if not access_token or not refresh_token:
         session.clear()
-        flash("Your session expired. Please log in again.", "error")
+        flash(_("Your session expired. Please log in again."), "error")
         return redirect(url_for("main.login"))
 
     new_email = request.form.get("email", "").strip()
@@ -1909,22 +1912,22 @@ def update_account():
     confirm_password = request.form.get("confirm_password", "")
 
     if not new_email and not new_password:
-        flash("Enter a new email and/or password to update your account.", "error")
+        flash(_("Enter a new email and/or password to update your account."), "error")
         return redirect(url_for("main.settings"))
 
     if new_password and new_password != confirm_password:
-        flash("New password and confirmation do not match.", "error")
+        flash(_("New password and confirmation do not match."), "error")
         return redirect(url_for("main.settings"))
 
     if new_password and not password_safety.meets_rules(new_password):
-        flash(password_safety.RULE_MESSAGE, "error")
+        flash(_(password_safety.RULE_MESSAGE), "error")
         return redirect(url_for("main.settings"))
 
     # Checked against public breach corpora (see password_safety.py).
     # Fails open by design: an unreachable API must never stop someone
     # changing their password.
     if new_password and password_safety.is_breached(new_password):
-        flash(password_safety.MESSAGE, "error")
+        flash(_(password_safety.MESSAGE), "error")
         return redirect(url_for("main.settings"))
 
     try:
@@ -1935,12 +1938,12 @@ def update_account():
             password=new_password or None,
         )
         if new_email:
-            flash(f"Check {new_email} for a confirmation link before the new email takes effect.", "success")
+            flash(_("Check %(email)s for a confirmation link before the new email takes effect.", email=new_email), "success")
         if new_password:
-            flash("Password updated.", "success")
+            flash(_("Password updated."), "success")
     except Exception as exc:
         logger.warning("Account update failed (%s).", type(exc).__name__)
-        flash("Could not update account. Check your details and try again shortly.", "error")
+        flash(_("Could not update account. Check your details and try again shortly."), "error")
 
     return redirect(url_for("main.settings"))
 
@@ -1955,7 +1958,7 @@ def download_chat_history():
     user_client = get_user_scoped_client()
     if not user_client:
         session.clear()
-        flash("Your session expired. Please log in again.", "error")
+        flash(_("Your session expired. Please log in again."), "error")
         return redirect(url_for("main.login"))
 
     conversations = get_supabase_service().fetch_all_conversations_with_messages(user_client)
@@ -2019,3 +2022,5 @@ case_routes.register(main_bp)
 
 import usage_routes
 usage_routes.register(main_bp)
+
+i18n.register(main_bp)
