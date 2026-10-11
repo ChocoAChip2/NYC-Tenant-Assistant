@@ -21,10 +21,12 @@ import building_service
 import law_service
 import citation_guard
 import conversation_titles
+import email_codes
 import password_safety
 import profile_service
 import resources as resources_data
 import retrieval_service
+import street_suggestions
 import usage_metrics
 from ai_service import AIService
 from markdown_service import render_markdown
@@ -88,6 +90,90 @@ def _keep_session_fresh():
     session.clear()
     flash("Your session expired. Please log in again.", "error")
     return None
+
+
+# Set at sign-in when the password just typed no longer meets the rule
+# (password_safety.unmet_rules). Supabase still accepts an old password, so
+# the app is what makes the tenant replace it.
+PASSWORD_CHANGE_KEY = "password_change_required"
+
+# Everything a signed-in tenant can still open while a new password is
+# owed: the public pages, the page that sets it, and logging out. Listed
+# as what stays open, so a signed-in route added later is closed by default.
+_OPEN_WITHOUT_NEW_PASSWORD = frozenset({
+    "main.home", "main.area_lookup", "main.resources", "main.building_lookup", "main.law_index",
+    "main.law_section", "main.learn_more", "main.favicon", "main.signup", "main.login",
+    "main.sign_in_code", "main.forgot_password", "main.reset_password", "main.change_password",
+    "main.logout",
+})
+
+_IDENTITY_KEYS = ("user_id", "user_email", "access_token", "refresh_token", "first_name")
+
+
+@main_bp.app_context_processor
+def _password_rule_for_templates():
+    return {
+        "password_rules": password_safety.RULES,
+        "password_symbols": password_safety.SYMBOLS,
+        "password_min_length": password_safety.MIN_LENGTH,
+    }
+
+
+@main_bp.before_request
+def _require_new_password():
+    """Hold a signed-in tenant on /account/password until their password meets the rule.
+
+    No skip: only the public pages, that page and logout stay reachable.
+    Runs before the account-details check below, so the password comes first.
+    """
+    if not session.get("user_id") or not session.get(PASSWORD_CHANGE_KEY):
+        return None
+    if request.endpoint is None or request.endpoint in _OPEN_WITHOUT_NEW_PASSWORD:
+        return None
+    if request.method != "GET" and request.is_json:
+        return jsonify({"error": "Set a new password to continue."}), 403
+    target = request.full_path.rstrip("?") if request.method == "GET" else None
+    return redirect(url_for("main.change_password", next=target))
+
+
+def _forget_identity() -> None:
+    """Drop everything that marks this browser as signed in (not the whole session)."""
+    for key in (*_IDENTITY_KEYS, PASSWORD_CHANGE_KEY, email_codes.SETTINGS_KEY,
+                account_requirements.SESSION_KEY, account_requirements.SKIPPED_KEY):
+        session.pop(key, None)
+
+
+def _start_session(auth_response) -> None:
+    """Make a Supabase sign-in response this browser's session.
+
+    Shared by the password sign-in and the emailed-code step, so both end
+    up with the same session (and the same hourly token refresh).
+    """
+    session.pop(email_codes.SIGN_IN_KEY, None)
+    session["user_email"] = auth_response.user.email
+    session["user_id"] = auth_response.user.id
+    session["access_token"] = auth_response.session.access_token
+    session["refresh_token"] = auth_response.session.refresh_token
+    metadata = getattr(auth_response.user, "user_metadata", None)
+    first_name = profile_service.first_name_from_metadata(metadata)
+    if first_name:
+        session["first_name"] = first_name
+    else:
+        session.pop("first_name", None)
+    # A fresh login re-checks everything and forgets earlier skips.
+    session.pop(account_requirements.SKIPPED_KEY, None)
+    account_requirements.record(session, metadata)
+
+
+def _continue_after_sign_in(weak_password: bool):
+    """Where a tenant goes once signed in: new password, then missing details, then chat."""
+    if weak_password:
+        session[PASSWORD_CHANGE_KEY] = True
+        return redirect(url_for("main.change_password"))
+    session.pop(PASSWORD_CHANGE_KEY, None)
+    if account_requirements.pending(session):
+        return redirect(url_for("main.complete_account"))
+    return redirect(url_for("main.chat"))
 
 
 @main_bp.before_request
@@ -253,6 +339,7 @@ def _render_area_lookup():
     report = None
     error = error_title = None
     narrow_error = False
+    suggestions = []
     status = 200
 
     if street:
@@ -264,10 +351,13 @@ def _render_area_lookup():
         except area_service.InvalidArea as exc:
             error_title, error, status = "Check your search", str(exc), 400
             narrow_error = bool(zip_code)
-        except area_service.StreetNotFound:
+        except area_service.StreetNotFound as exc:
             error_title = "We couldn't find that street"
             error = "Check the spelling and the borough. Try the full name, like Echo Place."
             status = 404
+            # Links the tenant can tap, never a redirect. Computed inside
+            # this (already counted) request; tapping one is a new lookup.
+            suggestions = street_suggestions.for_street(street, area_service.borough_from(borough), exc.returned)
         except area_service.CrossStreetNotFound:
             error_title = "Those streets don't seem to meet"
             error = "Check the cross street, or try your ZIP code instead."
@@ -299,6 +389,7 @@ def _render_area_lookup():
         error=error,
         error_title=error_title,
         narrow_error=narrow_error,
+        suggestions=suggestions,
         office_titles=area_service.OFFICE_TITLES,
         display_street=area_service.display_street,
         max_street_length=area_service.MAX_STREET_LENGTH,
@@ -365,6 +456,10 @@ def signup():
             )
         except profile_service.ProfileError as exc:
             flash(str(exc), "error")
+            return retry()
+
+        if not password_safety.meets_rules(password):
+            flash(password_safety.RULE_MESSAGE, "error")
             return retry()
 
         # Checked against public breach corpora (see password_safety.py).
@@ -440,25 +535,16 @@ def login():
 
         try:
             auth_response = supabase_service.sign_in(email=email, password=password)
-            session["user_email"] = auth_response.user.email
-            session["user_id"] = auth_response.user.id
-            session["access_token"] = auth_response.session.access_token
-            session["refresh_token"] = auth_response.session.refresh_token
-            first_name = profile_service.first_name_from_metadata(
-                getattr(auth_response.user, "user_metadata", None)
-            )
-            if first_name:
-                session["first_name"] = first_name
-            else:
-                session.pop("first_name", None)
+            # Supabase still accepts a password set under the old rule and
+            # the client library doesn't pass on its warning, so the typed
+            # password is checked here; a weak one must be replaced before
+            # any signed-in page opens (_require_new_password).
+            weak_password = not password_safety.meets_rules(password)
+            if email_codes.is_on(getattr(auth_response.user, "user_metadata", None)):
+                return _begin_code_step(supabase_service, auth_response, weak_password)
+            _start_session(auth_response)
             record_success(lockout_key)
-
-            # A fresh login re-checks everything and forgets earlier skips.
-            session.pop(account_requirements.SKIPPED_KEY, None)
-            account_requirements.record(session, getattr(auth_response.user, "user_metadata", None))
-            if account_requirements.pending(session):
-                return redirect(url_for("main.complete_account"))
-            return redirect(url_for("main.chat"))
+            return _continue_after_sign_in(weak_password)
         except Exception as exc:
             record_failure(lockout_key)
             logger.warning("Login request failed (%s).", type(exc).__name__)
@@ -468,6 +554,160 @@ def login():
             )
 
     return render_template("login.html")
+
+
+def _begin_code_step(supabase_service, auth_response, weak_password: bool):
+    """A correct password on an account with emailed codes on: send the code, stay signed out.
+
+    Nothing from the password sign-in is kept except who it was for: no
+    user_id, no tokens. Its Supabase session is ended so those tokens can't
+    be used either. The lockout streak is not cleared here; only a correct
+    code does that.
+    """
+    _forget_identity()
+    email = auth_response.user.email
+    try:
+        supabase_service.end_session(auth_response.session.access_token)
+    except Exception as exc:
+        logger.warning("Could not end the password session before the code step (%s).", type(exc).__name__)
+    try:
+        supabase_service.send_sign_in_code(email)
+    except Exception as exc:
+        logger.warning("Could not send a sign-in code (%s).", type(exc).__name__)
+        session.pop(email_codes.SIGN_IN_KEY, None)
+        flash("We couldn't send your sign-in code. Please try again in a minute.", "error")
+        return render_template("login.html")
+    now = time.time()
+    session[email_codes.SIGN_IN_KEY] = {
+        "email": email, "user_id": str(auth_response.user.id), "at": now, "sent_at": now, "weak": weak_password,
+    }
+    return redirect(url_for("main.sign_in_code"))
+
+
+def _seconds(count: int) -> str:
+    return f"{count} second{'' if count == 1 else 's'}"
+
+
+@main_bp.route("/login/code", methods=["GET", "POST"])
+@limiter.limit("10 per minute", methods=["POST"])
+def sign_in_code():
+    """The second step of sign-in for accounts that turned emailed codes on.
+
+    Reached only with a pending step in the session (set by login() after
+    a correct password). The tenant is signed in only by the session that
+    verifying the code returns. Wrong codes count toward the same lockout
+    as wrong passwords, under the same key.
+    """
+    pending = session.get(email_codes.SIGN_IN_KEY)
+    if not email_codes.is_open(pending) or not pending.get("email"):
+        if pending is not None or request.method == "POST":
+            flash("That sign-in timed out. Please log in again.", "error")
+        session.pop(email_codes.SIGN_IN_KEY, None)
+        return redirect(url_for("main.login"))
+
+    def page():
+        return render_template(
+            "login_code.html", email=pending["email"],
+            resend_wait=email_codes.seconds_until_resend(pending.get("sent_at")),
+        )
+
+    if request.method == "GET":
+        return page()
+
+    supabase_service = get_supabase_service()
+    lockout_key = rate_limit_key()
+    wait_seconds = seconds_until_unlocked(lockout_key)
+    if wait_seconds > 0:
+        flash(f"Too many failed login attempts. Try again in {format_duration(wait_seconds)}.", "error")
+        return page()
+
+    if request.form.get("action") == "resend":
+        wait = email_codes.seconds_until_resend(pending.get("sent_at"))
+        if wait:
+            flash(f"You can send a new code in {_seconds(wait)}.", "error")
+            return page()
+        try:
+            supabase_service.send_sign_in_code(pending["email"])
+        except Exception as exc:
+            logger.warning("Could not resend a sign-in code (%s).", type(exc).__name__)
+            flash("We couldn't send a new code. Please try again in a minute.", "error")
+            return page()
+        pending = dict(pending, sent_at=time.time())
+        session[email_codes.SIGN_IN_KEY] = pending
+        flash("We sent a new code. The earlier one no longer works.", "success")
+        return page()
+
+    code = email_codes.clean_code(request.form.get("code"))
+    if not code:
+        flash(f"Enter the {email_codes.CODE_LENGTH}-digit code from your email.", "error")
+        return page()
+
+    try:
+        auth_response = supabase_service.verify_sign_in_code(pending["email"], code)
+        if str(auth_response.user.id) != str(pending.get("user_id")):
+            raise ValueError("the code's session is for a different account")
+        session.pop(email_codes.SIGN_IN_KEY, None)
+        _start_session(auth_response)
+    except Exception as exc:
+        _forget_identity()
+        session[email_codes.SIGN_IN_KEY] = pending
+        record_failure(lockout_key)
+        logger.warning("Sign-in code check failed (%s).", type(exc).__name__)
+        wait_seconds = seconds_until_unlocked(lockout_key)
+        if wait_seconds > 0:
+            flash(f"Too many failed login attempts. Try again in {format_duration(wait_seconds)}.", "error")
+        else:
+            flash("That code didn't work. Check it, or send a new one.", "error")
+        return page()
+    record_success(lockout_key)
+    return _continue_after_sign_in(bool(pending.get("weak")))
+
+
+@main_bp.route("/account/password", methods=["GET", "POST"])
+@limiter.limit("10 per minute", methods=["POST"])
+def change_password():
+    """Where a tenant whose password no longer meets the rule sets a new one.
+
+    Reached from sign-in (see _require_new_password). There is no skip:
+    the only ways off this page are a compliant password or logging out.
+    """
+    if not session.get("user_id"):
+        return redirect(url_for("main.login"))
+    next_url = _safe_next(request.values.get("next"))
+    if not session.get(PASSWORD_CHANGE_KEY):
+        return redirect(next_url)
+    if request.method == "GET":
+        return render_template("password_required.html", next_url=next_url)
+
+    new_password = request.form.get("password", "")
+    confirm_password = request.form.get("confirm_password", "")
+    problem = None
+    if not new_password or new_password != confirm_password:
+        problem = "Passwords do not match."
+    elif not password_safety.meets_rules(new_password):
+        problem = password_safety.RULE_MESSAGE
+    elif password_safety.is_breached(new_password):
+        problem = password_safety.MESSAGE
+    if problem:
+        flash(problem, "error")
+        return render_template("password_required.html", next_url=next_url), 400
+
+    access_token = session.get("access_token")
+    refresh_token = session.get("refresh_token")
+    if not access_token or not refresh_token:
+        session.clear()
+        flash("Your session expired. Please log in again.", "error")
+        return redirect(url_for("main.login"))
+    try:
+        get_supabase_service().update_account(
+            access_token=access_token, refresh_token=refresh_token, password=new_password)
+    except Exception as exc:
+        logger.warning("Required password change failed (%s).", type(exc).__name__)
+        flash("We couldn't save your new password. Please try again.", "error")
+        return render_template("password_required.html", next_url=next_url), 503
+    session.pop(PASSWORD_CHANGE_KEY, None)
+    flash("Password updated.", "success")
+    return redirect(next_url)
 
 
 @main_bp.route("/forgot-password", methods=["GET", "POST"])
@@ -551,8 +791,8 @@ def reset_password():
             flash("Passwords do not match.", "error")
             return retry()
 
-        if len(new_password) < 6:
-            flash("Password must be at least 6 characters.", "error")
+        if not password_safety.meets_rules(new_password):
+            flash(password_safety.RULE_MESSAGE, "error")
             return retry()
 
         # Checked against public breach corpora (see password_safety.py).
@@ -1082,11 +1322,27 @@ def building_lookup():
     return _render_building_lookup()
 
 
+def _shown_instead(report):
+    """For a result on the right street but a different number: what was
+    asked for, what is shown, and where the street's other buildings are."""
+    match = report.match if report else None
+    if not match or not match.requested:
+        return None
+    street = area_service.display_street(match.street)
+    return {
+        "requested": match.requested,
+        "shown": f"{match.house_number} {street}",
+        "street": street,
+        "borough": match.borough if match.borough in area_service.BOROUGHS else None,
+    }
+
+
 def _render_building_lookup():
     address = (request.args.get("address") or "").strip()
     apt = (request.args.get("apt") or "").strip()
     report = None
     error = error_title = None
+    suggestions = []
     status = 200
 
     if address:
@@ -1095,7 +1351,10 @@ def _render_building_lookup():
         except building_service.InvalidAddress as exc:
             error_title, error = "Check the address", str(exc)
             status = 400
-        except building_service.AddressNotFound:
+        except building_service.AddressNotFound as exc:
+            # Also where a result on a different street ends up: that
+            # building is not shown; a corrected address is offered instead.
+            suggestions = street_suggestions.for_address(exc.typed, exc.returned)
             error_title = "We couldn't find that building"
             error = (
                 "No NYC building matched that address. Check the house number, "
@@ -1122,6 +1381,8 @@ def _render_building_lookup():
         address=address,
         apt=apt,
         report=report,
+        suggestions=suggestions,
+        shown_instead=_shown_instead(report),
         error=error,
         error_title=error_title,
         chat_prompt=chat_prompt,
@@ -1369,13 +1630,21 @@ def settings():
     # shows the empty form.
     profile = None
     profile_known = True
+    # None means "couldn't tell": the section then offers no switch rather
+    # than the wrong one.
+    sign_in_codes_on = None
     try:
-        profile = profile_service.read_metadata(
-            get_supabase_service().get_user_metadata(session.get("access_token"))
-        )
+        metadata = get_supabase_service().get_user_metadata(session.get("access_token"))
+        profile = profile_service.read_metadata(metadata)
+        sign_in_codes_on = email_codes.is_on(metadata)
     except Exception:
         profile_known = False
         logger.warning("Could not read the account profile for Settings.", exc_info=True)
+
+    code_change = session.get(email_codes.SETTINGS_KEY)
+    if not email_codes.is_open(code_change):
+        session.pop(email_codes.SETTINGS_KEY, None)
+        code_change = None
 
     today = date.today()
     return render_template(
@@ -1387,7 +1656,102 @@ def settings():
         has_profile=bool(profile) or not profile_known,
         dob_max=profile_service.latest_allowed_birthday(today).isoformat(),
         dob_min=f"{today.year - profile_service.MAX_AGE}-01-01",
+        sign_in_codes_on=sign_in_codes_on,
+        sign_in_code_change=code_change,
+        sign_in_code_resend_wait=email_codes.seconds_until_resend(code_change.get("sent_at")) if code_change else 0,
     )
+
+
+def _settings_codes():
+    return redirect(url_for("main.settings", _anchor="sign-in-codes"))
+
+
+@main_bp.route("/settings/sign-in-codes", methods=["POST"])
+@limiter.limit("10 per minute")
+def request_sign_in_code_change():
+    """Start turning emailed sign-in codes on or off: email a code to confirm it.
+
+    Both directions need a code from the account's inbox, so someone at an
+    unlocked screen can't quietly switch it off, and nobody switches it on
+    for an inbox they can't read (which would lock them out).
+    """
+    if not session.get("user_id"):
+        return redirect(url_for("main.login"))
+    turn = request.form.get("turn")
+    if turn not in ("on", "off"):
+        return _settings_codes()
+    current = session.get(email_codes.SETTINGS_KEY)
+    wait = email_codes.seconds_until_resend(current.get("sent_at")) if email_codes.is_open(current) else 0
+    if wait:
+        flash(f"You can send a new code in {_seconds(wait)}.", "error")
+        return _settings_codes()
+    try:
+        get_supabase_service().send_sign_in_code(session["user_email"])
+    except Exception as exc:
+        logger.warning("Could not send a code for a sign-in codes change (%s).", type(exc).__name__)
+        flash("We couldn't send a code. Please try again in a minute.", "error")
+        return _settings_codes()
+    now = time.time()
+    session[email_codes.SETTINGS_KEY] = {"enable": turn == "on", "at": now, "sent_at": now, "tries": 0}
+    flash(f"We emailed a code to {session['user_email']}. Enter it below to finish.", "success")
+    return _settings_codes()
+
+
+@main_bp.route("/settings/sign-in-codes/confirm", methods=["POST"])
+@limiter.limit("10 per minute")
+def confirm_sign_in_code_change():
+    """Finish turning emailed sign-in codes on or off with the emailed code."""
+    if not session.get("user_id"):
+        return redirect(url_for("main.login"))
+    change = session.get(email_codes.SETTINGS_KEY)
+    if request.form.get("action") == "cancel":
+        session.pop(email_codes.SETTINGS_KEY, None)
+        return _settings_codes()
+    if not email_codes.is_open(change):
+        session.pop(email_codes.SETTINGS_KEY, None)
+        flash("That code timed out. Please start again.", "error")
+        return _settings_codes()
+    code = email_codes.clean_code(request.form.get("code"))
+    if not code:
+        flash(f"Enter the {email_codes.CODE_LENGTH}-digit code from your email.", "error")
+        return _settings_codes()
+
+    supabase_service = get_supabase_service()
+    try:
+        auth_response = supabase_service.verify_sign_in_code(session["user_email"], code)
+        if str(auth_response.user.id) != str(session["user_id"]):
+            raise ValueError("the code's session is for a different account")
+        access_token = auth_response.session.access_token
+        refresh_token = auth_response.session.refresh_token
+    except Exception as exc:
+        logger.warning("Code check for a sign-in codes change failed (%s).", type(exc).__name__)
+        tries = int(change.get("tries") or 0) + 1
+        if tries >= email_codes.MAX_SETTINGS_ATTEMPTS:
+            session.pop(email_codes.SETTINGS_KEY, None)
+            flash("Too many wrong codes. Please start again.", "error")
+        else:
+            session[email_codes.SETTINGS_KEY] = dict(change, tries=tries)
+            flash("That code didn't work. Check it, or send a new one.", "error")
+        return _settings_codes()
+
+    # The code's own session is this same tenant, freshly proven: keep it.
+    session["access_token"], session["refresh_token"] = access_token, refresh_token
+    session.pop(email_codes.SETTINGS_KEY, None)
+    enable = bool(change.get("enable"))
+    try:
+        tokens = supabase_service.update_user_metadata(access_token, refresh_token, {email_codes.METADATA_KEY: enable})
+    except Exception as exc:
+        logger.warning("Could not save a sign-in codes change (%s).", type(exc).__name__)
+        flash("We couldn't save that just now. Please try again.", "error")
+        return _settings_codes()
+    if tokens:
+        session["access_token"], session["refresh_token"] = tokens
+    flash(
+        "Sign-in codes are on. We'll email you a code each time you log in." if enable
+        else "Sign-in codes are off.",
+        "success",
+    )
+    return _settings_codes()
 
 
 @main_bp.route("/settings/profile", methods=["POST"])
@@ -1552,8 +1916,8 @@ def update_account():
         flash("New password and confirmation do not match.", "error")
         return redirect(url_for("main.settings"))
 
-    if new_password and len(new_password) < 6:
-        flash("Password must be at least 6 characters.", "error")
+    if new_password and not password_safety.meets_rules(new_password):
+        flash(password_safety.RULE_MESSAGE, "error")
         return redirect(url_for("main.settings"))
 
     # Checked against public breach corpora (see password_safety.py).

@@ -119,7 +119,7 @@ class UpdateAccountTests(unittest.TestCase):
 
         response = client.post(
             "/settings/account",
-            data={"password": "newpassword1", "confirm_password": "different"},
+            data={"password": "Newpassword1!", "confirm_password": "different"},
             follow_redirects=True,
         )
 
@@ -138,7 +138,7 @@ class UpdateAccountTests(unittest.TestCase):
             follow_redirects=True,
         )
 
-        self.assertIn("at least 6 characters", response.get_data(as_text=True))
+        self.assertIn("at least 8 characters", response.get_data(as_text=True))
         self.assertEqual(service.update_account_calls, [])
 
     def test_valid_email_and_password_change_calls_supabase_with_session_tokens(self):
@@ -149,7 +149,7 @@ class UpdateAccountTests(unittest.TestCase):
 
         response = client.post(
             "/settings/account",
-            data={"email": "new@example.com", "password": "newpassword1", "confirm_password": "newpassword1"},
+            data={"email": "new@example.com", "password": "Newpassword1!", "confirm_password": "Newpassword1!"},
             follow_redirects=True,
         )
 
@@ -159,7 +159,7 @@ class UpdateAccountTests(unittest.TestCase):
         self.assertEqual(call["access_token"], "tok-a")
         self.assertEqual(call["refresh_token"], "tok-r")
         self.assertEqual(call["email"], "new@example.com")
-        self.assertEqual(call["password"], "newpassword1")
+        self.assertEqual(call["password"], "Newpassword1!")
         body = response.get_data(as_text=True)
         self.assertIn("confirmation link", body)
         self.assertIn("Password updated", body)

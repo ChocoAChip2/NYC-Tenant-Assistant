@@ -40,6 +40,42 @@ sources. What the page shows:
   property records failing fails the page (503).
 - Public wording never names where data comes from in the backend
   ("From public City and State records", details behind the "i").
+- A street that isn't found is still "not found" (404). Since 2026-10-11
+  the page may add up to three **"Did you mean"** links below the message.
+  They are suggestions the tenant taps, never a redirect, and never a
+  result shown in place of what was typed.
+
+## "Did you mean" (`street_suggestions.py`)
+
+Added 2026-10-11. A misspelled street was a dead end, and the geocoder
+does not fix most typos: "Ecco Place, Bronx" returns unrelated streets.
+
+- **Where suggestions come from.** The city's own list of street names for
+  the borough (one fetch per borough, kept a day), compared with what was
+  typed. No model call.
+- **What is compared.** Only the distinctive words. A street type or
+  direction both names share is set aside first, otherwise "Asdfgh Street"
+  looks like "Mead Street". A typed direction, a typed street type and any
+  street number must match exactly: East 148 Street is not a spelling of
+  East 149 Street.
+- **Wrong borough.** If the typed name is a street in another borough,
+  that borough is offered first, marked "A different borough".
+- **Every suggestion is confirmed before it is shown**: the street
+  resolves and has buildings to list. The city's list contains
+  misspellings of its own ("GR CONCOURSE", "GRANDCONCOURSE") and the
+  geocoder knows them as aliases, but no tax lot uses them, so the area
+  page would be a dead end. Confirmation is what drops them.
+- **Bounded.** At most three suggestions and five confirmations per page.
+  If the street list can't be fetched, there are no suggestions, the page
+  is the plain not-found page, and the list isn't asked for again for two
+  minutes.
+- **Cost.** The first not-found search after a restart fetches the five
+  borough lists (about 3 to 5 seconds, measured 2026-10-11); later ones
+  take about a second. Suggestions are worked out inside the search that
+  was already counted against the lookup limit; tapping one is a normal
+  lookup.
+- A ZIP code or cross street the tenant typed is carried into a
+  same-borough suggestion's link.
 
 ## Officials are refreshed after elections, not per page
 

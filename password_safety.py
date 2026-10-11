@@ -1,4 +1,14 @@
-"""Refuses passwords that are known to be in public breach corpora.
+"""What a password must look like, and refusing ones known to be breached.
+
+THE RULE (owner, 2026-10-11)
+At least 8 characters, with a lowercase letter, an uppercase letter, a
+digit and a symbol. unmet_rules() is the one check, used by sign-up, the
+reset link, Settings and the forced change at login. The Supabase project
+is set to the same rule as a backstop, so the character classes here match
+Supabase's exactly: a-z, A-Z, 0-9 and the SYMBOLS list. Any other
+character is allowed in a password; it just doesn't count toward a class.
+
+THE BREACH CHECK
 
 WHY THIS IS HERE AND NOT A SUPABASE SETTING
 Supabase Auth has exactly this feature built in, gated behind a paid plan.
@@ -62,6 +72,46 @@ MESSAGE = (
     "That password has appeared in public data breaches, so attackers already "
     "have it on their lists. Please choose a different one."
 )
+
+
+MIN_LENGTH = 8
+# Supabase's "symbols" set, character for character.
+SYMBOLS = "!@#$%^&*()_+-=[]{};'\\:\"|<>?,./`~"
+_LOWER = frozenset("abcdefghijklmnopqrstuvwxyz")
+_UPPER = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+_DIGITS = frozenset("0123456789")
+_SYMBOLS = frozenset(SYMBOLS)
+
+# (key, what the checklist under a password field says)
+RULES = (
+    ("length", f"At least {MIN_LENGTH} characters"),
+    ("lower", "A lowercase letter"),
+    ("upper", "An uppercase letter"),
+    ("digit", "A number"),
+    ("symbol", "A symbol, like ! or #"),
+)
+RULE_MESSAGE = (
+    f"Use at least {MIN_LENGTH} characters, with a lowercase letter, an uppercase letter, "
+    "a number and a symbol."
+)
+
+
+def unmet_rules(password: str | None) -> list[str]:
+    """Keys from RULES this password fails; empty means it is acceptable."""
+    password = password if isinstance(password, str) else ""
+    characters = set(password)
+    checks = {
+        "length": len(password) >= MIN_LENGTH,
+        "lower": bool(characters & _LOWER),
+        "upper": bool(characters & _UPPER),
+        "digit": bool(characters & _DIGITS),
+        "symbol": bool(characters & _SYMBOLS),
+    }
+    return [key for key, _ in RULES if not checks[key]]
+
+
+def meets_rules(password: str | None) -> bool:
+    return not unmet_rules(password)
 
 
 def is_enabled() -> bool:

@@ -70,6 +70,7 @@ PAGES = {
     "main.law_index": "law_index", "main.law_section": "law", "main.resources": "resources",
     "main.learn_more": "learn_more", "main.privacy": "privacy", "main.chat": "chat",
     "main.settings": "settings", "main.login": "login", "main.signup": "signup",
+    "main.sign_in_code": "login_code", "main.change_password": "password_required",
     "main.forgot_password": "forgot_password", "main.reset_password": "reset_password",
     "main.complete_account": "account_complete", "main.review_form": "form_review",
 }

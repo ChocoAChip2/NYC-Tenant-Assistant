@@ -2,6 +2,7 @@
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. Jinja comments like this one are stripped before the response is written. Read docs/frontend/css-gotchas.md before deleting a CSS rule here you don't recognise. #}
 {% from "_info.html" import info as info_tip, info_assets %}
 {% from "_your_data.html" import your_data_button, your_data_popover with context %}
+{% from "_greeting.html" import greeting with context %}
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -328,6 +329,12 @@
     .greeting-title { margin: 0 0 10px; font-size: 26px; font-weight: 600; color: var(--text); }
     .greeting-sub { margin: 0 0 22px; color: var(--muted); font-size: 14px; line-height: 1.5; }
     .suggestions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .fresh-greeting { margin: auto auto 0; padding-top: 24px; }
+    .fresh-greeting .greeting-title { font-size: 28px; }
+    .fresh-greeting .greeting-sub { font-size: 16px; }
+    .chat-area.is-fresh main { flex: 0 0 auto; overflow: visible; }
+    .chat-area.is-fresh #chat-box { padding: 0; }
+    .chat-area.is-fresh .legal-note { margin-top: auto; }
 
     .continue-form { margin: 0 0 14px; display: flex; justify-content: center; }
     .suggestion-chip.continue-chip {
@@ -870,8 +877,13 @@
       </div>
     </aside>
 
-    <div class="chat-area">
+    <div class="chat-area{% if active_conversation_id and not messages %} is-fresh{% endif %}" id="chat-area">
       {% if active_conversation_id %}
+        {% if not messages %}
+          <div class="greeting-block fresh-greeting" id="fresh-greeting">
+            {{ greeting() }}
+          </div>
+        {% endif %}
         <main>
           <div id="chat-box">
             {% for message in messages %}
@@ -907,9 +919,7 @@
         <main class="empty-state">
 
           <div class="greeting-block">
-            <p class="greeting-eyebrow" id="greeting-date"></p>
-            <h1 class="greeting-title" id="greeting-text">Welcome{% if first_name %}, {{ first_name }}{% elif user_email %}, {{ user_email.split("@")[0]|capitalize }}{% endif %}</h1>
-            <p class="greeting-sub">Ask about repairs, evictions, deposits or anything else about renting in NYC.</p>
+            {{ greeting(show_date=true) }}
             <form class="continue-form" method="POST" action="{{ url_for('main.create_conversation') }}" data-new-chat-form data-continue-form hidden>
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <input type="hidden" name="title" value="My building" data-continue-title>
@@ -1497,7 +1507,15 @@
         });
       }
 
+      function leaveFreshChat() {
+        const area = document.getElementById("chat-area");
+        const freshGreeting = document.getElementById("fresh-greeting");
+        if (area) area.classList.remove("is-fresh");
+        if (freshGreeting) freshGreeting.remove();
+      }
+
       function renderMessage(role, content, html) {
+        leaveFreshChat();
         const wrapper = document.createElement("div");
         wrapper.className = `message ${role} is-new`;
 

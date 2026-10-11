@@ -1,0 +1,46 @@
+2026-10-11  A new chat opens with the greeting and a centred message box
+
+Request (owner): a brand-new chat with no messages should open like a
+new-chat page: the time-of-day greeting with the tenant's name, centred,
+"How can I help you today?" under it, and the message box directly below,
+until the first message is sent. Before, an empty conversation showed a
+blank transcript with the composer docked at the bottom; the greeting only
+appeared on /chat with no conversation.
+
+Changed
+- New partial templates/_greeting.html, used by both screens. Same
+  greeting logic and ids: time of day, first name, email-handle fallback,
+  server-rendered "Welcome, ..." before the script runs.
+- No-conversation screen: the date, chips and "Continue with your
+  building" are as they were. Only the subline changed, to "How can I help
+  you today?".
+- Empty conversation: .chat-area gets the class is-fresh, which centres
+  the greeting and the composer. The single #chat-form stays in place;
+  there is no second composer.
+- When the first message renders, the class and the greeting are removed
+  and the normal layout returns.
+
+The brief and the code
+- The brief said to leave _situation.html and the send gate as they were.
+  Both were already removed on main by the "Your data" change merged
+  earlier the same day (PR #59), so there was nothing to leave. The "Your
+  data" button sits in the composer in the new layout too.
+
+Evidence
+- tests/test_chat_page_render.py: four new tests (empty conversation shows
+  the greeting, the new line and exactly one composer; email-handle
+  fallback; a conversation with messages has neither; the no-conversation
+  screen keeps its date and chips with the new line).
+- The six test files named in the request pass, and the full suite on the
+  Mac: 934 OK (1 skipped); 930 before.
+- Headless Chrome on the Mac against the in-memory app: light at 1280 px
+  and dark in a 390 px frame. Scripted in the same browser: the greeting
+  became "Good evening, Ana"; sending a message removed the class and the
+  greeting and left one composer at the bottom; the counter showed "20
+  characters left" near the limit; a suggestion chip's queued prompt was
+  sent into a fresh chat (seen as the message request on the server).
+
+Not verified
+- Keyboard focus was only seen as the focus ring on the message box in a
+  screenshot; tabbing through the page was not driven by hand.
+- Not checked on a real phone or on Render.

@@ -1,0 +1,91 @@
+2026-10-11  "Did you mean" for the street and address searches, and a wrong-building fix
+
+Request (owner): when a street or address search finds nothing, or finds
+something other than what was typed, show up to three clickable
+suggestions instead of a dead end, and never show a different building's
+violations without saying so. Deterministic only, no model call. Never
+redirect.
+
+The bug this fixes
+- "231 Ecco Place, Bronx" geocoded to 231 BROWN PLACE and /building showed
+  Brown Place's violations as if they were the tenant's. It is now a 404
+  with "Did you mean 231 Echo Place, Bronx".
+
+Changed
+- New street_suggestions.py: reads a typed address (number, street,
+  borough), decides whether a geocoder result is the address that was
+  typed, and builds suggestions from the city's street list for the
+  borough (HPD buildings dataset, one fetch per borough, kept a day).
+- building_service.geocode checks every result against what was typed:
+  same street and number is shown; same street with a different number is
+  shown with a notice ("We couldn't find 1 Echo Place. Showing 179 Echo
+  Place.") and a link to the street; a different street, or a borough
+  other than the one typed, is not found.
+- Area search: a street that isn't found gets up to three suggestions,
+  with the right borough first when the name exists elsewhere.
+- Building search: a corrected address with the same house number, shown
+  only if it geocodes exactly, plus a link to the street's buildings. If
+  that number isn't on the street, the street alone is offered.
+- Status codes are unchanged (404). Suggestions are links, never a
+  redirect.
+- The chat hand-off says "I looked up ..." rather than "I live at ..."
+  when a different number on the street is being shown.
+- GeoSearch test fixture gained housenumber, street and match_type.
+
+Where the live services differed from the brief
+- match_type is "fallback" on every result, including exact matches
+  ("231 Echo Place, Bronx"), so it cannot tell a substitution from a hit.
+  The street and house number are compared instead.
+- The city's street list and the geocoder both carry alias spellings ("GR
+  CONCOURSE", "GRANDCONCOURSE") that resolve as streets but have no tax
+  lots. resolve_street alone confirmed them, so "Grand Concorse" first
+  offered three names, two of them dead ends. A suggestion now also has
+  to have buildings.
+- A result in another borough than the one typed was also being shown
+  ("12A Echo Place Bronx" came back as 12 Echo Place, Staten Island). That
+  is treated like a different street.
+
+Choices made
+- Similarity floor 0.75 on the distinctive words (0.85 when a name is
+  under four letters). "Ecco"/"Echo" is exactly 0.75.
+- At most five confirmations per page; after the street list fails, it is
+  not asked for again for two minutes.
+- With no borough typed, the boroughs the geocoder answered with (at most
+  two) are the ones searched.
+
+Evidence
+- tests/test_address_did_you_mean.py: 45 tests, all fetches mocked, an
+  unexpected URL fails the test. Covers the measured typos, nonsense, the
+  wrong borough, alias streets, the street-list failure, the geocode
+  checks, both routes (links, query strings, escaping, status codes).
+- Full suite on the Mac: 975 OK (1 skipped); 930 on main before.
+- Live, through the real routes against the real services, on the Mac,
+  2026-10-11:
+    /area Ecco Place, Bronx        404, did you mean Echo Place, Bronx
+    /area Westchster Ave, Bronx    404, Westchester Avenue, Bronx
+    /area Grand Concorse, Bronx    404, Grand Concourse, Bronx
+    /area Asdfgh Street, Bronx     404, no suggestions
+    /area Echo Place, Brooklyn     404, Echo Place, Bronx first
+    /building 231 Ecco Place, Bronx  404, 231 Echo Place, Bronx; Brown
+                                     Place nowhere on the page
+    /building 1 Echo Place, Bronx    200, notice, shows 179 Echo Place
+    /building 231 Echo Place, Bronx  200, no notice
+  Timing: 3.1 s for the first not-found search (cold street lists), 0.2 to
+  1.6 s after.
+- Headless Chrome on the Mac against the same live pages: light at
+  1280 px, dark and light in a 390 px frame.
+
+Not verified
+- Keyboard: the suggestions are ordinary links with a visible focus ring
+  in the stylesheet; tabbing to them was not driven by hand.
+- Dark mode at desktop width was not captured (dark was seen at 390 px).
+- Not checked on Render. The app token for the city's data service, if
+  set there, was not exercised.
+
+Known limits
+- The street list covers streets with buildings under HPD's jurisdiction;
+  a purely commercial street may be missing (brief's open question).
+- Text with no commas, a neighbourhood name and no street type ("231 echo
+  astoria") is treated as a different street and gets the not-found page.
+- A name one letter from a real street can be offered though it isn't
+  what the tenant meant ("Echo Place" in Brooklyn also offers Tech Place).

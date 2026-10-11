@@ -55,7 +55,7 @@ class SignupDuplicateAccountRouteTests(unittest.TestCase):
         client = app.test_client()
 
         response = client.post(
-            "/signup", data={"email": "new@example.com", "password": "hunter22", **SIGNUP_PROFILE}, follow_redirects=False
+            "/signup", data={"email": "new@example.com", "password": "Hunter22!x", **SIGNUP_PROFILE}, follow_redirects=False
         )
 
         self.assertEqual(response.status_code, 302)
@@ -66,7 +66,7 @@ class SignupDuplicateAccountRouteTests(unittest.TestCase):
         client = app.test_client()
 
         response = client.post(
-            "/signup", data={"email": "existing@example.com", "password": "hunter22", **SIGNUP_PROFILE}, follow_redirects=False
+            "/signup", data={"email": "existing@example.com", "password": "Hunter22!x", **SIGNUP_PROFILE}, follow_redirects=False
         )
 
         # No account was (or should have been) created, so this must not
