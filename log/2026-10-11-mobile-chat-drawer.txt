@@ -1,42 +1,44 @@
 Requirement
 Replace the stacked mobile conversation list with an accessible left drawer at
-the existing 700px breakpoint. Preserve desktop, the October 6 conversation
-management fixes, the composer, empty state, chat area and situation templates.
-Work on a branch and open a PR; the owner merges.
+the existing 700px breakpoint, based on main b7d7bae (PR #63). Preserve desktop,
+the October 6 conversation management fixes, the composer, new-chat greeting,
+chat area and Your data. Work on a branch; open a PR and let the owner merge.
 
 Changes
-- Mobile header has Open chats and a CSRF-protected New chat POST with both
+- Mobile header has 44px Open chats and a CSRF-protected New chat POST with both
   existing submit hooks. DOM order follows the visible header order.
-- Drawer is 100dvh, at most 320px/85vw, over a dimmed backdrop. Closing it makes
-  it inert and aria-hidden. Opening focuses Close chats, traps Tab, marks the
-  background inert and locks page scroll. Close restores focus and scroll.
-- Escape is consumed by account/row menus and rename before reaching the drawer.
+- Drawer is 100dvh, at most 320px/85vw, over a dimmed backdrop. Closing makes
+  it inert and aria-hidden. Opening focuses the active conversation (revealing
+  its Archived group if needed), otherwise the first focusable control. Tab is
+  contained; the background becomes inert and page scrolling is locked.
+- Closing restores focus and scroll. Escape is consumed by account/row menus
+  and rename before reaching the drawer. Your data handlers are unchanged.
   Backdrop, Close chats and selecting a conversation also dismiss it. Selection
   retains the existing 220ms delay so double-click rename still works.
 - Crossing above 700px restores the desktop sidebar and clears modal state.
   Reduced motion disables both transitions. Account menu remains in flow;
   mobile row triggers/actions are 44px and menus open in the row. Archived,
   Rename, Archive, Restore and Delete remain available.
-- Rewrote docs/frontend/chat-page.md mobile behavior and added render regressions
-  for the toggle relationship/state, header POST/CSRF/hooks and removed height cap.
+- Drawer/backdrop are above Your data and info tips; documented the stacking
+  requirement in css-gotchas.md and rewrote chat-page.md mobile behavior.
+- Render regressions cover toggle relationship/state, header POST/CSRF/hooks
+  and removed height cap. Existing account-menu-in-flow tests still pass.
 
-Evidence (2026-10-11)
-- Required targeted modules: 138 tests OK.
-- venv/bin/python -m unittest discover -s tests: 933 tests OK, 1 skipped.
+Evidence (2026-10-11, rebased on b7d7bae)
+- Required five targeted modules: 142 tests OK.
+- venv/bin/python -m unittest discover -s tests: 1084 tests OK, 1 skipped.
 - Rendered script passes node --check; git diff --check passes.
-- Source review: protected template regions and files unchanged; desktop CSS
-  unchanged apart from hiding the new mobile-only controls. No served comments.
-- Light/dark at 390px and desktop, actual keyboard traversal and VoiceOver-style
-  accessibility-tree order are NOT verified. Sandbox rejected local server bind
-  (Operation not permitted); browser policy rejected file:// rendered fixtures.
-  No policy workaround was attempted. Browser viewport override was reset.
-- Shell GitHub DNS is unavailable. Connected GitHub verified main at 45fcf05;
-  connector tree creation failed with 403 (Resource not accessible by integration).
-  GitHub browser access was denied. No remote branch or PR was created.
-  Existing feat/usage-counts working edits in
-  nyc-tenant-assistant-push-2 were left untouched in a separate worktree.
+- Source comparison confirms the chat-area markup/CSS, composer, new-chat
+  greeting and Your data handlers match main; _your_data.html is untouched.
+- Local QA server runs using MemorySupabase/ReviewAI with fake conversations
+  and CSRF enforcement. No production credentials or external services used.
+- Actual light/dark rendering at 390px and desktop, keyboard traversal and
+  VoiceOver-style accessibility-tree checks remain pending. Browser access to
+  the localhost preview is blocked by a saved user permission setting, even
+  after the owner approved it in chat. Awaiting that saved setting change.
+- Earlier shell/network restrictions are resolved; git fetch and gh now work.
+  The work remains isolated from the owner's feat/i18n-foundation worktree.
 
 Next
-Push local feat/mobile-chat-drawer and open a draft PR when GitHub write access
-is available. Complete the outstanding browser/assistive-technology checks before
-merging. Nothing has been merged.
+Open a draft PR. Complete browser checks when access is allowed, then mark it
+ready for owner review. Do not merge.

@@ -1462,7 +1462,11 @@
       chatsSidebar.classList.add("is-open");
       chatsBackdrop.classList.add("is-open");
       chatsToggle.setAttribute("aria-expanded", "true");
-      (chatsFocusStops()[0] || chatsSidebar).focus();
+      const activeChat = chatsSidebar.querySelector(".conversation-row.active .conversation-link");
+      const archivedGroup = activeChat && activeChat.closest("details");
+      if (archivedGroup) archivedGroup.open = true;
+      const stops = chatsFocusStops();
+      (stops.includes(activeChat) ? activeChat : stops[0] || chatsSidebar).focus();
       let branch = chatsSidebar;
       while (branch.parentElement) {
         Array.from(branch.parentElement.children).forEach((el) => {

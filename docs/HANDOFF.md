@@ -6,8 +6,10 @@ Location: `~/Desktop/Github/nyc-tenant-assistant-push-2`, branch `main` at `45fc
 ## Objective
 
 Mobile drawer: `feat/mobile-chat-drawer` in `~/Desktop/Github/sidekick-mobile-drawer`,
-based on `main` at `b7d7bae`. Implementation is being verified against the updated
-brief before PR publication. The owner merges. Earlier release tasks remain below.
+based on `main` at `b7d7bae`. Implementation matches the updated brief. Required tests pass: 142 targeted;
+1084 in the full suite, 1 skipped. Rendered JS syntax and protected-region
+comparison pass. Browser checks await the saved localhost permission setting;
+the fake-data QA server runs. Publish a draft PR pending those checks. The owner merges. Earlier release tasks remain below.
 
 Ship emailed sign-in codes and the stronger password rule (owner chose it on 2026-10-11, lifting the feature hold for this one change). Built on `feat/email-codes-and-passwords`; the owner merges after step 1 of the release order below.
 

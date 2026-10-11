@@ -120,3 +120,15 @@ The brand title is a link to `/chat`. `header a` styles the reference links
 (smaller, muted). Without the extra specificity of `header h1 a`, the brand
 title would pick up that nav-link color and size instead of reading as a
 plain page title.
+
+
+---
+
+## Mobile chat drawer must sit above other overlays
+
+**In:** `chat.html`, `_your_data.html`, `_info.html`
+
+The drawer backdrop uses z-index 60 and the drawer 61. Keep both above the
+Your data layers (40–45) and info tips (50). Otherwise an already-visible tip
+or bottom sheet can paint above the modal backdrop while the rest of the page
+is inert, leaving an apparently interactive control that cannot be used.

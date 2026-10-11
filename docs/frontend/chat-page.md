@@ -259,13 +259,15 @@ the list scrolls within the remaining height, with no stacked list or viewport
 height cap. The account menu stays in flow so it cannot cover conversations.
 
 The header's left **Open chats** button controls `#chats-sidebar` and keeps
-`aria-expanded` in sync. Opening exposes a labelled modal dialog, focuses
-**Close chats**, makes the background inert, locks page scrolling, and traps
+`aria-expanded` in sync. Opening exposes a labelled modal dialog, focuses the active conversation (opening
+its Archived group if needed) or the first focusable control, makes the background
+inert, locks page scrolling, and traps
 Tab/Shift+Tab within visible drawer controls. Closing restores focus to
 **Open chats** and makes the drawer inert and hidden from screen readers.
 The backdrop, Close chats, a selected conversation (after the existing 220ms
-double-click window), or Escape dismisses it. Escape first closes an open
-account/row menu or cancels a rename using the existing handlers; a consumed
+double-click window), or Escape dismisses it. The existing Your data
+Escape handlers still consume Escape within that popover. Within the drawer,
+Escape first closes an open account/row menu or cancels a rename; a consumed
 Escape never also closes the drawer. Row menus return focus to their trigger;
 cancelling rename returns focus to the conversation link.
 
