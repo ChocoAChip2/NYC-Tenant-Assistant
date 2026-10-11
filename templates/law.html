@@ -198,6 +198,8 @@
     .hint { font-size: 12.5px; color: var(--muted); margin: 0 0 6px; }
     .card .alert { margin-top: 14px; }
     .note { font-size: 13px; color: var(--muted); margin: 18px 0 0; }
+    .note a, .browse a { color: var(--accent); }
+    .browse { font-size: 13.5px; margin: 0; }
     .chip { font-size: 11.5px; padding: 2px 8px; border-radius: 6px; background: var(--accent-tint); color: var(--chip-text); font-weight: 600; }
     footer {
       max-width: 760px;
@@ -245,9 +247,10 @@
     {% elif error == "not_found" %}
       <section class="card">
         <h1 class="law-title">§ {{ citation }} isn't in our library</h1>
-        <p class="note">It may be outside our library, or the number may be mistyped.{% call info_tip(label="What our library holds") %}City: the Housing Maintenance Code, Rent Stabilization Law, Unlawful Eviction, Right to Counsel, Human Rights Law and Rent Control. State: Real Property Law Articles 6-A and 7, RPAPL Articles 7 and 7-A, and the security deposit rules. All copied word for word from the official text.{% endcall %} Try <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">American Legal Publishing</a> (City) or <a href="{{ nys_laws_url }}" target="_blank" rel="noopener noreferrer">the State Senate's site</a> (State).</p>
+        <p class="note">It may be outside our library, or the number may be mistyped.{% call info_tip(label="What our library holds") %}City: the Housing Maintenance Code, Rent Stabilization Law, Unlawful Eviction, Right to Counsel, Human Rights Law and Rent Control. State: Real Property Law Articles 6-A and 7, RPAPL Articles 7 and 7-A, and the security deposit rules. All copied word for word from the official text.{% endcall %} <a href="{{ url_for('main.law_index') }}">Browse the law library</a>, or try <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">American Legal Publishing</a> (City) or <a href="{{ nys_laws_url }}" target="_blank" rel="noopener noreferrer">the State Senate's site</a> (State).</p>
       </section>
     {% else %}
+      <p class="browse"><a href="{{ url_for('main.law_index') }}">Browse the law library</a></p>
       {% if sections|length > 1 %}
         <div class="alert warning">
           <strong>More than one section is numbered § {{ citation }}.</strong>

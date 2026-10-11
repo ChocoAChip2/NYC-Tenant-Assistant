@@ -404,6 +404,11 @@
       <p class="hint">Search your street to see your Council Member, Assembly Member and State Senator. <a href="{{ url_for('main.home') }}">Search your street</a></p>
     </section>
 
+    <section class="card" aria-labelledby="law-heading">
+      <h2 id="law-heading">The law</h2>
+      <p class="hint">Read the official text of City and State tenant law. <a href="{{ url_for('main.law_index') }}">Browse the law library</a></p>
+    </section>
+
     <section class="card" aria-labelledby="help-heading">
       <h2 id="help-heading">Free help</h2>
       {% for r in help_resources %}

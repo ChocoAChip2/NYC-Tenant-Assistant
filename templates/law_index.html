@@ -1,0 +1,323 @@
+<!doctype html>
+{# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. See docs/frontend/law-page.md (The index) for why the groups start closed and why repealed sections are listed. #}
+{% from "_info.html" import info as info_tip, info_assets %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#eef1f5" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ product_name }} | Law library</title>
+  <meta name="description" content="Browse the official text of New York City and New York State tenant law, section by section.">
+  <script>
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem("theme"); } catch (e) {}
+      if (saved === "light" || saved === "dark") {
+        document.documentElement.setAttribute("data-theme", saved);
+      }
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #eef1f5;
+      --surface: #ffffff;
+      --border: #d7dde5;
+      --text: #1c2733;
+      --muted: #5b6b7c;
+      --accent: #1c5d8c;
+      --accent-hover: #164a70;
+      --accent-tint: #dce8f2;
+      --chip-text: #1c5d8c;
+      --on-accent: #ffffff;
+      --warning: #8a5a1f;
+      --warning-tint: #f7ecd9;
+      --error: #a3312a;
+      --error-tint: #fbe9e7;
+      --success: #18733a;
+      --success-tint: #e6f4ea;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #000000;
+        --surface: #0a0a0a;
+        --border: #2a2f35;
+        --text: #e8edf2;
+        --muted: #9aa7b4;
+        --accent: #5b9bd5;
+        --accent-hover: #7db2e0;
+        --accent-tint: #0e1f2e;
+        --chip-text: #74aee0;
+        --on-accent: #000000;
+        --warning: #e8c27a;
+        --warning-tint: #231c0e;
+        --error: #e28a83;
+        --error-tint: #2a1614;
+        --success: #7fcf9b;
+        --success-tint: #0f1f16;
+      }
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #000000;
+      --surface: #0a0a0a;
+      --border: #2a2f35;
+      --text: #e8edf2;
+      --muted: #9aa7b4;
+      --accent: #5b9bd5;
+      --accent-hover: #7db2e0;
+      --accent-tint: #0e1f2e;
+      --chip-text: #74aee0;
+      --on-accent: #000000;
+      --warning: #e8c27a;
+      --warning-tint: #231c0e;
+      --error: #e28a83;
+      --error-tint: #2a1614;
+      --success: #7fcf9b;
+      --success-tint: #0f1f16;
+    }
+    [hidden] { display: none !important; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: var(--on-accent);
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .brand-name { font-size: 15px; font-weight: 600; }
+    nav { display: flex; gap: 16px; align-items: center; font-size: 13px; }
+    nav a { color: var(--muted); text-decoration: none; }
+    nav a:hover { color: var(--accent); }
+    nav a.primary {
+      color: var(--on-accent);
+      background: var(--accent);
+      padding: 7px 12px;
+      border-radius: 7px;
+      font-weight: 600;
+    }
+    nav a.primary:hover { background: var(--accent-hover); color: var(--on-accent); }
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+    h1 { font-size: 26px; line-height: 1.25; margin: 0; }
+    .lede { color: var(--muted); font-size: 15px; margin: 6px 0 0; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    button, .button {
+      font: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      border: 0;
+      border-radius: 8px;
+      padding: 11px 18px;
+      cursor: pointer;
+      background: var(--accent);
+      color: var(--on-accent);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s ease;
+    }
+    button:hover, .button:hover { background: var(--accent-hover); }
+    button:disabled { opacity: 0.6; cursor: wait; }
+    .button.secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--border);
+    }
+    .button.secondary:hover { background: var(--accent-tint); }
+    .alert {
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 14px;
+      border: 1px solid;
+    }
+    .alert.error { background: var(--error-tint); border-color: var(--error); color: var(--error); }
+    .alert.warning { background: var(--warning-tint); border-color: var(--warning); color: var(--warning); }
+    .alert.success { background: var(--success-tint); border-color: var(--success); color: var(--success); }
+    .alert strong { display: block; margin-bottom: 3px; }
+    .alert p { margin: 0; }
+    .alert a { color: inherit; font-weight: 600; }
+    h2 { font-size: 16px; margin: 0 0 10px; }
+    .note { font-size: 13px; color: var(--muted); margin: 0; }
+    .note a { color: var(--accent); }
+    .goto { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+    .goto .field { flex: 1 1 200px; display: flex; flex-direction: column; gap: 6px; }
+    .goto label { font-size: 13.5px; font-weight: 600; }
+    .goto input {
+      font: inherit;
+      font-size: 16px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--text);
+      width: 100%;
+    }
+    .goto input:focus-visible, summary:focus-visible, .sections a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .card .alert { margin-top: 14px; }
+    .laws { display: flex; flex-direction: column; gap: 10px; }
+    details {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    summary {
+      cursor: pointer;
+      padding: 14px 18px;
+      border-radius: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 4px 10px;
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary::before { content: "+"; color: var(--accent); font-weight: 700; width: 12px; flex-shrink: 0; }
+    details[open] > summary::before { content: "\2212"; }
+    summary:hover .law-name { color: var(--accent); }
+    .law-name { font-size: 15.5px; font-weight: 600; }
+    .law-detail { font-size: 12.5px; color: var(--muted); }
+    .count { font-size: 12.5px; color: var(--muted); margin-left: auto; white-space: nowrap; }
+    .sections { list-style: none; margin: 0; padding: 0 18px 12px; }
+    .sections li { padding: 8px 0; border-top: 1px solid var(--border); font-size: 14.5px; overflow-wrap: anywhere; }
+    .sections a { color: var(--text); text-decoration: none; }
+    .sections a:hover { color: var(--accent); text-decoration: underline; }
+    .cite { color: var(--accent); font-weight: 600; white-space: nowrap; margin-right: 6px; }
+    .tag { font-size: 11.5px; padding: 2px 8px; border-radius: 6px; background: var(--warning-tint); color: var(--warning); font-weight: 600; white-space: nowrap; margin-left: 6px; }
+    footer {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 20px 40px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+    footer a { color: var(--muted); text-decoration: underline; }
+    footer a:hover { color: var(--accent); }
+    @media (max-width: 480px) {
+      h1 { font-size: 22px; }
+      nav .hide-narrow { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="{{ url_for('main.home') }}">
+      <span class="brand-mark" aria-hidden="true">{{ logo_monogram }}</span>
+      <span class="brand-name">{{ product_name }}</span>
+    </a>
+    <nav aria-label="Site">
+      <a href="{{ url_for('main.resources') }}">Resources</a>
+      <a class="hide-narrow" href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a>
+      {% if logged_in %}
+        <a class="primary" href="{{ url_for('main.chat') }}">Open chat</a>
+      {% else %}
+        <a class="hide-narrow" href="{{ url_for('main.login') }}">Log in</a>
+        <a class="primary" href="{{ url_for('main.signup') }}">Sign up free</a>
+      {% endif %}
+    </nav>
+  </header>
+  <main>
+    <div>
+      <h1>Law library</h1>
+      <p class="lede">The official text of City and State tenant law.{% call info_tip(label="About the library") %}Copied word for word from the official publishers and checked against them regularly. Open a section to read it with its history.{% endcall %}</p>
+    </div>
+    <section class="card" aria-labelledby="goto-heading">
+      <form class="goto" method="get" action="{{ url_for('main.law_index') }}">
+        <div class="field">
+          <label id="goto-heading" for="section">Go to a section</label>
+          <input id="section" name="section" type="text" inputmode="text" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="40" placeholder="27-2005" value="{{ wanted }}" required{% if bad_section %} aria-invalid="true" aria-describedby="section-error"{% endif %}>
+        </div>
+        <button type="submit">Go</button>
+      </form>
+      {% if bad_section %}
+        <div class="alert error" role="alert" id="section-error">
+          <strong>That doesn't look like a section number</strong>
+          <p>Try a number like 27-2005 or 235-b.</p>
+        </div>
+      {% endif %}
+    </section>
+    {% if error == "unavailable" %}
+      <div class="alert error" role="alert">
+        <strong>The law library didn't respond</strong>
+        <p>Try again in a minute, or read it on <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">American Legal Publishing</a> (City) or <a href="{{ nys_laws_url }}" target="_blank" rel="noopener noreferrer">the State Senate's site</a> (State).</p>
+      </div>
+    {% elif not jurisdictions %}
+      <section class="card">
+        <p class="note">The library has no sections right now. Read the law on <a href="{{ alp_url }}" target="_blank" rel="noopener noreferrer">American Legal Publishing</a> (City) or <a href="{{ nys_laws_url }}" target="_blank" rel="noopener noreferrer">the State Senate's site</a> (State).</p>
+      </section>
+    {% else %}
+      <p class="note">{{ total }} sections. Pick a law to see its sections.</p>
+      {% for label, laws in jurisdictions %}
+        <section aria-labelledby="jurisdiction-{{ loop.index }}">
+          <h2 id="jurisdiction-{{ loop.index }}">{{ label }}</h2>
+          <div class="laws">
+            {% for law in laws %}
+              <details>
+                <summary><span class="law-name">{{ law.name }}</span>{% if law.detail %} <span class="law-detail">{{ law.detail }}</span>{% endif %} <span class="count">{{ law.entries|length }} section{{ "" if law.entries|length == 1 else "s" }}</span></summary>
+                <ul class="sections">
+                  {% for e in law.entries %}
+                    <li>{% if is_valid_citation(e.citation) %}<a href="{{ url_for('main.law_section', citation=e.citation) }}"><span class="cite">§ {{ e.citation }}</span>{{ e.title }}</a>{% else %}<span class="cite">§ {{ e.citation }}</span>{{ e.title }}{% endif %}{% if e.status != "active" %}<span class="tag">No longer in the code</span>{% elif e.repealed %}<span class="tag">Repealed</span>{% endif %}</li>
+                  {% endfor %}
+                </ul>
+              </details>
+            {% endfor %}
+          </div>
+        </section>
+      {% endfor %}
+    {% endif %}
+  </main>
+  <footer>
+    <p>{{ short_disclaimer }} <a href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a></p>
+  </footer>
+  {{ info_assets() }}
+</body>
+</html>

@@ -1,0 +1,58 @@
+2026-10-11  A public index of the law library at /law
+
+Request (owner, 2026-10-11): /law returned 404 and nothing linked to it.
+Build a public page that lists every section in the legal library, grouped
+by law, each linking to its existing /law/<citation> page. Defaults D1-D5
+in the brief were approved the same day.
+
+Changed
+- New route /law (also /law/), public, 60 per minute, template
+  law_index.html. City law first, then State; one closed <details> group
+  per law in registry order, named by the law ("Housing Maintenance
+  Code"), never by source key; sections in number order as number + title.
+- Repealed sections are tagged "Repealed" and ones that left the code "No
+  longer in the code". None are hidden.
+- "Go to a section": a GET form with no JavaScript. "27-2005", "§ 27-2005"
+  and "235-B" redirect to the section page; anything not shaped like a
+  section number returns the page with a message (400), never a 500.
+- law_service: the hourly in-memory index now reads citation, title,
+  source_key, status, repealed and jurisdiction for the whole library in
+  one bounded read (4 s), and serves both the building page's chip links
+  and this page. The chip-link rule is unchanged (exactly one active,
+  unrepealed section). Law names and order come from
+  tools/corpus/registry.py, which imports cleanly (standard library only).
+- Library unreadable and never loaded: 503 with the same "didn't respond"
+  alert and official-site links as the section page. Empty library: a
+  plain notice.
+- Links in: the section page ("Browse the law library"), its "isn't in our
+  library" message, and a line on Resources. Not in the header nav.
+- Not changed: /law/<citation> behaviour, the home page, the database,
+  dependencies.
+
+Evidence
+- tests/test_law_index.py (22 tests, Supabase faked, offline): listing and
+  links, group names and order, labels, number order, escaping, one narrow
+  read shared with chip links, 503, empty library, the form's three cases,
+  the links in.
+- Full suite on the Mac: 908 tests OK (1 skipped); 886 before this change.
+- law_index.html added to the on-accent contrast test's THEMED list.
+- Rendered with a faked library in headless Chrome on the Mac: light and
+  dark at 1280 px and in a 390 px frame (index with a group open, the bad
+  number message, the section page link, the not-found message, Resources).
+  No overflow; tags and counts wrap cleanly.
+- Live library, read-only count on 2026-10-11: 426 sections (308 City, 118
+  State) in 11 laws, all with a registry name, 18 repealed, none dropped,
+  none without a title. That is what the page will list.
+
+Found, not changed
+- The live library holds Real Property Law "233-b*2" (Campgrounds). The
+  section page's number pattern rejects it, so /law/233-b*2 is a 404 today.
+  The index lists it without a link rather than linking to a dead end.
+  Opening it needs a decision on /law/<citation>, which this change was
+  told to leave alone.
+
+Not verified
+- Keyboard use was not driven by hand: the groups are native
+  <details>/<summary> and the form is a plain input and button.
+- The page was not opened against the live database or on Render; the live
+  figures above come from a count query, not from the rendered page.

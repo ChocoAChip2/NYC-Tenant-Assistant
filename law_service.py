@@ -35,6 +35,8 @@ from concurrent.futures import TimeoutError as FutureTimeout
 from dataclasses import dataclass, field
 from datetime import date, datetime
 
+from tools.corpus import registry
+
 logger = logging.getLogger(__name__)
 
 # Section numbers as the official publishers number them. NYC Admin Code:
@@ -59,14 +61,23 @@ NYS_LAWS_URL = "https://www.nysenate.gov/legislation/laws/CONSOLIDATED"
 # every read runs with its own short deadline, and the building page's chip
 # links come from an in-memory index of the whole library (a few hundred
 # rows) refreshed at most hourly, so a building page normally makes no
-# library call at all.
+# library call at all. The /law index page lists from the same index.
 READ_TIMEOUT_SECONDS = 4.0
 INDEX_TTL_SECONDS = 3600
 INDEX_RETRY_SECONDS = 60  # after a failed load, don't make every page wait again
 
 _executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="law-read")
 _index_lock = threading.Lock()
-_index: dict = {"counts": None, "loaded_at": 0.0, "failed_at": 0.0}
+_index: dict = {"counts": None, "rows": None, "loaded_at": 0.0, "failed_at": 0.0}
+_INDEX_COLUMNS = "citation,title,source_key,status,repealed,jurisdiction"
+
+# The /law index groups sections by law: City first, then State, in the
+# order the registry lists them. The public sees the law's name, never its
+# source key.
+_LAWS = {s.key: s for s in (*registry.ALP_SOURCES, *registry.NYS_SOURCES)}
+_LAW_ORDER = {key: position for position, key in enumerate(_LAWS)}
+JURISDICTION_NAMES = {"NYC": "City law", "NYS": "State law"}
+_CITATION_PARTS_RE = re.compile(r"\d+|[a-z]+")
 
 # Numbers that name more than one section of the Admin Code.
 AMBIGUOUS_CITATIONS = frozenset({"26-1301"})
@@ -111,6 +122,26 @@ class LawSection:
         return self.status == "active" and not self.repealed
 
 
+@dataclass(frozen=True)
+class IndexEntry:
+    """One line of the /law index: a section's number and title."""
+
+    citation: str
+    title: str
+    repealed: bool = False
+    status: str = "active"
+
+
+@dataclass
+class LawGroup:
+    """One law on the /law index, e.g. the Housing Maintenance Code."""
+
+    name: str
+    detail: str
+    jurisdiction: str
+    entries: list[IndexEntry] = field(default_factory=list)
+
+
 def is_valid_citation(citation: str) -> bool:
     return bool(CITATION_RE.fullmatch(citation or ""))
 
@@ -134,7 +165,7 @@ def _read(fn):
 
 def clear_cache() -> None:
     with _index_lock:
-        _index.update(counts=None, loaded_at=0.0, failed_at=0.0)
+        _index.update(counts=None, rows=None, loaded_at=0.0, failed_at=0.0)
 
 
 def get_sections(client, citation: str) -> list[LawSection]:
@@ -168,34 +199,84 @@ def linkable_citations(client, citations) -> set[str]:
 
 def _active_counts(client) -> dict[str, int] | None:
     """citation -> number of active, unrepealed sections with that number."""
+    return _library_index(client)[0]
+
+
+def get_index(client) -> list[LawGroup]:
+    """Every section the library holds, grouped by law, for the /law index.
+
+    City laws first, then State, in registry order; sections in number
+    order. Repealed sections and ones that left the code are included (the
+    page labels them). Answered from the hourly in-memory index; raises
+    LawUnavailable if the library has never been read and can't be now.
+    """
+    rows = _library_index(client)[1]
+    if rows is None:
+        raise LawUnavailable("no library index")
+    groups: dict[tuple[str, str], LawGroup] = {}
+    for row in rows:
+        law = _LAWS.get(row["source_key"])
+        jurisdiction = law.jurisdiction if law else row["jurisdiction"]
+        key = (jurisdiction, law.key if law else "")
+        if key not in groups:
+            name, _, detail = (law.name if law else "Other sections").partition(" (")
+            groups[key] = LawGroup(name=name, detail=detail.rstrip(")"), jurisdiction=jurisdiction)
+        groups[key].entries.append(IndexEntry(row["citation"], row["title"], row["repealed"], row["status"]))
+    for group in groups.values():
+        group.entries.sort(key=lambda e: _citation_order(e.citation))
+    ordered = sorted(groups, key=lambda k: (k[0] != "NYC", k[0], _LAW_ORDER.get(k[1], len(_LAW_ORDER))))
+    return [groups[key] for key in ordered]
+
+
+def _citation_order(citation: str) -> list[tuple[int, int, str]]:
+    """Number order, so § 27-2005 sorts before § 27-2017.1 and § 235-b after § 235-a."""
+    return [(0, int(part), "") if part.isdigit() else (1, 0, part) for part in _CITATION_PARTS_RE.findall(citation)]
+
+
+def _library_index(client) -> tuple[dict[str, int] | None, list[dict] | None]:
+    """(citation -> count of active, unrepealed sections; every row, for /law).
+
+    One bounded read of the whole library, kept for an hour.
+    """
     now = time.monotonic()
     with _index_lock:
-        counts, loaded_at, failed_at = _index["counts"], _index["loaded_at"], _index["failed_at"]
+        counts, rows = _index["counts"], _index["rows"]
+        loaded_at, failed_at = _index["loaded_at"], _index["failed_at"]
     if counts is not None and now - loaded_at < INDEX_TTL_SECONDS:
-        return counts
+        return counts, rows
     if client is None or now - failed_at < INDEX_RETRY_SECONDS:
-        return counts  # a stale index beats no links
+        return counts, rows  # a stale index beats no links
     try:
         response = _read(lambda: client.table("legal_sources")
-                         .select("citation,status,repealed")
-                         .eq("status", "active")
+                         .select(_INDEX_COLUMNS)
                          .limit(10000)
                          .execute())
     except LawUnavailable:
-        logger.warning("Legal library unavailable for chip links.", exc_info=True)
+        logger.warning("Legal library unavailable for the section index.", exc_info=True)
         with _index_lock:
             _index["failed_at"] = now
-        return counts
+        return counts, rows
     fresh: dict[str, int] = {}
+    listing: list[dict] = []
     for row in getattr(response, "data", None) or []:
-        if not isinstance(row, dict) or row.get("repealed") or row.get("status") != "active":
+        if not isinstance(row, dict) or not isinstance(row.get("citation"), str):
             continue
-        cite = row.get("citation")
-        if isinstance(cite, str):
+        cite = row["citation"]
+        status = str(row.get("status") or "active")
+        repealed = bool(row.get("repealed"))
+        listing.append({
+            "citation": cite,
+            "title": str(row.get("title") or ""),
+            "source_key": str(row.get("source_key") or ""),
+            "status": status,
+            "repealed": repealed,
+            "jurisdiction": "NYS" if row.get("jurisdiction") == "NYS" else "NYC",
+        })
+        if status == "active" and not repealed:
             fresh[cite] = fresh.get(cite, 0) + 1
     with _index_lock:
-        _index.update(counts=fresh, loaded_at=now, failed_at=0.0)
-    return fresh
+        _index.update(counts=fresh, rows=listing, loaded_at=now, failed_at=0.0)
+    return fresh, listing
 
 
 def admin_code_number(chip_label: str) -> str | None:

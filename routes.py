@@ -1161,6 +1161,53 @@ def _law_chip_links(report) -> dict[str, str]:
         return {}
 
 
+@main_bp.route("/law", strict_slashes=False)
+@limiter.limit("60 per minute")
+def law_index():
+    """Public: every section the legal library holds, grouped by law.
+
+    The way in to /law/<citation> for someone who doesn't have a link.
+    "Go to a section" is a plain GET form (?section=27-2005), so it works
+    without JavaScript; a number that isn't shaped like one comes back to
+    this page with a message. Whether the library holds the number is the
+    section page's answer to give.
+    """
+    wanted = (request.args.get("section") or "").strip()
+    bad_section = False
+    if wanted:
+        tidy = wanted.lower()
+        if not law_service.is_valid_citation(tidy):
+            tidy = law_service.normalize_citation(tidy)
+        if tidy:
+            return redirect(url_for("main.law_section", citation=tidy))
+        bad_section = True
+    status = 400 if bad_section else 200
+    groups: list = []
+    error = None
+    try:
+        groups = law_service.get_index(getattr(get_supabase_service(), "client", None))
+    except law_service.LawUnavailable:
+        logger.warning("Legal library unavailable for /law.", exc_info=True)
+        error = "unavailable"
+        status = 503
+    jurisdictions = [
+        (label, [g for g in groups if g.jurisdiction == code])
+        for code, label in law_service.JURISDICTION_NAMES.items()
+    ]
+    return render_template(
+        "law_index.html",
+        jurisdictions=[(label, laws) for label, laws in jurisdictions if laws],
+        total=sum(len(g.entries) for g in groups),
+        error=error,
+        bad_section=bad_section,
+        wanted=wanted[:40],
+        is_valid_citation=law_service.is_valid_citation,
+        logged_in=bool(session.get("user_id")),
+        alp_url=law_service.ALP_CODE_LIBRARY_URL,
+        nys_laws_url=law_service.NYS_LAWS_URL,
+    ), status
+
+
 @main_bp.route("/law/<citation>")
 @limiter.limit("60 per minute")
 def law_section(citation):
