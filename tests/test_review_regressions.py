@@ -87,7 +87,7 @@ class ReviewJourneyTests(unittest.TestCase):
         secret_detail = "INTERNAL_ONLY supabase.invalid/private_table service_role example-secret"
         cases = [
             ("sign_in", "/login", {"email": "review@example.invalid", "password": "example-password"}, "Login failed"),
-            ("sign_up", "/signup", {"email": "review@example.invalid", "password": "example-password", **SIGNUP_PROFILE}, "Sign-up failed"),
+            ("sign_up", "/signup", {"email": "review@example.invalid", "password": "Example-passw0rd", **SIGNUP_PROFILE}, "Sign-up failed"),
             ("update_account", "/settings/account", {"email": "new@example.invalid"}, "Could not update account"),
         ]
         with self.client.session_transaction() as session:

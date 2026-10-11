@@ -11,7 +11,7 @@ from pypdf import PdfReader
 
 import case_context
 import form_review
-from rate_limit import limiter
+from tests.app_test_support import reset_rate_limits
 from supabase_service import SupabaseService, StaleCaseError
 from tests import test_review_regressions as journeys
 from tests.test_form_service import FULL
@@ -21,7 +21,7 @@ class CaseWorkspaceTests(unittest.TestCase):
     new_chat = journeys.ReviewJourneyTests.new_chat
     send = journeys.ReviewJourneyTests.send
     def setUp(self):
-        limiter.reset()
+        reset_rate_limits()
         journeys.ReviewJourneyTests.setUp(self)
         self.cid = self.new_chat()
         self.url = f"/conversations/{self.cid}/situation"
@@ -164,7 +164,7 @@ class YourDataExtractionTests(unittest.TestCase):
     send = journeys.ReviewJourneyTests.send
 
     def setUp(self):
-        limiter.reset()
+        reset_rate_limits()
         journeys.ReviewJourneyTests.setUp(self)
         self.cid = self.new_chat()
         self.url = f"/conversations/{self.cid}/situation"
@@ -303,7 +303,7 @@ class YourDataPageTests(unittest.TestCase):
     new_chat = journeys.ReviewJourneyTests.new_chat
 
     def setUp(self):
-        limiter.reset()
+        reset_rate_limits()
         journeys.ReviewJourneyTests.setUp(self)
         self.cid = self.new_chat()
         self.page = self.client.get(f"/chat?conversation_id={self.cid}").get_data(as_text=True)
