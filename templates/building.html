@@ -1,7 +1,8 @@
 <!doctype html>
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. See docs/frontend/building-lookup.md for why this page is public, why it queries by BBL, and why "certified" is shown separately from "open". #}
 {% from "_info.html" import info as info_tip, info_assets %}
-<html lang="en">
+{% from "_language.html" import language_form with context %}
+<html lang="{{ html_lang() }}">
 <head>
   <meta charset="UTF-8">
   <meta name="color-scheme" content="light dark">
@@ -320,6 +321,7 @@
       <span class="brand-name">{{ product_name }}</span>
     </a>
     <nav aria-label="Site">
+      {{ language_form() }}
       <a href="{{ url_for('main.resources') }}">Resources</a>
       <a class="hide-narrow" href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a>
       {% if logged_in %}
@@ -386,7 +388,7 @@
       <section class="card" aria-labelledby="match-label">
         <h1 class="match-label" id="match-label">{{ report.match.label }}</h1>
         <p class="match-meta">
-          {% if report.data_as_of %}City data as of {{ report.data_as_of.strftime("%B") }} {{ report.data_as_of.day }}, {{ report.data_as_of.year }}.{% else %}City data date unavailable.{% endif %}
+          {% if report.data_as_of %}City data as of {{ format_date(report.data_as_of) }}.{% else %}City data date unavailable.{% endif %}
           Not your building? Add the borough or ZIP.
         </p>
 

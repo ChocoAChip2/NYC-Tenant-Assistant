@@ -175,6 +175,10 @@ def create_app() -> Flask:
     # us (a token would need one). It checks the request's origin itself
     # and can only add 1 to a counter from a fixed list (usage_routes.py).
     csrf.exempt(app.view_functions["main.usage_click"])
+    # Same reasoning for the language menu, which is on every public page:
+    # it checks the request's origin itself and can only set which language
+    # pages are shown in (i18n.py).
+    csrf.exempt(app.view_functions["main.set_language"])
     # Every template gets the product name and the legal fine print without
     # each route having to remember to pass them. The wording lives in
     # branding.py precisely so six standalone templates cannot drift apart

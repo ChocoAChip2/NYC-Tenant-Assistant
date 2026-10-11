@@ -1,6 +1,7 @@
 supabase
 Flask
 Flask-Limiter
+Flask-Babel
 Flask-WTF
 cryptography
 google-genai

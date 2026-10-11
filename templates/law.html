@@ -1,7 +1,8 @@
 <!doctype html>
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. See docs/frontend/law-page.md for why sections that left the code are still shown and why the text is set apart from our own words. #}
 {% from "_info.html" import info as info_tip, info_assets %}
-<html lang="en">
+{% from "_language.html" import language_form with context %}
+<html lang="{{ html_lang() }}">
 <head>
   <meta charset="UTF-8">
   <meta name="color-scheme" content="light dark">
@@ -228,6 +229,7 @@
       <span class="brand-name">{{ product_name }}</span>
     </a>
     <nav aria-label="Site">
+      {{ language_form() }}
       <a href="{{ url_for('main.resources') }}">Resources</a>
       <a class="hide-narrow" href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a>
       {% if logged_in %}
@@ -264,7 +266,7 @@
           {% if s.status != "active" %}
             <div class="alert warning" role="note">
               <strong>No longer in the official code</strong>
-              <p>Missing from the official code{% if s.last_checked_at %} as of {{ s.last_checked_at.strftime("%B") }} {{ s.last_checked_at.day }}, {{ s.last_checked_at.year }}{% endif %}. Don't rely on it as current law.{{ info_tip("Kept here so older links still work.") }}</p>
+              <p>Missing from the official code{% if s.last_checked_at %} as of {{ format_date(s.last_checked_at) }}{% endif %}. Don't rely on it as current law.{{ info_tip("Kept here so older links still work.") }}</p>
             </div>
           {% elif s.repealed %}
             <div class="alert warning" role="note">
@@ -281,10 +283,10 @@
             <dt>Source</dt>
             <dd>{{ s.authority }}, as published by {{ s.publisher }}</dd>
             <dt>{% if s.repealed %}Repealed{% else %}Last amended{% endif %}</dt>
-            <dd>{% if s.last_amended %}Effective {{ s.last_amended.strftime("%B") }} {{ s.last_amended.day }}, {{ s.last_amended.year }}{% else %}No amendment date in the official history{% endif %}</dd>
+            <dd>{% if s.last_amended %}Effective {{ format_date(s.last_amended) }}{% else %}No amendment date in the official history{% endif %}</dd>
             {% if s.last_checked_at %}
               <dt>Checked</dt>
-              <dd>Matched the official code on {{ s.last_checked_at.strftime("%B") }} {{ s.last_checked_at.day }}, {{ s.last_checked_at.year }}</dd>
+              <dd>Matched the official code on {{ format_date(s.last_checked_at) }}</dd>
             {% endif %}
           </dl>
           <div class="actions">

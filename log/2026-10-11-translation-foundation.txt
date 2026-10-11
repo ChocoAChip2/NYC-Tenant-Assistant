@@ -1,0 +1,70 @@
+2026-10-11  Foundation for five languages (English unchanged, nothing else live)
+
+Request (owner): the site readable in English, Spanish, Chinese, Swahili
+and French, with a language menu; chat replies in the tenant's language;
+statutes stay in official English.
+
+Owner's answers to the brief's questions (2026-10-11, "do recommended"):
+a fluent reader reviews legal wording per language before it goes live;
+first visit follows the browser's language; sign-in emails stay English
+for now; Chinese is both Simplified and Traditional.
+
+This is the first slice. It ships no translation.
+
+Changed
+- New dependency: Flask-Babel (and Babel, pytz with it).
+- i18n.py: the six language definitions, LIVE_LANGUAGES = English only,
+  choosing the language (account, then device cookie, then browser, then
+  English), the POST /language switch, gettext helpers that fall back to
+  English without setup, a date formatter, and an extractor that reads
+  module constants by value.
+- Every page: <html lang> follows the choice; a slot for the language
+  menu (templates/_language.html), which renders nothing while only one
+  language is live.
+- Translatable now: branding.py wording (translated where it is injected
+  or passed to a page), the password rule messages, all 86 flash messages
+  in routes.py (the 11 f-strings became placeholder messages), the privacy
+  page, and dates.
+- translations/: messages.pot (123 messages, 65 marked REVIEW) and empty
+  catalogues for es, fr, sw, zh_Hans, zh_Hant.
+- The privacy page gained "Your language": a choice is remembered on the
+  device and on the account.
+- Sign-in adopts the language saved on the account.
+
+Choices made
+- Module-level wording stays plain English strings and is translated at
+  the point of use, instead of lazy translation objects, because ~570
+  existing assertions and several callers compare those strings.
+- The switch has no CSRF token; it checks the request's origin, like the
+  click counter, so the menu sets no cookie on public pages until someone
+  actually chooses.
+- A language is gated in code, not by configuration: adding it to
+  LIVE_LANGUAGES is the act of going live, and tests refuse a live
+  language with unreviewed wording and a non-live catalogue with any
+  translation in it.
+
+Evidence
+- tests/test_i18n.py, 31 tests: English-only behaviour unchanged; the
+  order of choice; browser lists including Chinese scripts; the switch
+  (cookie attributes, own-pages only, safe return address, saved to the
+  account, no account touched when signed out, real app needs no token);
+  pages, the menu, flash messages and dates in Spanish from a throwaway
+  catalogue; official names and URLs left alone; catalogue rules.
+- Full suite on the Mac: 1112 OK (1 skipped); 1081 on main before, with no
+  existing assertion changed except one list of privacy section titles.
+- Headless Chrome with preview languages on: the menu in the header at
+  1280 px (light) and 390 px (dark).
+
+Not done, and known
+- Template text, JavaScript strings, JSON error messages and messages
+  raised in other modules are not wrapped yet. With a language previewed,
+  only the items listed above change; the rest of each page is English.
+- At 390 px the menu pushes "Sign up free" off the header on pages with a
+  full nav. Invisible today (the menu is hidden); must be fixed before a
+  language goes live.
+- No translation exists. No fluent reader has been involved yet.
+- Keyboard use of the menu was not driven by hand (a native select and
+  button).
+
+Checked on HCR's site, for the brief: there is no translated RA-81. Fact
+Sheet #14 exists in Spanish and Traditional Chinese as a guide only.
