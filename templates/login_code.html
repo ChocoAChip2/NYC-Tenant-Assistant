@@ -1,6 +1,6 @@
 <!doctype html>
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments. See docs/frontend/auth-and-settings-pages.md (Sign-in codes). #}
-{% from "_language.html" import language_form with context %}
+{% from "_language.html" import language_form, translation_notice with context %}
 <html lang="{{ html_lang() }}">
 <head>
 
@@ -239,6 +239,7 @@
   </style>
 </head>
 <body>
+  {{ translation_notice() }}
   <div class="page">
   <div class="card">
     <div class="brand">

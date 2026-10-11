@@ -1,0 +1,41 @@
+2026-10-11  English as the reference on translated pages
+
+Request (owner): translations are machine-made, so every translated page
+says so and links to the same page in English, and legal wording shows
+its English original under the translation. Step 2 of the five-language
+brief. English is unchanged and no other language is live.
+
+Changed
+- A one-line notice at the top of every translated page: "This page was
+  translated by a machine. The English page is the reference." with a link
+  to the same page in English. Nothing on an English page.
+- The link is the page's own address with ?lang=en: one request, not
+  remembered, no JavaScript, no form, no cookie. ?lang= accepts live
+  languages only.
+- i18n.with_original(): the translation with its English original beneath
+  it, smaller and marked lang="en". Used for every legal string branding
+  injects, the privacy page, the full disclaimer points, the help-resource
+  descriptions, the password checklist and its two refusal messages, and
+  the RA-81 review screen's labels and group names.
+- The chat script builds the per-message note from the translated text and
+  the English original as two values.
+
+Evidence
+- tests/test_i18n.py: the notice and its link appear on a translated page
+  only, above the header, and keep the page's query; ?lang=en gives English
+  for that request and sets no cookie; a non-live or unknown ?lang= is
+  ignored; legal wording renders as translation plus English original;
+  every high-stakes string on the privacy, Learn more and sign-up pages
+  goes through the helper; values filled into such a message are escaped
+  in both lines; the review screen's labels use it; the chat script gets
+  the two values.
+- Full suite on the Mac: 1128 OK (1 skipped); 1122 before.
+- Headless Chrome with preview languages on: the notice at 390 px (dark)
+  and 1280 px (light).
+
+Not verified
+- With empty catalogues there is nothing translated to look at, so the
+  English originals were seen only through the throwaway catalogue in the
+  tests, not on a real page.
+- The notice sits above the chat page's full-height layout; that page was
+  not looked at with it.

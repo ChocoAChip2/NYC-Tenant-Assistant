@@ -1,4 +1,4 @@
-{# The language menu. Import with {% from "_language.html" import language_form with context %} and call language_form() where the menu goes. It renders nothing unless more than one language is live (i18n.LIVE_LANGUAGES), so with English alone the page is unchanged. A plain form: it works without JavaScript, carries no token (see i18n._same_site) and sets no cookie until someone chooses. Each language is named in itself. See docs/frontend/translations.md. #}
+{# The language menu. Import with {% from "_language.html" import language_form, translation_notice with context %}; call language_form() where the menu goes and translation_notice() first thing in the body (it renders only on a translated page: one line saying the page is machine-translated, with a link to the same page in English). It renders nothing unless more than one language is live (i18n.LIVE_LANGUAGES), so with English alone the page is unchanged. A plain form: it works without JavaScript, carries no token (see i18n._same_site) and sets no cookie until someone chooses. Each language is named in itself. See docs/frontend/translations.md. #}
 {%- macro language_form() -%}
 {%- set choices = language_menu() -%}
 {%- if choices -%}
@@ -23,5 +23,11 @@
     .language-form { order: 10; flex-basis: 100%; justify-content: flex-end; }
   }
 </style>
+{%- endif -%}
+{%- endmacro -%}
+
+{%- macro translation_notice() -%}
+{%- if html_lang() != "en" -%}
+<p class="translation-notice" role="note" style="margin:0;padding:8px 16px;font-size:13px;line-height:1.45;background:var(--accent-tint);color:var(--text);border-bottom:1px solid var(--border)">{{ _("This page was translated by a machine. The English page is the reference.") }} <a href="{{ english_url() }}" lang="en" hreflang="en" style="color:var(--accent);font-weight:600">{{ english_link_label }}</a></p>
 {%- endif -%}
 {%- endmacro -%}

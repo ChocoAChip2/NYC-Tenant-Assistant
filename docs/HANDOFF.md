@@ -59,8 +59,7 @@ Owner steps left over from today's merges:
 3. Live checks on Render: `/law` shows 426 sections; a real chat fills in "Your data"; a new chat opens with the greeting; "231 Ecco Place, Bronx" offers 231 Echo Place. On a real phone: the chat list opens as a drawer from the menu button, and rotating to landscape with it open leaves a normal page.
 4. A lawyer's read of the privacy page wording.
 
-Translation work, in order (step 1, wrapping the text, is done):
-5. English-reference display: a machine-translation notice on every non-English page with a link to the same page in English; every `REVIEW` string shown with its English original; the English label beside each translated label on the RA-81 review screen.
+Translation work, in order (steps 1 and 2, wrapping the text and the English-reference display, are done):
 6. Fill `es`, `fr`, `sw` and `zh_Hans` by machine translation with one consistent tool, check nothing is empty or fuzzy, compile, commit the compiled files.
 7. Chat: add Kiswahili and Français to the reply-language choices (keep `中文` valid, meaning Simplified); interface language as the tiebreaker; non-English replies quote the law in English; a note on `/law`; link HCR Fact Sheet #14 on Spanish and Chinese pages.
 8. Go live: add the four languages to `LIVE_LANGUAGES` together, then the owner's live chat check in each language.

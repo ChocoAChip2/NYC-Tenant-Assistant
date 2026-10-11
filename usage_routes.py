@@ -186,10 +186,10 @@ def register(bp):
         return render_template(
             "privacy.html",
             title=i18n.gettext(branding.PRIVACY_TITLE),
-            lede=i18n.gettext(branding.PRIVACY_LEDE),
-            sections=i18n.translated(branding.PRIVACY_SECTIONS),
+            lede=i18n.with_original(branding.PRIVACY_LEDE),
+            sections=i18n.translated(branding.PRIVACY_SECTIONS, original=True),
             account_title=i18n.gettext(branding.PRIVACY_ACCOUNT_TITLE),
-            account_text=i18n.gettext(branding.PRIVACY_ACCOUNT_TEXT),
+            account_text=i18n.with_original(branding.PRIVACY_ACCOUNT_TEXT),
             logged_in=bool(session.get("user_id")),
         )
 

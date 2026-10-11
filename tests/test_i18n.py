@@ -43,6 +43,8 @@ SPANISH = {
     "Please provide both email and password.": "Escribe tu correo y tu contraseña.",
     "You can send a new code in %(wait)s.": "Puedes pedir otro código en %(wait)s.",
     "%(count)s seconds": "%(count)s segundos",
+    "Full name": "Nombre completo",
+    branding.PER_MESSAGE_DISCLAIMER: "Información general, no asesoría legal.",
 }
 
 
@@ -186,10 +188,12 @@ class ChoosingTheLanguageTests(_Case):
             with open(path, encoding="utf-8") as handle:
                 source = handle.read()
             name = os.path.basename(path)
-            self.assertNotIn('lang="en"', source, name)
+            if name != "_language.html":  # its link to the English page is marked as English
+                self.assertNotIn('lang="en"', source, name)
             if "<html" in source:
                 self.assertIn('<html lang="{{ html_lang() }}">', source, name)
                 self.assertIn("{{ language_form() }}", source, name)
+                self.assertRegex(source, r"<body>\s*\{\{ translation_notice\(\) \}\}", name)
 
 
 class SwitchingTests(_Case):
@@ -279,10 +283,101 @@ class TranslatedPagesTests(_Case):
         spanish = self.client.get("/learn-more", headers={"Accept-Language": "es"}).get_data(as_text=True)
         self.assertIn('<html lang="es">', spanish)
         self.assertIn(SPANISH[branding.SHORT_DISCLAIMER], spanish)
-        self.assertNotIn(branding.SHORT_DISCLAIMER, spanish)
         english = self.client.get("/learn-more").get_data(as_text=True)
         self.assertIn(branding.SHORT_DISCLAIMER, english)
         self.assertNotIn(SPANISH[branding.SHORT_DISCLAIMER], english)
+        self.assertNotIn("english-original", english)
+        self.assertNotIn("translation-notice", english)
+
+    def test_legal_wording_is_shown_with_its_english_original(self):
+        spanish = self.client.get("/learn-more", headers={"Accept-Language": "es"}).get_data(as_text=True)
+        self.assertRegex(spanish, re.escape(SPANISH[branding.SHORT_DISCLAIMER])
+                         + r' <span class="english-original" lang="en" dir="ltr" style="[^"]+">'
+                         + re.escape(branding.SHORT_DISCLAIMER) + "</span>")
+        with self.client.application.test_request_context("/", headers={"Accept-Language": "es"}):
+            self.assertEqual(i18n.with_original(branding.TOP_DISCLAIMER), branding.TOP_DISCLAIMER, "no translation: English alone, once")
+            self.assertEqual(i18n.english_if_translated(branding.SHORT_DISCLAIMER), branding.SHORT_DISCLAIMER)
+            self.assertEqual(i18n.english_if_translated(branding.TOP_DISCLAIMER), "")
+            both = i18n.with_original("You can send a new code in %(wait)s.", wait="<b>9</b>")
+            self.assertIn("Puedes pedir otro código en &lt;b&gt;9&lt;/b&gt;.", both)
+            self.assertIn(">You can send a new code in &lt;b&gt;9&lt;/b&gt;.</span>", both)
+        with self.client.application.test_request_context("/"):
+            self.assertEqual(i18n.with_original(branding.SHORT_DISCLAIMER), branding.SHORT_DISCLAIMER)
+            self.assertIsInstance(i18n.with_original(branding.SHORT_DISCLAIMER), str)
+            self.assertEqual(i18n.english_if_translated(branding.SHORT_DISCLAIMER), "")
+
+    def test_every_high_stakes_string_goes_through_the_original_helper(self):
+        calls = []
+        real = i18n.with_original
+
+        def spy(message, **variables):
+            calls.append(message)
+            return real(message, **variables)
+
+        import password_safety
+        with mock.patch.object(i18n, "with_original", side_effect=spy):
+            headers = {"Accept-Language": "es"}
+            self.client.get("/privacy", headers=headers)
+            self.client.get("/learn-more", headers=headers)
+            self.client.get("/signup", headers=headers)
+            self.client.post("/signup", data={"email": "t@example.invalid", "password": "abc", "first_name": "Ana",
+                                              "last_name": "Rivera", "date_of_birth": "1990-05-17"}, headers=headers)
+        expected = [branding.SHORT_DISCLAIMER, branding.PRIVACY_NOTE, branding.PRIVACY_NOTE_TITLE, branding.PRIVACY_LEDE,
+                    branding.PRIVACY_ACCOUNT_TEXT, password_safety.RULE_MESSAGE]
+        expected += [section["intro"] for section in branding.PRIVACY_SECTIONS]
+        expected += [point for section in branding.PRIVACY_SECTIONS for point in section["points"]]
+        expected += [point[key] for point in branding.FULL_DISCLAIMER_POINTS for key in ("lead", "detail")]
+        expected += [resource["detail"] for resource in branding.HELP_RESOURCES]
+        expected += [label for _key, label in password_safety.RULES]
+        for text in expected:
+            self.assertIn(text, calls, text[:50])
+
+    def test_the_ra81_review_screen_puts_the_english_label_beside_each_translated_one(self):
+        with open(os.path.join(_TEMPLATES, "form_review.html"), encoding="utf-8") as handle:
+            source = handle.read()
+        self.assertIn("<label>{{ original(label) }}", source)
+        self.assertIn("<legend>{{ original(group) }}</legend>", source)
+        with self.client.application.test_request_context("/", headers={"Accept-Language": "es"}):
+            label = flask.render_template_string('<label>{{ original("Full name") }}</label>')
+        self.assertRegex(label, r'<label>Nombre completo <span class="english-original" lang="en"[^>]*>Full name</span></label>')
+
+    def test_the_chat_script_gets_the_note_and_its_english_original_separately(self):
+        service = MemorySupabase()
+        client = self.app(service, translations=_catalogue_dir(self)).test_client()
+        with client.session_transaction() as session:
+            session.update(user_id="review-user", user_email="t@example.invalid", access_token="t")
+        cid = service.create_conversation(service, "review-user", "Chat")
+        spanish = client.get(f"/chat?conversation_id={cid}", headers={"Accept-Language": "es"}).get_data(as_text=True)
+        self.assertIn('const PER_MESSAGE_DISCLAIMER = "Informaci\\u00f3n general, no asesor\\u00eda legal.";', spanish)
+        self.assertIn('const PER_MESSAGE_DISCLAIMER_ENGLISH = "General information, not legal advice.";', spanish)
+        english = client.get(f"/chat?conversation_id={cid}").get_data(as_text=True)
+        self.assertIn('const PER_MESSAGE_DISCLAIMER = "General information, not legal advice.";', english)
+        self.assertIn('const PER_MESSAGE_DISCLAIMER_ENGLISH = "";', english)
+
+    def test_translated_pages_say_so_and_link_to_the_same_page_in_english(self):
+        body = self.client.get("/resources?borough=Bronx", headers={"Accept-Language": "es"}).get_data(as_text=True)
+        notice = body[body.index('<p class="translation-notice"'):]
+        notice = notice[:notice.index("</p>")]
+        self.assertLess(body.index("<body>"), body.index('<p class="translation-notice"'))
+        self.assertLess(body.index('<p class="translation-notice"'), body.index("<header"))
+        self.assertIn('<a href="/resources?borough=Bronx&amp;lang=en" lang="en" hreflang="en"', notice)
+        self.assertIn(">Read this page in English</a>", notice)
+        self.assertIn("This page was translated by a machine.", notice)
+        english = self.client.get("/resources?borough=Bronx&lang=en", headers={"Accept-Language": "es"})
+        page = english.get_data(as_text=True)
+        self.assertIn('<html lang="en">', page)
+        self.assertNotIn("translation-notice", page)
+        self.assertNotIn("Set-Cookie", english.headers, "one page in English, nothing remembered")
+        self.assertIn('<html lang="es">', self.client.get("/resources", headers={"Accept-Language": "es"}).get_data(as_text=True))
+
+    def test_the_one_page_override_only_takes_live_languages_and_keeps_the_query(self):
+        with self.client.application.test_request_context("/area?street=Echo+Place&borough=Bronx&lang=es"):
+            self.assertEqual(i18n.current(), "es")
+            self.assertEqual(i18n.english_url(), "/area?street=Echo+Place&borough=Bronx&lang=en")
+        with self.client.application.test_request_context("/learn-more?lang=klingon", headers={"Accept-Language": "fr"}):
+            self.assertEqual(i18n.current(), "fr")
+        with mock.patch.object(i18n, "LIVE_LANGUAGES", ("en",)), self.client.application.test_request_context("/?lang=es"):
+            self.assertEqual(i18n.current(), "en")
 
     def test_the_menu_names_each_language_in_itself_and_marks_the_current_one(self):
         body = self.client.get("/login", headers={"Accept-Language": "es"}).get_data(as_text=True)

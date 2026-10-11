@@ -1,6 +1,6 @@
 <!doctype html>
 {# See docs/frontend/case-workspace.md. All implementation commentary stays server-side. #}
-{% from "_language.html" import language_form with context %}
+{% from "_language.html" import language_form, translation_notice with context %}
 <html lang="{{ html_lang() }}">
 <head>
   <meta charset="UTF-8">
@@ -97,7 +97,8 @@
     @media(max-width:600px) { .fields { grid-template-columns: 1fr; } h1 { font-size: 24px; } fieldset { padding: 12px; } }
   </style>
 </head>
-<body><main>
+<body>
+  {{ translation_notice() }}<main>
   <a href="{{ url_for('main.chat', conversation_id=conversation_id) }}">{{ _("← Back to your chat") }}</a>
   <h1>{{ _("Review your RA-81") }}</h1>
   {% if unavailable %}
@@ -119,9 +120,9 @@
         </label>
       </fieldset>
       {% for group, fields in groups.items() %}
-        <fieldset><legend>{{ gettext(group) }}</legend><div class="fields">
+        <fieldset><legend>{{ original(group) }}</legend><div class="fields">
           {% for key, label in fields %}
-            <label>{{ gettext(label) }}
+            <label>{{ original(label) }}
               {% if key in choices %}
                 <select name="{{ key }}">{% for value, title in choices[key].items() %}<option value="{{ value }}" {% if values[key] == value %}selected{% endif %}>{{ gettext(title) }}</option>{% endfor %}</select>
               {% elif key.startswith('conditions.') %}

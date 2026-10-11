@@ -37,6 +37,12 @@ HOW THE LANGUAGE IS CHOSEN, IN ORDER
   4. English.
 A language that is not live is skipped at every step.
 
+ENGLISH FOR ONE PAGE
+A link can carry ?lang=en (or any live language): it applies to that one
+request and is not remembered. The machine-translation notice uses it for
+"read this page in English", so the link needs no JavaScript, no form and
+no cookie.
+
 HOW TEXT IS TRANSLATED
   * Templates and request-time Python call _("text") (gettext).
   * Wording that lives in module-level constants (branding.py, the labels
@@ -129,7 +135,8 @@ def current() -> str:
     """The language for this request (see the order in the module docstring)."""
     try:
         return (
-            _usable(session.get(SESSION_KEY))
+            _usable(request.args.get("lang"))
+            or _usable(session.get(SESSION_KEY))
             or _usable(request.cookies.get(COOKIE_NAME))
             or from_accept_language(request.headers.get("Accept-Language"))
             or DEFAULT_LANGUAGE
@@ -186,18 +193,65 @@ def markup_gettext(message, **variables):
     return text % variables if variables else text
 
 
-def translated(value, keys=None):
+# The link back to English is deliberately not translated: it is for the
+# reader who wants the reference text, and it names the language in itself.
+ENGLISH_LINK_LABEL = "Read this page in English"
+_ORIGINAL = Markup(
+    '%s <span class="english-original" lang="en" dir="ltr" '
+    'style="display:block;font-size:0.85em;opacity:0.85;margin-top:2px">%s</span>'
+)
+
+
+def with_original(message, **variables):
+    """High-stakes wording: the translation, with its English original beneath.
+
+    English is the reference (owner, 2026-10-11): translations are
+    machine-made, so wording a tenant relies on (the disclaimers, privacy
+    wording, the password rule, the RA-81 review screen) is never shown in
+    translation alone. On an English page, or where there is no
+    translation, this is just the English text, unchanged.
+    """
+    english = message % variables if variables else message
+    if not message or current() == DEFAULT_LANGUAGE:
+        return english
+    shown = gettext(message, **variables)
+    if shown == english:
+        return english
+    return _ORIGINAL % (shown, english)
+
+
+def english_if_translated(message) -> str:
+    """The English original when the page shows a translation of it, else ''.
+    For scripts, which build the two lines themselves."""
+    if current() == DEFAULT_LANGUAGE or gettext(message) == message:
+        return ""
+    return message
+
+
+def english_url() -> str:
+    """This page, in English, for this one request."""
+    from urllib.parse import urlencode
+
+    args = request.args.to_dict(flat=False)
+    args["lang"] = [DEFAULT_LANGUAGE]
+    return request.path + "?" + urlencode(args, doseq=True)
+
+
+def translated(value, keys=None, original=False):
     """A copy of a constant with its strings translated.
 
     Walks lists and dicts. In a dict only `keys` are translated when given
     (so a resource's URL, phone number and official name stay as they are).
+    `original=True` is for high-stakes wording: see with_original().
     """
     if isinstance(value, str):
-        return gettext(value) if value else value
+        if not value:
+            return value
+        return with_original(value) if original else gettext(value)
     if isinstance(value, (list, tuple)):
-        return [translated(item, keys) for item in value]
+        return [translated(item, keys, original) for item in value]
     if isinstance(value, dict):
-        return {k: (translated(v, keys) if keys is None or k in keys or isinstance(v, (list, dict)) else v)
+        return {k: (translated(v, keys, original) if keys is None or k in keys or isinstance(v, (list, dict)) else v)
                 for k, v in value.items()}
     return value
 
@@ -236,7 +290,8 @@ def init_app(app) -> None:
                               os.path.join(os.path.dirname(os.path.abspath(__file__)), "translations"))
         flask_babel.Babel(app, locale_selector=current)
     app.jinja_env.globals.update(
-        _=markup_gettext, gettext=markup_gettext, html_lang=html_lang, language_menu=menu, format_date=format_date,
+        _=markup_gettext, gettext=gettext, html_lang=html_lang, language_menu=menu, format_date=format_date,
+        original=with_original, english_url=english_url, english_link_label=ENGLISH_LINK_LABEL,
     )
 
 
