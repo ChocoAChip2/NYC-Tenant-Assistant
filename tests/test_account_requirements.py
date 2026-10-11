@@ -101,7 +101,7 @@ class _Keys(unittest.TestCase):
 class LoginTests(_Keys):
     def _login(self, service):
         client = _app(service)
-        return client, client.post("/login", data={"email": "ana.r@example.com", "password": "pw"})
+        return client, client.post("/login", data={"email": "ana.r@example.com", "password": "Str0ng!pass"})
 
     def test_older_account_is_asked_at_login(self):
         _, response = self._login(FakeSupabase(metadata={"email_verified": True}))
@@ -121,7 +121,7 @@ class LoginTests(_Keys):
         client = _app(FakeSupabase(metadata=None))
         with client.session_transaction() as sess:
             sess[account_requirements.SKIPPED_KEY] = ["profile"]
-        client.post("/login", data={"email": "a@b.co", "password": "pw"})
+        client.post("/login", data={"email": "a@b.co", "password": "Str0ng!pass"})
         self.assertNotIn(account_requirements.SKIPPED_KEY, _session(client))
 
 

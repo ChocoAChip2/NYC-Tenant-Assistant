@@ -55,7 +55,7 @@ class HomeIsTheLookupTests(_CacheIsolation):
 
     def test_a_signup_form_open_from_before_the_move_still_submits(self):
         app = _build_test_app(sign_up_result=True)
-        response = app.test_client().post("/", data={"email": "a@example.com", "password": "hunter22", **SIGNUP_PROFILE})
+        response = app.test_client().post("/", data={"email": "a@example.com", "password": "Hunter22!x", **SIGNUP_PROFILE})
         self.assertEqual(response.status_code, 307)
         self.assertTrue(response.headers["Location"].endswith("/signup"))
 
@@ -68,7 +68,7 @@ class HomeIsTheLookupTests(_CacheIsolation):
 class ConfirmationEmailTests(unittest.TestCase):
     def test_signup_asks_supabase_to_send_confirmations_to_login(self):
         app = _build_test_app(sign_up_result=True)
-        app.test_client().post("/signup", data={"email": "a@example.com", "password": "hunter22", **SIGNUP_PROFILE})
+        app.test_client().post("/signup", data={"email": "a@example.com", "password": "Hunter22!x", **SIGNUP_PROFILE})
         service = app.config["SUPABASE_SERVICE"]
         self.assertEqual(service.redirect_targets, ["http://localhost/login"])
 
@@ -88,12 +88,12 @@ class ConfirmationEmailTests(unittest.TestCase):
 
     def test_redirect_is_passed_to_supabase_as_email_redirect_to(self):
         service, calls = self._service_with_recording_client()
-        service.sign_up("a@example.com", "hunter22", email_redirect_to="https://x.example/login")
+        service.sign_up("a@example.com", "Hunter22!x", email_redirect_to="https://x.example/login")
         self.assertEqual(calls[0]["options"], {"email_redirect_to": "https://x.example/login"})
 
     def test_no_redirect_means_no_options(self):
         service, calls = self._service_with_recording_client()
-        service.sign_up("a@example.com", "hunter22")
+        service.sign_up("a@example.com", "Hunter22!x")
         self.assertNotIn("options", calls[0])
 
 

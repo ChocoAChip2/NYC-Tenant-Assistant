@@ -165,6 +165,26 @@ class SupabaseService:
             raise RuntimeError("Supabase is not configured yet.")
         return self._auth_client().auth.sign_in_with_password({"email": email, "password": password})
 
+    def send_sign_in_code(self, email: str) -> None:
+        """Email a one-time sign-in code to an existing account (email_codes.py).
+
+        Never creates an account. Supabase sends a code rather than a link
+        only while the project's "Magic Link" email template contains
+        {{ .Token }}, and refuses a second code to the same address inside
+        60 seconds.
+        """
+        self._auth_client().auth.sign_in_with_otp({"email": email, "options": {"should_create_user": False}})
+
+    def verify_sign_in_code(self, email: str, code: str):
+        """Exchange an emailed code for a session. Raises if the code is wrong or expired."""
+        return self._auth_client().auth.verify_otp({"email": email, "token": code, "type": "email"})
+
+    def end_session(self, access_token: str) -> None:
+        """Revoke one session (not the account's others), so its tokens can't be reused."""
+        if not self.client or not access_token:
+            return
+        self._auth_client().auth.admin.sign_out(access_token, "local")
+
     def verify_user_jwt(self, access_token: str):
         """Validate an incoming Supabase JWT and return the authenticated user."""
 
