@@ -116,12 +116,12 @@
       <div class="brand-mark" aria-hidden="true">{{ logo_monogram }}</div>
       <span class="brand-name">{{ product_name }}</span>
     </div>
-    <p class="code">Error {{ status }}</p>
+    <p class="code">{{ _("Error") }} {{ status }}</p>
     <h1>{{ heading }}</h1>
     <p class="message">{{ message }}</p>
     <div class="actions">
-      <a class="button" href="{{ url_for('main.home') }}">Go to the start page</a>
-      <a class="button secondary" href="{{ url_for('main.home') }}">Look up your street</a>
+      <a class="button" href="{{ url_for('main.home') }}">{{ _("Go to the start page") }}</a>
+      <a class="button secondary" href="{{ url_for('main.home') }}">{{ _("Look up your street") }}</a>
     </div>
   </main>
   {{ language_form() }}

@@ -8,6 +8,7 @@ import form_review
 import form_service
 from supabase_service import StaleCaseError
 from rate_limit import limiter
+from i18n import gettext as _
 
 logger = logging.getLogger(__name__)
 
@@ -17,10 +18,10 @@ def register(bp):
 
     def owned(conversation_id):
         if not session.get("user_id"):
-            return None, None, (jsonify(error="Please log in first."), 401)
+            return None, None, (jsonify(error=_("Please log in first.")), 401)
         client = get_user_scoped_client()
         if not client:
-            return None, None, (jsonify(error="Please log in again."), 401)
+            return None, None, (jsonify(error=_("Please log in again.")), 401)
         service = get_supabase_service()
         service.ensure_conversation_for_user(client, conversation_id, session["user_id"])
         return service, client, None
@@ -51,7 +52,7 @@ def register(bp):
                 return jsonify(with_drafts(service, client, conversation_id, service.get_case_context(client, conversation_id)))
             payload = request.get_json(silent=True)
             if not isinstance(payload, dict) or type(payload.get("revision")) is not int or payload["revision"] < 0:
-                return jsonify(error="Reload this chat and try again."), 400
+                return jsonify(error=_("Reload this chat and try again.")), 400
             try:
                 context = case_context.validate(payload.get("context"))
             except ValueError as exc:
@@ -67,11 +68,11 @@ def register(bp):
                                               payload["revision"], tenant_set, seen)
             return jsonify(with_drafts(service, client, conversation_id, state))
         except StaleCaseError:
-            return jsonify(error="Your data changed in another tab. Reload it before saving your changes."), 409
+            return jsonify(error=_("Your data changed in another tab. Reload it before saving your changes.")), 409
         except ValueError:
-            return jsonify(error="Conversation not found."), 404
+            return jsonify(error=_("Conversation not found.")), 404
         except Exception:
-            return jsonify(error="Your data could not be loaded or saved. Please try again."), 503
+            return jsonify(error=_("Your data could not be loaded or saved. Please try again.")), 503
 
     @bp.route("/conversations/<conversation_id>/situation/refresh", methods=["POST"])
     @limiter.limit("20 per minute; 300 per day")
@@ -106,10 +107,10 @@ def register(bp):
                         state = service.get_case_context(client, conversation_id)
             return jsonify(with_drafts(service, client, conversation_id, state))
         except ValueError:
-            return jsonify(error="Conversation not found."), 404
+            return jsonify(error=_("Conversation not found.")), 404
         except Exception:
             logger.warning("Could not update a chat's saved details.", exc_info=True)
-            return jsonify(error="Your data could not be updated."), 503
+            return jsonify(error=_("Your data could not be updated.")), 503
 
     @bp.route("/conversations/<conversation_id>/forms/<draft_id>", methods=["GET", "POST"])
     @limiter.limit("20 per minute")
@@ -120,9 +121,9 @@ def register(bp):
                 return error
             draft = service.get_form_draft(client, conversation_id, draft_id)
         except ValueError:
-            return render_template("form_review.html", unavailable="This draft could not be found.", conversation_id=conversation_id), 404
+            return render_template("form_review.html", unavailable=_("This draft could not be found."), conversation_id=conversation_id), 404
         except Exception:
-            return render_template("form_review.html", unavailable="This draft is unavailable right now. Please try again.", conversation_id=conversation_id), 503
+            return render_template("form_review.html", unavailable=_("This draft is unavailable right now. Please try again."), conversation_id=conversation_id), 503
         values = form_review.flatten(form_review.canonical(draft["intake"]))
         errors = []
         if request.method == "POST":
@@ -138,7 +139,7 @@ def register(bp):
                     return send_file(io.BytesIO(pdf), as_attachment=True,
                                      download_name="RA-81_Rent_Reduction_Application.pdf", mimetype="application/pdf")
                 except Exception:
-                    errors = ["Your form could not be downloaded. Your edits are still below; please try again."]
+                    errors = [_("Your form could not be downloaded. Your edits are still below; please try again.")]
         return render_template("form_review.html", values=values, groups=form_review.FIELDS,
                                choices=form_review.CHOICES, errors=errors,
                                created_at=draft.get("created_at", ""), conversation_id=conversation_id,

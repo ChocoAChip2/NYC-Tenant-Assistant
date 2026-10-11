@@ -18,6 +18,8 @@ import logging
 from flask import jsonify, render_template, request
 from werkzeug.exceptions import HTTPException, InternalServerError
 
+from i18n import gettext
+
 logger = logging.getLogger(__name__)
 
 # status -> (heading, message). Plain words, no blame, and a next step.
@@ -41,8 +43,8 @@ def _wants_json() -> bool:
 def _render(status: int, description: str | None = None):
     heading, message = COPY.get(status, _FALLBACK)
     if _wants_json():
-        return jsonify({"error": f"{heading}. {message}"}), status
-    return render_template("error.html", status=status, heading=heading, message=message), status
+        return jsonify({"error": f"{gettext(heading)}. {gettext(message)}"}), status
+    return render_template("error.html", status=status, heading=gettext(heading), message=gettext(message)), status
 
 
 def register(app) -> None:

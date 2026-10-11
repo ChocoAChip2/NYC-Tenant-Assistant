@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#eef1f5" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ product_name }} | Login</title>
+  <title>{{ product_name }} | {{ _("Login") }}</title>
   <script>
     (function () {
       var saved = null;
@@ -240,9 +240,9 @@
       <span class="brand-name">{{ product_name }}</span>
     </div>
 
-    <h1>Log in</h1>
-    <p class="subtitle">Use your confirmed account to continue.</p>
-    <a class="lookup-callout" href="{{ url_for('main.building_lookup') }}"><strong>Not ready to sign up?</strong> Look up your building first. No account needed.</a>
+    <h1>{{ _("Log in") }}</h1>
+    <p class="subtitle">{{ _("Use your confirmed account to continue.") }}</p>
+    <a class="lookup-callout" href="{{ url_for('main.building_lookup') }}"><strong>{{ _("Not ready to sign up?") }}</strong> {{ _("Look up your building first. No account needed.") }}</a>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -255,23 +255,23 @@
     <form method="POST">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="field">
-        <label for="email">Email</label>
+        <label for="email">{{ _("Email") }}</label>
         <input id="email" type="email" name="email" required>
       </div>
       <div class="field">
-        <label for="password">Password</label>
+        <label for="password">{{ _("Password") }}</label>
         <div class="password-field">
           <input id="password" type="password" name="password" required>
-          <button type="button" class="password-toggle" data-target="password" aria-label="Show password" title="Show password"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+          <button type="button" class="password-toggle" data-target="password" aria-label="{{ _("Show password") }}" title="{{ _("Show password") }}"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
         </div>
         <div class="field-footer">
-          <a href="{{ url_for('main.forgot_password') }}">Forgot password?</a>
+          <a href="{{ url_for('main.forgot_password') }}">{{ _("Forgot password?") }}</a>
         </div>
       </div>
-      <button class="primary" type="submit">Log in</button>
+      <button class="primary" type="submit">{{ _("Log in") }}</button>
     </form>
 
-    <p class="footer-link">Need an account? <a href="{{ url_for('main.signup') }}">Create one</a></p>
+    <p class="footer-link">{{ _("Need an account?") }} <a href="{{ url_for('main.signup') }}">{{ _("Create one") }}</a></p>
   </div>
   {{ language_form() }}
   <p class="legal-note">{{ short_disclaimer }} <a href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a> · <a href="{{ url_for('main.privacy') }}">{{ privacy_label }}</a></p>
@@ -288,7 +288,7 @@
         var revealing = input.type === "password";
         input.type = revealing ? "text" : "password";
         btn.innerHTML = revealing ? EYE_OFF_ICON : EYE_ICON;
-        var label = revealing ? "Hide password" : "Show password";
+        var label = revealing ? {{ gettext("Hide password")|tojson }} : {{ gettext("Show password")|tojson }};
         btn.setAttribute("aria-label", label);
         btn.title = label;
       });
@@ -298,7 +298,7 @@
       var btn = event.target.querySelector('button[type="submit"]');
       if (!btn || btn.disabled) return;
       btn.disabled = true;
-      btn.textContent = "Logging in…";
+      btn.textContent = {{ gettext("Logging in…")|tojson }};
     });
   </script>
 </body>

@@ -48,6 +48,8 @@ import os
 import re
 import threading
 import time
+
+from i18n import gettext
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -261,14 +263,14 @@ class BuildingReport:
 def clean_address(raw: str | None) -> str:
     text = re.sub(r"\s+", " ", (raw or "")).strip()
     if not text:
-        raise InvalidAddress("Enter a street address.")
+        raise InvalidAddress(gettext("Enter a street address."))
     if len(text) > MAX_ADDRESS_LENGTH:
-        raise InvalidAddress("That address is too long.")
+        raise InvalidAddress(gettext("That address is too long."))
     if not re.search(r"\d", text):
         # Every NYC street address has a house number, and GeoSearch
         # happily resolves a bare street name to SOME building on it --
         # which would show a tenant the wrong building's violations.
-        raise InvalidAddress("Include the building number, e.g. 231 Echo Place, Bronx.")
+        raise InvalidAddress(gettext("Include the building number, e.g. 231 Echo Place, Bronx."))
     return text
 
 

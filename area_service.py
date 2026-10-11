@@ -52,6 +52,7 @@ from datetime import date
 
 import building_service
 from building_service import LookupUnavailable, _get_json, _TTLCache
+from i18n import gettext
 
 logger = logging.getLogger(__name__)
 
@@ -225,7 +226,7 @@ def borough_from(raw: str | None) -> str:
                "qn": "Queens", "si": "Staten Island", "richmond": "Staten Island"}
     if text in aliases:
         return aliases[text]
-    raise InvalidArea("Choose a borough.")
+    raise InvalidArea(gettext("Choose a borough."))
 
 
 def clean_zip(raw: str | None) -> str | None:
@@ -233,7 +234,7 @@ def clean_zip(raw: str | None) -> str | None:
     if not text:
         return None
     if not _ZIP_RE.match(text) or not text.startswith(("100", "101", "102", "103", "104", "110", "111", "112", "113", "114", "116")):
-        raise InvalidArea("Enter a 5-digit NYC ZIP code.")
+        raise InvalidArea(gettext("Enter a 5-digit NYC ZIP code."))
     return text
 
 
@@ -260,11 +261,11 @@ def street_words(raw: str | None) -> list[str]:
 def clean_street(raw: str | None, what: str = "street") -> str:
     text = re.sub(r"\s+", " ", (raw or "")).strip()
     if not text:
-        raise InvalidArea(f"Enter a {what} name.")
+        raise InvalidArea(gettext("Enter a cross street name.") if what == "cross street" else gettext("Enter a street name."))
     if len(text) > MAX_STREET_LENGTH:
-        raise InvalidArea(f"That {what} name is too long.")
+        raise InvalidArea(gettext("That cross street name is too long.") if what == "cross street" else gettext("That street name is too long."))
     if not street_words(text):
-        raise InvalidArea(f"Enter a {what} name.")
+        raise InvalidArea(gettext("Enter a cross street name.") if what == "cross street" else gettext("Enter a street name."))
     return text
 
 
@@ -599,7 +600,7 @@ def lookup(street: str, borough: str, zip_code: str | None = None, cross_street:
     if zip_code:
         lots = [l for l in lots if str(l.get("zipcode") or "").strip() == zip_code]
         if not lots:
-            raise InvalidArea(f"No buildings on {display_street(city_street)} are in ZIP code {zip_code}.")
+            raise InvalidArea(gettext("No buildings on %(street)s are in ZIP code %(zip)s.", street=display_street(city_street), zip=zip_code))
     if cross_typed:
         try:
             city_cross = resolve_street(cross_typed, borough)

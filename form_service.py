@@ -61,6 +61,8 @@ import re
 import tempfile
 from datetime import date
 
+from i18n import gettext, mark
+
 from pypdf import PdfWriter
 from pypdf.generic import (
     ArrayObject,
@@ -345,17 +347,17 @@ def missing_fields(intake: dict) -> list[str]:
     missing = []
     tenant, owner = intake["tenant"], intake["owner"]
     if not tenant["name"]:
-        missing.append("your full name")
+        missing.append(mark("your full name"))
     if not tenant["street"] or not tenant["city_state_zip"]:
-        missing.append("your full mailing address (street, apartment, city, state and ZIP)")
+        missing.append(mark("your full mailing address (street, apartment, city, state and ZIP)"))
     if not owner["name"]:
-        missing.append("your landlord's or managing agent's name")
+        missing.append(mark("your landlord's or managing agent's name"))
     if not owner["street"] or not owner["city_state_zip"]:
-        missing.append("your landlord's mailing address")
+        missing.append(mark("your landlord's mailing address"))
     if not intake["regulation"]:
-        missing.append("whether your apartment is rent stabilized, rent controlled, hotel stabilized or an SRO")
+        missing.append(mark("whether your apartment is rent stabilized, rent controlled, hotel stabilized or an SRO"))
     if not any(intake["conditions"].values()):
-        missing.append("which room each problem is in, and what the problem is")
+        missing.append(mark("which room each problem is in, and what the problem is"))
     return missing
 
 
@@ -584,8 +586,8 @@ READY_MESSAGE = (
 
 def missing_message(missing: list[str]) -> str:
     """What the tenant is told when the form can't be filled yet."""
-    items = "\n".join(f"- {item}" for item in missing)
-    return f"Before I can fill in your RA-81, I still need:\n\n{items}"
+    items = "\n".join(f"- {gettext(item)}" for item in missing)
+    return gettext("Before I can fill in your RA-81, I still need:") + f"\n\n{items}"
 
 
 def fill_to_bytes(json_data: dict) -> bytes:

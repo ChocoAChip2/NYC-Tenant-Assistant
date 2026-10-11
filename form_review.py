@@ -3,6 +3,7 @@
 from datetime import date
 from copy import deepcopy
 import form_service
+from i18n import gettext
 
 FIELDS = {
     "Tenant": [("tenant.name", "Full name"), ("tenant.street", "Street address"), ("tenant.apt", "Apartment"),
@@ -24,6 +25,15 @@ CHOICES = {
     "notice.method": {"": "Not specified", "regular_mail": "Regular mail", "certified_mail": "Certified mail", "personal": "Delivered by hand"},
     "seven_a_administrator": {"false": "No / not specified", "true": "Yes"},
 }
+
+# Every label on the review screen, for the catalogues (babel.cfg). They
+# stay plain English above (the form itself is English) and are translated
+# where the page shows them.
+TRANSLATABLE = [
+    *FIELDS,
+    *(label for fields in FIELDS.values() for _key, label in fields),
+    *(label for choices in CHOICES.values() for label in choices.values()),
+]
 
 
 def canonical(data):
@@ -61,26 +71,26 @@ def submitted(data):
             value = data.get(key, "").strip()
             limit = 2000 if key.startswith("conditions.") else 250
             if len(value) > limit:
-                errors.append(f"{label} is too long (maximum {limit} characters).")
+                errors.append(gettext("%(label)s is too long (maximum %(limit)s characters).", label=gettext(label), limit=limit))
             if key in CHOICES and value not in CHOICES[key]:
-                errors.append(f"Choose a valid value for {label.lower()}.")
+                errors.append(gettext("Choose a valid value for %(label)s.", label=gettext(label).lower()))
             if key in {"move_in_date", "notice.date"} and value:
                 try:
                     if date.fromisoformat(value + "-01" if len(value) == 7 else value) > date.today():
                         raise ValueError()
                 except ValueError:
-                    errors.append(f"{label} must be a valid date no later than today.")
+                    errors.append(gettext("%(label)s must be a valid date no later than today.", label=gettext(label)))
             parts = key.split(".")
             if len(parts) == 2:
                 intake.setdefault(parts[0], {})[parts[1]] = value
             else:
                 intake[key] = value == "true" if key == "seven_a_administrator" else value
     if intake.get("regulation") not in form_service.REGULATION_CHECKBOXES:
-        errors.append("RA-81 needs a confirmed rent-regulated apartment. If you are unsure, confirm your status with HCR first.")
+        errors.append(gettext("RA-81 needs a confirmed rent-regulated apartment. If you are unsure, confirm your status with HCR first."))
     if data.get("service_scope") != "individual_other":
-        errors.append("For heat or hot water use HHW-1; for building-wide services use RA-84. Confirm an individual-apartment service issue for RA-81.")
+        errors.append(gettext("For heat or hot water use HHW-1; for building-wide services use RA-84. Confirm an individual-apartment service issue for RA-81."))
     if data.get("confirmed") != "yes":
-        errors.append("Review the details and check the confirmation box before downloading.")
+        errors.append(gettext("Review the details and check the confirmation box before downloading."))
     normalized = canonical(intake)
     missing = form_service.missing_fields(normalized)
     if missing:
@@ -89,5 +99,5 @@ def submitted(data):
     try:
         "".join(flatten(normalized).values()).encode("cp1252")
     except UnicodeEncodeError:
-        errors.append("Some characters cannot be printed by this form. Use an accurate Latin-script spelling or download the official blank form to complete it yourself.")
+        errors.append(gettext("Some characters cannot be printed by this form. Use an accurate Latin-script spelling or download the official blank form to complete it yourself."))
     return normalized, errors

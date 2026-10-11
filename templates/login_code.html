@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#eef1f5" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ product_name }} | Enter your code</title>
+  <title>{{ product_name }} | {{ _("Enter your code") }}</title>
   <script>
     (function () {
       var saved = null;
@@ -246,8 +246,8 @@
       <span class="brand-name">{{ product_name }}</span>
     </div>
 
-    <h1>Check your email</h1>
-    <p class="subtitle">We sent a 6-digit code to <strong>{{ email }}</strong>. Enter it to finish logging in.</p>
+    <h1>{{ _("Check your email") }}</h1>
+    <p class="subtitle">{{ _("We sent a 6-digit code to") }} <strong>{{ email }}</strong>{{ _(". Enter it to finish logging in.") }}</p>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -260,19 +260,19 @@
     <form method="POST" id="code-form">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="field">
-        <label for="code">Code</label>
+        <label for="code">{{ _("Code") }}</label>
         <input class="code-input" id="code" type="text" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 \-]*" maxlength="8" required autofocus>
       </div>
-      <button class="primary" type="submit">Log in</button>
+      <button class="primary" type="submit">{{ _("Log in") }}</button>
     </form>
 
     <form method="POST" class="resend">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="hidden" name="action" value="resend">
-      No email? Check spam, or <button type="submit" class="link-button">send a new code</button>{% if resend_wait %} (available in {{ resend_wait }} seconds){% endif %}.
+      {{ _("No email? Check spam, or") }} <button type="submit" class="link-button">{{ _("send a new code") }}</button>{% if resend_wait %} {{ _("(available in %(resend_wait)s seconds)", resend_wait=resend_wait) }}{% endif %}.
     </form>
 
-    <p class="footer-link"><a href="{{ url_for('main.login') }}">Back to log in</a></p>
+    <p class="footer-link"><a href="{{ url_for('main.login') }}">{{ _("Back to log in") }}</a></p>
   </div>
   {{ language_form() }}
   <p class="legal-note">{{ short_disclaimer }} <a href="{{ url_for('main.learn_more') }}">{{ learn_more_label }}</a> · <a href="{{ url_for('main.privacy') }}">{{ privacy_label }}</a></p>
@@ -283,7 +283,7 @@
       var btn = event.target.querySelector('button[type="submit"]');
       if (!btn || btn.disabled) return;
       btn.disabled = true;
-      btn.textContent = "Checking…";
+      btn.textContent = {{ gettext("Checking…")|tojson }};
     });
   </script>
 </body>

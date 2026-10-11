@@ -6,29 +6,35 @@ unchanged.
 
 ## Where this stands
 
-Done (foundation):
+Done:
 - Flask-Babel is set up for the real app and every test app.
 - The language for a request is chosen and can be switched.
 - Every page takes `<html lang>` from the choice and has a slot for the
   language menu.
-- Translatable so far: all wording in `branding.py`, the password rule
-  messages, every flash message in `routes.py`, the privacy page, dates.
-- Empty catalogues exist for `es`, `fr`, `sw`, `zh_Hans`, `zh_Hant`.
+- **All page text is wrapped** (2026-10-11): template text and
+  attributes, strings set from JavaScript, JSON error messages, lookup
+  error titles, flash messages, and the messages raised in
+  `profile_service`, `account_requirements`, `case_context`,
+  `form_review`, `form_service`, `area_service`, `building_service` and
+  `error_pages`. 699 messages; 117 marked `REVIEW`.
+- Catalogues exist for `es`, `fr`, `sw`, `zh_Hans`, `zh_Hant`, all empty.
 
 Not done yet:
-- **Template text is not wrapped.** Headings, labels, buttons and
-  paragraphs written directly in the ~20 templates are still plain
-  English, as are strings set from JavaScript, the JSON error messages,
-  the lookup error titles, and messages raised in `profile_service`,
-  `account_requirements`, `case_context`, `form_review` and
-  `error_pages`. This is the next slice.
-- No language has any translation. Nothing is live but English.
-- The chat's reply-language tiebreaker, the new reply-language choices,
-  the "quote the law in English" rule, the "not a translation" note on
-  `/law` and the RA-81 character check.
-- The menu overflows the header at 390 px on pages with a full nav
-  (seen with preview languages on). It must be fixed before a language
-  goes live.
+- The English-reference display: the machine-translation notice with a
+  link to the English page, and each `REVIEW` string shown with its
+  English original.
+- Filling the four live catalogues by machine translation.
+- Chat: new reply-language choices, the interface-language tiebreaker,
+  the "quote the law in English" rule, the note on `/law`, the fact-sheet
+  links.
+- Going live.
+
+Known rough edges in what is wrapped:
+- A sentence with a link or bold text in the middle is several messages
+  (the text before, the link, the text after). Word order can't change
+  across those pieces, which will read awkwardly in some languages.
+- The language menu sits on its own row under the header at 700 px and
+  below. Looked at on one page only.
 
 ## A language is offered only when it is live
 
@@ -36,17 +42,26 @@ Not done yet:
 not in the menu, is never picked from the browser's settings, and cannot
 be set through the switch route or a cookie.
 
-Going live needs, for that language:
-1. its catalogue filled in;
-2. every entry marked `REVIEW` approved by a fluent reader (owner,
-   2026-10-11). These are the disclaimers, the privacy wording, the
-   password rule and the help-resource descriptions today; the RA-81
-   review screen and account deletion join them when wrapped;
-3. `pybabel compile` run, and the compiled files deployed;
-4. the code added to `LIVE_LANGUAGES`, with a log entry naming who
-   reviewed it. Two tests enforce the pairing: a live language may not
-   have an untranslated or fuzzy `REVIEW` entry, and a catalogue that is
-   not live may not contain translations.
+**Translations are machine-made and English stays the reference** (owner,
+2026-10-11; this replaced an earlier plan to have a fluent reader approve
+each language). So:
+- every translated page will say it is machine-translated and link to the
+  same page in English;
+- wording marked `REVIEW` is the high-stakes wording (disclaimers, privacy
+  wording, the password rule, the RA-81 review screen's labels and
+  messages) and will be shown with its English original beneath it;
+- sign-in, confirmation, reset and code emails stay English.
+
+Going live needs, for that language: its catalogue filled, nothing fuzzy,
+`pybabel compile` run with the compiled files committed, and the code
+added to `LIVE_LANGUAGES` with a log entry saying how it was translated.
+A test refuses a live language with an untranslated or fuzzy `REVIEW`
+entry.
+
+**Chinese is Simplified only** (owner, 2026-10-11). `zh_Hant` stays
+defined but is never made live and its catalogue stays empty (tested). A
+browser asking for Traditional Chinese gets Simplified rather than
+English.
 
 To look at a language before it is live, run locally with
 `PREVIEW_LANGUAGES=es` (comma separated). Not for production.
@@ -81,18 +96,39 @@ their account. The privacy page says so.
 
 ## How text is translated
 
-- Templates and request-time Python: `_("text")`, with `%(name)s`
-  placeholders filled by keyword (`_("Wait %(wait)s.", wait=...)`). Never
-  an f-string: the catalogue is keyed by the exact text.
+- **In templates**, `_("text")` returns page markup: the translated text
+  is trusted exactly as the text was when it sat in the template, so
+  entities and apostrophes reach the page unchanged and English output is
+  byte for byte what it was. Values filled in with `%(name)s` are escaped.
+  Tests keep `<` and `>` out of every translation and check that each one
+  keeps its source's placeholders.
+- `gettext("text")` in a template returns plain text, for places that
+  escape it themselves: arguments to the "i" button, values inside
+  `{{ ... }}` expressions, and strings handed to JavaScript with
+  `|tojson`.
+- **In scripts**, a string shown to a person is written
+  `{{ gettext("text")|tojson }}`. Where the script builds a sentence, the
+  message holds a placeholder and the script fills it:
+  `{{ gettext("%(count)s characters left")|tojson }}.replace("%(count)s", n)`.
+  Dates formatted in scripts use the page's language.
+- **In Python at request time**: `_("text")`, with `%(name)s`
+  placeholders filled by keyword. Never an f-string: the catalogue is
+  keyed by the exact text.
+- **Plurals** are two whole messages chosen in the template ("%(count)s
+  home" / "%(count)s homes"), not a word with an "s" added.
 - **Module-level wording stays plain English strings** (`branding.py`,
-  `password_safety.py`). ~570 existing assertions and several callers
+  `password_safety.py`, the labels in `case_context.py` and
+  `form_review.py`, the error page table). Existing assertions and callers
   compare or reuse those strings, and a lazy translation object is not a
-  `str`. They are translated where they are used: the branding context
-  processor, `flash(_(...))`, `i18n.translated(list, keys=...)`.
-- Those constants reach the catalogue by value, not by source:
-  `i18n.extract_constants`, configured in `babel.cfg`, imports the module
-  and yields the named constants. That is why f-strings in `branding.py`
-  work, and why each file's strings can be marked `REVIEW` as a block.
+  `str`. They are translated where they are used.
+- Those constants reach the catalogue by value: `i18n.extract_constants`
+  (configured per file in `babel.cfg`) imports the module and yields the
+  named constants, then also reads the ordinary `gettext()` and `mark()`
+  calls in the same file, because Babel gives each file to one extractor.
+- `mark("text")` puts a string in the catalogue without translating it,
+  for wording passed on as data (a field label handed to a message).
+- Messages raised in service modules are translated where they are raised
+  (there is always a request by then) and shown as they arrive.
 - Dates go through `format_date()`. English output is exactly what
   `strftime` produced before.
 
@@ -106,7 +142,7 @@ name.
 ## Updating the catalogues
 
 ```
-PYTHONPATH=. venv/bin/pybabel extract -F babel.cfg -c REVIEW -o translations/messages.pot --no-location --sort-output .
+PYTHONPATH=. venv/bin/pybabel extract -F babel.cfg -c REVIEW -k mark -o translations/messages.pot --no-location --sort-output .
 venv/bin/pybabel update -i translations/messages.pot -d translations --no-fuzzy-matching
 venv/bin/pybabel compile -d translations
 ```

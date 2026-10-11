@@ -18,6 +18,10 @@
   .language-form select { width: auto; max-width: 9.5em; padding: 5px 8px; font: inherit; font-size: 13px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--text); }
   .language-form button { width: auto; min-width: 0; height: auto; padding: 5px 10px; font: inherit; font-size: 13px; font-weight: 600; border: 1px solid var(--border); border-radius: 7px; background: transparent; color: var(--accent); cursor: pointer; }
   .language-form select:focus-visible, .language-form button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (max-width: 700px) {
+    header, nav[aria-label="Site"] { flex-wrap: wrap; }
+    .language-form { order: 10; flex-basis: 100%; justify-content: flex-end; }
+  }
 </style>
 {%- endif -%}
 {%- endmacro -%}

@@ -34,6 +34,7 @@ from dataclasses import dataclass
 from datetime import date
 
 import crypto_service
+from i18n import gettext as _, mark
 
 logger = logging.getLogger(__name__)
 
@@ -73,29 +74,29 @@ def latest_allowed_birthday(today: date) -> date:
 def _clean_name(raw: str, label: str) -> str:
     name = " ".join((raw or "").split())
     if not name:
-        raise ProfileError(f"Please enter your {label}.")
+        raise ProfileError(_("Please enter your %(label)s.", label=_(label)))
     if len(name) > MAX_NAME_LENGTH:
-        raise ProfileError(f"Your {label} can be at most {MAX_NAME_LENGTH} characters.")
+        raise ProfileError(_("Your %(label)s can be at most %(limit)s characters.", label=_(label), limit=MAX_NAME_LENGTH))
     if not _NAME_RE.match(name):
-        raise ProfileError(f"Your {label} can only contain letters, spaces, hyphens, apostrophes and periods.")
+        raise ProfileError(_("Your %(label)s can only contain letters, spaces, hyphens, apostrophes and periods.", label=_(label)))
     return name
 
 
 def validate(first_name: str, last_name: str, date_of_birth: str, *, today: date | None = None) -> Profile:
     today = today or date.today()
-    first = _clean_name(first_name, "first name")
-    last = _clean_name(last_name, "last name")
+    first = _clean_name(first_name, mark("first name"))
+    last = _clean_name(last_name, mark("last name"))
     try:
         born = date.fromisoformat((date_of_birth or "").strip())
     except ValueError:
-        raise ProfileError("Please enter your date of birth.") from None
+        raise ProfileError(_("Please enter your date of birth.")) from None
     if born > today:
-        raise ProfileError("Your date of birth can't be in the future.")
+        raise ProfileError(_("Your date of birth can't be in the future."))
     age = age_on(born, today)
     if age > MAX_AGE:
-        raise ProfileError("Please check your date of birth.")
+        raise ProfileError(_("Please check your date of birth."))
     if age < MIN_AGE:
-        raise ProfileError(f"You must be at least {MIN_AGE} years old to create an account.")
+        raise ProfileError(_("You must be at least %(age)s years old to create an account.", age=MIN_AGE))
     return Profile(first, last, born)
 
 
