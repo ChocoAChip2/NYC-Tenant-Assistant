@@ -120,7 +120,15 @@ class InvalidArea(ValueError):
 
 
 class StreetNotFound(Exception):
-    """No street by that name in that borough."""
+    """No street by that name in that borough.
+
+    `returned` holds the streets GeoSearch offered instead (and that were
+    rejected), for street_suggestions.
+    """
+
+    def __init__(self, raw="", returned=()):
+        super().__init__(raw)
+        self.returned = tuple(returned)
 
 
 class CrossStreetNotFound(Exception):
@@ -305,31 +313,37 @@ def clear_caches() -> None:
         cache.clear()
 
 
-def resolve_street(raw: str, borough: str) -> str:
+def resolve_street(raw: str, borough: str, get_json=None) -> str:
     """The city's spelling of a street in a borough. Raises StreetNotFound."""
     typed = street_words(raw)
     key = f"{borough}|{' '.join(typed)}"
     cached = _street_cache.get(key)
     if cached is not None:
-        if cached is False:
-            raise StreetNotFound(raw)
+        if isinstance(cached, tuple):
+            raise StreetNotFound(raw, cached)
         return cached
     geo_borough = BOROUGHS[borough][2]
-    payload = _get_json(building_service.GEOSEARCH_URL, {"text": f"{' '.join(typed)}, {geo_borough}", "size": 10})
+    payload = (get_json or _get_json)(building_service.GEOSEARCH_URL, {"text": f"{' '.join(typed)}, {geo_borough}", "size": 10})
     features = (payload or {}).get("features") if isinstance(payload, dict) else None
     if not isinstance(features, list):
         raise LookupUnavailable("GeoSearch returned an unexpected shape.")
     votes: Counter = Counter()
+    rejected: list[str] = []
     for feature in features:
         props = (feature or {}).get("properties") or {}
         street = str(props.get("street") or "").strip().upper()
         if not street or str(props.get("borough") or "") != geo_borough:
             continue
-        if _SAFE_STREET_RE.match(street) and _matches(typed, street):
+        if not _SAFE_STREET_RE.match(street):
+            continue
+        if _matches(typed, street):
             votes[street] += 1
+        elif street not in rejected:
+            rejected.append(street)
     if not votes:
-        _street_cache.put(key, False)
-        raise StreetNotFound(raw)
+        # A tuple marks "not found" in the cache (a found street is a str).
+        _street_cache.put(key, tuple(rejected))
+        raise StreetNotFound(raw, rejected)
     # An exact match beats a more common near-match ("Broadway" is not
     # "East Broadway", even if GeoSearch returned more of the latter).
     exact = [s for s in votes if s.split() == typed]
@@ -342,14 +356,14 @@ def _soql_text(value: str) -> str:
     return value.replace("'", "''")
 
 
-def fetch_lots(street: str, borough: str) -> tuple[list[dict], bool]:
+def fetch_lots(street: str, borough: str, get_json=None) -> tuple[list[dict], bool]:
     """Every numbered tax lot on the street. (lots, truncated)."""
     key = f"{borough}|{street}"
     cached = _lots_cache.get(key)
     if cached is not None:
         return cached
     code = BOROUGHS[borough][0]
-    rows = _get_json(PLUTO_URL, {
+    rows = (get_json or _get_json)(PLUTO_URL, {
         "$select": "bbl,address,zipcode,council,cd,policeprct,schooldist,landuse,unitsres,zonedist1,latitude,longitude",
         "$where": f"borough='{code}' AND address like '% {_soql_text(street)}'",
         "$limit": str(MAX_LOTS),

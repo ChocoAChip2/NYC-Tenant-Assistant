@@ -34,7 +34,12 @@ GEOSEARCH_HIT = {
             "properties": {
                 "label": "231 ECHO PLACE, Bronx, NY, USA",
                 "name": "231 ECHO PLACE",
+                "housenumber": "231",
+                "street": "ECHO PLACE",
                 "borough": "Bronx",
+                # The live service labels every result "fallback", exact
+                # ones included (measured 2026-10-11).
+                "match_type": "fallback",
                 "confidence": 0.8,
                 "addendum": {"pad": {"bbl": BBL, "bin": "2007730"}},
             }

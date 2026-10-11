@@ -174,7 +174,18 @@ class LookupUnavailable(Exception):
 
 
 class AddressNotFound(Exception):
-    """GeoSearch answered, but found no NYC building at that address."""
+    """GeoSearch answered, but found no NYC building at that address.
+
+    Includes the case where it offered buildings on a different street:
+    `typed` is what was asked for (street_suggestions.TypedAddress) and
+    `returned` the (street, borough) pairs it offered instead, so the page
+    can suggest a correction rather than show someone else's building.
+    """
+
+    def __init__(self, text="", typed=None, returned=()):
+        super().__init__(text)
+        self.typed = typed
+        self.returned = tuple(returned)
 
 
 class InvalidAddress(ValueError):
@@ -187,6 +198,12 @@ class BuildingMatch:
     borough: str
     bbl: str
     bin: str | None
+    house_number: str = ""
+    street: str = ""
+    # Set when the number typed isn't on the street and a different
+    # building on the SAME street is shown, e.g. "1 Echo Place". The page
+    # says so above the result; it is never a different street.
+    requested: str | None = None
 
 
 @dataclass
@@ -490,6 +507,12 @@ def geocode(address: str) -> BuildingMatch:
     if not isinstance(features, list):
         raise LookupUnavailable("GeoSearch returned an unexpected shape.")
 
+    # Imported here: street_suggestions imports this module.
+    import area_service
+    import street_suggestions
+
+    typed = street_suggestions.parse_address(text)
+    candidates = []
     for feature in features:
         props = (feature or {}).get("properties") or {}
         pad = ((props.get("addendum") or {}).get("pad") or {})
@@ -498,16 +521,45 @@ def geocode(address: str) -> BuildingMatch:
             # Not a PAD building (a park, a neighbourhood, a street). Only
             # a real tax lot has violations to show.
             continue
-        match = BuildingMatch(
-            label=str(props.get("label") or props.get("name") or text),
-            borough=str(props.get("borough") or ""),
-            bbl=bbl,
-            bin=str(pad.get("bin")) if pad.get("bin") else None,
-        )
-        _geocode_cache.put(cache_key, match)
-        return match
+        number, street = street_suggestions.feature_address(props)
+        candidates.append((props, pad, bbl, number, street, str(props.get("borough") or "")))
+    if not candidates:
+        raise AddressNotFound(text, typed)
 
-    raise AddressNotFound(text)
+    # GeoSearch always answers with something. Measured 2026-10-11: "231
+    # Ecco Place, Bronx" comes back as 231 BROWN PLACE, and every result,
+    # exact or not, is labelled "fallback". So the result is checked
+    # against what was typed: a different street is "not found", and a
+    # different number on the same street is shown only with a notice.
+    requested = None
+    if typed.number is None or not typed.words or not any(c[4] for c in candidates):
+        # Nothing to compare (the text doesn't start with a house number,
+        # or the results carry no street): the first building, as before.
+        chosen = candidates[0]
+    else:
+        in_borough = [c for c in candidates if not typed.borough or not c[5] or c[5] == typed.borough]
+        on_street = [c for c in in_borough if street_suggestions.same_street(typed.words, c[4])]
+        exact = [c for c in on_street if street_suggestions.same_number(typed.number, c[3])]
+        if exact:
+            chosen = exact[0]
+        elif on_street:
+            chosen = on_street[0]
+            requested = f"{typed.number} {area_service.display_street(chosen[4])}"
+        else:
+            raise AddressNotFound(text, typed, [(c[4], c[5]) for c in candidates if c[4]])
+
+    props, pad, bbl, number, street, borough = chosen
+    match = BuildingMatch(
+        label=str(props.get("label") or props.get("name") or text),
+        borough=borough,
+        bbl=bbl,
+        bin=str(pad.get("bin")) if pad.get("bin") else None,
+        house_number=number,
+        street=street,
+        requested=requested,
+    )
+    _geocode_cache.put(cache_key, match)
+    return match
 
 
 def dataset_as_of() -> date | None:
@@ -679,7 +731,11 @@ def chat_prompt(report: BuildingReport) -> str:
     told, and can edit the next message if the match was wrong.
     """
     lines = [f"I live at {report.match.label}."]
-    if report.apartment:
+    if report.match.requested:
+        # A different number on the street is being shown (see geocode):
+        # the tenant asked for another building, so don't say they live here.
+        lines[0] = f"I looked up {report.match.label}."
+    elif report.apartment:
         lines[0] = f"I live at {report.match.label}, apartment {report.apartment}."
 
     as_of = report.data_as_of.isoformat() if report.data_as_of else "a recent date"
