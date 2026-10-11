@@ -3,6 +3,32 @@
 Updated: 2026-10-11 (America/New_York). Status is taken from git, `log/` and the test runs recorded under Verification.
 Location: `~/Desktop/Github/nyc-tenant-assistant-push-2`, branch `main` at `b7d7bae` (PR #63, 2026-10-11).
 
+## Logo-link handoff for Claude Code (2026-10-11)
+
+- **Where to work:** `~/Desktop/Github/sidekick-logo-home-link`, branch
+  `fix/logo-home-link`, based on `main` at `610f456` (PR #66). The files are
+  already in the shared Github folder; no copy from Codex is needed.
+  `~/Desktop/Github/INDEX.md` points here.
+- **Objective and decision:** public-page logos go to `/chat` when the session
+  has `user_id`, otherwise `/`. `/` remains street search. The one `home_url`
+  context value in `routes.py` supplies all seven public templates.
+- **Completed:** routes.py context value; logo hrefs in area, building,
+  resources, law, law_index, learn_more and privacy; regressions in
+  `tests/test_home_page.py`; change log and index. Chat/settings templates,
+  page layouts and in-page search links are unchanged.
+- **Verification:** 177 tests pass in the six requested modules; full suite
+  1120 OK (1 skipped); diff whitespace check passes. The offline street-search
+  journey follows the rendered logo to chat. Manual browser clicking and
+  visual checks remain unverified because the saved browser access restriction
+  from the prior task is unresolved.
+- **Integration:** PR publication is next. Claude should check branch, HEAD,
+  status and the diff against fresh main before reviewing/integrating. Do not
+  discard unrelated work in the main clone. Finish the manual signed-in and
+  signed-out logo checks when browser access is available. The owner merges;
+  this task does not authorize an agent to merge.
+- **Evidence:** `log/2026-10-11-logo-home-link.txt`. Earlier project work and
+  remaining translation tasks are retained below.
+
 ## Objective
 
 Make the site readable in English, Spanish, Chinese (Simplified and Traditional), Swahili and French (owner, 2026-10-11). In slices, each with English unchanged. The first slice (foundation) is merged; see `docs/frontend/translations.md` for what is and isn't done.

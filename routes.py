@@ -121,6 +121,11 @@ def _password_rule_for_templates():
     }
 
 
+@main_bp.app_context_processor
+def _home_url_for_templates():
+    return {"home_url": url_for("main.chat") if session.get("user_id") else url_for("main.home")}
+
+
 @main_bp.before_request
 def _require_new_password():
     """Hold a signed-in tenant on /account/password until their password meets the rule.
