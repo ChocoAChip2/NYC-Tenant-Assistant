@@ -79,13 +79,14 @@ class MemorySupabase:
                      form_drafts=self.list_form_drafts(client, cid, include_payload=True)) for cid, c in self.conversations.items()]
 
     def get_case_context(self, client, cid):
-        return deepcopy(self.contexts.get(cid, {"context": case_context.defaults(), "revision": 0}))
+        return deepcopy(self.contexts.get(cid, {"context": case_context.defaults(), "revision": 0, "tenant_set": [], "seen": 0}))
 
-    def save_case_context(self, client, cid, uid, context, revision):
+    def save_case_context(self, client, cid, uid, context, revision, tenant_set=(), seen=0):
         self.ensure_conversation_for_user(client, cid, uid)
         if self.get_case_context(client, cid)["revision"] != revision:
             raise StaleCaseError()
-        self.contexts[cid] = {"context": case_context.validate(context), "revision": revision + 1}
+        saved = case_context.stored(context, tenant_set, seen)
+        self.contexts[cid] = {"context": case_context.validate(saved), "revision": revision + 1, **case_context.meta(saved)}
         return deepcopy(self.contexts[cid])
 
     def create_form_draft(self, client, cid, uid, intake):
@@ -122,12 +123,30 @@ class ReviewAI:
     def __init__(self):
         self.failed = set()
         self.histories = []
+        self.extractions = []
+        self.extraction = None
 
     def is_ready(self):
         return True
 
     def generate_title(self, message, reply):
         return "Heating repair question"
+
+    def extract_case_details(self, payload):
+        """`self.extraction` if a test set one; otherwise a keyword stand-in for local QA."""
+        import json
+        self.extractions.append(payload)
+        if self.extraction is not None:
+            return self.extraction
+        text = " ".join(json.loads(payload)["messages"]).lower()
+        found = {"borough": b for b in case_context.OPTIONS["borough"][1:] if b.lower() in text}
+        if "radiator" in text or "heat" in text:
+            found["issue"] = "No heat in the apartment"
+        if "rent stabilized" in text or "rent-stabilized" in text:
+            found["regulation"] = "rent_stabilized"
+        if "called 311" in text:
+            found["completed_actions"] = "Called 311"
+        return json.dumps(found)
 
     def generate_reply(self, history):
         self.histories.append(deepcopy(history))

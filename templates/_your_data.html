@@ -1,0 +1,198 @@
+{# The "Your data" button in the composer toolbar and its popover. Import with {% from "_your_data.html" import your_data_button, your_data_popover with context %}. The button goes inside the chat form; the popover is a sibling of the form (it holds its own form, and forms cannot nest). See docs/frontend/case-workspace.md for behavior and storage boundaries. #}
+{%- macro your_data_button() -%}
+<span class="yd-anchor">
+  <button type="button" class="yd-btn" id="your-data-btn" aria-haspopup="dialog" aria-expanded="false" aria-controls="your-data-pop" aria-describedby="your-data-tip">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="11" r="2"/><path d="M5.8 16c.6-1.5 1.8-2.2 3.2-2.2s2.6.7 3.2 2.2M15 10h3.5M15 13.5h3.5"/></svg>
+    <span class="yd-btn-label">Your data</span>
+  </button>
+  <span class="yd-tip" id="your-data-tip" role="tooltip">Your data for this chat: what {{ product_name }} knows about your situation</span>
+</span>
+{%- endmacro -%}
+
+{%- macro your_data_popover(conversation_id) -%}
+<style>
+  .composer { position: relative; width: min(720px, 100%); margin: 0 auto; }
+  .composer-tools { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+  .yd-anchor { position: relative; display: inline-flex; }
+  .yd-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    height: 34px; min-width: 0; margin: 0; padding: 0 12px;
+    border: 1px solid transparent; border-radius: 17px;
+    background: transparent; color: var(--muted);
+    font: inherit; font-size: 13px; font-weight: 500; line-height: 1;
+    cursor: pointer; transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .yd-btn:hover, .yd-btn[aria-expanded="true"] { background: var(--accent-tint); color: var(--text); }
+  .yd-btn[aria-expanded="true"] { border-color: var(--border); }
+  .yd-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .yd-btn svg { flex-shrink: 0; }
+  .yd-tip {
+    position: absolute; z-index: 40; right: 0; bottom: calc(100% + 8px);
+    width: max-content; max-width: min(30rem, calc(100vw - 84px));
+    padding: 7px 10px; border: 1px solid var(--border); border-radius: 9px;
+    background: var(--surface); color: var(--text);
+    font-size: 12.5px; line-height: 1.4; text-align: left;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+    opacity: 0; visibility: hidden; pointer-events: none;
+    transition: opacity 0.12s ease, visibility 0s linear 0.12s;
+  }
+  .yd-btn:focus-visible + .yd-tip { opacity: 1; visibility: visible; transition-delay: 0s; }
+  @media (hover: hover) {
+    .yd-anchor:hover .yd-tip { opacity: 1; visibility: visible; transition-delay: 0.35s, 0.35s; }
+  }
+  .yd-anchor .yd-btn[aria-expanded="true"] + .yd-tip { opacity: 0; visibility: hidden; }
+
+  .yd-backdrop { display: none; }
+  .yd-pop {
+    position: absolute; z-index: 45; right: 0; bottom: calc(100% + 8px);
+    width: min(360px, 100%); max-height: min(560px, calc(100vh - 260px)); overflow-y: auto;
+    padding: 6px; border: 1px solid var(--border); border-radius: 16px;
+    background: var(--surface); color: var(--text);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.08);
+    font-size: 13.5px; line-height: 1.45;
+    opacity: 0; visibility: hidden; transform: translateY(6px) scale(0.98); transform-origin: bottom right;
+    transition: opacity 0.14s ease, transform 0.14s ease, visibility 0s linear 0.14s;
+  }
+  .yd-pop.open { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+  .yd-pop:focus { outline: none; }
+  .yd-head { padding: 10px 12px 6px; }
+  .yd-head h2 { margin: 0; font-size: 15px; font-weight: 650; }
+  .yd-sub { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); }
+  .yd-summary { margin: 0; padding: 4px 12px 8px; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 5px 12px; }
+  .yd-summary dt { color: var(--muted); font-size: 12.5px; }
+  .yd-summary dd { margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .yd-empty { margin: 0; padding: 2px 12px 10px; color: var(--muted); font-size: 13px; }
+  .yd-status { margin: 0; padding: 0 12px; font-size: 12.5px; color: var(--muted); }
+  .yd-status:not(:empty) { padding-bottom: 8px; }
+  .yd-status.error { color: var(--error); }
+  .yd-group { padding: 4px 0; border-top: 1px solid var(--border); }
+  .yd-group h3 { margin: 0; padding: 4px 12px; font-size: 11.5px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: var(--muted); }
+  .yd-row {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    min-height: 36px; min-width: 0; margin: 0; padding: 6px 12px;
+    border: 0; border-radius: 10px; background: transparent; color: var(--text);
+    font: inherit; font-size: 13.5px; text-align: left; text-decoration: none; cursor: pointer;
+    transition: background 0.12s ease;
+  }
+  .yd-row:hover, .yd-row:focus-visible { background: var(--accent-tint); }
+  .yd-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .yd-row > span:first-child { flex: 1; min-width: 0; }
+  .yd-row .yd-value { color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .yd-row .yd-mark { width: 14px; color: var(--accent); font-weight: 700; text-align: center; }
+  .yd-row.yd-danger { color: var(--error); }
+  .yd-row.yd-back { color: var(--muted); font-size: 12.5px; min-height: 32px; }
+  .yd-foot { padding: 8px 12px 6px; border-top: 1px solid var(--border); font-size: 12.5px; }
+  .yd-foot a { color: var(--muted); }
+  .yd-foot a:hover, .yd-foot a:focus-visible { color: var(--accent); }
+  .yd-fields { display: grid; gap: 10px; padding: 4px 12px 8px; }
+  .yd-fields label { display: grid; gap: 4px; font-size: 12.5px; color: var(--muted); }
+  .yd-pop .yd-fields input, .yd-pop .yd-fields select, .yd-pop .yd-fields textarea {
+    box-sizing: border-box; width: 100%; min-height: 0; max-height: none; padding: 8px 10px;
+    border: 1px solid var(--border); border-radius: 9px; background: var(--bg); color: var(--text);
+    font: inherit; font-size: 14px; line-height: 1.4; overflow-y: auto;
+  }
+  .yd-pop .yd-fields textarea { min-height: 62px; resize: vertical; }
+  .yd-pop .yd-fields input:focus-visible, .yd-pop .yd-fields select:focus-visible, .yd-pop .yd-fields textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .yd-confirm { margin: 0; padding: 4px 12px 8px; }
+  .yd-actions { display: flex; gap: 8px; padding: 2px 12px 10px; }
+  .yd-action {
+    min-height: 36px; min-width: 0; margin: 0; padding: 0 14px; border: 1px solid var(--border); border-radius: 10px;
+    background: transparent; color: var(--text); font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer;
+  }
+  .yd-action:hover { background: var(--accent-tint); }
+  .yd-action:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .yd-action.primary { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
+  .yd-action.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .yd-action.danger { border-color: var(--error); color: var(--error); }
+  .yd-action.danger:hover { background: var(--error-tint); }
+  .yd-pop[aria-busy="true"] .yd-row, .yd-pop[aria-busy="true"] .yd-action { cursor: wait; }
+  @media (max-width: 700px) {
+    .yd-backdrop { display: block; position: fixed; inset: 0; z-index: 44; background: rgba(0, 0, 0, 0.4); opacity: 0; visibility: hidden; transition: opacity 0.16s ease, visibility 0s linear 0.16s; }
+    .yd-backdrop.open { opacity: 1; visibility: visible; transition-delay: 0s; }
+    .yd-pop {
+      position: fixed; left: 0; right: 0; bottom: 0; width: 100%; max-height: 82vh;
+      padding: 10px 8px calc(12px + env(safe-area-inset-bottom)); border-width: 1px 0 0; border-radius: 18px 18px 0 0;
+      transform: translateY(24px); transform-origin: bottom center;
+    }
+    .yd-row { min-height: 44px; }
+    .yd-action { min-height: 44px; flex: 1; }
+    .yd-pop .yd-fields input, .yd-pop .yd-fields select, .yd-pop .yd-fields textarea { font-size: 16px; }
+  }
+  @media (max-width: 340px) {
+    .yd-btn { padding: 0 9px; }
+    .yd-btn-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .yd-pop, .yd-backdrop, .yd-tip, .yd-btn, .yd-row { transition: none !important; }
+    .yd-pop { transform: none; }
+  }
+</style>
+<div class="yd-backdrop" id="your-data-backdrop"></div>
+<section class="yd-pop" id="your-data-pop" role="dialog" aria-labelledby="yd-title" tabindex="-1"
+         data-url="{{ url_for('main.situation', conversation_id=conversation_id) }}"
+         data-refresh-url="{{ url_for('main.refresh_situation', conversation_id=conversation_id) }}">
+  <div data-yd-view="main">
+    <div class="yd-head">
+      <h2 id="yd-title">Your data</h2>
+      <p class="yd-sub">For this chat only. It fills in from what you write.</p>
+    </div>
+    <dl class="yd-summary" id="yd-summary" hidden></dl>
+    <p class="yd-empty" id="yd-empty">Nothing saved yet.</p>
+    <p class="yd-status" id="yd-status" role="status"></p>
+    <div class="yd-group">
+      <h3>Replies</h3>
+      <button type="button" class="yd-row" data-yd-open="language"><span>{{ situation_labels["language"] }}</span><span class="yd-value" data-yd-value="language"></span><span class="yd-value" aria-hidden="true">&rsaquo;</span></button>
+      <button type="button" class="yd-row" data-yd-open="length"><span>{{ situation_labels["length"] }}</span><span class="yd-value" data-yd-value="length"></span><span class="yd-value" aria-hidden="true">&rsaquo;</span></button>
+    </div>
+    <div class="yd-group">
+      <h3>Details</h3>
+      <button type="button" class="yd-row" data-yd-open="edit"><span>Edit details</span><span class="yd-value" aria-hidden="true">&rsaquo;</span></button>
+      <button type="button" class="yd-row yd-danger" data-yd-open="clear"><span>Clear details</span></button>
+    </div>
+    <div class="yd-group" id="yd-drafts-group" hidden>
+      <h3>RA-81 drafts</h3>
+      <div id="yd-drafts"></div>
+    </div>
+    <p class="yd-foot"><a href="{{ url_for('main.settings') }}#your-data">Manage all your data</a></p>
+  </div>
+  {% for key in ["language", "length"] %}
+    <div data-yd-view="{{ key }}" hidden>
+      <button type="button" class="yd-row yd-back" data-yd-open="main"><span>&lsaquo; Your data</span></button>
+      <div class="yd-group" role="radiogroup" aria-label="{{ situation_labels[key] }}">
+        <h3>{{ situation_labels[key] }}</h3>
+        {% for value in situation_options[key] %}
+          <button type="button" class="yd-row" role="radio" aria-checked="false" data-yd-pick="{{ key }}" data-value="{{ value }}"><span{% if key == "language" and value in situation_language_codes %} lang="{{ situation_language_codes[value] }}"{% endif %}>{{ situation_choice_labels.get(value, value) }}</span><span class="yd-mark" aria-hidden="true"></span></button>
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+  <form data-yd-view="edit" id="yd-edit-form" hidden>
+    <button type="button" class="yd-row yd-back" data-yd-open="main"><span>&lsaquo; Your data</span></button>
+    <div class="yd-fields">
+      {% for key in ["borough", "regulation", "issue", "started", "completed_actions", "goal"] %}
+        <label>{{ situation_labels[key] }}
+          {% if key in situation_options %}
+            <select name="{{ key }}">{% for value in situation_options[key] %}<option value="{{ value }}">{{ situation_choice_labels.get(value, value) }}</option>{% endfor %}</select>
+          {% elif key in ["issue", "completed_actions"] %}
+            <textarea name="{{ key }}" maxlength="{{ situation_limits[key] }}"></textarea>
+          {% else %}
+            <input name="{{ key }}" maxlength="{{ situation_limits[key] }}">
+          {% endif %}
+        </label>
+      {% endfor %}
+    </div>
+    <div class="yd-actions">
+      <button type="submit" class="yd-action primary">Save</button>
+      <button type="button" class="yd-action" data-yd-open="main">Cancel</button>
+    </div>
+  </form>
+  <div data-yd-view="clear" hidden>
+    <div class="yd-head"><h2>Clear details?</h2></div>
+    <p class="yd-confirm">This removes what's saved for this chat. Your messages and reply settings stay.</p>
+    <div class="yd-actions">
+      <button type="button" class="yd-action danger" id="yd-clear-confirm">Clear details</button>
+      <button type="button" class="yd-action" data-yd-open="main">Cancel</button>
+    </div>
+  </div>
+</section>
+{%- endmacro -%}

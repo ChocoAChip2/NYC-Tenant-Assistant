@@ -6,6 +6,7 @@ from google import genai
 from google.genai.errors import ClientError, ServerError
 
 import branding
+import case_context
 from config import Settings
 
 FALLBACK_MODELS = (
@@ -310,6 +311,35 @@ class AIService:
             "system_instruction": TITLE_INSTRUCTION,
             "max_output_tokens": 40,
             "temperature": 0.2,
+            "thinking_config": {"thinking_budget": 0},
+        }
+        for model_name in TITLE_MODELS:
+            try:
+                response = self.client.models.generate_content(model=model_name, contents=contents, config=config)
+                text = (response.text or "").strip()
+                if text:
+                    return text
+            except (ClientError, ServerError):
+                continue
+        return ""
+
+    def extract_case_details(self, payload: str) -> str:
+        """The model's raw JSON answer for a chat's "Your data" summary.
+
+        `payload` is case_context.extraction_input(): the summary so far and
+        the tenant's own new messages, never the assistant's replies. Returns
+        "" if every model failed; case_context.parse_extracted() and
+        apply_extracted() decide what, if anything, is kept. Never raises for
+        model trouble -- the summary is a convenience and must not fail a chat.
+        """
+        if not self.client:
+            raise RuntimeError("Gemini is not configured yet.")
+        contents = [{"role": "user", "parts": [{"text": payload}]}]
+        config = {
+            "system_instruction": case_context.EXTRACTION_INSTRUCTION,
+            "max_output_tokens": 600,
+            "temperature": 0,
+            "response_mime_type": "application/json",
             "thinking_config": {"thinking_budget": 0},
         }
         for model_name in TITLE_MODELS:
