@@ -175,11 +175,36 @@ like the Settings link beside it.
 
 ## Time-of-day greeting
 
-The empty state renders a plain server-side fallback (so it's never blank
-before JS runs), which the script immediately replaces with a greeting based
-on the visitor's **local** clock — "Good morning" / "Good afternoon" /
-"Good evening" / "Working late" — plus their name and today's date. The
-server has no way to know the visitor's timezone; the browser does.
+Two screens show it, from one partial (`templates/_greeting.html`):
+
+- **No conversation open** (`/chat`): the date, the greeting, "How can I
+  help you today?", then "Continue with your building" and the suggestion
+  chips.
+- **A brand-new conversation with no messages**: the greeting and the same
+  line, centred, with the message box directly below, like a new-chat page.
+  No date and no chips.
+
+The partial renders a plain server-side fallback ("Welcome, Ana", or the
+email handle when there is no first name) so it's never blank before JS
+runs. The script then replaces it with a greeting based on the visitor's
+**local** clock ("Good morning" / "Good afternoon" / "Good evening" /
+"Working late") plus their name, and fills in the date where there is one.
+The server has no way to know the visitor's timezone; the browser does. The
+script finds the elements by id (`greeting-text`, `greeting-date`), so the
+partial keeps those ids and only one greeting is ever on a page.
+
+**How the new-conversation layout works.** `.chat-area` gets the class
+`is-fresh` when the conversation has no messages. Nothing is duplicated:
+the one `#chat-form` stays where it always is in the markup. The class only
+changes spacing: `main` stops stretching, and the greeting and the legal
+note each take an `auto` top margin, which splits the free space so the
+greeting and composer sit in the middle and the note stays at the bottom.
+
+`renderMessage()` calls `leaveFreshChat()` first, which removes the class
+and the greeting element. So the normal layout returns the moment the first
+message appears, whether it was typed or sent by a suggestion chip's
+queued prompt. The character counter is untouched: it is a sibling of the
+composer in both layouts.
 
 ---
 
