@@ -17,6 +17,7 @@ a suite that needs api.pwnedpasswords.com to be up is a suite that fails
 on a plane.
 """
 
+import hashlib
 import os
 from tests.app_test_support import SIGNUP_PROFILE
 import unittest
@@ -263,14 +264,17 @@ class RouteIntegrationTests(unittest.TestCase):
         # inert. Rate limiting has its own tests.
         return app, service
 
-    BREACHED = _range_body([(PASSWORD_SUFFIX, 9_659_365)])
+    # A password that meets the character rule (so the rule check passes
+    # and the breach check is what refuses it) and "is" widely breached.
+    COMMON = "Password1!"
+    BREACHED = _range_body([(hashlib.sha1(COMMON.encode()).hexdigest().upper()[5:], 9_659_365)])
 
     def test_signup_refuses_a_breached_password(self):
         app, service = self._app()
 
         with _fetch_returns(self.BREACHED):
             response = app.test_client().post(
-                "/signup", data={"email": "t@example.com", "password": "password", **SIGNUP_PROFILE}, follow_redirects=True
+                "/signup", data={"email": "t@example.com", "password": self.COMMON, **SIGNUP_PROFILE}, follow_redirects=True
             )
 
         self.assertIn("appeared in public data breaches", response.get_data(as_text=True))
@@ -282,7 +286,7 @@ class RouteIntegrationTests(unittest.TestCase):
         with _fetch_returns(_range_body([("D" * 35, 4)])):
             app.test_client().post(
                 "/signup",
-                data={"email": "t@example.com", "password": "a-long-unique-passphrase", **SIGNUP_PROFILE},
+                data={"email": "t@example.com", "password": "A-long-unique-passphrase-1", **SIGNUP_PROFILE},
                 follow_redirects=True,
             )
 
@@ -294,7 +298,7 @@ class RouteIntegrationTests(unittest.TestCase):
 
         with _fetch_raises(TimeoutError()):
             app.test_client().post(
-                "/signup", data={"email": "t@example.com", "password": "password", **SIGNUP_PROFILE}, follow_redirects=True
+                "/signup", data={"email": "t@example.com", "password": self.COMMON, **SIGNUP_PROFILE}, follow_redirects=True
             )
 
         self.assertEqual(len(service.sign_up_calls), 1)
@@ -311,7 +315,7 @@ class RouteIntegrationTests(unittest.TestCase):
         with _fetch_returns(self.BREACHED):
             response = client.post(
                 "/settings/account",
-                data={"password": "password", "confirm_password": "password"},
+                data={"password": self.COMMON, "confirm_password": self.COMMON},
                 follow_redirects=True,
             )
 
@@ -327,8 +331,8 @@ class RouteIntegrationTests(unittest.TestCase):
                 data={
                     "access_token": "a",
                     "refresh_token": "r",
-                    "password": "password",
-                    "confirm_password": "password",
+                    "password": self.COMMON,
+                    "confirm_password": self.COMMON,
                 },
                 follow_redirects=True,
             )

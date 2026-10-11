@@ -156,7 +156,7 @@ class ResetPasswordTests(unittest.TestCase):
 
         response = client.post(
             "/reset-password",
-            data={"password": "newpassword1", "confirm_password": "newpassword1"},
+            data={"password": "Newpassword1!", "confirm_password": "Newpassword1!"},
             follow_redirects=False,
         )
 
@@ -174,7 +174,7 @@ class ResetPasswordTests(unittest.TestCase):
             data={
                 "access_token": "tok-a",
                 "refresh_token": "tok-r",
-                "password": "newpassword1",
+                "password": "Newpassword1!",
                 "confirm_password": "different",
             },
         )
@@ -194,7 +194,7 @@ class ResetPasswordTests(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("at least 6 characters", response.get_data(as_text=True))
+        self.assertIn("at least 8 characters", response.get_data(as_text=True))
         self.assertEqual(service.update_account_calls, [])
 
     def test_valid_submission_resets_password_and_redirects_to_login(self):
@@ -207,8 +207,8 @@ class ResetPasswordTests(unittest.TestCase):
             data={
                 "access_token": "tok-a",
                 "refresh_token": "tok-r",
-                "password": "newpassword1",
-                "confirm_password": "newpassword1",
+                "password": "Newpassword1!",
+                "confirm_password": "Newpassword1!",
             },
             follow_redirects=False,
         )
@@ -219,7 +219,7 @@ class ResetPasswordTests(unittest.TestCase):
         call = service.update_account_calls[0]
         self.assertEqual(call["access_token"], "tok-a")
         self.assertEqual(call["refresh_token"], "tok-r")
-        self.assertEqual(call["password"], "newpassword1")
+        self.assertEqual(call["password"], "Newpassword1!")
         self.assertIsNone(call["email"])
 
         response = client.get(response.headers["Location"])
@@ -235,8 +235,8 @@ class ResetPasswordTests(unittest.TestCase):
             data={
                 "access_token": "expired-token",
                 "refresh_token": "tok-r",
-                "password": "newpassword1",
-                "confirm_password": "newpassword1",
+                "password": "Newpassword1!",
+                "confirm_password": "Newpassword1!",
             },
             follow_redirects=False,
         )

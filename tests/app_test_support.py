@@ -35,3 +35,17 @@ def configure_test_app(app):
 # A valid sign-up profile (first/last name, date of birth) for tests that
 # post the sign-up form but aren't about the profile itself.
 SIGNUP_PROFILE = {"first_name": "Ana", "last_name": "Rivera", "date_of_birth": "1990-05-17"}
+
+
+def reset_rate_limits():
+    """Clear the shared limiter's counts, if an earlier test attached it.
+
+    The limiter is a process-wide singleton. A bare test app never attaches
+    it, but once any test has built the real app, its counts apply to every
+    later request in the run. limiter.reset() itself asserts when the
+    limiter was never attached (a test module run on its own).
+    """
+    from rate_limit import limiter
+
+    if getattr(limiter, "_storage", None) is not None:
+        limiter.reset()
