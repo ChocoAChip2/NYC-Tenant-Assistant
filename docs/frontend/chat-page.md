@@ -253,11 +253,33 @@ query can't reach `scrollTo`'s `behavior` option.
 
 ## Mobile (below 700px)
 
-The sidebar becomes a vertical list above the chat, capped at 30vh and scrollable.
-Conversation menus have visible 44px targets and open in the row, so they are
-not clipped by the scroller. Rename, archive, restore, delete and the Archived
-section remain available on a phone. Previously the mobile rules hid every
-menu and the Archived section, leaving no way to restore a chat on mobile.
+At the existing `max-width: 700px` breakpoint, the conversation list is a
+left drawer over a dimmed backdrop. It uses `100dvh` and `min(320px, 85vw)`;
+the list scrolls within the remaining height, with no stacked list or viewport
+height cap. The account menu stays in flow so it cannot cover conversations.
+
+The header's left **Open chats** button controls `#chats-sidebar` and keeps
+`aria-expanded` in sync. Opening exposes a labelled modal dialog, focuses
+**Close chats**, makes the background inert, locks page scrolling, and traps
+Tab/Shift+Tab within visible drawer controls. Closing restores focus to
+**Open chats** and makes the drawer inert and hidden from screen readers.
+The backdrop, Close chats, a selected conversation (after the existing 220ms
+double-click window), or Escape dismisses it. Escape first closes an open
+account/row menu or cancels a rename using the existing handlers; a consumed
+Escape never also closes the drawer. Row menus return focus to their trigger;
+cancelling rename returns focus to the conversation link.
+
+The header's right **New chat** icon is a real CSRF-protected POST form with
+both `.new-chat-form` and `[data-new-chat-form]`, preserving pending-prompt
+cleanup and duplicate-submit prevention. The drawer's **+ New chat** is hidden
+only on phones. Row-menu triggers and actions retain 44px touch targets, with
+menus expanding inside the row. Rename, Archive, Restore, Delete and the
+Archived section remain available.
+
+Crossing above 700px resets the drawer, backdrop, modal state, inert background
+and scroll lock. Desktop retains its original sidebar and New chat button;
+the mobile header controls, drawer heading and backdrop are hidden. Drawer
+slide and backdrop fade transitions are disabled for reduced motion.
 
 
 ## Failed requests and retries (October 6 review)

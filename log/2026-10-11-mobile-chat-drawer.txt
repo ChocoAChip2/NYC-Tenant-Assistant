@@ -1,0 +1,42 @@
+Requirement
+Replace the stacked mobile conversation list with an accessible left drawer at
+the existing 700px breakpoint. Preserve desktop, the October 6 conversation
+management fixes, the composer, empty state, chat area and situation templates.
+Work on a branch and open a PR; the owner merges.
+
+Changes
+- Mobile header has Open chats and a CSRF-protected New chat POST with both
+  existing submit hooks. DOM order follows the visible header order.
+- Drawer is 100dvh, at most 320px/85vw, over a dimmed backdrop. Closing it makes
+  it inert and aria-hidden. Opening focuses Close chats, traps Tab, marks the
+  background inert and locks page scroll. Close restores focus and scroll.
+- Escape is consumed by account/row menus and rename before reaching the drawer.
+  Backdrop, Close chats and selecting a conversation also dismiss it. Selection
+  retains the existing 220ms delay so double-click rename still works.
+- Crossing above 700px restores the desktop sidebar and clears modal state.
+  Reduced motion disables both transitions. Account menu remains in flow;
+  mobile row triggers/actions are 44px and menus open in the row. Archived,
+  Rename, Archive, Restore and Delete remain available.
+- Rewrote docs/frontend/chat-page.md mobile behavior and added render regressions
+  for the toggle relationship/state, header POST/CSRF/hooks and removed height cap.
+
+Evidence (2026-10-11)
+- Required targeted modules: 138 tests OK.
+- venv/bin/python -m unittest discover -s tests: 933 tests OK, 1 skipped.
+- Rendered script passes node --check; git diff --check passes.
+- Source review: protected template regions and files unchanged; desktop CSS
+  unchanged apart from hiding the new mobile-only controls. No served comments.
+- Light/dark at 390px and desktop, actual keyboard traversal and VoiceOver-style
+  accessibility-tree order are NOT verified. Sandbox rejected local server bind
+  (Operation not permitted); browser policy rejected file:// rendered fixtures.
+  No policy workaround was attempted. Browser viewport override was reset.
+- Shell GitHub DNS is unavailable. Connected GitHub verified main at 45fcf05;
+  connector tree creation failed with 403 (Resource not accessible by integration).
+  GitHub browser access was denied. No remote branch or PR was created.
+  Existing feat/usage-counts working edits in
+  nyc-tenant-assistant-push-2 were left untouched in a separate worktree.
+
+Next
+Push local feat/mobile-chat-drawer and open a draft PR when GitHub write access
+is available. Complete the outstanding browser/assistive-technology checks before
+merging. Nothing has been merged.

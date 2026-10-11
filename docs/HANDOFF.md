@@ -5,6 +5,10 @@ Location: `~/Desktop/Github/nyc-tenant-assistant-push-2`, branch `main` at `45fc
 
 ## Objective
 
+Mobile drawer: `feat/mobile-chat-drawer` in `~/Desktop/Github/sidekick-mobile-drawer`,
+based on `main` at `b7d7bae`. Implementation is being verified against the updated
+brief before PR publication. The owner merges. Earlier release tasks remain below.
+
 Ship emailed sign-in codes and the stronger password rule (owner chose it on 2026-10-11, lifting the feature hold for this one change). Built on `feat/email-codes-and-passwords`; the owner merges after step 1 of the release order below.
 
 Done when: merged, the dashboard steps are applied, and a real inbox receives a working code.
