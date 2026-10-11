@@ -30,3 +30,6 @@ The full working branch is accessible at:
 Branch: fix/logo-home-link
 Read AGENTS.md and docs/HANDOFF.md there. ~/Desktop/Github/INDEX.md points to it.
 Review/integrate through the PR; the owner merges. No agent merge is authorized.
+
+PR: https://github.com/ChocoAChip2/NYC-Tenant-Assistant/pull/67
+The branch is pushed; no merge performed.

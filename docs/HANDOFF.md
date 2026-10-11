@@ -1,7 +1,7 @@
 # SideKick Tidbit: current handoff
 
 Updated: 2026-10-11 (America/New_York). Status is taken from git, `log/` and the test runs recorded under Verification.
-Location: `~/Desktop/Github/nyc-tenant-assistant-push-2`, branch `main` at `b7d7bae` (PR #63, 2026-10-11).
+Location: `~/Desktop/Github/nyc-tenant-assistant-push-2`, branch `main` at `610f456` (PR #66, 2026-10-11).
 
 ## Logo-link handoff for Claude Code (2026-10-11)
 
@@ -21,7 +21,8 @@ Location: `~/Desktop/Github/nyc-tenant-assistant-push-2`, branch `main` at `b7d7
   journey follows the rendered logo to chat. Manual browser clicking and
   visual checks remain unverified because the saved browser access restriction
   from the prior task is unresolved.
-- **Integration:** PR publication is next. Claude should check branch, HEAD,
+- **Integration:** [PR #67](https://github.com/ChocoAChip2/NYC-Tenant-Assistant/pull/67)
+  is open; branch `fix/logo-home-link` is pushed. Claude should check branch, HEAD,
   status and the diff against fresh main before reviewing/integrating. Do not
   discard unrelated work in the main clone. Finish the manual signed-in and
   signed-out logo checks when browser access is available. The owner merges;
