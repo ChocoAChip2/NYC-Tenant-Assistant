@@ -17,6 +17,7 @@ from flask import render_template, request, session
 
 import area_service
 import branding
+import i18n
 import law_service
 import usage_metrics
 from rate_limit import limiter
@@ -184,11 +185,11 @@ def register(bp):
         """Public: what is counted, what never is, how long it is kept."""
         return render_template(
             "privacy.html",
-            title=branding.PRIVACY_TITLE,
-            lede=branding.PRIVACY_LEDE,
-            sections=branding.PRIVACY_SECTIONS,
-            account_title=branding.PRIVACY_ACCOUNT_TITLE,
-            account_text=branding.PRIVACY_ACCOUNT_TEXT,
+            title=i18n.gettext(branding.PRIVACY_TITLE),
+            lede=i18n.gettext(branding.PRIVACY_LEDE),
+            sections=i18n.translated(branding.PRIVACY_SECTIONS),
+            account_title=i18n.gettext(branding.PRIVACY_ACCOUNT_TITLE),
+            account_text=i18n.gettext(branding.PRIVACY_ACCOUNT_TEXT),
             logged_in=bool(session.get("user_id")),
         )
 

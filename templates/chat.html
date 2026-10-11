@@ -3,7 +3,8 @@
 {% from "_info.html" import info as info_tip, info_assets %}
 {% from "_your_data.html" import your_data_button, your_data_popover with context %}
 {% from "_greeting.html" import greeting with context %}
-<html lang="en">
+{% from "_language.html" import language_form with context %}
+<html lang="{{ html_lang() }}">
 <head>
   <meta charset="UTF-8">
   <meta name="color-scheme" content="light dark">
@@ -804,6 +805,7 @@
         <a class="ref-link" href="https://hcr.ny.gov/" target="_blank" rel="noopener noreferrer">NY State HCR</a>
       </div>
     </div>
+    {{ language_form() }}
   </header>
   <div id="chats-backdrop" class="chats-backdrop" aria-hidden="true"></div>
 

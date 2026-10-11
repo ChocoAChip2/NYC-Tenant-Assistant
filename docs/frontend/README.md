@@ -26,6 +26,7 @@ CSS rule you don't recognise in these templates.**
 | [info-tips.md](info-tips.md) | The "i" button that holds detail, and how short page copy should be |
 | [area-lookup.md](area-lookup.md) | The street + borough search (front page), officials refresh, and the Resources tab |
 | [case-workspace.md](case-workspace.md) | The per-chat "Your data" button and popover, and reviewed RA-81 drafts |
+| [translations.md](translations.md) | The five-language work: how a language is chosen, what is translated so far, and what must happen before a language goes live |
 
 For *why a feature exists* (as opposed to how it's built), see `log/` —
 one file per shipped branch, with the requirement it came from.

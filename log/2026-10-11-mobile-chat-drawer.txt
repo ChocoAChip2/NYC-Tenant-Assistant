@@ -44,3 +44,38 @@ Branch feat/mobile-chat-drawer is pushed. Draft PR #64 is open:
 https://github.com/ChocoAChip2/NYC-Tenant-Assistant/pull/64
 Complete browser checks when access is allowed, then mark it ready for owner
 review. Nothing has been merged.
+
+Browser checks, run 2026-10-11 on the combined branch (drawer + translation
+foundation), headless Chrome on the Mac against the in-memory app
+- 390 px on load: menu button shown (44x44), header New chat shown, the
+  in-drawer New chat hidden, composer on screen, drawer off-screen, inert
+  and aria-hidden, aria-expanded "false", no horizontal overflow.
+- Opening: aria-expanded "true", drawer at the left edge (320 px wide),
+  role dialog, focus on the active conversation, backdrop shown, page
+  scroll locked, the chat behind it inert.
+- Tab from the last item wraps to the first; Shift+Tab from the first
+  wraps to the last.
+- Row "..." trigger is 44x44 and its panel opens in the row (position
+  static) with Rename, Archive, Delete. The first Escape closes only that
+  menu; the second closes the drawer and focus returns to the menu button.
+- Tapping the backdrop closes the drawer. The Archived section is there.
+- "Your data" still opens at 390 px and Escape closes it without touching
+  the drawer. The account menu is still position: static.
+- Three rapid taps on the header New chat created exactly one chat.
+- Widening to 1280 px with the drawer open: the drawer's own resize
+  handler left aria-expanded "false", nothing inert, scroll unlocked, the
+  sidebar back in the page at 250 px.
+- 1280 px: no menu button, no header New chat, sidebar and in-sidebar New
+  chat as before. Screenshots: light closed and dark/light open at 390 px,
+  dark at 1280 px.
+
+Not verified
+- Headless Chrome does not fire the media-query change by itself (it draws
+  no frames), so the resize case was run by sending that event to the
+  page's own listener after the width changed. A real browser firing it
+  on a real resize or rotation was not observed.
+- No screen reader was used. The attributes it relies on were checked.
+- Tapping a conversation link closes the drawer and navigates; only the
+  closing was read in the code, not driven, because the navigation ends
+  the test page.
+- Not checked on a real phone or on Render.

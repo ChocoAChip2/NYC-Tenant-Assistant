@@ -102,6 +102,11 @@ PRIVACY_SECTIONS = [
         "intro": "If your browser sends the Global Privacy Control signal, your visits are not counted at all.",
         "points": [],
     },
+    {
+        "title": "Your language",
+        "intro": "If you pick a language, that choice is remembered on this device, and on your account if you are signed in. It is not used for the counts.",
+        "points": [],
+    },
 ]
 PRIVACY_ACCOUNT_TITLE = "Your account and chats"
 PRIVACY_ACCOUNT_TEXT = (
@@ -241,20 +246,30 @@ def register(app) -> None:
     stays green about.
     """
 
+    # Translation is set up here because this is the one function both
+    # create_app() and the test-app helper already call (see i18n.py).
+    import i18n
+
+    i18n.init_app(app)
+
     @app.context_processor
     def _inject_branding():
+        _ = i18n.gettext
+        # The constants above stay plain English strings (everything that
+        # compares or reuses them depends on that); they are translated
+        # here, where they are used. The product name is a name: untouched.
         return {
             "product_name": PRODUCT_NAME,
             "logo_monogram": LOGO_MONOGRAM,
-            "short_disclaimer": SHORT_DISCLAIMER,
-            "top_disclaimer": TOP_DISCLAIMER,
-            "top_disclaimer_detail": TOP_DISCLAIMER_DETAIL,
-            "privacy_note_title": PRIVACY_NOTE_TITLE,
-            "privacy_note": PRIVACY_NOTE,
-            "privacy_note_detail": PRIVACY_NOTE_DETAIL,
-            "law_page_note_detail": LAW_PAGE_NOTE_DETAIL,
-            "per_message_disclaimer": PER_MESSAGE_DISCLAIMER,
-            "learn_more_label": LEARN_MORE_LABEL,
-            "privacy_label": PRIVACY_LABEL,
-            "law_page_note": LAW_PAGE_NOTE,
+            "short_disclaimer": _(SHORT_DISCLAIMER),
+            "top_disclaimer": _(TOP_DISCLAIMER),
+            "top_disclaimer_detail": _(TOP_DISCLAIMER_DETAIL),
+            "privacy_note_title": _(PRIVACY_NOTE_TITLE),
+            "privacy_note": _(PRIVACY_NOTE),
+            "privacy_note_detail": _(PRIVACY_NOTE_DETAIL),
+            "law_page_note_detail": _(LAW_PAGE_NOTE_DETAIL),
+            "per_message_disclaimer": _(PER_MESSAGE_DISCLAIMER),
+            "learn_more_label": _(LEARN_MORE_LABEL),
+            "privacy_label": _(PRIVACY_LABEL),
+            "law_page_note": _(LAW_PAGE_NOTE),
         }
