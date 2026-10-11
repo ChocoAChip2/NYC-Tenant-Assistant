@@ -104,6 +104,76 @@ class ChatPageRenderTests(unittest.TestCase):
         self.assertIn('id="greeting-text"', body)
         self.assertIn('id="greeting-date"', body)
 
+    def test_no_active_conversation_keeps_its_date_and_chips_with_the_new_line(self):
+        app = _build_test_app(FakeSupabaseService(), FakeAIService(ready=True))
+        client = app.test_client()
+        _logged_in_session(client)
+
+        body = client.get("/chat").get_data(as_text=True)
+
+        self.assertIn('<p class="greeting-sub">How can I help you today?</p>', body)
+        self.assertNotIn("Ask about repairs, evictions, deposits", body)
+        self.assertIn("Look up my street", body)
+        self.assertIn("Continue with your building", body)
+        self.assertIn("data-prompt=", body)
+        self.assertEqual(body.count('id="greeting-text"'), 1)
+        self.assertNotIn('id="fresh-greeting"', body)
+        self.assertNotIn('class="chat-area is-fresh"', body)
+
+    def test_an_empty_conversation_opens_with_the_greeting_above_one_composer(self):
+        service = FakeSupabaseService(
+            conversations=[{"id": "c1", "title": "New conversation", "created_at": "", "updated_at": ""}], messages=[])
+        app = _build_test_app(service, FakeAIService(ready=True))
+        client = app.test_client()
+        _logged_in_session(client)
+        with client.session_transaction() as session:
+            session["first_name"] = "Ana"
+
+        response = client.get("/chat?conversation_id=c1")
+
+        self.assertEqual(response.status_code, 200)
+        body = response.get_data(as_text=True)
+        self.assertIn('<div class="chat-area is-fresh" id="chat-area">', body)
+        self.assertIn('id="fresh-greeting"', body)
+        self.assertIn('<h1 class="greeting-title" id="greeting-text">Welcome, Ana</h1>', body)
+        self.assertIn('<p class="greeting-sub">How can I help you today?</p>', body)
+        self.assertEqual(body.count('id="greeting-text"'), 1)
+        self.assertEqual(body.count('<form id="chat-form"'), 1)
+        self.assertEqual(body.count('id="message-input"'), 1)
+        self.assertLess(body.index('id="fresh-greeting"'), body.index('<form id="chat-form"'))
+        self.assertNotIn('id="greeting-date"', body)
+        self.assertNotIn("Look up my street", body)
+        self.assertIn('id="char-count"', body)
+        self.assertIn("leaveFreshChat();", body)
+
+    def test_an_empty_conversation_falls_back_to_the_email_handle(self):
+        service = FakeSupabaseService(
+            conversations=[{"id": "c1", "title": "New conversation", "created_at": "", "updated_at": ""}], messages=[])
+        app = _build_test_app(service, FakeAIService(ready=True))
+        client = app.test_client()
+        _logged_in_session(client)
+
+        body = client.get("/chat?conversation_id=c1").get_data(as_text=True)
+
+        self.assertIn('id="greeting-text">Welcome, Tenant</h1>', body)
+
+    def test_a_conversation_with_messages_has_no_greeting(self):
+        service = FakeSupabaseService(
+            conversations=[{"id": "c1", "title": "Broken heat", "created_at": "", "updated_at": ""}],
+            messages=[{"role": "user", "content": "No heat", "created_at": ""}],
+        )
+        app = _build_test_app(service, FakeAIService(ready=True))
+        client = app.test_client()
+        _logged_in_session(client)
+
+        body = client.get("/chat?conversation_id=c1").get_data(as_text=True)
+
+        self.assertIn('<div class="chat-area" id="chat-area">', body)
+        self.assertNotIn('id="fresh-greeting"', body)
+        self.assertNotIn('id="greeting-text"', body)
+        self.assertNotIn("How can I help you today?", body)
+        self.assertEqual(body.count('<form id="chat-form"'), 1)
+
     def test_archived_conversations_render_in_collapsible_section(self):
         service = FakeSupabaseService(
             conversations=[{"id": "c1", "title": "Active chat", "archived_at": None}],

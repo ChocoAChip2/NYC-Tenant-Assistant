@@ -185,7 +185,7 @@ class SignupRouteTests(_Keys):
 
     def _post(self, service=None, **overrides):
         service = service or FakeSupabase()
-        data = {"email": "ana@example.com", "password": "correct horse battery", **SIGNUP_PROFILE, **overrides}
+        data = {"email": "ana@example.com", "password": "Correct horse battery 1!", **SIGNUP_PROFILE, **overrides}
         return _app(service).test_client().post("/signup", data=data), service
 
     def test_profile_reaches_supabase_encrypted(self):
@@ -215,7 +215,7 @@ class SignupRouteTests(_Keys):
         self.assertIn('value="R1vera"', body)
         self.assertIn('value="1990-05-17"', body)
         self.assertIn('value="ana@example.com"', body)
-        self.assertNotIn("correct horse battery", body)
+        self.assertNotIn("Correct horse battery 1!", body)
 
     def test_typed_values_are_escaped_when_echoed(self):
         body = self._post(first_name='"><script>x</script>')[0].get_data(as_text=True)
@@ -239,7 +239,7 @@ class SignupRouteTests(_Keys):
 class GreetingTests(_Keys):
     def _login(self, user_metadata):
         client = _app(FakeSupabase(user_metadata=user_metadata)).test_client()
-        client.post("/login", data={"email": "ana.r@example.com", "password": "pw"})
+        client.post("/login", data={"email": "ana.r@example.com", "password": "Str0ng!pass"})
         with client.session_transaction() as session:
             return session.get("first_name")
 
