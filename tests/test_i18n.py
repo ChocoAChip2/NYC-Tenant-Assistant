@@ -534,8 +534,9 @@ class NothingLeftUnwrappedTests(unittest.TestCase):
         for text in ("Assistant is thinking", "Good morning", "Connection interrupted. Your message is still below; please try again.",
                      "Saved. Your next reply will use it.", "%(count)s characters left", "Review RA-81 draft %(number)s"):
             self.assertIn('{{ gettext("%s")|tojson }}' % text, chat)
-        for name, source in ((n, s) for n, s in ((os.path.basename(p), open(p, encoding="utf-8").read())
-                                                 for p in glob.glob(os.path.join(_TEMPLATES, "*.html")))):
+        for path in glob.glob(os.path.join(_TEMPLATES, "*.html")):
+            with open(path, encoding="utf-8") as handle:
+                name, source = os.path.basename(path), handle.read()
             for block in re.findall(r"<script\b[^>]*>(.*?)</script>", source, re.S):
                 for literal in re.findall(r'(?<!gettext\()"([A-Z][a-z]+(?: [a-z\']+){2,}[.…]?)"', block):
                     self.fail(f"{name}: script string {literal!r} is not passed through gettext")

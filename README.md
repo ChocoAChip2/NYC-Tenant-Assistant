@@ -13,6 +13,7 @@ Render and Supabase work together in this project when these are set correctly:
 - `FLASK_SECRET_KEY` (any strong random string — **required, no default**; see below)
 - `ALERT_WEBHOOK_URL` (optional; see [Error alerting](#error-alerting))
 - `NYC_OPEN_DATA_APP_TOKEN` (optional; a free Socrata app token gives the building lookup its own rate limit instead of the shared public pool)
+- `SIGN_IN_CODES_ENABLED` (optional; set to `1` to offer emailed sign-in codes in Settings, only once Supabase sends from your own mail server and the "Magic link or OTP" template contains `{{ .Token }}`)
 - `PASSWORD_BREACH_CHECK` (optional; set to `off` to disable the breached-password check on a deployment with no outbound network access)
 
 Render start command:
@@ -56,8 +57,11 @@ moment.
 Set `ALERT_WEBHOOK_URL` to a Slack or Discord incoming webhook URL (or any
 endpoint that accepts a JSON POST with a `text` field) and every `ERROR`-level
 log record — including every `logger.exception(...)` call — is also posted
-there. This is wired up in `alerting.py` and attached to the root logger in
-`app.py`, so it needs no per-call-site changes. It's stdlib-only
+there, scrubbed: the message template, the exception type and file:line of
+each frame, never the exception text or `%s` values (see
+`docs/data-architecture-and-privacy.md` section 9). This is wired up in
+`alerting.py` and attached to the root logger in `app.py`, so it needs no
+per-call-site changes. It's stdlib-only
 (`urllib.request`), so it added no new dependency.
 
 If `ALERT_WEBHOOK_URL` is unset, alerting is a no-op and behavior is unchanged

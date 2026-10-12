@@ -7,6 +7,7 @@ use). No email is sent and no real account is touched.
 
 import base64
 import json
+import os
 import time
 import unittest
 from pathlib import Path
@@ -566,6 +567,9 @@ class CodeSignInTests(_Case):
 class SettingsSignInCodesTests(_Case):
     def setUp(self):
         super().setUp()
+        patcher = mock.patch.dict(os.environ, {"SIGN_IN_CODES_ENABLED": "1"})
+        patcher.start()
+        self.addCleanup(patcher.stop)
         self.login()
 
     def page(self):
@@ -699,6 +703,48 @@ class SettingsSignInCodesTests(_Case):
         self.client.post("/settings/sign-in-codes/confirm", data={"code": CODE})
         self.client.post("/logout")
         self.assertTrue(self.login().location.endswith("/login/code"))
+
+
+class SignInCodesNotOfferedYetTests(_Case):
+    """Until SIGN_IN_CODES_ENABLED is set, Settings doesn't offer to turn codes on.
+
+    Live 2026-10-11: the project's email can't carry a code yet (built-in
+    sender, link-only template), so the switch led nowhere.
+    """
+
+    def setUp(self):
+        super().setUp()
+        patcher = mock.patch.dict(os.environ, {"SIGN_IN_CODES_ENABLED": ""})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.login()
+
+    def page(self):
+        return self.text(self.client.get("/settings")).replace("&#39;", "'")
+
+    def test_the_switch_is_not_shown_and_posting_it_sends_nothing(self):
+        page = self.page()
+        self.assertNotIn('id="sign-in-codes"', page)
+        self.assertNotIn("Turn on sign-in codes", page)
+        response = self.client.post("/settings/sign-in-codes", data={"turn": "on"})
+        self.assertTrue(response.location.endswith("/settings#sign-in-codes"))
+        self.assertEqual(self.service.codes_sent, [])
+        self.assertNotIn(email_codes.SETTINGS_KEY, self.session())
+
+    def test_an_account_that_has_codes_on_can_still_turn_them_off(self):
+        self.service.metadata[email_codes.METADATA_KEY] = True
+        page = self.page()
+        self.assertIn("<strong>On.</strong>", page)
+        self.assertIn("Turn off sign-in codes", page)
+        self.client.post("/settings/sign-in-codes", data={"turn": "off"})
+        self.assertEqual(self.service.codes_sent, [EMAIL])
+        self.client.post("/settings/sign-in-codes/confirm", data={"code": CODE})
+        self.assertIs(self.service.metadata[email_codes.METADATA_KEY], False)
+
+    def test_the_switch_reads_only_an_explicit_yes(self):
+        for value, expected in (("1", True), ("true", True), ("on", True), ("", False), ("0", False), ("no", False)):
+            with self.subTest(value=value), mock.patch.dict(os.environ, {"SIGN_IN_CODES_ENABLED": value}):
+                self.assertIs(email_codes.available(), expected)
 
 
 class RouteLimitsTests(unittest.TestCase):

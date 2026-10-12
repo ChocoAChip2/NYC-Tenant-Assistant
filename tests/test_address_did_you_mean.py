@@ -185,10 +185,15 @@ class ReadingAnAddressTests(unittest.TestCase):
 
     def test_same_street(self):
         yes = [(("ECHO", "PLACE"), "ECHO PLACE"), (("ECHO",), "ECHO PLACE"), (("EAST", "149", "STREET"), "EAST 149 STREET"),
-               (("BROADWAY", "ASTORIA"), "BROADWAY"), (("37", "AVENUE", "LONG", "ISLAND", "CITY"), "37 AVENUE")]
+               (("BROADWAY", "ASTORIA"), "BROADWAY"), (("37", "AVENUE", "LONG", "ISLAND", "CITY"), "37 AVENUE"),
+               # The geocoder echoes a spelled-out ordinal (live, 2026-10-11): "400 First
+               # Avenue" came back as FIRST AVENUE and was refused as another street.
+               (("1", "AVENUE"), "FIRST AVENUE"), (("5", "AVENUE"), "FIFTH AVENUE"), (("5", "AVENUE"), "5TH AVENUE"),
+               (("WEST", "4", "STREET"), "WEST FOURTH STREET"), (("3", "AVENUE"), "3 AVENUE")]
         no = [(("ECCO", "PLACE"), "BROWN PLACE"), (("ECCO", "PLACE"), "ECHO PLACE"), (("EAST", "149", "STREET"), "WEST 149 STREET"),
               (("EAST", "149", "STREET"), "EAST 149 AVENUE"), (("ASDFGH", "STREET"), "WEST 231 STREET"), ((), "ECHO PLACE"),
-              (("ECHO", "PLACE"), ""), (("PLACE", "ASTORIA"), "PLACE")]
+              (("ECHO", "PLACE"), ""), (("PLACE", "ASTORIA"), "PLACE"), (("1", "AVENUE"), "FIRST PLACE"),
+              (("EAST", "4", "STREET"), "WEST FOURTH STREET"), (("5", "AVENUE"), "SIXTH AVENUE")]
         for words, street in yes:
             with self.subTest(words=words, street=street):
                 self.assertTrue(ss.same_street(words, street))
@@ -325,6 +330,16 @@ class GeocodeChecksItsAnswerTests(_Case):
                                                       feature("231", "ECHO PLACE", "Bronx", "2028100045")]})
         match = bs.geocode("231 Echo Place, Bronx")
         self.assertEqual((match.house_number, match.requested), ("231", None))
+
+    def test_a_spelled_out_ordinal_street_is_the_same_street(self):
+        # Live 2026-10-11: "350 Fifth Avenue, Manhattan" and "400 First Avenue,
+        # Manhattan" were 404s offering "350 5 Avenue" / "400 1 Avenue".
+        self.city(extra_geo={"400 First Avenue, Manhattan": [feature("400", "FIRST AVENUE", "Manhattan", "1009490001")],
+                             "100 West Fourth Street, Manhattan": [feature("50", "WEST FOURTH STREET", "Manhattan", "1005420001")]})
+        match = bs.geocode("400 First Avenue, Manhattan")
+        self.assertEqual((match.bbl, match.house_number, match.requested), ("1009490001", "400", None))
+        match = bs.geocode("100 West Fourth Street, Manhattan")
+        self.assertEqual((match.house_number, match.requested), ("50", "100 West Fourth Street"))
 
     def test_a_different_number_on_the_same_street_is_flagged(self):
         self.city()

@@ -19,11 +19,21 @@ user_metadata[METADATA_KEY], written through the tenant's own session
 response, so login() needs no extra request to read it.
 
 Codes and tokens are never logged.
+
+OFFERED ONLY ONCE EMAIL CAN CARRY A CODE
+Turning codes ON is offered only when SIGN_IN_CODES_ENABLED is set (see
+available()). Until the owner has set up the project's own mail server and
+put {{ .Token }} in the "Magic link or OTP" template, Supabase either
+refuses the email (its built-in sender only delivers to the project team)
+or sends a link instead of a code, so the switch was a dead end (found
+2026-10-11). An account that already has codes on keeps them, and can
+still turn them off.
 """
 
 from __future__ import annotations
 
 import math
+import os
 import re
 import time
 
@@ -42,6 +52,11 @@ SIGN_IN_KEY = "sign_in_code"
 SETTINGS_KEY = "sign_in_code_change"
 
 _CODE_RE = re.compile(r"\d{%d}" % CODE_LENGTH, re.ASCII)
+
+
+def available() -> bool:
+    """Whether Settings may offer to turn codes on (the owner's switch, set in the environment)."""
+    return os.environ.get("SIGN_IN_CODES_ENABLED", "").strip().lower() in {"1", "true", "yes", "on"}
 
 
 def is_on(metadata: dict | None) -> bool:

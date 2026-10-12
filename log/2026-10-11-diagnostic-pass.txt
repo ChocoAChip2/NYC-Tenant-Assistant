@@ -1,0 +1,60 @@
+2026-10-11  Diagnostic pass of main at 6fc29f7, with code fixes
+
+Requirement (owner, 2026-10-11): a full diagnostic pass per the planner's
+brief (Broken / At risk / Unverified), and permission to apply code fixes,
+open one PR and merge it after the full suite passes. Migrations,
+Supabase/Render settings and secrets stay with the owner. No test-account
+sign-in: chat, "Your data" and the greeting were checked in the in-memory
+app only.
+
+Fixed
+- Building search refused real addresses on spelled-out ordinal streets.
+  Live: "400 First Avenue, Manhattan", "1500 Third Avenue, Manhattan",
+  "350 Fifth Avenue, Manhattan" and "100 West Fourth Street, Manhattan"
+  were 404s offering "400 1 Avenue" etc. The geocoder echoes the typed
+  spelling (FIRST AVENUE) while the typed words are normalized to digits;
+  street_suggestions.same_street now normalizes the geocoder's words the
+  same way (_city_words). Regression from PR #62.
+- Phone chat drawer: opening it left focus on <body>. The open state
+  transitioned `visibility` from hidden, so focus() on the active chat was
+  refused. The open rule no longer transitions visibility (closing still
+  slides). Tab was already trapped; this fixes where focus starts.
+- citation_guard WARNING lines quoted the reply (up to 60 characters of a
+  quote, a number, a statute name). Seen in Render's logs (5 such lines in
+  7 days). They now log the violation kind and marker only.
+- Webhook alerts (ALERT_WEBHOOK_URL, not set on Render today) sent the full
+  formatted record, exception text included. They now send the message
+  template, the exception type and file:line frames only.
+- gunicorn.conf.py (new, loaded automatically from the repo root): the
+  access log keeps method, path without query string, status, size and
+  time. Render's log viewer showed /building?address=... lines with the
+  Referer and User-Agent.
+- Settings offered "Turn on sign-in codes", which can't work yet (built-in
+  email sender, link-only template). Now offered only when
+  SIGN_IN_CODES_ENABLED is set; an account with codes on can still turn
+  them off. Login enforcement is unchanged.
+- Login and forgot-password fields gained autocomplete hints (Chrome
+  warned on the login page).
+- tests/test_i18n.py left 25 template files open (ResourceWarning).
+- Docs: HANDOFF (stale commit, PR #67 "open", usage migration "never run",
+  NYSENATE_API_KEY "missing"), i18n.py's fluent-reader comment, README
+  env vars, privacy doc section 9, css-gotchas.
+
+Evidence
+- Full suite before (Mac, venv/bin/python, 6fc29f7): 1133 OK (skipped=1;
+  reportlab not installed). The five risky modules: 207 OK. Same on the
+  cloud copy.
+- Full suite after (cloud copy): 1146 OK (skipped=1).
+- New tests fail on the old code where they check behaviour (guard log
+  test: 2 failures before the routes.py change).
+- Headless Chromium against tools.review_server (in-memory): chat at 1280
+  and 390 px, light and dark; greeting, Your data left of Send, drawer
+  focus now on the active chat after opening, Tab trapped, Escape and
+  backdrop close, tapping a chat navigates and closes, widening resets.
+- gunicorn started locally logged: "GET /resources HTTP/1.1" 200 22795 277ms
+  for a request with a query string and a Referer.
+
+Not fixed (owner)
+- See docs/HANDOFF.md "Diagnostic pass": built-in email sender, weak
+  dashboard password rule, GitHub provider enabled, code template,
+  user_metadata switch, record_usage NULL keys.

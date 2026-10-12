@@ -213,6 +213,11 @@ Optional, turned on in Settings. After a correct password the tenant gets a
   not counted.
 - **"Send a new code"** is refused for 60 seconds after the last one, with
   the wait stated. A half-finished sign-in expires after 15 minutes.
+- **Not offered until it can work.** Settings shows the switch to turn
+  codes on only when `SIGN_IN_CODES_ENABLED` is set (`email_codes.available`).
+  Set it in Render after the project sends its own email and the "Magic
+  link or OTP" template contains `{{ .Token }}`. An account that already
+  has codes on still sees the section and can turn them off.
 - **Settings.** Turning it on or off both need a code from the account's
   inbox. Five wrong codes end the change. If the setting can't be read, the
   section offers no switch rather than the wrong one.
@@ -220,7 +225,12 @@ Optional, turned on in Settings. After a correct password the tenant gets a
   `inputmode="numeric"`; spaces and dashes are forgiven.
 - **What it does not do.** It is enforced by the app, not below it, and it
   adds nothing if the inbox itself is compromised (the reset link goes
-  there too). See `email_codes.py`.
+  there too). See `email_codes.py`. **Known gap (2026-10-11 review):** the
+  switch lives in `user_metadata`, which the account holder can change
+  through the auth API with any session, including one from the password
+  alone. Someone with only the password could turn codes off that way and
+  then sign in through the site. Closing it needs the switch stored where
+  only a code-verified session can change it (a database change; not done).
 
 It depends on project settings that are not in this repository: outgoing
 email that reaches any address, an email template that contains the code,

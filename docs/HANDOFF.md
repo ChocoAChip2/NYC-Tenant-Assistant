@@ -1,34 +1,18 @@
 # SideKick Tidbit: current handoff
 
-Updated: 2026-10-11 (America/New_York). Status is taken from git, `log/` and the test runs recorded under Verification.
-Location: `~/Desktop/Github/nyc-tenant-assistant-push-2`, branch `main` at `610f456` (PR #66, 2026-10-11).
+Updated: 2026-10-12 (America/New_York). Status is taken from git, `log/`, the live site and the dashboards, as recorded under Verification.
+Location: `~/Desktop/Github/nyc-tenant-assistant-push-2`, branch `main`. PRs up to #69 are merged and `6fc29f7` (PR #67) was the deployed commit on Render when the 2026-10-11 diagnostic pass ran; its fixes are in `log/2026-10-11-diagnostic-pass.txt`.
 
-## Logo-link handoff for Claude Code (2026-10-11)
+## Diagnostic pass, 2026-10-11 (owner: fixes allowed; code only)
 
-- **Where to work:** `~/Desktop/Github/sidekick-logo-home-link`, branch
-  `fix/logo-home-link`, based on `main` at `610f456` (PR #66). The files are
-  already in the shared Github folder; no copy from Codex is needed.
-  `~/Desktop/Github/INDEX.md` points here.
-- **Objective and decision:** public-page logos go to `/chat` when the session
-  has `user_id`, otherwise `/`. `/` remains street search. The one `home_url`
-  context value in `routes.py` supplies all seven public templates.
-- **Completed:** routes.py context value; logo hrefs in area, building,
-  resources, law, law_index, learn_more and privacy; regressions in
-  `tests/test_home_page.py`; change log and index. Chat/settings templates,
-  page layouts and in-page search links are unchanged.
-- **Verification:** 177 tests pass in the six requested modules; full suite
-  1120 OK (1 skipped); diff whitespace check passes. The offline street-search
-  journey follows the rendered logo to chat. Manual browser clicking and
-  visual checks remain unverified because the saved browser access restriction
-  from the prior task is unresolved.
-- **Integration:** [PR #67](https://github.com/ChocoAChip2/NYC-Tenant-Assistant/pull/67)
-  is open; branch `fix/logo-home-link` is pushed. Claude should check branch, HEAD,
-  status and the diff against fresh main before reviewing/integrating. Do not
-  discard unrelated work in the main clone. Finish the manual signed-in and
-  signed-out logo checks when browser access is available. The owner merges;
-  this task does not authorize an agent to merge.
-- **Evidence:** `log/2026-10-11-logo-home-link.txt`. Earlier project work and
-  remaining translation tasks are retained below.
+- **Fixed in code** (see the log): real addresses on spelled-out ordinal streets ("400 First Avenue", "350 Fifth Avenue") were 404s; focus did not move into the phone chat drawer; `citation_guard` WARNING lines quoted the reply; webhook alerts carried exception text; the gunicorn access log kept `?address=` query strings and Referers; Settings offered sign-in codes that can't be delivered yet (now behind `SIGN_IN_CODES_ENABLED`); login fields lacked autocomplete hints.
+- **Owner decisions/actions, one named change at a time** (nothing here was changed by the pass):
+  1. Supabase sends auth email with the **built-in sender** (custom SMTP off). It only delivers to the project team, 2 per hour, so sign-up confirmation and password-reset emails cannot reach real tenants while "Confirm email" is on. Set up a mail server first; everything email-based depends on it.
+  2. Supabase password rule is **6 characters, letters and digits**; the app requires 8 with lower, upper, digit and symbol. Raise the dashboard rule so the auth API refuses weak passwords too.
+  3. The **GitHub** sign-in provider is enabled in Supabase; the app has no GitHub sign-in. Disable it unless it is wanted.
+  4. "Magic link or OTP" template is still the default link email (no `{{ .Token }}`); OTP expiry is 3600 s.
+  5. Sign-in codes switch lives in `user_metadata`, which a password-only session can change through the auth API (see `docs/frontend/auth-and-settings-pages.md`). Needs a small database change before codes are offered.
+  6. `record_usage` errors (whole batch lost) on a row missing its `event` or `dim` key, because the NULL checks fall through. The app always sends both keys. A one-line `coalesce` fix needs a migration.
 
 ## Objective
 
@@ -73,7 +57,7 @@ PRs #53, #55 and #56 (street lookup and Resources; case workspace and reviewed R
 
 ## Unresolved
 
-- Owner items from the old checklist, not confirmed done: add GitHub secret `NYSENATE_API_KEY` (until then the quarterly refresh skips state law), and run the post-deploy checks on Render (sign-up with `password` is refused; one real `/building` lookup works).
+- `NYSENATE_API_KEY` is set as a GitHub secret (seen masked in the 2026-10-01 and 2026-10-07 workflow logs). One real `/building` lookup works on Render (2026-10-11). A sign-up with a weak password on Render was not submitted.
 - A brand-new database can't be built from `supabase/migrations/` alone: the original conversations/messages tables predate tracked migrations. Fixing this is separate engineering work; it would remove the need for live-DB migration tests.
 - The live library holds Real Property Law `233-b*2` (Campgrounds), which the `/law/<citation>` number pattern rejects (404). The index lists it without a link. Owner decision: widen the pattern, or leave it.
 - Not yet confirmed in a live session: that Claude Code loads `CLAUDE.md` and the imported `AGENTS.md` here (check once with `/memory` in Claude Code started in this folder).
@@ -82,8 +66,8 @@ PRs #53, #55 and #56 (street lookup and Resources; case workspace and reviewed R
 
 Owner steps left over from today's merges:
 1. Sign-in codes (#60): confirm the project sends auth email through its own mail server and raise the hourly auth-email limit. Then, from Claude Desktop, one change at a time: the "Magic Link" template to a code email containing `{{ .Token }}`, code expiry at 1 hour or less, and the dashboard password rule. Then a live check with a real inbox.
-2. Usage counts (#63): the migration has never been run. With a go-ahead for that run, test it in a rolled-back transaction, apply it, rename the file to the recorded version, run `supabase/checks/20261011_usage_counts_checks.sql` and the advisors. Until then nothing is recorded.
-3. Live checks on Render: `/law` shows 426 sections; a real chat fills in "Your data"; a new chat opens with the greeting; "231 Ecco Place, Bronx" offers 231 Echo Place. On a real phone: the chat list opens as a drawer from the menu button, and rotating to landscape with it open leaves a normal page.
+2. Usage counts (#63): the migration **is applied** (live history has `20261011212103 usage_daily_counts`, matching the file) and counts were recorded on 2026-10-11; the purge job is scheduled. Its log and the file's header still say "not applied": historical. Left: the `record_usage` NULL-key fix above.
+3. Live checks on Render, 2026-10-11: `/law` shows 426 sections in 11 laws (425 linked; `233-b*2` unlinked as known); "231 Ecco Place, Bronx" is a 404 offering 231 Echo Place with no Brown Place; signed-out and signed-in logo links go to `/` and `/chat`. Still open: a real chat filling in "Your data", the greeting on a real account, and the drawer on a real phone.
 4. A lawyer's read of the privacy page wording.
 
 Translation work, in order (steps 1 and 2, wrapping the text and the English-reference display, are done):

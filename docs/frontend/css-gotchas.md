@@ -132,3 +132,19 @@ The drawer backdrop uses z-index 60 and the drawer 61. Keep both above the
 Your data layers (40–45) and info tips (50). Otherwise an already-visible tip
 or bottom sheet can paint above the modal backdrop while the rest of the page
 is inert, leaving an apparently interactive control that cannot be used.
+
+
+---
+
+## `.sidebar.is-open` drops the `visibility` transition
+
+**In:** `chat.html`
+
+On phones the closed drawer is `visibility: hidden`, and the base rule
+transitions `visibility` so the drawer stays painted while it slides out.
+The open rule must **not** transition `visibility`: with it, the drawer is
+still computed as hidden at the moment `openChatsDrawer()` calls `focus()`,
+the browser refuses to focus a hidden element, and focus falls back to
+`<body>` instead of moving into the dialog (found 2026-10-11 in headless
+Chromium: focus stayed on `BODY` after opening). Opening shows the drawer at
+once; closing still keeps it visible for the 0.2 s slide.
