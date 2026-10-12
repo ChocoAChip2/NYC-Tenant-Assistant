@@ -31,6 +31,7 @@ locked in below so a future edit can't silently reintroduce the bug.
 """
 
 import os
+import re
 import unittest
 
 import flask
@@ -277,6 +278,18 @@ class MobileDrawerLayoutTests(unittest.TestCase):
         self.assertNotIn(".layout { flex-direction: column; }", template)
         self.assertIn("height: 100dvh;", template)
         self.assertIn("width: min(320px, 85vw);", template)
+
+    def test_opening_does_not_animate_visibility_so_focus_can_move_in(self):
+        # With visibility still transitioning from hidden, focus() inside the
+        # just-opened drawer is refused and lands on <body> (2026-10-11).
+        # See docs/frontend/css-gotchas.md.
+        with open(os.path.join(_TEMPLATES_DIR, "chat.html")) as source:
+            template = source.read()
+        rule = re.search(r"\.sidebar\.is-open \{([^}]*)\}", template)
+        self.assertIsNotNone(rule)
+        self.assertIn("visibility: visible", rule.group(1))
+        self.assertIn("transition:", rule.group(1))
+        self.assertNotIn("visibility .", rule.group(1).split("transition:", 1)[1])
 
 
 if __name__ == "__main__":

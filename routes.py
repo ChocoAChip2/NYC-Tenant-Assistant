@@ -1112,7 +1112,10 @@ def _ground_reply(user_client, question, history, context=None):
             _guard_mode().value,
         )
         for violation in result.violations:
-            logger.warning("citation_guard: %s -- %s", violation.kind, violation.detail)
+            # Kind and marker only. violation.detail quotes the reply (a
+            # quote, a number, a statute name), and a reply can repeat what
+            # the tenant wrote; it must not reach the server logs.
+            logger.warning("citation_guard: %s at %s", violation.kind, violation.marker or "-")
             usage_metrics.record("guard_violation", violation.kind)
 
         if _guard_mode() == citation_guard.GuardMode.ENFORCE:
@@ -1665,6 +1668,7 @@ def settings():
         dob_max=profile_service.latest_allowed_birthday(today).isoformat(),
         dob_min=f"{today.year - profile_service.MAX_AGE}-01-01",
         sign_in_codes_on=sign_in_codes_on,
+        sign_in_codes_available=email_codes.available(),
         sign_in_code_change=code_change,
         sign_in_code_resend_wait=email_codes.seconds_until_resend(code_change.get("sent_at")) if code_change else 0,
     )
@@ -1687,6 +1691,9 @@ def request_sign_in_code_change():
         return redirect(url_for("main.login"))
     turn = request.form.get("turn")
     if turn not in ("on", "off"):
+        return _settings_codes()
+    if turn == "on" and not email_codes.available():
+        # Not offered yet (email_codes.available); nothing is sent.
         return _settings_codes()
     current = session.get(email_codes.SETTINGS_KEY)
     wait = email_codes.seconds_until_resend(current.get("sent_at")) if email_codes.is_open(current) else 0

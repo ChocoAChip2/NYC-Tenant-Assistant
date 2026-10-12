@@ -84,7 +84,8 @@ LANGUAGES = {
 }
 
 # Languages a tenant can actually get. See the module docstring before
-# adding one: its legal wording must have been reviewed by a fluent reader.
+# adding one: its catalogue must be filled and compiled (machine
+# translation, no fluent-reader gate since 2026-10-11).
 LIVE_LANGUAGES = ("en",)
 
 COOKIE_NAME = "lang"

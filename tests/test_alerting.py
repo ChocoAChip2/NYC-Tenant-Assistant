@@ -6,6 +6,7 @@ network call, and there is no live webhook to hit anyway.
 
 import json
 import logging
+import sys
 import unittest
 from unittest import mock
 
@@ -50,9 +51,57 @@ class WebhookAlertHandlerTests(unittest.TestCase):
 
             payload = json.loads(mock_urlopen.call_args[0][0].data.decode("utf-8"))
             self.assertIn("Failed to generate AI response.", payload["text"])
-            self.assertIn("ValueError: boom", payload["text"])
+            self.assertIn("ValueError", payload["text"])
+            self.assertIn("test_alerting.py:", payload["text"])
         finally:
             self.logger.removeHandler(handler)
+
+    def test_exception_text_never_leaves_for_the_webhook(self):
+        # An exception message can hold a lookup URL with an address in it,
+        # or a database error quoting a row. Only the type and frames go out.
+        handler = WebhookAlertHandler("https://hooks.example.com/webhook")
+        handler.setFormatter(logging.Formatter("%(levelname)s %(message)s"))
+        self.logger.addHandler(handler)
+        try:
+            with mock.patch("alerting.urllib.request.urlopen") as mock_urlopen:
+                try:
+                    try:
+                        raise OSError("GET https://geosearch.example/v2/search?text=231+Echo+Place")
+                    except OSError as inner:
+                        raise RuntimeError("Key (title)=(eviction at 12 Secret Lane) already exists") from inner
+                except RuntimeError:
+                    self.logger.exception("Unexpected failure in building lookup.")
+
+            text = json.loads(mock_urlopen.call_args[0][0].data.decode("utf-8"))["text"]
+            self.assertIn("Unexpected failure in building lookup.", text)
+            self.assertIn("RuntimeError", text)
+            self.assertIn("OSError", text)
+            for leaked in ("Echo", "Secret Lane", "geosearch", "Traceback"):
+                self.assertNotIn(leaked, text)
+        finally:
+            self.logger.removeHandler(handler)
+
+    def test_values_passed_to_the_message_are_left_out(self):
+        handler = WebhookAlertHandler("https://hooks.example.com/webhook")
+        self.logger.addHandler(handler)
+        try:
+            with mock.patch("alerting.urllib.request.urlopen") as mock_urlopen:
+                self.logger.error("failed on message %s", "my landlord at 12 Secret Lane")
+            text = json.loads(mock_urlopen.call_args[0][0].data.decode("utf-8"))["text"]
+            self.assertIn("failed on message %s", text)
+            self.assertNotIn("Secret Lane", text)
+        finally:
+            self.logger.removeHandler(handler)
+
+    def test_the_record_itself_is_not_changed_for_other_handlers(self):
+        handler = WebhookAlertHandler("https://hooks.example.com/webhook")
+        try:
+            raise ValueError("kept for the server log")
+        except ValueError:
+            record = self.logger.makeRecord("t", logging.ERROR, __file__, 1, "msg", (), sys.exc_info())
+        with mock.patch("alerting.urllib.request.urlopen"):
+            handler.emit(record)
+        self.assertIn("kept for the server log", logging.Formatter().format(record))
 
     def test_records_below_error_level_are_not_posted(self):
         handler = WebhookAlertHandler("https://hooks.example.com/webhook")

@@ -154,11 +154,14 @@ added in a hurry and plaintext tenant messages are flowing to a third
 party, outside every boundary described above, permanently, in someone's
 chat history.
 
-Add a scrub in `alerting.py` (drop anything matching the ciphertext
-envelope prefix, truncate long free text, redact email addresses), and a
-test that a log record containing a known message body does not reach the
-webhook payload intact. This is cheap and it closes the most realistic
-plaintext-egress path in the current codebase.
+**Done 2026-10-11** (`WebhookAlertHandler.scrubbed`): the webhook gets the
+log call's message *template* (no `%s` values), the exception's type and
+the file:line of each frame, and nothing else: no exception text, which is
+where lookup URLs with addresses and database errors quoting rows turned
+up. The full record still goes to the server log. `tests/test_alerting.py`
+checks that a known address and a known message body never reach the
+payload. The same day, `citation_guard` WARNING lines stopped quoting the
+reply, and the gunicorn access log stopped recording query strings.
 
 ## 10. Retention, while the subject is open
 

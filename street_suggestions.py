@@ -182,6 +182,15 @@ def same_number(typed: str | None, found: str | None) -> bool:
     return bool(_number_key(typed)) and _number_key(typed) == _number_key(found)
 
 
+def _city_words(city_street: str) -> list[str]:
+    """'WEST FOURTH STREET' -> ['WEST', '4', 'STREET']; '5TH AVENUE' -> ['5', 'AVENUE']."""
+    out = []
+    for word in city_street.upper().replace(".", "").split():
+        word = re.sub(r"^(\d+)(ST|ND|RD|TH)$", r"\1", word)
+        out.append(area_service._SPELLED_ORDINALS.get(word, word))
+    return out
+
+
 def same_street(typed_words, city_street: str) -> bool:
     """Is the geocoder's street the one that was typed?
 
@@ -193,6 +202,11 @@ def same_street(typed_words, city_street: str) -> bool:
     words = list(typed_words)
     if not words or not city_street:
         return False
+    # The geocoder echoes the spelling it was given ("400 First Avenue"
+    # comes back as FIRST AVENUE, "350 5th Ave" as 5 AVENUE), while typed
+    # words are already normalized to digits by area_service.street_words.
+    # Normalize the city's words the same way before comparing.
+    city_street = " ".join(_city_words(city_street))
     if area_service._matches(words, city_street):
         return True
     typed_set = set(words)

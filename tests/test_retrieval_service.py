@@ -290,6 +290,25 @@ class ChatRouteGroundingTests(unittest.TestCase):
         self.assertIn("§ 27-2029", payload["reply"])
         self.assertNotIn("[S1]", payload["reply"])
 
+    def test_guard_log_lines_name_the_problem_but_quote_nothing_from_the_reply(self):
+        # The reply can repeat what the tenant wrote; Render keeps WARNING
+        # lines. 2026-10-11: quote_not_in_source logged 60 characters of the quote.
+        passage = Passage(marker="S1", text="at least 62 degrees Fahrenheit", citation="27-2029")
+        app, client, ai = self._app(
+            reply='You said "my apartment 4B at 12 Secret Lane has no heat" [S1]. It must be 70 degrees [S1].'
+        )
+
+        with mock.patch.dict(os.environ, {"LEGAL_CORPUS_ENABLED": "1"}), mock.patch.object(
+            retrieval_service.RetrievalService, "search", return_value=[passage]
+        ), self.assertLogs("routes", level="WARNING") as logs:
+            self._post(client)
+
+        joined = "\n".join(logs.output)
+        self.assertIn("citation_guard:", joined)
+        self.assertIn("quote_not_in_source", joined)
+        for leaked in ("Secret Lane", "4B", "70 degrees"):
+            self.assertNotIn(leaked, joined)
+
     def test_enforce_mode_strips_the_citation_from_a_failing_reply(self):
         passage = Passage(marker="S1", text="at least 62 degrees Fahrenheit", citation="27-2029")
         app, client, ai = self._app(reply="Under [S1] it must be 70 degrees overnight.")

@@ -423,6 +423,7 @@
       </form>
     </section>
 
+    {% if sign_in_codes_available or sign_in_codes_on or sign_in_code_change %}
     <section class="card" id="sign-in-codes">
       <h2>{{ _("Sign-in codes") }}</h2>
       {% if sign_in_code_change %}
@@ -455,6 +456,7 @@
         </form>
       {% endif %}
     </section>
+    {% endif %}
 
     <section class="card" id="your-data">
       <h2>{{ _("Your data") }}</h2>
