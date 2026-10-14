@@ -161,6 +161,77 @@ def parse_address(text: str | None) -> TypedAddress:
     return TypedAddress(tokens[0], words, borough)
 
 
+@dataclass(frozen=True)
+class StreetSearch:
+    """What a whole address typed into the street box comes down to."""
+    street: str                  # the street part only, e.g. "ECHO PLACE"; "" if nothing is left
+    borough: str | None          # named in the text or implied by its ZIP code
+    zip_code: str | None         # a 5-digit NYC ZIP code found in the text
+    number: str | None           # the house number, if the text started with one
+
+
+_UNIT_WORDS = {"APT", "APARTMENT", "UNIT", "FL", "FLOOR", "STE", "SUITE", "RM", "ROOM", "PH"}
+
+
+def _zip_in(tokens) -> str | None:
+    for token in tokens:
+        if _ZIP_RE.match(token) and token[:3] in _ZIP_BOROUGHS:
+            return token
+    return None
+
+
+def read_street_search(raw: str | None) -> StreetSearch:
+    """'231 Echo Pl Apt 3B, Bronx, NY 10457' -> street 'ECHO PL', Bronx, 10457, number 231.
+
+    WHY (owner, 2026-10-14): tenants type their whole address into the
+    front page's street box, and "231 Echo Place, Bronx, NY 10457" came
+    back as "We couldn't find that street" (the borough, state and ZIP
+    were read as part of the street name), "Choose a borough" when the
+    menu was left empty, or not found with an apartment in it. What the
+    street box needs is the street; the rest picks the borough and ZIP.
+
+    Only the first comma-separated part can hold the street. Within it an
+    apartment ("Apt 3B", "#3B", "Unit 4") and anything after it is dropped,
+    then a trailing borough, "NY", "USA" or ZIP (as in parse_address), and
+    then a neighbourhood after the street type ("82nd St Jackson Heights"
+    -> "82nd St"). Later parts only supply a borough or ZIP; a
+    neighbourhood there ("Jackson Heights") is ignored.
+    """
+    segments = (raw or "").split(",")
+    tokens = re.sub(r"[^A-Za-z0-9#' \-]", " ", segments[0]).upper().split()
+    after_unit = []
+    for i, token in enumerate(tokens):
+        if i > 0 and (token in _UNIT_WORDS or token.startswith("#")):
+            # "Apt 3B Bronx NY 10451": the unit goes, what follows it can still name the place.
+            after_unit = tokens[i + (1 if token.startswith("#") and len(token) > 1 else 2):]
+            tokens = tokens[:i]
+            break
+    tokens = [t for t in tokens if not t.startswith("#")]
+    number = None
+    if len(tokens) > 1 and area_service._HOUSE_NUMBER_RE.match(tokens[0]):
+        number, tokens = tokens[0], tokens[1:]
+
+    zip_code = _zip_in(tokens[1:])
+    borough, used = _borough_of(tokens[1:])
+    if used:
+        tokens = tokens[: len(tokens) - used]
+    for words in [after_unit] + [re.sub(r"[^A-Za-z0-9 ]", " ", seg).upper().split() for seg in segments[1:]]:
+        zip_code = zip_code or _zip_in(words)
+        found, _ = _borough_of(words)
+        borough = borough or found
+
+    # A neighbourhood typed after the street type, with no comma.
+    for i, token in enumerate(tokens):
+        kind = area_service._SUFFIXES.get(token, token)
+        rest = tokens[i + 1:]
+        if i > 0 and kind in area_service._STREET_TYPES and rest and not all(
+            area_service._DIRECTIONS.get(w, w) in area_service._DIRECTION_WORDS for w in rest
+        ):
+            tokens = tokens[: i + 1]
+            break
+    return StreetSearch(" ".join(tokens), borough, zip_code, number)
+
+
 def feature_address(props: dict) -> tuple[str, str]:
     """(house number, street) of a geocoder result, in capitals; '' if unknown."""
     number = str(props.get("housenumber") or "").strip().upper()

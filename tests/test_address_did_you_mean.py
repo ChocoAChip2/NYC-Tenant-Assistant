@@ -510,3 +510,101 @@ class BuildingRouteTests(_Case):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ReadingAWholeAddressInTheStreetBoxTests(unittest.TestCase):
+    """street_suggestions.read_street_search (owner, 2026-10-14): tenants type
+    their whole address into the front page's street box."""
+
+    def test_the_street_borough_zip_and_number_are_separated(self):
+        cases = {
+            "231 Echo Place, Bronx, NY 10457": ("ECHO PLACE", "Bronx", "10457", "231"),
+            "231 Echo Place": ("ECHO PLACE", None, None, "231"),
+            "Echo Place": ("ECHO PLACE", None, None, None),
+            "231 Echo Pl Apt 3B, Bronx": ("ECHO PL", "Bronx", None, "231"),
+            "231 Echo Place #3B Bronx NY": ("ECHO PLACE", "Bronx", None, "231"),
+            "231 Echo Place, Apt 3B, Bronx, NY 10457": ("ECHO PLACE", "Bronx", "10457", "231"),
+            "1000 Grand Concourse Apt 5C Bronx NY 10451": ("GRAND CONCOURSE", "Bronx", "10451", "1000"),
+            "37-02 82nd Street, Jackson Heights, NY 11372": ("82ND STREET", "Queens", "11372", "37-02"),
+            "37-02 82nd St Jackson Heights NY 11372": ("82ND ST", "Queens", "11372", "37-02"),
+            "30 Bay St Staten Island NY 10301": ("BAY ST", "Staten Island", "10301", "30"),
+            "550 W 174th St, New York, NY 10033": ("W 174TH ST", "Manhattan", "10033", "550"),
+            "Grand Concourse, The Bronx": ("GRAND CONCOURSE", "Bronx", None, None),
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                got = ss.read_street_search(text)
+                self.assertEqual((got.street, got.borough, got.zip_code, got.number), expected)
+
+    def test_street_names_that_look_like_places_are_kept(self):
+        for text, street in (("100 Queens Blvd", "QUEENS BLVD"), ("5 Bronx Park East", "BRONX PARK EAST"),
+                             ("Park Avenue South", "PARK AVENUE SOUTH"), ("Avenue of the Americas", "AVENUE OF THE AMERICAS"),
+                             ("St Nicholas Ave", "ST NICHOLAS AVE"), ("Broadway", "BROADWAY")):
+            with self.subTest(text=text):
+                got = ss.read_street_search(text)
+                self.assertEqual((got.street, got.borough), (street, None))
+
+
+class StreetBoxAddressRouteTests(_Case):
+    def get(self, query):
+        self.city()
+        response = self.client().get("/area?" + query)
+        return response, html.unescape(response.get_data(as_text=True))
+
+    def test_a_whole_address_with_no_borough_chosen_finds_the_street(self):
+        # Live 2026-10-14: 400 "Choose a borough."
+        response, body = self.get("street=231+Echo+Place%2C+Bronx%2C+NY+10457")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Echo Place, Bronx", body)
+        self.assertIn('<option value="Bronx" selected', body)
+
+    def test_a_whole_address_with_the_borough_chosen_finds_the_street(self):
+        # Live 2026-10-14: 404 "We couldn't find that street".
+        response, body = self.get("street=231+Echo+Place%2C+Bronx%2C+NY+10457&borough=Bronx")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("couldn't find", body)
+
+    def test_an_apartment_in_the_street_box_is_ignored(self):
+        for street in ("231+Echo+Place+Apt+3B", "231+Echo+Place+%233B", "231+Echo+Place%2C+Apt+3B"):
+            with self.subTest(street=street):
+                response, _ = self.get(f"street={street}&borough=Bronx")
+                self.assertEqual(response.status_code, 200)
+
+    def test_a_house_number_links_to_that_buildings_own_record(self):
+        response, body = self.get("street=231+Echo+Place+Apt+3B%2C+Bronx")
+        self.assertIn('Your building: <a href="/building?address=231+Echo+Place,+Bronx">231 Echo Place, Bronx</a>', body)
+        response, body = self.get("street=Echo+Place&borough=Bronx")
+        self.assertNotIn("Your building", body)
+
+    def test_a_typed_zip_narrows_but_never_blocks(self):
+        response, body = self.get("street=231+Echo+Place%2C+Bronx%2C+NY+10457")
+        self.assertIn("ZIP 10457", body)
+        # No lots on the street in this ZIP: the whole street, not an error.
+        response, body = self.get("street=231+Echo+Place%2C+Bronx%2C+NY+10451")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("ZIP 10451", body)
+        # The ZIP box is the tenant's own choice and is still checked.
+        response, body = self.get("street=Echo+Place&borough=Bronx&zip=10451")
+        self.assertEqual(response.status_code, 400)
+
+    def test_the_menu_wins_over_a_borough_in_the_text(self):
+        response, body = self.get("street=Echo+Place%2C+Brooklyn&borough=Bronx")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Echo Place, Bronx", body)
+
+    def test_a_typo_in_a_whole_address_still_gets_did_you_mean(self):
+        response, body = self.get("street=231+Ecco+Place%2C+Bronx%2C+NY+10457")
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("Echo Place, Bronx", body)
+        self.assertIn("Did you mean", body)
+
+
+class StreetQueryTimeoutTests(unittest.TestCase):
+    def test_street_wide_city_queries_get_the_longer_limit_and_one_building_does_not(self):
+        self.assertEqual(bs._timeout_for(area_service.PLUTO_URL, {"$where": "borough='BX' AND address like '% ECHO PLACE'"}),
+                         bs.SLOW_QUERY_TIMEOUT_SECONDS)
+        self.assertEqual(bs._timeout_for(bs.VIOLATIONS_URL, {"$where": "boroid='2' AND streetname='ECHO PLACE'"}),
+                         bs.SLOW_QUERY_TIMEOUT_SECONDS)
+        self.assertEqual(bs._timeout_for(bs.VIOLATIONS_URL, {"$where": bs._building_where("2028100045")}),
+                         bs.REQUEST_TIMEOUT_SECONDS)
+        self.assertEqual(bs._timeout_for(bs.GEOSEARCH_URL, {"text": "231 Echo Place"}), bs.REQUEST_TIMEOUT_SECONDS)

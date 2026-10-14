@@ -65,6 +65,13 @@ HPD_CLEAR_VIOLATIONS_URL = "https://www.nyc.gov/site/hpd/services-and-informatio
 HPD_VIOLATIONS_DATASET_URL = "https://data.cityofnewyork.us/Housing-Development/Housing-Maintenance-Code-Violations/wvxf-dwi5"
 
 REQUEST_TIMEOUT_SECONDS = 6.0
+# Street-wide queries on NYC Open Data (every tax lot on a street, every
+# open violation on a street) took 2 to 5.5 s from a Mac on 2026-10-14 and
+# came close to the 6 s limit from Render, where the first search of a
+# long street sometimes ended in "The city's data service didn't respond".
+# They get longer; everything else keeps the short limit.
+SLOW_QUERY_TIMEOUT_SECONDS = 15.0
+_SLOW_DATASETS = ("/resource/64uk-42ks.json", "/resource/wvxf-dwi5.json")
 
 # How long a building's report is reused before the city is asked again.
 # The dataset itself only updates daily, so an hour costs nothing in
@@ -425,6 +432,13 @@ def _parse_date(value) -> date | None:
 # ---------------------------------------------------------------------------
 
 
+def _timeout_for(url: str, params: dict | None) -> float:
+    """The longer limit only for street-wide queries: a lookup by one building's BBL stays short."""
+    if url.endswith(_SLOW_DATASETS) and "bbl=" not in str((params or {}).get("$where", "")).replace(" ", ""):
+        return SLOW_QUERY_TIMEOUT_SECONDS
+    return REQUEST_TIMEOUT_SECONDS
+
+
 def _get_json(url: str, params: dict | None = None):
     full = f"{url}?{urllib.parse.urlencode(params)}" if params else url
     headers = {"Accept": "application/json", "User-Agent": "SideKick-Tidbit-building-lookup"}
@@ -435,7 +449,7 @@ def _get_json(url: str, params: dict | None = None):
         headers["X-App-Token"] = token
     request = urllib.request.Request(full, headers=headers)
     try:
-        with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT_SECONDS) as response:
+        with urllib.request.urlopen(request, timeout=_timeout_for(url, params)) as response:
             return json.loads(response.read().decode("utf-8"))
     except (urllib.error.URLError, TimeoutError, OSError) as exc:
         raise LookupUnavailable(str(exc)) from exc

@@ -440,6 +440,9 @@
         {% if report.cross_street or report.zip_code %}
           <p class="match-meta">{% if report.cross_street %}{{ _("Near") }} {{ display_street(report.cross_street) }}{% endif %}{% if report.cross_street and report.zip_code %} · {% endif %}{% if report.zip_code %}{{ _("ZIP") }} {{ report.zip_code }}{% endif %}</p>
         {% endif %}
+        {% if building_address %}
+          <p class="match-meta your-building">{{ _("Your building:") }} <a href="{{ url_for('main.building_lookup', address=building_address) }}">{{ building_address }}</a>{{ info_tip(gettext("Open violations for that building, from city records.")) }}</p>
+        {% endif %}
       </section>
 
       {% if report.spans_districts %}

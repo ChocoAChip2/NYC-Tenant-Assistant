@@ -30,6 +30,31 @@ sources. What the page shows:
   = Class C). Tapping one opens `/building` for that address, so the
   tenant never types a house number.
 
+## A whole address in the street box (2026-10-14)
+
+Tenants type their full address into the street box, so the box reads it
+(`street_suggestions.read_street_search`) before searching:
+
+- Only the first comma-separated part can be the street. An apartment
+  ("Apt 3B", "#3B", "Unit 4") is dropped; a trailing borough, "NY", "USA"
+  or ZIP is read as the place; a neighbourhood after the street type with
+  no comma ("82nd St Jackson Heights") is dropped. Later parts only supply
+  a borough or ZIP ("Jackson Heights" there is ignored).
+- The borough menu wins when it is set; otherwise the borough in the text
+  (or implied by its ZIP) is used and shown as selected. Before this, a
+  whole address got "Choose a borough" or "We couldn't find that street".
+- A ZIP from the text narrows the street, but if no lot on the street has
+  that ZIP the whole street is shown instead of an error. A ZIP typed in
+  the ZIP box is still checked strictly.
+- With a house number, the result links to that building's own record
+  ("Your building: 231 Echo Place, Bronx" -> `/building`). The page still
+  never asks for a number.
+
+Street-wide queries (every tax lot, every open violation on a street) use
+`building_service.SLOW_QUERY_TIMEOUT_SECONDS` (15 s) instead of 6 s: they
+took 2 to 5.5 s from a Mac, and the first search of a long street on
+Render sometimes timed out into "The city's data service didn't respond".
+
 ## Honesty rules
 
 - A street GeoSearch "finds" by fuzzy match is **not found** unless every

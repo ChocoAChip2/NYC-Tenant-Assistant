@@ -349,13 +349,31 @@ def _render_area_lookup():
     narrow_error = False
     suggestions = []
     status = 200
+    building_address = None
+
+    # A whole address typed into the street box ("231 Echo Pl Apt 3B,
+    # Bronx, NY 10457") is read for its street, borough and ZIP
+    # (street_suggestions.read_street_search). The menus win when set.
+    typed = street_suggestions.read_street_search(street) if street else None
+    search_street = (typed.street if typed and typed.street else street)
+    search_borough = borough or (typed.borough if typed else None) or ""
+    typed_zip = None if zip_code else (typed.zip_code if typed else None)
 
     if street:
         try:
-            report = area_service.lookup(
-                street, borough, zip_code or None, cross or None,
-                client=getattr(get_supabase_service(), "client", None),
-            )
+            client = getattr(get_supabase_service(), "client", None)
+            try:
+                report = area_service.lookup(
+                    search_street, search_borough, zip_code or typed_zip or None, cross or None, client=client,
+                )
+            except area_service.InvalidArea:
+                if not typed_zip:
+                    raise
+                # The ZIP came from the typed address, not the ZIP box: if it
+                # doesn't narrow this street, show the whole street instead.
+                report = area_service.lookup(search_street, search_borough, None, cross or None, client=client)
+            if typed and typed.number:
+                building_address = f"{typed.number} {area_service.display_street(report.street)}, {report.borough}"
         except area_service.InvalidArea as exc:
             error_title, error, status = _("Check your search"), str(exc), 400
             narrow_error = bool(zip_code)
@@ -365,7 +383,7 @@ def _render_area_lookup():
             status = 404
             # Links the tenant can tap, never a redirect. Computed inside
             # this (already counted) request; tapping one is a new lookup.
-            suggestions = street_suggestions.for_street(street, area_service.borough_from(borough), exc.returned)
+            suggestions = street_suggestions.for_street(search_street, area_service.borough_from(search_borough), exc.returned)
         except area_service.CrossStreetNotFound:
             error_title = _("Those streets don't seem to meet")
             error = _("Check the cross street, or try your ZIP code instead.")
@@ -382,7 +400,7 @@ def _render_area_lookup():
             status = 500
 
     try:
-        borough_value = area_service.borough_from(borough) if borough else ""
+        borough_value = area_service.borough_from(search_borough) if search_borough else ""
     except area_service.InvalidArea:
         borough_value = ""
 
@@ -398,6 +416,7 @@ def _render_area_lookup():
         error_title=error_title,
         narrow_error=narrow_error,
         suggestions=suggestions,
+        building_address=building_address,
         office_titles=area_service.OFFICE_TITLES,
         display_street=area_service.display_street,
         max_street_length=area_service.MAX_STREET_LENGTH,
