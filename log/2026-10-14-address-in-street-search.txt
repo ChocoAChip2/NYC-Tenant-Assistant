@@ -1,0 +1,40 @@
+2026-10-14  A whole address typed into the street search now works
+
+Requirement (owner, 2026-10-14): "when I enter my address it doesn't work
+and defers to error and more information needed; debug and correct this",
+read against the 2026-10-07 requirement (street + borough is the default
+search, the exact address optional).
+
+What was wrong (live, 2026-10-14, signed out)
+- "231 Echo Place, Bronx, NY 10457" in the street box with Bronx chosen:
+  404 "We couldn't find that street". The borough, "NY" and the ZIP were
+  read as part of the street name.
+- The same with the borough menu left empty: 400 "Choose a borough",
+  though the text names the borough and its ZIP.
+- "231 Echo Place Apt 3B": 404. "37-02 82nd Street, Jackson Heights, NY
+  11372" with Queens: 404.
+- "37-02 82nd Street", Queens: 503 "The city's data service didn't
+  respond" on the first try (a street-wide query passed the 6 s limit),
+  200 on the second.
+- The address search page (/building) was not the problem: 35 address
+  formats, including apartments, ZIPs, Queens hyphens and neighbourhood
+  names, all geocoded to a building against the live service.
+
+Changed
+- street_suggestions.read_street_search: street, borough, ZIP and house
+  number out of whatever was typed (see docs/frontend/area-lookup.md).
+- routes._render_area_lookup uses it: the menu wins, the text fills in a
+  missing borough, a ZIP from the text narrows but falls back to the whole
+  street, and a house number adds "Your building: ..." linking to /building.
+- building_service: street-wide NYC Open Data queries get 15 s.
+
+Evidence
+- tests/test_address_did_you_mean.py: +11 tests (reader cases, route
+  cases for each failure above, the timeout rule). Full suite 1156 OK
+  (1 skipped).
+- Live services, through the real route on the Mac before merging: see
+  the PR.
+
+Not changed
+- /building, the borough menu's "required" attribute (the server now
+  copes when it is left empty by non-browser clients and shared links).
