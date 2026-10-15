@@ -65,13 +65,14 @@ HPD_CLEAR_VIOLATIONS_URL = "https://www.nyc.gov/site/hpd/services-and-informatio
 HPD_VIOLATIONS_DATASET_URL = "https://data.cityofnewyork.us/Housing-Development/Housing-Maintenance-Code-Violations/wvxf-dwi5"
 
 REQUEST_TIMEOUT_SECONDS = 6.0
-# Street-wide queries on NYC Open Data (every tax lot on a street, every
-# open violation on a street) took 2 to 5.5 s from a Mac on 2026-10-14 and
-# came close to the 6 s limit from Render, where the first search of a
-# long street sometimes ended in "The city's data service didn't respond".
-# They get longer; everything else keeps the short limit.
+# NYC Open Data (data.cityofnewyork.us) answers slowly and unevenly: on
+# 2026-10-14/15 street-wide queries took 2 to 5.5 s from a Mac and a
+# single building's violation counts up to 3.5 s, and from Render both
+# sometimes passed 6 s, which showed tenants "The city's data service
+# didn't respond" (a 503) on the first try of /area and of /building.
+# Its queries get 15 s; the geocoder and the district maps keep 6 s.
 SLOW_QUERY_TIMEOUT_SECONDS = 15.0
-_SLOW_DATASETS = ("/resource/64uk-42ks.json", "/resource/wvxf-dwi5.json")
+_SLOW_HOST = "https://data.cityofnewyork.us/"
 
 # How long a building's report is reused before the city is asked again.
 # The dataset itself only updates daily, so an hour costs nothing in
@@ -432,11 +433,9 @@ def _parse_date(value) -> date | None:
 # ---------------------------------------------------------------------------
 
 
-def _timeout_for(url: str, params: dict | None) -> float:
-    """The longer limit only for street-wide queries: a lookup by one building's BBL stays short."""
-    if url.endswith(_SLOW_DATASETS) and "bbl=" not in str((params or {}).get("$where", "")).replace(" ", ""):
-        return SLOW_QUERY_TIMEOUT_SECONDS
-    return REQUEST_TIMEOUT_SECONDS
+def _timeout_for(url: str, params: dict | None = None) -> float:
+    """The longer limit for NYC Open Data, the short one for everything else."""
+    return SLOW_QUERY_TIMEOUT_SECONDS if url.startswith(_SLOW_HOST) else REQUEST_TIMEOUT_SECONDS
 
 
 def _get_json(url: str, params: dict | None = None):

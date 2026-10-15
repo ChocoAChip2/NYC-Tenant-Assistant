@@ -50,10 +50,11 @@ Tenants type their full address into the street box, so the box reads it
   ("Your building: 231 Echo Place, Bronx" -> `/building`). The page still
   never asks for a number.
 
-Street-wide queries (every tax lot, every open violation on a street) use
+Every NYC Open Data query (street-wide or one building's) uses
 `building_service.SLOW_QUERY_TIMEOUT_SECONDS` (15 s) instead of 6 s: they
-took 2 to 5.5 s from a Mac, and the first search of a long street on
-Render sometimes timed out into "The city's data service didn't respond".
+took up to 5.5 s from a Mac, and on Render both the first search of a long
+street and a building page (2026-10-15, 231 Echo Place) sometimes timed out
+into "The city's data service didn't respond". The geocoder keeps 6 s.
 
 ## Honesty rules
 
