@@ -38,3 +38,12 @@ Evidence
 Not changed
 - /building, the borough menu's "required" attribute (the server now
   copes when it is left empty by non-browser clients and shared links).
+
+Follow-up, 2026-10-15 (live recheck after the merge)
+- All 10 street-box cases on Render returned the right street, borough and
+  "Your building" link; plain street and typo unchanged.
+- /building for "231 Echo Place, Bronx, NY 10457" was a 503 "The city's
+  data service didn't respond" after 12.9 s, then 200 three times in a
+  row. On the Mac its per-building count query took 3.5 s, so from Render
+  it can pass the 6 s limit. Every NYC Open Data query now gets 15 s (not
+  only street-wide ones); the geocoder keeps 6 s.

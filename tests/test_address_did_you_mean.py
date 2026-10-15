@@ -600,11 +600,13 @@ class StreetBoxAddressRouteTests(_Case):
 
 
 class StreetQueryTimeoutTests(unittest.TestCase):
-    def test_street_wide_city_queries_get_the_longer_limit_and_one_building_does_not(self):
-        self.assertEqual(bs._timeout_for(area_service.PLUTO_URL, {"$where": "borough='BX' AND address like '% ECHO PLACE'"}),
-                         bs.SLOW_QUERY_TIMEOUT_SECONDS)
-        self.assertEqual(bs._timeout_for(bs.VIOLATIONS_URL, {"$where": "boroid='2' AND streetname='ECHO PLACE'"}),
-                         bs.SLOW_QUERY_TIMEOUT_SECONDS)
-        self.assertEqual(bs._timeout_for(bs.VIOLATIONS_URL, {"$where": bs._building_where("2028100045")}),
-                         bs.REQUEST_TIMEOUT_SECONDS)
+    def test_city_open_data_queries_get_the_longer_limit_and_other_services_do_not(self):
+        # 2026-10-15 on Render: /building for 231 Echo Place was a 503 after
+        # 12.9 s (a per-building count passed 6 s), then 200 on retry.
+        for url, params in ((area_service.PLUTO_URL, {"$where": "borough='BX' AND address like '% ECHO PLACE'"}),
+                            (bs.VIOLATIONS_URL, {"$where": "boroid='2' AND streetname='ECHO PLACE'"}),
+                            (bs.VIOLATIONS_URL, {"$where": bs._building_where("2028100045")}),
+                            (bs.VIOLATIONS_METADATA_URL, None)):
+            with self.subTest(url=url):
+                self.assertEqual(bs._timeout_for(url, params), bs.SLOW_QUERY_TIMEOUT_SECONDS)
         self.assertEqual(bs._timeout_for(bs.GEOSEARCH_URL, {"text": "231 Echo Place"}), bs.REQUEST_TIMEOUT_SECONDS)
