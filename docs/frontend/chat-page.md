@@ -123,6 +123,12 @@ outside any trigger/panel closes whatever is open, as does Escape.
 Opening a rename closes the `…` panel first, or the two sit on top of each
 other.
 
+Active conversations also have **Save summary (PDF)** (2026-11-01). It is a
+plain form POST, so the browser downloads the file and the page stays put;
+the button reads "Making your summary…" for up to 20 s while the model
+works. A failure redirects back to the conversation with a flash message.
+See `docs/product-pdf-summary-report.md`.
+
 ---
 
 ## Suggestion chips auto-send

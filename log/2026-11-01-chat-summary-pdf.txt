@@ -1,0 +1,19 @@
+2026-11-01 — Chat summary PDF (download, step 1)
+
+Owner ask: a printable summary of a chat (issues, next steps, uncertainty
+flags pointing to human help, source links), emailed, with an optional
+download. Owner chose a server-side PDF library.
+
+Built
+- chat_summary.py: transcript, model JSON parse with the number/section
+  check, official-link sources, fpdf2 rendering with bundled DejaVu Sans
+  (fonts/, Bitstream Vera licence in fonts/LICENSE-DejaVu.txt).
+- AIService.summarize_chat (JSON, no thinking, fallback models).
+- POST /conversations/<id>/summary.pdf (login, owner check, 6/hour 20/day,
+  no-store, nothing saved) and "Save summary (PDF)" in the conversation menu.
+- requirements: fpdf2. babel.cfg reads chat_summary.py.
+
+Not built: email (needs sender service + domain DNS + key in Render).
+Chinese pages get an English summary (font coverage).
+
+Tests: tests/test_chat_summary.py (22); full suite OK in the cloud copy.

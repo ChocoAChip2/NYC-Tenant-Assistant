@@ -855,6 +855,10 @@
               <button type="button" class="row-menu-trigger" data-row-menu-trigger aria-haspopup="menu" aria-expanded="false" aria-label="{{ _("Conversation options") }}">&#8942;</button>
               <div class="row-menu-panel" role="menu" hidden>
                 <button type="button" role="menuitem" data-rename-trigger>{{ _("Rename") }}</button>
+                <form method="POST" action="{{ url_for('main.conversation_summary_pdf', conversation_id=conversation.id) }}" data-summary-form>
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" role="menuitem">{{ _("Save summary (PDF)") }}</button>
+                </form>
                 <form method="POST" action="{{ url_for('main.archive_conversation', conversation_id=conversation.id) }}">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                   <button type="submit" role="menuitem">{{ _("Archive") }}</button>
@@ -1286,6 +1290,16 @@
     })();
 
     (function () {
+      document.querySelectorAll("[data-summary-form]").forEach((form) => {
+        form.addEventListener("submit", () => {
+          const button = form.querySelector("button[type=submit]");
+          if (!button || button.dataset.busy) return;
+          const label = button.textContent;
+          button.dataset.busy = "1";
+          button.textContent = {{ gettext("Making your summary…")|tojson }};
+          setTimeout(() => { button.textContent = label; delete button.dataset.busy; }, 20000);
+        });
+      });
       function closeMenu(trigger) {
         const panel = trigger.nextElementSibling;
         if (panel) panel.hidden = true;

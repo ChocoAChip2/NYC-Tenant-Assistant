@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SideKick Tidbit VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-01 21:30+0000\n"
+"POT-Creation-Date: 2026-11-01 21:45+0000\n"
 "PO-Revision-Date: 2026-10-11 17:36-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_Hant\n"
@@ -75,6 +75,10 @@ msgstr ""
 
 #, python-format
 msgid "%(label)s must be a valid date no later than today."
+msgstr ""
+
+#, python-format
+msgid "%(product)s · %(date)s · General information, not legal advice."
 msgstr ""
 
 #, python-format
@@ -283,6 +287,11 @@ msgstr ""
 msgid "Answer length"
 msgstr ""
 
+msgid ""
+"Anything about court, eviction, deadlines or money owed: talk to a tenant"
+" attorney or legal aid before you act."
+msgstr ""
+
 #. SUMMARY_LABELS
 #. TRANSLATABLE
 #. REVIEW: legal or high-stakes wording; shown with its English original
@@ -316,6 +325,10 @@ msgstr ""
 msgid ""
 "Ask %(product_name)s what this record means and what your landlord must "
 "do."
+msgstr ""
+
+#, python-format
+msgid "Ask: %(who)s."
 msgstr ""
 
 msgid "Assistant"
@@ -406,6 +419,9 @@ msgid "Change"
 msgstr ""
 
 msgid "Chat"
+msgstr ""
+
+msgid "Chat summary"
 msgstr ""
 
 msgid "Chats"
@@ -575,6 +591,9 @@ msgid "Could not cancel the deletion. Please try again."
 msgstr ""
 
 msgid "Could not delete that conversation. Please try again."
+msgstr ""
+
+msgid "Could not make a summary right now. Please try again."
 msgstr ""
 
 msgid "Could not open this conversation right now. Please try again."
@@ -1225,6 +1244,13 @@ msgstr ""
 msgid "Looking up…"
 msgstr ""
 
+#, python-format
+msgid "Made on %(date)s from your conversation on %(product)s."
+msgstr ""
+
+msgid "Making your summary…"
+msgstr ""
+
 msgid "Manage all your data"
 msgstr ""
 
@@ -1337,6 +1363,9 @@ msgid ""
 "New violations can take time to appear after an inspection. A closed "
 "violation wasn't necessarily re-inspected; many close when the owner "
 "certifies the repair."
+msgstr ""
+
+msgid "Next steps"
 msgstr ""
 
 #. TRANSLATABLE
@@ -1800,6 +1829,9 @@ msgstr ""
 msgid "Save name"
 msgstr ""
 
+msgid "Save summary (PDF)"
+msgstr ""
+
 msgid "Saved on this device only."
 msgstr ""
 
@@ -1974,6 +2006,12 @@ msgid ""
 "yourself."
 msgstr ""
 
+msgid ""
+"Some details from your chat were left out because they couldn't be "
+"checked. Confirm dates, amounts and deadlines with the people listed "
+"below."
+msgstr ""
+
 #. COPY
 msgid "Something about that request didn't work"
 msgstr ""
@@ -1990,6 +2028,9 @@ msgid "Source"
 msgstr ""
 
 msgid "Source:"
+msgstr ""
+
+msgid "Sources to check"
 msgstr ""
 
 #. TRANSLATABLE
@@ -2137,6 +2178,14 @@ msgstr ""
 msgid "There was no pending deletion to cancel."
 msgstr ""
 
+msgid "There's nothing to summarize yet. Ask a question first."
+msgstr ""
+
+msgid ""
+"This chat didn't cite a specific law or city record. Use the help "
+"contacts above to confirm what applies to you."
+msgstr ""
+
 msgid "This draft could not be found."
 msgstr ""
 
@@ -2179,6 +2228,12 @@ msgid "This section has been repealed"
 msgstr ""
 
 msgid "This street crosses more than one district."
+msgstr ""
+
+msgid ""
+"This summary was written by AI from your chat. It is general information,"
+" not legal advice, and it can be incomplete or wrong. Check anything "
+"important with the people and links below before you act on it."
 msgstr ""
 
 msgid "Those streets don't seem to meet"
@@ -2394,11 +2449,20 @@ msgstr ""
 msgid "What would help you?"
 msgstr ""
 
+msgid "What you talked about"
+msgstr ""
+
 msgid "What's on your street?"
 msgstr ""
 
 #. LABELS
 msgid "When did it start?"
+msgstr ""
+
+msgid "Where this summary isn't sure: ask a person"
+msgstr ""
+
+msgid "Where to get help"
 msgstr ""
 
 msgid "Where to get real help"
@@ -2537,6 +2601,9 @@ msgstr ""
 #. REVIEW: legal or high-stakes wording; shown with its English original
 #. beneath it.
 msgid "Your choice"
+msgstr ""
+
+msgid "Your conversation"
 msgstr ""
 
 msgid "Your data"

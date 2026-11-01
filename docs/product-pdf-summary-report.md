@@ -1,7 +1,26 @@
 # Summarized PDF report of a chat (proposal)
 
-**Status:** proposal from the owner, 2026-11-01. Priority medium. Nothing
-is built yet. Scope beyond the four sections below is still open.
+**Status:** owner request, 2026-11-01. Priority medium. Step 1 (download)
+is built: `chat_summary.py`, `POST /conversations/<id>/summary.pdf`, and
+"Save summary (PDF)" in each conversation's menu. Email is step 2. Scope
+beyond the four sections below is still open.
+
+## What step 1 does
+
+- One model call (`AIService.summarize_chat`, JSON only) writes issues,
+  next steps and unsure points from the stored conversation.
+- `chat_summary.parse` keeps a line only if every number and section sign
+  in it appears in the conversation (or the help list). Dropped lines are
+  counted and the PDF says something was left out.
+- Links come only from the assistant's own replies and only from
+  government or listed help sites (`OFFICIAL_HOSTS`). The help list is
+  `branding.HELP_RESOURCES`.
+- The PDF (fpdf2, bundled DejaVu Sans font) is built for the request,
+  sent with `Cache-Control: no-store`, and never stored. Rate limit: 6 an
+  hour, 20 a day.
+- Languages: English, Spanish, French and Swahili. The font has no
+  Chinese letters, so Chinese pages get an English summary for now (a
+  subset Chinese font is the fix; a full one is ~16 MB).
 
 ## What it is
 
@@ -60,8 +79,9 @@ gives. When a matter needs a professional, the PDF says so plainly.
   assistant. Email is less private than the site. Send only after the
   tenant asks each time? Attach the PDF, or send a short-lived download
   link instead? The privacy page will need a line either way.
-- **PDF library.** A server-side PDF library is a new dependency (the
-  app only has `pypdf`, which fills forms but doesn't lay out text).
-  Alternative: a print-styled page the browser saves as PDF, no new
-  dependency, but no email attachment.
+- **PDF library.** Decided 2026-11-01: server-side (fpdf2).
+- **Domain.** The owner bought `sidekicktidbit.com` (2026-11-01). Plan:
+  send from a subdomain (for example `mail.sidekicktidbit.com`) so the
+  site's own mail reputation is separate, and use the same sender for
+  Supabase sign-in mail (custom SMTP).
 - **More sections?** Pinned for later by the owner.

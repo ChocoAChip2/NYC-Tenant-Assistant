@@ -35,6 +35,8 @@ from login_lockout import format_duration, record_failure, record_success, secon
 from rate_limit import limiter, rate_limit_key
 from supabase_service import SupabaseService
 from i18n import gettext as _
+from flask_babel import force_locale, format_date
+import chat_summary
 import form_service
 import case_context
 import form_review
@@ -1011,6 +1013,64 @@ def archive_conversation(conversation_id):
         flash(_("Could not archive that conversation. Please try again."), "error")
 
     return redirect(url_for("main.chat"))
+
+
+@main_bp.route("/conversations/<conversation_id>/summary.pdf", methods=["POST"])
+@limiter.limit("6 per hour; 20 per day")
+def conversation_summary_pdf(conversation_id):
+    """A printable summary of one chat (chat_summary.py), built for this
+    request and never stored. POST because each one is a model call."""
+    if not session.get("user_id"):
+        return redirect(url_for("main.login"))
+    user_client = get_user_scoped_client()
+    if not user_client:
+        session.clear()
+        flash(_("Your session expired. Please log in again."), "error")
+        return redirect(url_for("main.login"))
+    back = redirect(url_for("main.chat", conversation_id=conversation_id))
+    supabase_service = get_supabase_service()
+    try:
+        supabase_service.ensure_conversation_for_user(user_client, conversation_id, session["user_id"])
+        messages = supabase_service.fetch_messages_for_conversation(user_client, conversation_id)
+        title = supabase_service.get_conversation_title(user_client, conversation_id, session["user_id"])
+    except ValueError:
+        flash(_("That conversation could not be found."), "error")
+        return redirect(url_for("main.chat"))
+    except Exception:
+        logger.exception("Could not load a conversation for its summary.")
+        flash(_("Could not make a summary right now. Please try again."), "error")
+        return back
+    if not chat_summary.has_reply(messages):
+        flash(_("There's nothing to summarize yet. Ask a question first."), "error")
+        return back
+
+    code, language = chat_summary.summary_language(i18n.current())
+    conversation = chat_summary.transcript(messages)
+    try:
+        raw = get_ai_service().summarize_chat(conversation, chat_summary.instruction(language))
+    except RuntimeError:
+        raw = ""
+    summary = chat_summary.parse(raw, conversation)
+    if summary is None:
+        flash(_("Could not make a summary right now. Please try again."), "error")
+        return back
+
+    # Headings follow the summary's language; the bundled font has no
+    # Chinese letters, so Chinese pages get an English summary for now.
+    with force_locale(code):
+        made_on = format_date(date.today(), format="long")
+        pdf = chat_summary.render(
+            summary,
+            chat_summary.sources(messages),
+            i18n.translated(branding.HELP_RESOURCES, keys={"detail"}),
+            title=conversation_titles.clean(title or "") or _("Your conversation"),
+            made_on=made_on,
+        )
+    response = make_response(pdf)
+    response.headers["Content-Type"] = "application/pdf"
+    response.headers["Content-Disposition"] = f'attachment; filename="sidekick-tidbit-summary-{date.today().isoformat()}.pdf"'
+    response.headers["Cache-Control"] = "no-store"
+    return response
 
 
 @main_bp.route("/conversations/<conversation_id>/unarchive", methods=["POST"])
