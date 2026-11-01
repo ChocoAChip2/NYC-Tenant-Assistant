@@ -351,3 +351,29 @@ class AIService:
             except (ClientError, ServerError):
                 continue
         return ""
+
+    def summarize_chat(self, conversation: str, instruction: str) -> str:
+        """The model's raw JSON for a chat's printable summary (chat_summary.py).
+
+        `conversation` is chat_summary.transcript(). Returns "" if every
+        model failed; chat_summary.parse() decides what is kept.
+        """
+        if not self.client:
+            raise RuntimeError("Gemini is not configured yet.")
+        contents = [{"role": "user", "parts": [{"text": conversation}]}]
+        config = {
+            "system_instruction": instruction,
+            "max_output_tokens": 2000,
+            "temperature": 0.2,
+            "response_mime_type": "application/json",
+            "thinking_config": {"thinking_budget": 0},
+        }
+        for model_name in FALLBACK_MODELS:
+            try:
+                response = self.client.models.generate_content(model=model_name, contents=contents, config=config)
+                text = (response.text or "").strip()
+                if text:
+                    return text
+            except (ClientError, ServerError):
+                continue
+        return ""
