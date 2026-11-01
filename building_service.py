@@ -63,6 +63,10 @@ VIOLATIONS_URL = "https://data.cityofnewyork.us/resource/wvxf-dwi5.json"
 VIOLATIONS_METADATA_URL = "https://data.cityofnewyork.us/api/views/wvxf-dwi5.json"
 HPD_CLEAR_VIOLATIONS_URL = "https://www.nyc.gov/site/hpd/services-and-information/clear-violations.page"
 HPD_VIOLATIONS_DATASET_URL = "https://data.cityofnewyork.us/Housing-Development/Housing-Maintenance-Code-Violations/wvxf-dwi5"
+# HPD's own public page listing one building's violations by violation ID,
+# keyed by HPD's building ID (the dataset's `buildingid`). Checked 2026-11-01:
+# building 74898 is 231 Echo Place and lists the same violation IDs.
+HPD_ONLINE_VIOLATIONS_URL = "https://hpdonline.nyc.gov/hpdonline/building/{building_id}/violations"
 
 REQUEST_TIMEOUT_SECONDS = 6.0
 # NYC Open Data (data.cityofnewyork.us) answers slowly and unevenly: on
@@ -230,6 +234,7 @@ class Violation:
     story: str
     rent_impairing: bool
     certified: bool
+    hpd_building_id: str = ""
 
 
 @dataclass
@@ -249,6 +254,24 @@ class BuildingReport:
     @property
     def open_total(self) -> int:
         return sum(self.open_counts.values())
+
+    @property
+    def hpd_online_url(self) -> str | None:
+        """Where a tenant can see these violations on HPD's own site, cited by ID."""
+        for v in list(self.apartment_violations or []) + list(self.open_violations or []):
+            if v.hpd_building_id.isdigit():
+                return HPD_ONLINE_VIOLATIONS_URL.format(building_id=v.hpd_building_id)
+        return None
+
+    def open_data_url(self, violation_class: str | None = None, apartment: str | None = None) -> str:
+        """The city's own records behind a section of the page, as NYC Open Data returns them."""
+        where = f"{_building_where(self.match.bbl)} AND violationstatus='Open'"
+        if violation_class in CLASS_ORDER:
+            where += f" AND class='{violation_class}'"
+        params = {"$where": where, "$order": "inspectiondate DESC"}
+        if apartment and re.fullmatch(r"[A-Z0-9]{1,20}", apartment):
+            params["$where"] += f" AND upper(apartment)='{apartment}'"
+        return f"{VIOLATIONS_URL}?{urllib.parse.urlencode(params)}"
 
     @property
     def history_total(self) -> int:
@@ -628,7 +651,7 @@ def _fetch_open(bbl: str) -> list[dict]:
                 [
                     "violationid", "class", "novdescription", "currentstatus",
                     "currentstatusdate", "inspectiondate", "apartment", "story",
-                    "rentimpairing",
+                    "rentimpairing", "buildingid",
                 ]
             ),
             "$where": f"{_building_where(bbl)} AND violationstatus='Open'",
@@ -684,6 +707,7 @@ def _to_violation(row: dict) -> Violation:
         story=str(row.get("story") or "").strip(),
         rent_impairing=str(row.get("rentimpairing") or "").strip().upper() == "Y",
         certified="CERTIF" in status.upper(),
+        hpd_building_id=str(row.get("buildingid") or "").strip(),
     )
 
 

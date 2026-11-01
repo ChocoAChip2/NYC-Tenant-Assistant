@@ -149,6 +149,25 @@ underlined, so a tappable chip and a plain one never look the same. See
 descriptions covering every clause shape in the sample. The tests hold the
 parser to zero false labels and zero leftover punctuation on all of them.
 
+## Showing where each hazard came from
+
+Owner, 2026-11-01: a tenant should be able to cite the report. Each hazard
+group (the apartment's own list, then Class C, B, A) ends with a
+**Source** line:
+
+- **HPD Online** (`hpdonline.nyc.gov/hpdonline/building/{buildingid}/violations`),
+  the housing agency's own human-readable page. `buildingid` is HPD's own
+  number, read from the same violation rows (`$select` includes it). No
+  row with a numeric `buildingid`, no link; never guess one.
+- **NYC Open Data**: the exact `wvxf-dwi5` query that produced that group
+  (same BBL-or-block-and-lot filter, `violationstatus='Open'`, the class,
+  and for the apartment section `upper(apartment)`). The apartment value
+  is only interpolated when it matches `[A-Z0-9]{1,20}`.
+
+Each violation shows its **Violation #** so it can be found on HPD Online.
+The bottom note names GeoSearch as the address matcher. Public wording
+stays short; the detail is behind the "i".
+
 ## Status labels
 
 HPD's `NOV SENT OUT` used to be title-cased to "Nov Sent Out". It sat next

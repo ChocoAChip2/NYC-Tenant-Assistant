@@ -1,6 +1,9 @@
 <!doctype html>
 {# Frontend rationale lives in docs/frontend/ -- this file intentionally carries no HTML/CSS/JS comments, because they would be served to anyone who opens View Source. See docs/frontend/building-lookup.md for why this page is public, why it queries by BBL, and why "certified" is shown separately from "open". #}
 {% from "_info.html" import info as info_tip, info_assets %}
+{% macro cite(violation_class=none, apartment=none) -%}
+<p class="cite">{{ _("Source:") }} {% if report.hpd_online_url %}<a href="{{ report.hpd_online_url }}" target="_blank" rel="noopener noreferrer">{{ _("HPD Online") }}</a> · {% endif %}<a href="{{ report.open_data_url(violation_class, apartment) }}" target="_blank" rel="noopener noreferrer">{{ _("NYC Open Data") }}</a>{{ info_tip(gettext("Find any violation above by its number on HPD Online, the city housing agency's own site. NYC Open Data has the same records as raw data.")) }}</p>
+{%- endmacro %}
 {% from "_language.html" import language_form, translation_notice with context %}
 <html lang="{{ html_lang() }}">
 <head>
@@ -291,6 +294,9 @@
     .badge.rent { background: var(--error-tint); color: var(--error); }
     .more { font-size: 13px; color: var(--muted); margin: 12px 0 0; }
     .more a { color: var(--accent); }
+    .cite { font-size: 12.5px; color: var(--muted); margin: 12px 0 0; padding-top: 10px; border-top: 1px solid var(--border); }
+    .cite a { color: var(--accent); }
+    .violation-id { font-variant-numeric: tabular-nums; }
     .source-note { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
     .source-note p { margin: 0 0 6px; }
     .source-note a { color: var(--muted); }
@@ -439,6 +445,7 @@
             {% for v in report.apartment_violations %}
               {% include "_violation.html" %}
             {% endfor %}
+            {{ cite(none, report.apartment) }}
           {% else %}
             <p class="class-deadline">{{ _("None recorded for your unit. Building-wide problems below can still affect you.") }}{{ info_tip(gettext("Like the boiler, hallways or the roof.")) }}</p>
           {% endif %}
@@ -470,6 +477,7 @@
           {% for v in items[:max_per_class] %}
             {% include "_violation.html" %}
           {% endfor %}
+          {{ cite(cls) }}
           {% if report.open_counts.get(cls, items|length) > max_per_class %}
             <p class="more">{{ _("Showing the %(max_per_class)s most recent of %(value)s.", max_per_class=max_per_class, value=report.open_counts.get(cls)) }} <a href="{{ dataset_url }}" target="_blank" rel="noopener noreferrer">{{ _("Full list") }}</a></p>
           {% endif %}
@@ -478,6 +486,7 @@
 
       <div class="source-note">
         <p>{{ _("Source:") }} <a href="{{ dataset_url }}" target="_blank" rel="noopener noreferrer">{{ _("HPD violations") }}</a> {{ _("on NYC Open Data, updated daily.") }}{% call info_tip() %}{{ _("New violations can take time to appear after an inspection. A closed violation wasn't necessarily re-inspected; many close when the owner certifies the repair.") }}{% endcall %}</p>
+        <p>{{ _("Address matched with") }} <a href="https://geosearch.planninglabs.nyc/" target="_blank" rel="noopener noreferrer">{{ _("NYC Planning's GeoSearch") }}</a>{{ _(", from the city's official address list.") }}</p>
         {% if report.list_truncated %}<p>{{ _("Not every violation is listed; the counts above are complete.") }}</p>{% endif %}
       </div>
     {% endif %}
