@@ -103,6 +103,12 @@ PRIVACY_SECTIONS = [
         "points": [],
     },
     {
+        "title": "The launch list",
+        "intro": "If you leave your email to hear when the site opens, we keep it encrypted, use it only for that "
+                 "message, then delete it. It is never shared.",
+        "points": [],
+    },
+    {
         "title": "Your language",
         "intro": "If you pick a language, that choice is remembered on this device, and on your account if you are signed in. It is not used for the counts.",
         "points": [],
