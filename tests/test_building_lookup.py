@@ -56,25 +56,25 @@ GEOSEARCH_NON_BUILDING_THEN_BUILDING = {
 }
 
 ROW_C_HEAT = {
-    "violationid": "1", "class": "C",
+    "violationid": "1", "buildingid": "74898", "class": "C",
     "novdescription": "§ 27-2029 ADM CODE PROVIDE HEAT TO THE ENTIRE APARTMENT LOCATED AT APT 4B, 4th STORY",
     "currentstatus": "NOV SENT OUT", "currentstatusdate": "2026-02-10T00:00:00.000",
     "inspectiondate": "2026-02-03T00:00:00.000", "apartment": "4B", "story": "4", "rentimpairing": "Y",
 }
 ROW_C_OLDER = {
-    "violationid": "2", "class": "C",
+    "violationid": "2", "buildingid": "74898", "class": "C",
     "novdescription": "§ 27-2005 ADM CODE & 309 M/D LAW ABATE THE NUISANCE CONSISTING OF MICE",
     "currentstatus": "NOV CERTIFIED LATE", "currentstatusdate": "2025-11-01T00:00:00.000",
     "inspectiondate": "2025-10-01T00:00:00.000", "apartment": "2A", "story": "2", "rentimpairing": "N",
 }
 ROW_B = {
-    "violationid": "3", "class": "B",
+    "violationid": "3", "buildingid": "74898", "class": "B",
     "novdescription": "§ 27-2005 ADM CODE PROPERLY REPAIR THE BROKEN OR DEFECTIVE VENTILATION SYSTEM",
     "currentstatus": "NOT COMPLIED WITH", "inspectiondate": "2026-03-01T00:00:00.000",
     "apartment": "4B", "story": "4", "rentimpairing": "N",
 }
 ROW_A = {
-    "violationid": "4", "class": "A",
+    "violationid": "4", "buildingid": "74898", "class": "A",
     "novdescription": "§ 27-2013 ADM CODE PAINT WITH LIGHT COLORED PAINT",
     "currentstatus": "NOV SENT OUT", "inspectiondate": "2026-04-01T00:00:00.000",
     "apartment": "", "story": "", "rentimpairing": "N",
@@ -464,6 +464,28 @@ class RouteTests(_CacheIsolation):
         patcher, _ = fake_network(**network)
         with patcher:
             return _client(logged_in).get("/building" + query)
+
+    def test_each_hazard_group_cites_where_it_came_from(self):
+        body = self._get("?address=231+echo+pl+bx").get_data(as_text=True)
+
+        self.assertIn("https://hpdonline.nyc.gov/hpdonline/building/74898/violations", body)
+        for cls in ("C", "B", "A"):
+            with self.subTest(cls=cls):
+                self.assertIn("class%3D%27" + cls + "%27", body)
+        self.assertIn("Violation #1", body)
+        self.assertIn("geosearch.planninglabs.nyc", body)
+
+    def test_the_apartment_section_cites_only_that_apartment(self):
+        body = self._get("?address=231+echo+pl+bx&apt=4B").get_data(as_text=True)
+
+        self.assertIn("upper%28apartment%29%3D%274B%27", body)
+
+    def test_without_an_hpd_building_id_only_the_open_data_link_shows(self):
+        rows = [{k: v for k, v in row.items() if k != "buildingid"} for row in (ROW_C_HEAT, ROW_B)]
+        body = self._get("?address=231+echo+pl+bx", open_rows=rows).get_data(as_text=True)
+
+        self.assertNotIn("hpdonline.nyc.gov/hpdonline/building/", body)
+        self.assertIn("wvxf-dwi5.json?", body)
 
     def test_the_empty_form_renders_logged_out(self):
         response = self._get()

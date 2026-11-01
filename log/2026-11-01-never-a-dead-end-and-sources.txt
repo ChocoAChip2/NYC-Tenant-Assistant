@@ -1,0 +1,30 @@
+2026-11-01 — Address lookup suggestions, hazard sources, Privacy link
+
+Owner asks (2026-11-01)
+1. Bug "Address / City Lookup": "30 Rockefeller Plaza", ZIP "1012" -> no result,
+   no help. Never fail silently; suggest the closest match; several when more
+   than one fits.
+2. Name the APIs behind addresses and hazards, and show the source on the
+   report so it can be cited, e.g. a reference link at the bottom of the hazards.
+3. The Privacy link didn't work on the change-password page.
+
+Live repro on main 3b3b27a (before)
+- /area street "30 Rockefeller Plaza" + ZIP 1012 + Manhattan -> 400 "Enter a
+  5-digit NYC ZIP code."; no borough -> 400 "Choose a borough."; with a valid
+  ZIP or none -> 404, no suggestions. The browser also blocked the form itself
+  (ZIP pattern, required borough).
+- Cause: PLUTO has no lot addressed on ROCKEFELLER PLAZA (all filed under
+  Avenue of the Americas), so the street had "no lots" and suggestions were
+  dropped for the same reason.
+
+Changes
+- area_service: street_lots / lots_by_place fall back to the BBLs GeoSearch
+  gave for the street; ZipNotOnStreet.
+- routes /area: a partial or off-street ZIP shows the whole street with a note
+  and nearest-ZIP links; no borough -> ZIP prefix, else in_any_borough.
+- templates/area.html: no ZIP pattern, no required borough; ZIP note.
+- Building report: Source line per hazard group (HPD Online + the exact NYC
+  Open Data query), Violation # on each item, address matcher named.
+- Privacy, language switch and usage-click open while a new password is owed.
+
+Tests: full suite 1167 OK (1 skipped) in the cloud copy.

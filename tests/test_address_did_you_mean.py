@@ -7,6 +7,7 @@ spellings ("GR CONCOURSE") that no tax lot uses. Nothing here touches the
 network: an unexpected URL fails the test.
 """
 
+import re
 import html
 import os
 import unittest
@@ -28,20 +29,27 @@ STREETS = {
               "GRAND CONCOURSE", "GR CONCOURSE", "EAST 149 STREET", "EAST 148 STREET", "O'BRIEN AVENUE",
               "<SCRIPT>ALERT(1)</SCRIPT> PLACE"],
     "Brooklyn": ["TECH PLACE", "FLATBUSH AVENUE"],
-    "Queens": ["37 AVENUE", "STEINWAY STREET"],
-    "Manhattan": ["BROADWAY"],
+    "Queens": ["37 AVENUE", "STEINWAY STREET", "BROADWAY"],
+    "Manhattan": ["BROADWAY", "ROCKEFELLER PLAZA"],
     "Staten Island": ["ECHO PLACE"],
 }
 # Streets with tax lots. "GR CONCOURSE" is known to the geocoder but has none.
 WITH_LOTS = {("Bronx", "ECHO PLACE"), ("Bronx", "BROWN PLACE"), ("Bronx", "WESTCHESTER AVENUE"),
              ("Bronx", "GRAND CONCOURSE"), ("Bronx", "EAST 149 STREET"), ("Bronx", "O'BRIEN AVENUE"),
-             ("Brooklyn", "TECH PLACE"), ("Queens", "STEINWAY STREET"), ("Queens", "37 AVENUE")}
+             ("Brooklyn", "TECH PLACE"), ("Queens", "STEINWAY STREET"), ("Queens", "37 AVENUE"),
+             ("Manhattan", "BROADWAY"), ("Queens", "BROADWAY")}
 BUILDINGS = {
     ("Bronx", "ECHO PLACE"): {"231": "2028100045", "179": "2028080021"},
     ("Bronx", "BROWN PLACE"): {"231": "2022820043"},
     ("Queens", "37 AVENUE"): {"31-10": "4003730021"},
     ("Queens", "STEINWAY STREET"): {"31-10": "4006510001"},
     ("Staten Island", "ECHO PLACE"): {"12": "5014940045"},
+    # Known to the geocoder, but every lot is filed under Avenue of the Americas.
+    ("Manhattan", "ROCKEFELLER PLAZA"): {"1": "1012640005", "30": "1012657501", "14": "1012640005"},
+}
+ROCKEFELLER_LOTS = {
+    "1012640005": {"bbl": "1012640005.00000000", "address": "1230 AVENUE OF THE AMERICAS", "zipcode": "10020"},
+    "1012657501": {"bbl": "1012657501.00000000", "address": "1250 AVENUE OF THE AMERICAS", "zipcode": "10112"},
 }
 BOROID = {b: v[1] for b, v in area_service.BOROUGHS.items()}
 
@@ -97,6 +105,8 @@ def fake_city(fail_street_list=False, extra_geo=None):
             return geocoder(params["text"])
         if url == area_service.PLUTO_URL:
             where = params["$where"]
+            if where.startswith("bbl in ("):
+                return [dict(ROCKEFELLER_LOTS[b]) for b in re.findall(r"'(\d{10})'", where) if b in ROCKEFELLER_LOTS]
             for (borough, street) in WITH_LOTS:
                 code = area_service.BOROUGHS[borough][0]
                 if f"borough='{code}'" in where and where.endswith(f"'% {street.replace(chr(39), chr(39) * 2)}'"):
@@ -583,9 +593,11 @@ class StreetBoxAddressRouteTests(_Case):
         response, body = self.get("street=231+Echo+Place%2C+Bronx%2C+NY+10451")
         self.assertEqual(response.status_code, 200)
         self.assertNotIn("ZIP 10451", body)
-        # The ZIP box is the tenant's own choice and is still checked.
+        # A ZIP box that doesn't fit shows the whole street and says so (owner, 2026-11-01).
         response, body = self.get("street=Echo+Place&borough=Bronx&zip=10451")
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("No buildings on Echo Place are in ZIP code 10451", body)
+        self.assertIn("zip=10457", body)
 
     def test_the_menu_wins_over_a_borough_in_the_text(self):
         response, body = self.get("street=Echo+Place%2C+Brooklyn&borough=Bronx")
@@ -610,3 +622,54 @@ class StreetQueryTimeoutTests(unittest.TestCase):
             with self.subTest(url=url):
                 self.assertEqual(bs._timeout_for(url, params), bs.SLOW_QUERY_TIMEOUT_SECONDS)
         self.assertEqual(bs._timeout_for(bs.GEOSEARCH_URL, {"text": "231 Echo Place"}), bs.REQUEST_TIMEOUT_SECONDS)
+
+
+class NeverADeadEndTests(_Case):
+    """Owner bug report, 2026-11-01: "30 Rockefeller Plaza" with ZIP "1012"
+    said "No result found" and offered nothing."""
+
+    def get(self, query):
+        self.city()
+        response = self.client().get("/area?" + query)
+        return response, html.unescape(response.get_data(as_text=True))
+
+    def test_a_street_whose_lots_are_filed_elsewhere_still_opens(self):
+        response, body = self.get("street=Rockefeller+Plaza&borough=Manhattan")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Rockefeller Plaza, Manhattan", body)
+
+    def test_the_reported_case_shows_the_street_and_suggests_the_zip(self):
+        response, body = self.get("street=30+Rockefeller+Plaza&zip=1012")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Rockefeller Plaza, Manhattan", body)
+        self.assertIn("“1012” isn't a full NYC ZIP code", body)
+        self.assertIn("Did you mean ZIP code", body)
+        self.assertLess(body.index("zip=10112"), body.index("zip=10020"))
+        self.assertIn("30 Rockefeller Plaza, Manhattan", body)
+
+    def test_a_misspelling_of_that_street_is_suggested(self):
+        response, body = self.get("street=Rockefeler+Plaza&borough=Manhattan")
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("Did you mean", body)
+        self.assertIn("Rockefeller Plaza, Manhattan", body)
+
+    def test_no_borough_and_one_borough_has_the_street(self):
+        response, body = self.get("street=Rockefeller+Plaza")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('<option value="Manhattan" selected', body)
+
+    def test_no_borough_and_several_have_it_offers_each(self):
+        response, body = self.get("street=Broadway")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Which borough?", body)
+        self.assertIn("Broadway, Manhattan", body)
+        self.assertIn("Broadway, Queens", body)
+
+    def test_no_borough_and_a_misspelling_still_suggests(self):
+        response, body = self.get("street=Ecco+Place")
+        self.assertIn("Echo Place, Bronx", body)
+
+    def test_the_form_no_longer_blocks_a_short_zip_or_an_empty_borough(self):
+        response, body = self.get("")
+        self.assertNotIn('pattern="[0-9]{5}"', body)
+        self.assertNotIn('name="borough" required', body)

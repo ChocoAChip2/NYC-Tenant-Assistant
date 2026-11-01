@@ -376,7 +376,7 @@ def _confirmed_street(name: str, borough: str, get_json=None) -> str | None:
         street = area_service.resolve_street(name, borough, get_json=get_json)
     except area_service.StreetNotFound:
         return None
-    lots, _ = area_service.fetch_lots(street, borough, get_json=get_json)
+    lots, _ = area_service.street_lots(street, borough, get_json=get_json)
     return street if lots else None
 
 
@@ -418,6 +418,66 @@ def for_street(raw: str, borough: str, also_returned=()) -> list[Suggestion]:
     except Exception:
         logger.exception("Street suggestions failed.")
         return []
+
+
+def in_any_borough(raw: str) -> list[Suggestion]:
+    """The street in every borough that has it, for a search with no borough.
+
+    WHY (owner, 2026-11-01): leaving the borough empty was a flat "Choose
+    a borough." Now one borough with that street is used as is; several
+    ("Broadway") are offered one per borough; none falls back to the
+    closest spellings across the city. Each is confirmed like any other.
+    """
+    try:
+        typed = area_service.street_words(raw)
+        if not typed:
+            return []
+        found: list[Suggestion] = []
+        lists = {b: borough_streets(b) for b in area_service.BOROUGHS}
+        for borough, names in lists.items():
+            if any(area_service._matches(typed, name) for name in names):
+                street = _confirmed_street(raw, borough)
+                if street:
+                    found.append(Suggestion(street, borough))
+        if found:
+            return found
+        scored = []
+        for borough, names in lists.items():
+            for name in names:
+                score = similarity(typed, name)
+                if score:
+                    scored.append((-score, name, borough))
+        tries = 0
+        for _, name, borough in sorted(scored):
+            if len(found) >= MAX_SUGGESTIONS or tries >= MAX_CONFIRMATIONS:
+                break
+            tries += 1
+            street = _confirmed_street(name, borough)
+            if street and Suggestion(street, borough) not in found:
+                found.append(Suggestion(street, borough))
+        return found
+    except LookupUnavailable:
+        logger.warning("Borough suggestions unavailable.", exc_info=True)
+        return []
+    except Exception:
+        logger.exception("Borough suggestions failed.")
+        return []
+
+
+def closest_zips(typed: str | None, zips) -> list[str]:
+    """The street's ZIP codes nearest to what was typed, best first.
+
+    "1012" -> 10112 before 10020. Only ZIP codes the street really has are
+    offered, so each one is a search that finds buildings.
+    """
+    digits = re.sub(r"\D", "", typed or "")
+    scored = []
+    for z in zips:
+        if not _ZIP_RE.match(z):
+            continue
+        prefix = len(re.match(r"^(\d*)", "".join(a if a == b else " " for a, b in zip(digits, z))).group(1))
+        scored.append((-SequenceMatcher(None, digits, z).ratio(), -prefix, z))
+    return [z for *_, z in sorted(scored)][:MAX_SUGGESTIONS]
 
 
 def for_address(typed: TypedAddress | None, returned=()) -> list[Suggestion]:

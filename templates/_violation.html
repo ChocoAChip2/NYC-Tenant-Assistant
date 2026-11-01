@@ -11,5 +11,6 @@
     <span>{{ v.status }}</span>
     {% if v.certified %}<span class="badge certified">{{ _("Certified by landlord") }}</span>{% endif %}
     {% if v.rent_impairing %}<span class="badge rent">{{ _("Rent impairing") }}</span>{% endif %}
+    {% if v.violation_id %}<span class="violation-id">{{ _("Violation #%(number)s", number=v.violation_id) }}</span>{% endif %}
   </div>
 </div>

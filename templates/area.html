@@ -390,13 +390,13 @@
         </div>
         <div>
           <label for="borough">{{ _("Borough") }}</label>
-          <select id="borough" name="borough" required>
+          <select id="borough" name="borough">
             <option value="">{{ _("Choose a borough") }}</option>
             {% for name in boroughs %}<option value="{{ name }}"{% if name == borough %} selected{% endif %}>{{ name }}</option>{% endfor %}
           </select>
         </div>
       </div>
-      <details class="more-fields"{% if zip_code or cross or (report and report.spans_districts) or narrow_error %} open{% endif %}>
+      <details class="more-fields"{% if zip_code or cross or (report and report.spans_districts) or narrow_error or zip_note %} open{% endif %}>
         <summary>{{ _("Add a ZIP code or cross street (optional)") }}</summary>
         <div class="field-row two">
           <div>
@@ -405,7 +405,7 @@
           </div>
           <div>
             <label for="zip">{{ _("ZIP code") }}</label>
-            <input type="text" id="zip" name="zip" value="{{ zip_code }}" placeholder="10457" maxlength="5" inputmode="numeric" pattern="[0-9]{5}" autocomplete="postal-code">
+            <input type="text" id="zip" name="zip" value="{{ zip_code }}" placeholder="10457" maxlength="5" inputmode="numeric" autocomplete="postal-code">
           </div>
         </div>
       </details>
@@ -422,10 +422,10 @@
 
     {% if suggestions %}
       <section class="card did-you-mean" aria-labelledby="did-you-mean">
-        <h2 id="did-you-mean">{{ _("Did you mean") }}</h2>
+        <h2 id="did-you-mean">{{ suggestions_title or _("Did you mean") }}</h2>
         <ul>
           {% for s in suggestions %}
-            <li><a href="{{ url_for('main.area_lookup', street=s.street_label, borough=s.borough, zip=(zip_code or none) if not s.other_borough else none, cross=(cross or none) if not s.other_borough else none) }}">{{ s.label }}</a>{% if s.other_borough %}<span class="where">{{ _("A different borough") }}</span>{% endif %}</li>
+            <li><a href="{{ url_for('main.area_lookup', street=s.street_label, borough=s.borough, zip=(link_zip or none) if not s.other_borough else none, cross=(cross or none) if not s.other_borough else none) }}">{{ s.label }}</a>{% if s.other_borough %}<span class="where">{{ _("A different borough") }}</span>{% endif %}</li>
           {% endfor %}
         </ul>
       </section>
@@ -444,6 +444,15 @@
           <p class="match-meta your-building">{{ _("Your building:") }} <a href="{{ url_for('main.building_lookup', address=building_address) }}">{{ building_address }}</a>{{ info_tip(gettext("Open violations for that building, from city records.")) }}</p>
         {% endif %}
       </section>
+
+      {% if zip_note %}
+        <div class="alert warning zip-note" role="note">
+          <p>{{ zip_note }}</p>
+          {% if zip_choices %}
+            <p>{{ _("Did you mean ZIP code") }} {% for z in zip_choices %}<a href="{{ url_for('main.area_lookup', street=display_street(report.street), borough=report.borough, zip=z, cross=(cross or none)) }}">{{ z }}</a>{% if not loop.last %} · {% endif %}{% endfor %}?</p>
+          {% endif %}
+        </div>
+      {% endif %}
 
       {% if report.spans_districts %}
         <div class="alert warning" role="note">

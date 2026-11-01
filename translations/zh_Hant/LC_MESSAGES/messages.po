@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SideKick Tidbit VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-14 16:29+0000\n"
+"POT-Creation-Date: 2026-11-01 21:30+0000\n"
 "PO-Revision-Date: 2026-10-11 17:36-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_Hant\n"
@@ -128,6 +128,9 @@ msgstr ""
 msgid ", as published by"
 msgstr ""
 
+msgid ", from the city's official address list."
+msgstr ""
+
 msgid ", or try"
 msgstr ""
 
@@ -241,6 +244,9 @@ msgid "Add your name so we can greet you."
 msgstr ""
 
 msgid "Added by the publisher for reference. Not part of the law."
+msgstr ""
+
+msgid "Address matched with"
 msgstr ""
 
 msgid ""
@@ -675,6 +681,9 @@ msgstr ""
 msgid "Did you mean"
 msgstr ""
 
+msgid "Did you mean ZIP code"
+msgstr ""
+
 #. TRANSLATABLE
 #. REVIEW: legal or high-stakes wording; shown with its English original
 #. beneath it.
@@ -775,6 +784,11 @@ msgstr ""
 #. REVIEW: legal or high-stakes wording; shown with its English original
 #. beneath it.
 msgid "File a repair, heat or hot water complaint against a landlord."
+msgstr ""
+
+msgid ""
+"Find any violation above by its number on HPD Online, the city housing "
+"agency's own site. NYC Open Data has the same records as raw data."
 msgstr ""
 
 #. CHOICE_LABELS
@@ -915,6 +929,9 @@ msgstr ""
 #. REVIEW: legal or high-stakes wording; shown with its English original
 #. beneath it.
 msgid "HPD"
+msgstr ""
+
+msgid "HPD Online"
 msgstr ""
 
 msgid "HPD violations"
@@ -1283,6 +1300,12 @@ msgstr ""
 msgid "NYC HPD"
 msgstr ""
 
+msgid "NYC Open Data"
+msgstr ""
+
+msgid "NYC Planning's GeoSearch"
+msgstr ""
+
 #. TRANSLATABLE
 #. REVIEW: legal or high-stakes wording; shown with its English original
 #. beneath it.
@@ -1340,6 +1363,12 @@ msgid ""
 msgstr ""
 
 msgid "No amendment date in the official history"
+msgstr ""
+
+#, python-format
+msgid ""
+"No buildings on %(street)s are in ZIP code %(zip)s, so this shows the "
+"whole street."
 msgstr ""
 
 #, python-format
@@ -2226,6 +2255,10 @@ msgstr ""
 msgid "Used to greet you."
 msgstr ""
 
+#, python-format
+msgid "Violation #%(number)s"
+msgstr ""
+
 msgid "Violation counts are unavailable right now."
 msgstr ""
 
@@ -2386,6 +2419,9 @@ msgstr ""
 msgid ""
 "Which borough was searched, and whether a ZIP code or cross street was "
 "added (yes or no, never the value)."
+msgstr ""
+
+msgid "Which borough?"
 msgstr ""
 
 #. PRIVACY_SECTIONS
@@ -2704,6 +2740,10 @@ msgstr ""
 
 #, python-format
 msgid "§ %(citation)s isn't in our library"
+msgstr ""
+
+#, python-format
+msgid "“%(zip)s” isn't a full NYC ZIP code, so this shows all of %(street)s."
 msgstr ""
 
 msgid "← Back to your chat"

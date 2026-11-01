@@ -107,6 +107,9 @@ _OPEN_WITHOUT_NEW_PASSWORD = frozenset({
     "main.law_section", "main.learn_more", "main.favicon", "main.signup", "main.login",
     "main.sign_in_code", "main.forgot_password", "main.reset_password", "main.change_password",
     "main.logout",
+    # Public too. Missing from the first list, so the Privacy link on the
+    # new-password page led straight back to it (owner, 2026-11-01).
+    "main.privacy", "main.set_language", "main.usage_click",
 })
 
 _IDENTITY_KEYS = ("user_id", "user_email", "access_token", "refresh_token", "first_name")
@@ -348,8 +351,11 @@ def _render_area_lookup():
     error = error_title = None
     narrow_error = False
     suggestions = []
+    suggestions_title = None
     status = 200
     building_address = None
+    zip_note = None
+    zip_choices = []
 
     # A whole address typed into the street box ("231 Echo Pl Apt 3B,
     # Bronx, NY 10457") is read for its street, borough and ZIP
@@ -359,19 +365,49 @@ def _render_area_lookup():
     search_borough = borough or (typed.borough if typed else None) or ""
     typed_zip = None if zip_code else (typed.zip_code if typed else None)
 
-    if street:
+    # Owner, 2026-11-01: "30 Rockefeller Plaza" with ZIP "1012" must never
+    # be a dead end. A ZIP that isn't a whole NYC ZIP code, or isn't on the
+    # street, no longer stops the search: the whole street is shown with a
+    # note and the street's nearest ZIP codes to choose from.
+    box_zip = None
+    zip_problem = None
+    if zip_code:
+        try:
+            box_zip = area_service.clean_zip(zip_code)
+        except area_service.InvalidArea:
+            zip_problem = "partial"
+    # No borough: a ZIP's first digits name one; otherwise the boroughs
+    # that have this street (street_suggestions.in_any_borough).
+    if street and not search_borough:
+        zip_digits = re.sub(r"\D", "", zip_code)
+        search_borough = street_suggestions._ZIP_BOROUGHS.get(zip_digits[:3], "") if len(zip_digits) >= 3 else ""
+    if street and search_street and not search_borough:
+        choices = street_suggestions.in_any_borough(search_street)
+        if len(choices) == 1:
+            search_borough = choices[0].borough
+        elif choices:
+            suggestions = choices
+            suggestions_title = _("Which borough?")
+
+    if street and not suggestions:
         try:
             client = getattr(get_supabase_service(), "client", None)
             try:
                 report = area_service.lookup(
-                    search_street, search_borough, zip_code or typed_zip or None, cross or None, client=client,
+                    search_street, search_borough, box_zip or typed_zip or None, cross or None, client=client,
                 )
-            except area_service.InvalidArea:
-                if not typed_zip:
-                    raise
-                # The ZIP came from the typed address, not the ZIP box: if it
-                # doesn't narrow this street, show the whole street instead.
+            except area_service.ZipNotOnStreet:
+                # A ZIP that doesn't narrow this street: show the whole street instead.
+                if box_zip:
+                    zip_problem = "elsewhere"
                 report = area_service.lookup(search_street, search_borough, None, cross or None, client=client)
+            if zip_problem:
+                place = area_service.display_street(report.street)
+                if zip_problem == "partial":
+                    zip_note = _("“%(zip)s” isn't a full NYC ZIP code, so this shows all of %(street)s.", zip=zip_code, street=place)
+                else:
+                    zip_note = _("No buildings on %(street)s are in ZIP code %(zip)s, so this shows the whole street.", zip=zip_code, street=place)
+                zip_choices = street_suggestions.closest_zips(zip_code, report.zip_codes)
             if typed and typed.number:
                 building_address = f"{typed.number} {area_service.display_street(report.street)}, {report.borough}"
         except area_service.InvalidArea as exc:
@@ -384,6 +420,10 @@ def _render_area_lookup():
             # Links the tenant can tap, never a redirect. Computed inside
             # this (already counted) request; tapping one is a new lookup.
             suggestions = street_suggestions.for_street(search_street, area_service.borough_from(search_borough), exc.returned)
+            if not suggestions and not borough:
+                # The borough came from the address or ZIP; it may be the slip.
+                suggestions = [s for s in street_suggestions.in_any_borough(search_street)
+                               if s.borough != area_service.borough_from(search_borough)]
         except area_service.CrossStreetNotFound:
             error_title = _("Those streets don't seem to meet")
             error = _("Check the cross street, or try your ZIP code instead.")
@@ -416,6 +456,10 @@ def _render_area_lookup():
         error_title=error_title,
         narrow_error=narrow_error,
         suggestions=suggestions,
+        suggestions_title=suggestions_title,
+        link_zip=box_zip,
+        zip_note=zip_note,
+        zip_choices=zip_choices,
         building_address=building_address,
         office_titles=area_service.OFFICE_TITLES,
         display_street=area_service.display_street,
