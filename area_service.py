@@ -132,6 +132,10 @@ class StreetNotFound(Exception):
         self.returned = tuple(returned)
 
 
+class ZipNotOnStreet(InvalidArea):
+    """A valid ZIP code, but no lot on the street is in it."""
+
+
 class CrossStreetNotFound(Exception):
     """The two streets don't meet (or the cross street wasn't found)."""
 
@@ -307,10 +311,14 @@ _districts_cache = _TTLCache(CACHE_TTL_SECONDS, 256)
 _violations_cache = _TTLCache(CACHE_TTL_SECONDS, 256)
 _boards_cache = _TTLCache(24 * 3600, 2)
 _officials_cache = _TTLCache(CACHE_TTL_SECONDS, 2)
+# (bbl, house number) pairs GeoSearch gave for a street, for streets whose
+# buildings are filed under another address (see street_lots).
+_places_cache = _TTLCache(CACHE_TTL_SECONDS, 512)
 
 
 def clear_caches() -> None:
-    for cache in (_street_cache, _lots_cache, _districts_cache, _violations_cache, _boards_cache, _officials_cache):
+    for cache in (_street_cache, _lots_cache, _districts_cache, _violations_cache, _boards_cache, _officials_cache,
+                  _places_cache):
         cache.clear()
 
 
@@ -330,6 +338,7 @@ def resolve_street(raw: str, borough: str, get_json=None) -> str:
         raise LookupUnavailable("GeoSearch returned an unexpected shape.")
     votes: Counter = Counter()
     rejected: list[str] = []
+    places: dict[str, list[tuple[str, str]]] = {}
     for feature in features:
         props = (feature or {}).get("properties") or {}
         street = str(props.get("street") or "").strip().upper()
@@ -339,6 +348,11 @@ def resolve_street(raw: str, borough: str, get_json=None) -> str:
             continue
         if _matches(typed, street):
             votes[street] += 1
+            pad = (props.get("addendum") or {}).get("pad") or {}
+            bbl = str(pad.get("bbl") or "").strip()
+            number = str(props.get("housenumber") or "").strip().upper()
+            if building_service.is_valid_bbl(bbl) and bbl[0] == BOROUGHS[borough][1] and _HOUSE_NUMBER_RE.match(number):
+                places.setdefault(street, []).append((bbl, number))
         elif street not in rejected:
             rejected.append(street)
     if not votes:
@@ -350,6 +364,8 @@ def resolve_street(raw: str, borough: str, get_json=None) -> str:
     exact = [s for s in votes if s.split() == typed]
     street = exact[0] if exact else votes.most_common(1)[0][0]
     _street_cache.put(key, street)
+    if places.get(street):
+        _places_cache.put(f"{borough}|{street}", tuple(places[street]))
     return street
 
 
@@ -384,6 +400,45 @@ def fetch_lots(street: str, borough: str, get_json=None) -> tuple[list[dict], bo
     result = (lots, len(rows) >= MAX_LOTS)
     _lots_cache.put(key, result)
     return result
+
+
+def lots_by_place(street: str, borough: str, get_json=None) -> list[dict]:
+    """Tax lots for the buildings GeoSearch placed on a street, each
+    labelled with its address on that street.
+
+    WHY (owner, 2026-11-01): "30 Rockefeller Plaza" was "We couldn't find
+    that street". The city's address list knows Rockefeller Plaza, but
+    the property data files every Rockefeller Center lot under another
+    address (1250 Avenue of the Americas), so fetch_lots finds nothing.
+    The geocoder's own lot numbers (BBLs) for the street are the way in.
+    """
+    places = _places_cache.get(f"{borough}|{street}") or ()
+    first: dict[str, str] = {}
+    for bbl, number in sorted(places, key=lambda p: (int(re.match(r"\d+", p[1]).group()), p[1])):
+        first.setdefault(bbl, number)
+    if not first:
+        return []
+    rows = (get_json or _get_json)(PLUTO_URL, {
+        "$select": "bbl,address,zipcode,council,cd,policeprct,schooldist,landuse,unitsres,zonedist1,latitude,longitude",
+        "$where": "bbl in (" + ",".join(f"'{b}'" for b in sorted(first)) + ")",
+        "$limit": str(len(first)),
+    })
+    if not isinstance(rows, list):
+        raise LookupUnavailable("Property data returned an unexpected shape.")
+    lots = []
+    for row in rows:
+        bbl = str(row.get("bbl") or "").split(".")[0]
+        if bbl in first:
+            lots.append({**row, "address": f"{first[bbl]} {street}"})
+    return lots
+
+
+def street_lots(street: str, borough: str, get_json=None) -> tuple[list[dict], bool]:
+    """fetch_lots, or the geocoder's lots when no lot is addressed on the street."""
+    lots, truncated = fetch_lots(street, borough, get_json=get_json)
+    if lots:
+        return lots, truncated
+    return lots_by_place(street, borough, get_json=get_json), False
 
 
 def _point(lot: dict) -> tuple[float, float] | None:
@@ -591,7 +646,7 @@ def lookup(street: str, borough: str, zip_code: str | None = None, cross_street:
     cross_typed = clean_street(cross_street, "cross street") if (cross_street or "").strip() else None
 
     city_street = resolve_street(typed, borough)
-    lots, truncated = fetch_lots(city_street, borough)
+    lots, truncated = street_lots(city_street, borough)
     if not lots:
         raise StreetNotFound(typed)
 
@@ -600,13 +655,13 @@ def lookup(street: str, borough: str, zip_code: str | None = None, cross_street:
     if zip_code:
         lots = [l for l in lots if str(l.get("zipcode") or "").strip() == zip_code]
         if not lots:
-            raise InvalidArea(gettext("No buildings on %(street)s are in ZIP code %(zip)s.", street=display_street(city_street), zip=zip_code))
+            raise ZipNotOnStreet(gettext("No buildings on %(street)s are in ZIP code %(zip)s.", street=display_street(city_street), zip=zip_code))
     if cross_typed:
         try:
             city_cross = resolve_street(cross_typed, borough)
         except StreetNotFound:
             raise CrossStreetNotFound(cross_typed) from None
-        cross_lots, _ = fetch_lots(city_cross, borough)
+        cross_lots, _ = street_lots(city_cross, borough)
         near = near_cross_street(lots, cross_lots)
         if not near:
             raise CrossStreetNotFound(cross_typed)

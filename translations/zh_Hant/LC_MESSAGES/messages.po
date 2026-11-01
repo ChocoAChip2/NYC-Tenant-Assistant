@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SideKick Tidbit VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-01 21:27+0000\n"
+"POT-Creation-Date: 2026-11-01 21:30+0000\n"
 "PO-Revision-Date: 2026-10-11 17:36-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_Hant\n"
@@ -679,6 +679,9 @@ msgid "Details cleared."
 msgstr ""
 
 msgid "Did you mean"
+msgstr ""
+
+msgid "Did you mean ZIP code"
 msgstr ""
 
 #. TRANSLATABLE
@@ -1360,6 +1363,12 @@ msgid ""
 msgstr ""
 
 msgid "No amendment date in the official history"
+msgstr ""
+
+#, python-format
+msgid ""
+"No buildings on %(street)s are in ZIP code %(zip)s, so this shows the "
+"whole street."
 msgstr ""
 
 #, python-format
@@ -2412,6 +2421,9 @@ msgid ""
 "added (yes or no, never the value)."
 msgstr ""
 
+msgid "Which borough?"
+msgstr ""
+
 #. PRIVACY_SECTIONS
 #. REVIEW: legal or high-stakes wording; shown with its English original
 #. beneath it.
@@ -2728,6 +2740,10 @@ msgstr ""
 
 #, python-format
 msgid "§ %(citation)s isn't in our library"
+msgstr ""
+
+#, python-format
+msgid "“%(zip)s” isn't a full NYC ZIP code, so this shows all of %(street)s."
 msgstr ""
 
 msgid "← Back to your chat"

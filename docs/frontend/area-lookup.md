@@ -56,6 +56,30 @@ took up to 5.5 s from a Mac, and on Render both the first search of a long
 street and a building page (2026-10-15, 231 Echo Place) sometimes timed out
 into "The city's data service didn't respond". The geocoder keeps 6 s.
 
+## Never a dead end (2026-11-01)
+
+Owner bug report: "30 Rockefeller Plaza" with ZIP "1012" said nothing
+useful. Three separate causes, each fixed:
+
+- **Lots filed under another street.** GeoSearch knows Rockefeller Plaza,
+  but PLUTO files every Rockefeller Center lot under Avenue of the
+  Americas, so `fetch_lots` found nothing. `resolve_street` now keeps the
+  BBLs and house numbers GeoSearch returned for the street, and
+  `street_lots` falls back to those lots (`lots_by_place`, PLUTO
+  `bbl in (...)`), labelled with their address on the searched street.
+  "Did you mean" confirmation uses the same fallback.
+- **A ZIP that isn't whole, or isn't on the street.** It no longer blocks
+  the search (server or browser: the `pattern` attribute is gone). The
+  whole street is shown with a note and "Did you mean ZIP code" links to
+  the street's own ZIP codes nearest to what was typed
+  (`street_suggestions.closest_zips`; "1012" -> 10112 first).
+- **No borough.** The browser no longer requires one. The ZIP's first
+  three digits pick it when they can ("1012" -> Manhattan); otherwise
+  `street_suggestions.in_any_borough` checks every borough's street list:
+  one match is used, several are offered under "Which borough?", none
+  falls back to the closest spellings city-wide. Every offer is confirmed
+  first, as before.
+
 ## Honesty rules
 
 - A street GeoSearch "finds" by fuzzy match is **not found** unless every

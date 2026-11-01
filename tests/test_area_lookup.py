@@ -311,7 +311,8 @@ class RouteTests(_Isolated):
         cases = {
             "/area?street=asdfgh+street&borough=Queens": (404, "find that street"),
             "/area?street=echo+pl&borough=": (400, "Choose a borough"),
-            "/area?street=echo+pl&borough=Bronx&zip=10001": (400, "ZIP code 10001"),
+            # Owner 2026-11-01: a ZIP not on the street shows the whole street, with a note.
+            "/area?street=echo+pl&borough=Bronx&zip=10001": (200, "ZIP code 10001, so this shows the whole street"),
         }
         for path, (status, text) in cases.items():
             with self.subTest(path=path):
