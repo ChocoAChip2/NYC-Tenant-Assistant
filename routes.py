@@ -107,6 +107,9 @@ _OPEN_WITHOUT_NEW_PASSWORD = frozenset({
     "main.law_section", "main.learn_more", "main.favicon", "main.signup", "main.login",
     "main.sign_in_code", "main.forgot_password", "main.reset_password", "main.change_password",
     "main.logout",
+    # Public too. Missing from the first list, so the Privacy link on the
+    # new-password page led straight back to it (owner, 2026-11-01).
+    "main.privacy", "main.set_language", "main.usage_click",
 })
 
 _IDENTITY_KEYS = ("user_id", "user_email", "access_token", "refresh_token", "first_name")

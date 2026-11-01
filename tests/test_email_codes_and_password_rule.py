@@ -8,6 +8,7 @@ use). No email is sent and no real account is touched.
 import base64
 import json
 import os
+import re
 import time
 import unittest
 from pathlib import Path
@@ -264,13 +265,24 @@ class ForcedPasswordChangeTests(_Case):
 
     def test_public_pages_and_logout_still_work(self):
         self.login(WEAK)
-        for path in ("/learn-more", "/resources", "/login", "/"):
+        for path in ("/learn-more", "/resources", "/login", "/", "/privacy"):
             with self.subTest(path=path):
                 self.assertEqual(self.client.get(path).status_code, 200)
         response = self.client.post("/logout")
         self.assertTrue(response.location.endswith("/login"))
         self.assertFalse(self.signed_in())
         self.assertNotIn(routes.PASSWORD_CHANGE_KEY, self.session())
+
+    def test_every_link_on_the_new_password_page_opens(self):
+        # 2026-11-01: the footer's Privacy link sent the tenant back to this page.
+        self.login(WEAK)
+        page = self.text(self.client.get("/account/password"))
+        hrefs = set(re.findall(r'href="(/[^"#?]*)', page)) - {"/account/password"}
+        self.assertIn("/privacy", hrefs)
+        for path in sorted(hrefs):
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertNotIn("/account/password", response.headers.get("Location", ""))
 
     def test_a_weak_or_mismatched_replacement_is_refused(self):
         self.login(WEAK)
