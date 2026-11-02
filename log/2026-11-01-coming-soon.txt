@@ -1,0 +1,16 @@
+2026-11-01 — Coming-soon page on sidekicktidbit.com, launch list
+
+Owner: the site is on www.sidekicktidbit.com; the public should see a filler
+("still in the works", "Welcome to SideKick Tidbit, here is what we do") and
+be able to leave an email for the launch; only the owner and Sarwar see the
+real site. Cloudflare available; Render dashboard not, for now.
+
+Checked: both sidekicktidbit.com and www served the full app through
+Cloudflare (www redirects to the apex). Messages in the last 30 days are
+all encrypted, so the data key is set in production.
+
+Built: coming_soon.py (host gate, SITE_LAUNCHED switch, email check, keyed
+hash, encrypted join), routes gate + /launch-list + noindex on the Render
+address, templates/coming_soon.html, Privacy section "The launch list",
+migration 20261102130340_launch_list.sql (applied 2026-11-02 with the owner's yes),
+tools/export_launch_list.py, tests/test_coming_soon.py (14).

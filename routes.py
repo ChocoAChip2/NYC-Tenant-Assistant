@@ -37,6 +37,7 @@ from supabase_service import SupabaseService
 from i18n import gettext as _
 from flask_babel import force_locale, format_date
 import chat_summary
+import coming_soon
 import form_service
 import case_context
 import form_review
@@ -44,6 +45,59 @@ import form_review
 # The blueprint groups the page routes together so app.py can register them as
 # one unit.
 main_bp = Blueprint("main", __name__)
+
+
+# Registered first, so a visitor to the public domain before launch never
+# reaches any other handler (coming_soon.py).
+_OPEN_BEFORE_LAUNCH = frozenset({"main.home", "main.join_launch_list", "main.privacy",
+                                 "main.set_language", "main.favicon"})
+
+
+@main_bp.before_request
+def _coming_soon_gate():
+    if not coming_soon.gated(request.host):
+        return None
+    if request.endpoint == "main.home" and request.method == "GET":
+        return _render_coming_soon()
+    if request.endpoint in _OPEN_BEFORE_LAUNCH:
+        return None
+    return redirect(url_for("main.home"))
+
+
+@main_bp.after_app_request
+def _keep_team_address_unindexed(response):
+    if coming_soon.is_team_host(request.host):
+        response.headers["X-Robots-Tag"] = "noindex, nofollow"
+    return response
+
+
+def _render_coming_soon(joined=False, error=None, email="", status=200):
+    return render_template(
+        "coming_soon.html",
+        joined=joined,
+        error=error,
+        email=email,
+        max_email_length=coming_soon.MAX_EMAIL_LENGTH,
+    ), status
+
+
+@main_bp.route("/launch-list", methods=["POST"])
+@limiter.limit("5 per hour; 20 per day")
+def join_launch_list():
+    """The coming-soon page's email box. Answers with the same page."""
+    if request.form.get("website"):
+        # The hidden field only bots fill in. Look like it worked.
+        return _render_coming_soon(joined=True)
+    raw = (request.form.get("email") or "")[: coming_soon.MAX_EMAIL_LENGTH + 1]
+    email = coming_soon.clean_email(raw)
+    if email is None:
+        return _render_coming_soon(error=_("Enter an email address, like name@example.com."), email=raw.strip(), status=400)
+    try:
+        coming_soon.join(get_supabase_service().client, email, i18n.current())
+    except Exception:
+        logger.warning("Could not add an address to the launch list.", exc_info=False)
+        return _render_coming_soon(error=_("We couldn't save that just now. Please try again in a minute."), email=raw.strip(), status=503)
+    return _render_coming_soon(joined=True)
 
 
 def _safe_next(target: str | None) -> str:

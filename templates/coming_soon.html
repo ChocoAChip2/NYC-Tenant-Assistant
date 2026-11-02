@@ -1,0 +1,153 @@
+<!doctype html>
+{# The public domain before launch (coming_soon.py). No HTML/CSS/JS comments: they would be served to anyone who opens View Source. See docs/frontend/coming-soon.md. #}
+{% from "_language.html" import language_form, translation_notice with context %}
+<html lang="{{ html_lang() }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#eef1f5" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ product_name }} | {{ _("Coming soon") }}</title>
+  <meta name="description" content="{{ _("Free help for New York City tenants. Coming soon.") }}">
+  <script>
+    (function () {
+      var saved = null;
+      try { saved = localStorage.getItem("theme"); } catch (e) {}
+      if (saved === "light" || saved === "dark") {
+        document.documentElement.setAttribute("data-theme", saved);
+      }
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #eef1f5;
+      --surface: #ffffff;
+      --border: #d7dde5;
+      --text: #1c2733;
+      --muted: #5b6b7c;
+      --accent: #1c5d8c;
+      --accent-hover: #164a70;
+      --on-accent: #ffffff;
+      --error: #a3312a;
+      --success: #18733a;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #000000;
+        --surface: #0a0a0a;
+        --border: #2a2f35;
+        --text: #e8edf2;
+        --muted: #9aa7b4;
+        --accent: #5b9bd5;
+        --accent-hover: #7db2e0;
+        --on-accent: #000000;
+        --error: #e28a83;
+        --success: #7fcf9b;
+      }
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #000000;
+      --surface: #0a0a0a;
+      --border: #2a2f35;
+      --text: #e8edf2;
+      --muted: #9aa7b4;
+      --accent: #5b9bd5;
+      --accent-hover: #7db2e0;
+      --on-accent: #000000;
+      --error: #e28a83;
+      --success: #7fcf9b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px 24px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+    .brand-mark {
+      width: 32px; height: 32px; border-radius: 9px; background: var(--accent); color: var(--on-accent);
+      display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700;
+    }
+    .brand-name { font-size: 15px; font-weight: 600; }
+    h1 { font-size: 24px; line-height: 1.25; margin: 0 0 8px; }
+    .lede { color: var(--muted); font-size: 15px; line-height: 1.5; margin: 0 0 20px; }
+    h2 { font-size: 15px; margin: 0 0 8px; }
+    .what { margin: 0 0 22px; padding-left: 20px; font-size: 14.5px; line-height: 1.5; }
+    .what li { margin-bottom: 6px; }
+    label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .join { display: flex; flex-wrap: wrap; gap: 8px; }
+    .join input[type="email"] {
+      flex: 1 1 220px; min-width: 0; font: inherit; font-size: 16px; padding: 10px 12px;
+      border: 1px solid var(--border); border-radius: 9px; background: var(--bg); color: var(--text);
+    }
+    .join input[type="email"]:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+    .join button {
+      font: inherit; font-size: 15px; font-weight: 600; border: 0; border-radius: 9px; padding: 10px 16px;
+      background: var(--accent); color: var(--on-accent); cursor: pointer;
+    }
+    .join button:hover { background: var(--accent-hover); }
+    .trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+    .note { color: var(--muted); font-size: 12.5px; line-height: 1.5; margin: 8px 0 0; }
+    .note a { color: var(--accent); }
+    .status { font-size: 14px; margin: 0 0 10px; font-weight: 600; }
+    .status.ok { color: var(--success); }
+    .status.error { color: var(--error); }
+    .legal-note { max-width: 520px; margin: 16px 0 0; font-size: 12px; line-height: 1.5; color: var(--muted); text-align: center; }
+    .legal-note a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  {{ translation_notice() }}
+  <main class="card">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">{{ logo_monogram }}</div>
+      <span class="brand-name">{{ product_name }}</span>
+    </div>
+    <h1>{{ _("Welcome to %(product)s", product=product_name) }}</h1>
+    <p class="lede">{{ _("Free help for New York City tenants. Sorry, the site is still in the works.") }}</p>
+    <h2>{{ _("Here is what we do") }}</h2>
+    <ul class="what">
+      <li>{{ _("Look up your street: your representatives, community board and the buildings on it.") }}</li>
+      <li>{{ _("Check a building's open housing violations, with links to the city's own records.") }}</li>
+      <li>{{ _("Ask about repairs, heat, rent and eviction in plain language, and get a summary with next steps.") }}</li>
+      <li>{{ _("Get a rent-reduction complaint form ready for a rent-stabilized apartment.") }}</li>
+    </ul>
+    {% if joined %}
+      <p class="status ok" role="status">{{ _("Thanks! We'll email you when the site opens.") }}</p>
+    {% else %}
+      {% if error %}<p class="status error" role="alert" id="join-error">{{ error }}</p>{% endif %}
+      <form method="POST" action="{{ url_for('main.join_launch_list') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="email">{{ _("Get an email when we open") }}</label>
+        <div class="join">
+          <input type="email" id="email" name="email" value="{{ email }}" maxlength="{{ max_email_length }}" autocomplete="email" required placeholder="{{ _("name@example.com") }}"{% if error %} aria-invalid="true" aria-describedby="join-error"{% endif %}>
+          <button type="submit">{{ _("Notify me") }}</button>
+        </div>
+        <div class="trap" aria-hidden="true"><label for="website">{{ _("Website") }}</label><input type="text" id="website" name="website" tabindex="-1" autocomplete="off"></div>
+      </form>
+      <p class="note">{{ _("Only used to tell you when we open. Encrypted and never shared.") }} <a href="{{ url_for('main.privacy') }}">{{ privacy_label }}</a></p>
+    {% endif %}
+  </main>
+  {{ language_form() }}
+  <p class="legal-note">{{ short_disclaimer }}</p>
+</body>
+</html>

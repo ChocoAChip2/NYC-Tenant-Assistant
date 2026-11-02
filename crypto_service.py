@@ -290,6 +290,15 @@ def needs_rewrap(value: str | None) -> bool:
         return False
 
 
+def hash_key() -> bytes | None:
+    """The active key, for keyed hashes (coming_soon.email_key); None when off.
+
+    Never used to encrypt. A keyed hash made with it changes when the active
+    key changes, which callers have to accept or handle.
+    """
+    return _KEYS.get(_ACTIVE_KEY_ID) if _ACTIVE_KEY_ID else None
+
+
 def describe() -> dict:
     """Non-secret summary, for logs and a future admin/health view."""
     return {

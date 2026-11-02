@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SideKick Tidbit VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-01 21:45+0000\n"
+"POT-Creation-Date: 2026-11-01 22:39+0000\n"
 "PO-Revision-Date: 2026-10-11 17:36-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_Hant\n"
@@ -327,6 +327,11 @@ msgid ""
 "do."
 msgstr ""
 
+msgid ""
+"Ask about repairs, heat, rent and eviction in plain language, and get a "
+"summary with next steps."
+msgstr ""
+
 #, python-format
 msgid "Ask: %(who)s."
 msgstr ""
@@ -435,6 +440,11 @@ msgid "Check HCR's form guidance"
 msgstr ""
 
 msgid ""
+"Check a building's open housing violations, with links to the city's own "
+"records."
+msgstr ""
+
+msgid ""
 "Check and edit every detail below. A draft may contain mistakes. "
 "Downloading does not file the form or sign it for you."
 msgstr ""
@@ -519,6 +529,9 @@ msgid "Co-op or condo unit owner"
 msgstr ""
 
 msgid "Code"
+msgstr ""
+
+msgid "Coming soon"
 msgstr ""
 
 msgid "Community district"
@@ -769,6 +782,9 @@ msgstr ""
 msgid "Enter all three to save."
 msgstr ""
 
+msgid "Enter an email address, like name@example.com."
+msgstr ""
+
 #, python-format
 msgid "Enter the %(digits)s-digit code from your email."
 msgstr ""
@@ -854,6 +870,14 @@ msgid ""
 "where to report problems."
 msgstr ""
 
+msgid "Free help for New York City tenants. Coming soon."
+msgstr ""
+
+msgid ""
+"Free help for New York City tenants. Sorry, the site is still in the "
+"works."
+msgstr ""
+
 msgid "Free help near me"
 msgstr ""
 
@@ -898,6 +922,12 @@ msgstr ""
 #. REVIEW: legal or high-stakes wording; shown with its English original
 #. beneath it.
 msgid "General information, not legal advice."
+msgstr ""
+
+msgid "Get a rent-reduction complaint form ready for a rent-stabilized apartment."
+msgstr ""
+
+msgid "Get an email when we open"
 msgstr ""
 
 msgid "Give you legal advice about your case"
@@ -978,6 +1008,9 @@ msgid "Help understanding a Housing Court case, notice, or paper you were served
 msgstr ""
 
 msgid "Help you describe a situation clearly"
+msgstr ""
+
+msgid "Here is what we do"
 msgstr ""
 
 msgid "Hide password"
@@ -1085,6 +1118,15 @@ msgstr ""
 msgid ""
 "If an account exists for that email, we've sent a link to reset your "
 "password."
+msgstr ""
+
+#. PRIVACY_SECTIONS
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid ""
+"If you leave your email to hear when the site opens, we keep it "
+"encrypted, use it only for that message, then delete it. It is never "
+"shared."
 msgstr ""
 
 #. PRIVACY_SECTIONS
@@ -1239,6 +1281,11 @@ msgid "Look up your building first. No account needed."
 msgstr ""
 
 msgid "Look up your street"
+msgstr ""
+
+msgid ""
+"Look up your street: your representatives, community board and the "
+"buildings on it."
 msgstr ""
 
 msgid "Looking up…"
@@ -1519,6 +1566,9 @@ msgstr ""
 msgid "Notice to owner"
 msgstr ""
 
+msgid "Notify me"
+msgstr ""
+
 #. TRANSLATABLE
 #. REVIEW: legal or high-stakes wording; shown with its English original
 #. beneath it.
@@ -1546,6 +1596,9 @@ msgid ""
 msgstr ""
 
 msgid "On."
+msgstr ""
+
+msgid "Only used to tell you when we open. Encrypted and never shared."
 msgstr ""
 
 msgid "Open Class A"
@@ -2070,6 +2123,9 @@ msgstr ""
 msgid "Tenant"
 msgstr ""
 
+msgid "Thanks! We'll email you when the site opens."
+msgstr ""
+
 msgid "Thanks, you're all set."
 msgstr ""
 
@@ -2141,6 +2197,12 @@ msgid "The city's data service didn't respond"
 msgstr ""
 
 msgid "The email you typed does not match this account. Nothing was deleted."
+msgstr ""
+
+#. PRIVACY_SECTIONS
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "The launch list"
 msgstr ""
 
 msgid "The law"
@@ -2348,6 +2410,9 @@ msgstr ""
 msgid "We couldn't find that street"
 msgstr ""
 
+msgid "We couldn't save that just now. Please try again in a minute."
+msgstr ""
+
 msgid "We couldn't save that just now. Please try again."
 msgstr ""
 
@@ -2403,6 +2468,10 @@ msgid "Website"
 msgstr ""
 
 msgid "Welcome"
+msgstr ""
+
+#, python-format
+msgid "Welcome to %(product)s"
 msgstr ""
 
 msgid "What do these mean for you?"
@@ -2740,6 +2809,9 @@ msgstr ""
 msgid "lower"
 msgstr ""
 
+msgid "name@example.com"
+msgstr ""
+
 msgid "non-hazardous"
 msgstr ""
 
@@ -2815,4 +2887,7 @@ msgstr ""
 
 msgid "← Back to your chat"
 msgstr ""
+
+#~ msgid "Welcome to SideKick Tidbit"
+#~ msgstr ""
 
