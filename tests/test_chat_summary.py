@@ -9,6 +9,7 @@ import io
 import json
 import os
 import unittest
+from unittest import mock
 
 import flask
 from flask_babel import Babel
@@ -78,6 +79,14 @@ class ParseTests(unittest.TestCase):
 
 
 class SourceTests(unittest.TestCase):
+    def test_malformed_or_credentialed_links_do_not_break_or_enter_the_pdf(self):
+        content = " ".join([
+            "[broken](https://[)", "[broken](https://[bad]/x)",
+            "[port](https://www.nyc.gov:invalid/x)", "[credentials](https://person:secret@www.nyc.gov/x)",
+            "[other service](https://www.nyc.gov:8080/x)", f"[Heat]({LAW_URL})",
+        ])
+        self.assertEqual([s.url for s in cs.sources([{"role": "assistant", "content": content}])], [LAW_URL])
+
     def test_only_official_https_links_from_replies(self):
         found = cs.sources(MESSAGES + [{"role": "user", "content": "[mine](https://www.nyc.gov/mine)"}])
         self.assertEqual([s.url for s in found], [LAW_URL])
@@ -201,6 +210,30 @@ class RouteTests(unittest.TestCase):
         self.assertIn("No heat in apartment", _text(response.data))
         self.assertIn("Write in English.", ai.calls[0][1])
         self.assertIn("Tenant: My heat has been off", ai.calls[0][0])
+
+    def test_render_failure_returns_to_chat_with_a_safe_retry_message(self):
+        client = self._client()
+        with mock.patch("routes.chat_summary.render", side_effect=OSError("private font path")):
+            response = client.post("/conversations/c1/summary.pdf")
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.location.endswith("/chat?conversation_id=c1"))
+        with client.session_transaction() as session:
+            flashes = str(session.get("_flashes"))
+        self.assertIn("Could not make a summary", flashes)
+        self.assertNotIn("private font path", flashes)
+
+    def test_transport_failure_returns_to_chat_instead_of_500(self):
+        ai = FakeAI()
+        with mock.patch.object(ai, "summarize_chat", side_effect=TimeoutError("private upstream URL")):
+            response = self._client(ai=ai).post("/conversations/c1/summary.pdf")
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.location.endswith("/chat?conversation_id=c1"))
+
+    def test_bad_link_in_an_otherwise_valid_chat_still_downloads(self):
+        messages = MESSAGES + [{"role": "assistant", "content": "See [HPD](https://[bad]/x)."}]
+        response = self._client(supabase=FakeSupabase(messages=messages)).post("/conversations/c1/summary.pdf")
+        self.assertEqual(response.mimetype, "application/pdf")
+        self.assertIn("No heat for 3 days", _text(response.data))
 
     def test_someone_elses_conversation_is_not_found(self):
         response = self._client(supabase=FakeSupabase(owned=False)).post("/conversations/c1/summary.pdf")

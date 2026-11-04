@@ -1102,7 +1102,8 @@ def conversation_summary_pdf(conversation_id):
     conversation = chat_summary.transcript(messages)
     try:
         raw = get_ai_service().summarize_chat(conversation, chat_summary.instruction(language))
-    except RuntimeError:
+    except Exception:
+        logger.warning("Could not generate a chat summary.")
         raw = ""
     summary = chat_summary.parse(raw, conversation)
     if summary is None:
@@ -1111,15 +1112,20 @@ def conversation_summary_pdf(conversation_id):
 
     # Headings follow the summary's language; the bundled font has no
     # Chinese letters, so Chinese pages get an English summary for now.
-    with force_locale(code):
-        made_on = format_date(date.today(), format="long")
-        pdf = chat_summary.render(
-            summary,
-            chat_summary.sources(messages),
-            i18n.translated(branding.HELP_RESOURCES, keys={"detail"}),
-            title=conversation_titles.clean(title or "") or _("Your conversation"),
-            made_on=made_on,
-        )
+    try:
+        with force_locale(code):
+            made_on = format_date(date.today(), format="long")
+            pdf = chat_summary.render(
+                summary,
+                chat_summary.sources(messages),
+                i18n.translated(branding.HELP_RESOURCES, keys={"detail"}),
+                title=conversation_titles.clean(title or "") or _("Your conversation"),
+                made_on=made_on,
+            )
+    except Exception:
+        logger.warning("Could not render a chat summary.")
+        flash(_("Could not make a summary right now. Please try again."), "error")
+        return back
     response = make_response(pdf)
     response.headers["Content-Type"] = "application/pdf"
     response.headers["Content-Disposition"] = f'attachment; filename="sidekick-tidbit-summary-{date.today().isoformat()}.pdf"'

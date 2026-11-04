@@ -18,6 +18,18 @@ from tests.test_form_service import FULL
 
 
 class CaseWorkspaceTests(unittest.TestCase):
+    def test_optional_malformed_notice_does_not_break_complete_draft_creation(self):
+        for notice in (None, "not provided", []):
+            with self.subTest(notice=notice):
+                data = deepcopy(FULL)
+                data["notice"] = notice
+                with mock.patch.object(self.ai, "generate_reply", return_value=json.dumps(data)):
+                    response = self.send(self.cid, "Prepare my form draft")
+                self.assertEqual(response.status_code, 200)
+                self.assertIn("Review and confirm", response.get_json()["reply"])
+                saved = list(self.service.drafts.values())[-1]["intake"]
+                self.assertEqual(saved["notice"], {"date": "", "method": ""})
+
     new_chat = journeys.ReviewJourneyTests.new_chat
     send = journeys.ReviewJourneyTests.send
     def setUp(self):

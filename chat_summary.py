@@ -136,7 +136,13 @@ def sources(messages: list[dict]) -> list[Source]:
         if m.get("role") != "assistant":
             continue
         for label, url in _LINK_RE.findall(str(m.get("content") or "")):
-            host = (urlparse(url).hostname or "").lower().removeprefix("www.")
+            try:
+                parsed = urlparse(url)
+                host = (parsed.hostname or "").lower().removeprefix("www.")
+                if parsed.username or parsed.password or parsed.port not in (None, 443):
+                    continue
+            except ValueError:
+                continue
             if not any(host == h or host.endswith("." + h) for h in OFFICIAL_HOSTS):
                 continue
             if url not in found and len(found) < MAX_SOURCES:
