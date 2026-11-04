@@ -1,0 +1,26 @@
+2026-11-04 — Debug current flows; preserve Claude's design and release settings
+
+Base: GitHub main 5030eae (merged PR #76). No migration, new feature, model
+change, production data write, or release configuration change.
+
+Reproductions and fixes:
+- A malformed bracketed host in an otherwise ordinary reply raised ValueError
+  while collecting links for its summary. Skip invalid or credential-bearing
+  links and retain valid official links. Unexpected model transport or PDF
+  rendering failures now return to that chat with the existing safe retry text.
+- A complete intake with an optional notice of null, a string or a list passed
+  required-field validation and then crashed during normalization for storage.
+  Preserve the form service's existing blank/unknown behavior for those inputs.
+- On a failed save, the Your data editor rendered its old state over the typed
+  changes. Keep the edit form intact so the tenant can retry the same values.
+
+Evidence: baseline 1,203 tests; final 1,208 tests run (1 optional skip), with
+outbound connections/DNS blocked and zero attempts. Five new regression tests.
+Browser QA used fictional data and in-memory services, including injected save
+and chat failures, successful retries, preferences surviving reload, keyboard
+operation, 1280 px desktop and 390 px mobile in light and dark themes. Intake
+produced an editable review link; the suite verified the confirmed PDF fields.
+The mobile menu downloaded a two-page summary: parsed and rendered both pages.
+Read-only live checks: public / and /chat both resolve to the coming-soon page;
+the Render login returns 200 and noindex, nofollow. No live email, tenant data,
+model quality, or authenticated production writes tested during this pass.

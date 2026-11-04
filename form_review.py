@@ -37,12 +37,15 @@ TRANSLATABLE = [
 
 
 def canonical(data):
-    data = deepcopy(data)
+    data = deepcopy(data) if isinstance(data, dict) else {}
+    if not isinstance(data.get("notice"), dict):
+        data["notice"] = {}
     for container, key in ((data, "move_in_date"), (data.setdefault("notice", {}), "date")):
         value = container.get(key)
         if isinstance(value, (tuple, list)) and len(value) == 3:
             month, day, year = value
-            container[key] = "-".join(p for p in (year, month, day) if p) if year and month else ""
+            container[key] = ("-".join(p for p in (year, month, day) if p)
+                              if all(isinstance(p, str) for p in value) and year and month else "")
     result = form_service.normalize_intake(data)
     for container, key in ((result, "move_in_date"), (result["notice"], "date")):
         month, day, year = container[key]

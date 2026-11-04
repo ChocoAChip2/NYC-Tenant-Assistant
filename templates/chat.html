@@ -1147,7 +1147,7 @@
             }
             throw new Error();
           } catch (error) {
-            ydRender();
+            if (ydView !== "edit") ydRender();
             ydSay(error.message || {{ gettext("That didn't save. Please try again.")|tojson }}, true);
             return false;
           } finally {

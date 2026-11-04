@@ -1,7 +1,12 @@
 # SideKick Tidbit: current handoff
 
-Updated: 2026-10-12 (America/New_York). Status is taken from git, `log/`, the live site and the dashboards, as recorded under Verification.
-Location: `~/Desktop/Github/nyc-tenant-assistant-push-2`, branch `main`. PRs up to #69 are merged and `6fc29f7` (PR #67) was the deployed commit on Render when the 2026-10-11 diagnostic pass ran; its fixes are in `log/2026-10-11-diagnostic-pass.txt`.
+Updated: 2026-11-04 (America/New_York). The debugging branch `fix/current-flow-debugging` is based on `5030eae` (merged PR #76), verified against GitHub main during this pass. Claude's current chat controls, public launch gate and form-review design are preserved. No production configuration or database changes were made.
+
+## Current debugging pass
+
+- Fixed summary downloads failing on a malformed link, unhandled summary-generation/render failures, malformed optional RA-81 notice fields breaking otherwise complete drafts, and a failed “Your data” save replacing unsaved edits.
+- Verified: 1,208 offline tests run (1 optional skip; zero attempted network connections); browser save failure/retry, reload, keyboard operation, desktop and phone light/dark layouts, form review, and a two-page summary downloaded from the mobile menu. The public landing page, chat redirect, and team login responded as intended. Details: `log/2026-11-04-current-flow-debugging.txt`.
+- Next: owner reviews and merges the bug-fix branch; repeat a summary download after deployment. Earlier owner actions below are historical and were not rechecked against service dashboards in this pass.
 
 ## Diagnostic pass, 2026-10-11 (owner: fixes allowed; code only)
 
