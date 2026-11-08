@@ -10,6 +10,15 @@ HOW TO OPEN THE SITE
 Set SITE_LAUNCHED=1 in Render. Nothing else changes: the gate only ever
 applies to the hosts in PUBLIC_HOSTS, and only while that is unset.
 
+TEAM PREVIEW (owner, 2026-11-08)
+The team can use the real site on the domain before launch. Set
+TEAM_PREVIEW_KEY in Render (20+ characters, shared privately), open
+/team-preview, enter it once: the browser gets a signed cookie for
+PREVIEW_DAYS and skips the gate. The cookie holds a fingerprint of the
+key, never the key, so changing or removing the key in Render ends every
+preview at once. It is separate from the sign-in session, so signing out
+doesn't end it; /team-preview/leave does.
+
 THE LAUNCH LIST
 An address is stored encrypted (crypto_service) next to a keyed hash of
 it, which is what stops the same address being added twice without
@@ -27,12 +36,19 @@ import hmac
 import os
 import re
 
+from itsdangerous import BadSignature, URLSafeTimedSerializer
+
 import crypto_service
 
 PUBLIC_HOSTS = frozenset({"sidekicktidbit.com", "www.sidekicktidbit.com"})
 MAX_EMAIL_LENGTH = 254
 _EMAIL_RE = re.compile(r"^[^@\s]{1,64}@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+$")
 _HASH_CONTEXT = b"sidekick-tidbit launch list v1"
+
+
+PREVIEW_COOKIE = "team_preview"
+PREVIEW_DAYS = 30
+MIN_PREVIEW_KEY_LENGTH = 20
 
 
 class NotStored(RuntimeError):
@@ -88,3 +104,38 @@ def join(client, email: str, language: str | None) -> None:
         "p_email": crypto_service.encrypt(email),
         "p_language": (language or "en")[:10],
     }).execute()
+
+
+def preview_key() -> str | None:
+    """The team's key from Render, or None (preview off) if unset or too short."""
+    key = os.environ.get("TEAM_PREVIEW_KEY", "").strip()
+    return key if len(key) >= MIN_PREVIEW_KEY_LENGTH else None
+
+
+def key_matches(given: str | None) -> bool:
+    key = preview_key()
+    return bool(key) and hmac.compare_digest((given or "").strip().encode(), key.encode())
+
+
+def _fingerprint(key: str) -> str:
+    return hashlib.sha256(b"sidekick-tidbit team preview:" + key.encode()).hexdigest()[:32]
+
+
+def _serializer(secret) -> URLSafeTimedSerializer:
+    return URLSafeTimedSerializer(secret, salt="team-preview")
+
+
+def preview_cookie_value(secret) -> str:
+    """What goes in the cookie after a correct key: signed, and not the key."""
+    return _serializer(secret).dumps(_fingerprint(preview_key() or ""))
+
+
+def in_preview(cookie: str | None, secret) -> bool:
+    key = preview_key()
+    if not key or not cookie or not secret:
+        return False
+    try:
+        fingerprint = _serializer(secret).loads(cookie, max_age=PREVIEW_DAYS * 24 * 3600)
+    except BadSignature:
+        return False
+    return isinstance(fingerprint, str) and hmac.compare_digest(fingerprint, _fingerprint(key))

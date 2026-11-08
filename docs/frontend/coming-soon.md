@@ -21,6 +21,25 @@ site; the public sees what it will do and can ask to hear when it opens.
 - **Launching:** set `SITE_LAUNCHED=1` in Render. The gate turns off; no
   code change.
 
+## Team preview (2026-11-08)
+
+Owner: the team needs to use the real site on the domain while it's closed.
+
+- Set `TEAM_PREVIEW_KEY` in Render: 20 or more random characters, shared
+  only between the team. Unset or shorter means preview is off and
+  `/team-preview` is a 404.
+- Open `https://sidekicktidbit.com/team-preview`, enter the key once. The
+  browser gets an HttpOnly cookie (`team_preview`, 30 days) holding a
+  signed fingerprint of the key, never the key itself, and skips the gate.
+  The key goes in a POST body, never the URL, so it isn't in access logs or
+  browser history. 10 tries an hour.
+- Signing out doesn't end it (separate from the sign-in session).
+  `/team-preview/leave` does. Changing or removing the key in Render ends
+  every preview at once.
+- While the site is closed, the domain's pages are sent with
+  `Cache-Control: private, no-store` and `Vary: Cookie`, so no cache (for
+  example Cloudflare) can hand the team's view to a visitor or the reverse.
+
 ## Launch list
 
 - `POST /launch-list`: CSRF, 5 an hour and 20 a day per client, a hidden

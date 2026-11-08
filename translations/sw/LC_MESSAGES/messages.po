@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SideKick Tidbit VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-01 22:39+0000\n"
+"POT-Creation-Date: 2026-11-08 22:35+0000\n"
 "PO-Revision-Date: 2026-10-11 17:36-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: sw\n"
@@ -352,6 +352,9 @@ msgid "Back to log in"
 msgstr ""
 
 msgid "Back to login"
+msgstr ""
+
+msgid "Back to the start page"
 msgstr ""
 
 #. CHOICE_LABELS
@@ -842,6 +845,9 @@ msgstr ""
 msgid ""
 "For heat or hot water use HHW-1; for building-wide services use RA-84. "
 "Confirm an individual-apartment service issue for RA-81."
+msgstr ""
+
+msgid "For the team only. Enter the team key to see the site before it opens."
 msgstr ""
 
 msgid "For this chat only. It fills in from what you write."
@@ -1619,6 +1625,9 @@ msgstr ""
 msgid "Open in total"
 msgstr ""
 
+msgid "Open the site"
+msgstr ""
+
 msgid "Open violations for that building, from city records."
 msgstr ""
 
@@ -2114,6 +2123,15 @@ msgstr ""
 msgid "Tap your building to see its open violations."
 msgstr ""
 
+msgid "Team key"
+msgstr ""
+
+msgid "Team preview"
+msgstr ""
+
+msgid "Team preview isn't turned on."
+msgstr ""
+
 msgid "Tell you how a judge will rule"
 msgstr ""
 
@@ -2151,6 +2169,9 @@ msgid "That doesn't look like a section number"
 msgstr ""
 
 msgid "That doesn't mean nothing is wrong. Problem at home? Call 311 or"
+msgstr ""
+
+msgid "That key didn't work."
 msgstr ""
 
 #. COPY

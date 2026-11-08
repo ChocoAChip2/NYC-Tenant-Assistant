@@ -1,0 +1,16 @@
+2026-11-08  Team preview on the closed domain
+
+Owner: open the site temporarily so the team can work on it, or a better
+workaround to use the site while it's closed to the public.
+
+Chosen: a team key instead of opening the site, because opening it
+(SITE_LAUNCHED=1) shows it to everyone. The Render address still works for
+the team without any key.
+
+Built: TEAM_PREVIEW_KEY (Render) + /team-preview form -> signed 30-day
+cookie that skips the gate; /team-preview/leave; no-store + Vary: Cookie on
+the domain while closed. coming_soon.py, routes.py,
+templates/team_preview.html, 7 tests in tests/test_coming_soon.py.
+
+Owner to do: generate a key on your own computer, add it in Render as
+TEAM_PREVIEW_KEY, share it with Sarwar privately.
