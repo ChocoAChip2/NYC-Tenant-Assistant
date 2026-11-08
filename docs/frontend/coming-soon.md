@@ -4,7 +4,15 @@ Owner, 2026-11-01: the site is on `sidekicktidbit.com` (DNS on Cloudflare,
 pointing at Render) but isn't launched. Only the team should see the real
 site; the public sees what it will do and can ask to hear when it opens.
 
-## How it works
+## Open again (2026-11-08)
+
+Owner: "let's just open the whole site so we can work on it." The domain
+serves the real site by default now. `COMING_SOON=1` in Render brings the
+coming-soon page back (with the launch list and team preview). Until
+`SITE_LAUNCHED=1`, every page on the domain carries `X-Robots-Tag:
+noindex`, so search engines don't list it yet.
+
+## How it works (while closed)
 
 - `_coming_soon_gate` is the first `before_request` on `main_bp`. For the
   hosts in `coming_soon.PUBLIC_HOSTS` (`sidekicktidbit.com`,

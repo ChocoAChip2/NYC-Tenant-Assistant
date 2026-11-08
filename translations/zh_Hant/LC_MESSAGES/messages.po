@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SideKick Tidbit VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-08 22:35+0000\n"
+"POT-Creation-Date: 2026-11-08 22:51+0000\n"
 "PO-Revision-Date: 2026-10-11 17:36-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_Hant\n"
@@ -292,6 +292,9 @@ msgid ""
 " attorney or legal aid before you act."
 msgstr ""
 
+msgid "Anything we could do better? (optional)"
+msgstr ""
+
 #. SUMMARY_LABELS
 #. TRANSLATABLE
 #. REVIEW: legal or high-stakes wording; shown with its English original
@@ -487,6 +490,9 @@ msgstr ""
 
 #, python-format
 msgid "Choose a valid value for %(label)s."
+msgstr ""
+
+msgid "Choose an answer first."
 msgstr ""
 
 msgid "Choose before downloading"
@@ -731,6 +737,9 @@ msgstr ""
 msgid "District information is unavailable right now. Please try again later."
 msgstr ""
 
+msgid "Don't ask again"
+msgstr ""
+
 msgid "Download all your conversations as a Markdown file."
 msgstr ""
 
@@ -816,6 +825,12 @@ msgid "Explain how NYC housing rules generally work"
 msgstr ""
 
 msgid "Facing eviction or a court deadline? Contact a housing attorney."
+msgstr ""
+
+#. PRIVACY_SECTIONS
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid "Feedback"
 msgstr ""
 
 #. HELP_RESOURCES
@@ -1124,6 +1139,16 @@ msgstr ""
 msgid ""
 "If an account exists for that email, we've sent a link to reset your "
 "password."
+msgstr ""
+
+#. PRIVACY_SECTIONS
+#. REVIEW: legal or high-stakes wording; shown with its English original
+#. beneath it.
+msgid ""
+"If you answer the question about how a chat went, we keep your answer and"
+" any comment (encrypted) with the day and the page language only. It "
+"isn't linked to your account or the chat, and it is deleted after 12 "
+"months."
 msgstr ""
 
 #. PRIVACY_SECTIONS
@@ -1524,6 +1549,9 @@ msgid ""
 "legal help near you."
 msgstr ""
 
+msgid "Not now"
+msgstr ""
+
 msgid "Not now?"
 msgstr ""
 
@@ -1705,6 +1733,11 @@ msgstr ""
 
 #. _FALLBACK
 msgid "Please go back and try again."
+msgstr ""
+
+msgid ""
+"Please leave out names and addresses. Your answer isn't linked to your "
+"account or this chat."
 msgstr ""
 
 msgid "Please log in again."
@@ -1968,6 +2001,9 @@ msgstr ""
 msgid "See who represents District"
 msgstr ""
 
+msgid "Send"
+msgstr ""
+
 msgid "Send message"
 msgstr ""
 
@@ -2086,6 +2122,9 @@ msgstr ""
 msgid "Something went wrong on our side"
 msgstr ""
 
+msgid "Somewhat"
+msgstr ""
+
 msgid "Source"
 msgstr ""
 
@@ -2139,6 +2178,9 @@ msgstr ""
 #. REVIEW: legal or high-stakes wording; shown with its English original
 #. beneath it.
 msgid "Tenant"
+msgstr ""
+
+msgid "Thank you. This helps us improve the site."
 msgstr ""
 
 msgid "Thanks! We'll email you when the site opens."
@@ -2409,6 +2451,9 @@ msgstr ""
 msgid "Voucher number"
 msgstr ""
 
+msgid "Was this chat helpful?"
+msgstr ""
+
 msgid "We check for changes after every election."
 msgstr ""
 
@@ -2432,6 +2477,9 @@ msgid "We couldn't find that street"
 msgstr ""
 
 msgid "We couldn't save that just now. Please try again in a minute."
+msgstr ""
+
+msgid "We couldn't save that just now. Please try again later."
 msgstr ""
 
 msgid "We couldn't save that just now. Please try again."

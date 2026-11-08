@@ -38,6 +38,7 @@ from i18n import gettext as _
 from flask_babel import force_locale, format_date
 import chat_summary
 import coming_soon
+import feedback
 import form_service
 import case_context
 import form_review
@@ -71,9 +72,9 @@ def _coming_soon_gate():
 
 @main_bp.after_app_request
 def _keep_team_address_unindexed(response):
-    if coming_soon.is_team_host(request.host):
+    if coming_soon.hide_from_search(request.host):
         response.headers["X-Robots-Tag"] = "noindex, nofollow"
-    elif coming_soon.gated(request.host):
+    if coming_soon.gated(request.host):
         # The same address shows the team the site and everyone else the
         # coming-soon page, so no cache in between may keep either copy.
         response.headers["Cache-Control"] = "private, no-store"
@@ -1512,6 +1513,12 @@ def chat_message():
         })
 
         body = {"reply": reply, "reply_html": render_markdown(reply), "sources": sources}
+        if intake_data is None:
+            body["feedback"] = feedback.offer(
+                sum(1 for m in history if m.get("role") == "user"),
+                content,
+                asked_recently=bool(request.cookies.get(feedback.COOKIE)),
+            )
         title = _name_new_conversation(supabase_service, user_client, conversation_id, user_id, history, reply)
         if title:
             body["title"] = title
@@ -1524,6 +1531,34 @@ def chat_message():
     except Exception:
         logger.exception("Failed to generate AI response.")
         return jsonify({"error": _("The AI service is currently unavailable. Please try again shortly.")}), 500
+
+
+@main_bp.route("/feedback", methods=["POST"])
+@limiter.limit("10 per day")
+def submit_feedback():
+    """The chat's feedback question (feedback.py): an answer, "not now" or "don't ask again"."""
+    if not session.get("user_id"):
+        return jsonify({"error": _("Please log in first.")}), 401
+    payload = request.get_json(silent=True)
+    try:
+        args = feedback.submission(payload if isinstance(payload, dict) else {})
+    except feedback.Invalid:
+        return jsonify({"error": _("Choose an answer first.")}), 400
+    if args is not None:
+        user_client = get_user_scoped_client()
+        if not user_client:
+            return jsonify({"error": _("Your session expired. Please log in again.")}), 401
+        try:
+            user_client.rpc("submit_feedback", {**args, "p_language": i18n.current()[:10]}).execute()
+        except Exception:
+            logger.warning("Could not save feedback.", exc_info=False)
+            return jsonify({"error": _("We couldn't save that just now. Please try again later.")}), 503
+    response = jsonify({"ok": True})
+    response.set_cookie(
+        feedback.COOKIE, "1", max_age=feedback.SNOOZE_DAYS[payload["action"]] * 24 * 3600,
+        httponly=True, samesite="Lax", secure=bool(current_app.config.get("SESSION_COOKIE_SECURE")),
+    )
+    return response
 
 
 @main_bp.route("/building")

@@ -522,6 +522,36 @@
       40% { transform: translateY(-4px); opacity: 1; }
     }
 
+    .feedback-card {
+      width: min(720px, calc(100% - 28px));
+      margin: 0 auto 8px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      font-size: 14px;
+    }
+    .feedback-card .feedback-title { margin: 0 0 8px; font-weight: 600; }
+    .feedback-choices, .feedback-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .feedback-choices button, .feedback-more button {
+      font: inherit; font-size: 14px; padding: 6px 12px; border-radius: 8px; cursor: pointer;
+      border: 1px solid var(--border); background: var(--bg); color: var(--text);
+    }
+    .feedback-choices button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-tint); color: var(--accent); font-weight: 600; }
+    .feedback-more { margin-top: 10px; display: grid; gap: 6px; }
+    .feedback-more[hidden] { display: none; }
+    .feedback-more label { font-size: 13px; font-weight: 600; }
+    .feedback-more textarea {
+      width: 100%; font: inherit; font-size: 15px; padding: 8px 10px; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--bg); color: var(--text); resize: vertical;
+    }
+    .feedback-more .feedback-note { margin: 0; font-size: 12px; color: var(--muted); }
+    .feedback-more button[data-feedback-send] { justify-self: start; background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+    .feedback-actions { margin-top: 8px; }
+    .feedback-actions button { font: inherit; font-size: 12.5px; background: none; border: 0; padding: 2px 0; color: var(--muted); text-decoration: underline; cursor: pointer; }
+    .feedback-status { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+    .feedback-status:empty { display: none; }
+
     form#chat-form {
       width: min(720px, 100%);
       margin: 0 auto;
@@ -948,6 +978,26 @@
             {% endfor %}
           </div>
         </main>
+
+        <section class="feedback-card" id="feedback-card" aria-labelledby="feedback-title" hidden>
+          <p class="feedback-title" id="feedback-title">{{ _("Was this chat helpful?") }}</p>
+          <div class="feedback-choices" role="group" aria-labelledby="feedback-title">
+            <button type="button" data-feedback-rating="helpful" aria-pressed="false">{{ _("Yes") }}</button>
+            <button type="button" data-feedback-rating="somewhat" aria-pressed="false">{{ _("Somewhat") }}</button>
+            <button type="button" data-feedback-rating="not_helpful" aria-pressed="false">{{ _("No") }}</button>
+          </div>
+          <div class="feedback-more" hidden>
+            <label for="feedback-comment">{{ _("Anything we could do better? (optional)") }}</label>
+            <textarea id="feedback-comment" rows="2" maxlength="1000"></textarea>
+            <p class="feedback-note">{{ _("Please leave out names and addresses. Your answer isn't linked to your account or this chat.") }}</p>
+            <button type="button" data-feedback-send>{{ _("Send") }}</button>
+          </div>
+          <div class="feedback-actions">
+            <button type="button" data-feedback-dismiss="later">{{ _("Not now") }}</button>
+            <button type="button" data-feedback-dismiss="never">{{ _("Don't ask again") }}</button>
+          </div>
+          <p class="feedback-status" role="status" aria-live="polite"></p>
+        </section>
 
         <div class="composer">
           <form id="chat-form" data-conversation-id="{{ active_conversation_id }}">
@@ -1757,6 +1807,84 @@
 
       let requestPending = false;
       let requestError = null;
+
+      const feedbackPrompt = (function () {
+        const card = document.getElementById("feedback-card");
+        if (!card) return { consider() {}, cancel() {} };
+        const more = card.querySelector(".feedback-more");
+        const comment = card.querySelector("#feedback-comment");
+        const status = card.querySelector(".feedback-status");
+        let shown = false;
+        let finished = false;
+        let trigger = null;
+        let rating = null;
+        let idleTimer = null;
+
+        function cancel() {
+          if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+        }
+        function show(why) {
+          if (shown || finished || requestPending) return;
+          if (why === "idle" && (document.hidden || messageInput.value.trim())) return;
+          shown = true;
+          trigger = why;
+          card.hidden = false;
+          scrollChatToBottom();
+        }
+        function consider(offer) {
+          cancel();
+          if (!offer || shown || finished) return;
+          if (offer.now) {
+            setTimeout(() => show("closing"), 1500);
+          } else if (offer.idle_seconds > 0) {
+            idleTimer = setTimeout(() => show("idle"), offer.idle_seconds * 1000);
+          }
+        }
+        async function answer(action) {
+          status.textContent = "";
+          const body = { action: action, trigger: trigger };
+          if (action === "sent") {
+            body.rating = rating;
+            body.comment = comment.value;
+          }
+          try {
+            const response = await fetch("{{ url_for('main.submit_feedback') }}", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "X-CSRFToken": CSRF_TOKEN },
+              body: JSON.stringify(body),
+            });
+            if (!response.ok) {
+              const payload = await response.json().catch(() => ({}));
+              throw new Error(payload.error || "");
+            }
+            finished = true;
+            if (action === "sent") {
+              card.querySelectorAll("button, textarea").forEach((el) => { el.disabled = true; });
+              status.textContent = {{ gettext("Thank you. This helps us improve the site.")|tojson }};
+              setTimeout(() => { card.hidden = true; }, 4000);
+            } else {
+              card.hidden = true;
+              messageInput.focus();
+            }
+          } catch (error) {
+            status.textContent = error.message || {{ gettext("We couldn't save that just now. Please try again later.")|tojson }};
+          }
+        }
+        card.querySelectorAll("[data-feedback-rating]").forEach((button) => {
+          button.addEventListener("click", () => {
+            rating = button.dataset.feedbackRating;
+            card.querySelectorAll("[data-feedback-rating]").forEach((b) => b.setAttribute("aria-pressed", String(b === button)));
+            more.hidden = false;
+            comment.focus();
+          });
+        });
+        card.querySelector("[data-feedback-send]").addEventListener("click", () => { if (rating) answer("sent"); });
+        card.querySelectorAll("[data-feedback-dismiss]").forEach((button) => {
+          button.addEventListener("click", () => answer(button.dataset.feedbackDismiss));
+        });
+        messageInput.addEventListener("input", cancel);
+        return { consider: consider, cancel: cancel };
+      })();
       const downloadUrls = [];
       window.addEventListener("pagehide", (event) => {
         if (!event.persisted) downloadUrls.forEach((url) => window.URL.revokeObjectURL(url));
@@ -1765,6 +1893,7 @@
       chatForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         if (requestPending) return;
+        feedbackPrompt.cancel();
 
         const text = messageInput.value.trim();
         if (!text) return;
@@ -1825,6 +1954,7 @@
             thinkingEl.remove();
             renderMessage("assistant", payload.reply, payload.reply_html);
             if (payload.title) showConversationTitle(payload.title);
+            feedbackPrompt.consider(payload.feedback);
           }
           messageInput.value = "";
           autoGrowMessageInput();
