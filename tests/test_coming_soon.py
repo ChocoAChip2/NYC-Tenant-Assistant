@@ -19,7 +19,8 @@ from tests.app_test_support import configure_test_app, reset_rate_limits
 _TEMPLATES_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "templates")
 DOMAIN = "https://www.sidekicktidbit.com"
 TEAM = "https://tenantrightsandformsassistant.onrender.com"
-KEY_ENV = {"DATA_ENCRYPTION_KEYS": "k1:" + "A" * 43 + "=", "DATA_ENCRYPTION_ACTIVE_KEY_ID": "k1"}
+KEY_ENV = {"DATA_ENCRYPTION_KEYS": "k1:" + "A" * 43 + "=", "DATA_ENCRYPTION_ACTIVE_KEY_ID": "k1",
+           "COMING_SOON": "1", "SITE_LAUNCHED": ""}
 
 
 class FakeRpc:
@@ -52,6 +53,19 @@ class FakeSupabase:
 
 
 class HostTests(unittest.TestCase):
+    def setUp(self):
+        patcher = mock.patch.dict(os.environ, {"COMING_SOON": "1", "SITE_LAUNCHED": ""})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def test_the_site_is_open_unless_coming_soon_is_set(self):
+        with mock.patch.dict(os.environ, {"COMING_SOON": ""}):
+            self.assertFalse(coming_soon.gated("sidekicktidbit.com"))
+            self.assertTrue(coming_soon.hide_from_search("sidekicktidbit.com"))
+        with mock.patch.dict(os.environ, {"COMING_SOON": "", "SITE_LAUNCHED": "1"}):
+            self.assertFalse(coming_soon.hide_from_search("sidekicktidbit.com"))
+            self.assertTrue(coming_soon.hide_from_search("tenantrightsandformsassistant.onrender.com"))
+
     def test_only_the_public_domain_is_gated(self):
         for host in ("sidekicktidbit.com", "www.sidekicktidbit.com", "WWW.SideKickTidbit.com:443", "sidekicktidbit.com."):
             with self.subTest(host=host):
@@ -121,7 +135,15 @@ class GateTests(_Case):
         response = self.get("/", base=TEAM)
         self.assertNotIn("Welcome to SideKick Tidbit", response.get_data(as_text=True))
         self.assertEqual(response.headers.get("X-Robots-Tag"), "noindex, nofollow")
-        self.assertIsNone(self.get("/").headers.get("X-Robots-Tag"))
+        self.assertEqual(self.get("/").headers.get("X-Robots-Tag"), "noindex, nofollow")
+
+    def test_without_coming_soon_the_domain_is_the_real_site_but_unindexed(self):
+        with mock.patch.dict(os.environ, {"COMING_SOON": ""}):
+            response = self.get("/")
+            body = response.get_data(as_text=True)
+            self.assertNotIn("Here is what we do", body)
+            self.assertEqual(response.headers.get("X-Robots-Tag"), "noindex, nofollow")
+            self.assertEqual(self.get("/login").status_code, 200)
 
     def test_after_launch_the_domain_is_the_real_site(self):
         with mock.patch.dict(os.environ, {"SITE_LAUNCHED": "true"}):

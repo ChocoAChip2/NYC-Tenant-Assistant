@@ -6,9 +6,13 @@ domain see one page: what the site will do, and a box to leave an email
 address to hear when it opens. The team keeps working on the Render
 address, which is unlisted and asks search engines not to index it.
 
-HOW TO OPEN THE SITE
-Set SITE_LAUNCHED=1 in Render. Nothing else changes: the gate only ever
-applies to the hosts in PUBLIC_HOSTS, and only while that is unset.
+OPEN AGAIN (owner, 2026-11-08)
+"Let's just open the whole site so we can work on it." The domain now
+serves the real site by default. COMING_SOON=1 in Render closes it again
+(the coming-soon page, launch list and team preview all still work then).
+Until SITE_LAUNCHED=1, every page on the domain carries
+X-Robots-Tag: noindex, so search engines don't list a site that hasn't
+launched; SITE_LAUNCHED=1 removes that and overrides COMING_SOON.
 
 TEAM PREVIEW (owner, 2026-11-08)
 The team can use the real site on the domain before launch. Set
@@ -63,9 +67,25 @@ def _hostname(host: str | None) -> str:
     return (host or "").strip().lower().rsplit(":", 1)[0].rstrip(".")
 
 
+def is_closed() -> bool:
+    """Is the domain showing the coming-soon page? Off unless COMING_SOON is set."""
+    if is_launched():
+        return False
+    return os.environ.get("COMING_SOON", "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def is_public_host(host: str | None) -> bool:
+    return _hostname(host) in PUBLIC_HOSTS
+
+
 def gated(host: str | None) -> bool:
     """Does a request to this host get the coming-soon page?"""
-    return _hostname(host) in PUBLIC_HOSTS and not is_launched()
+    return is_public_host(host) and is_closed()
+
+
+def hide_from_search(host: str | None) -> bool:
+    """The team's Render address always; the domain until launch."""
+    return is_team_host(host) or (is_public_host(host) and not is_launched())
 
 
 def is_team_host(host: str | None) -> bool:

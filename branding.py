@@ -109,6 +109,13 @@ PRIVACY_SECTIONS = [
         "points": [],
     },
     {
+        "title": "Feedback",
+        "intro": "If you answer the question about how a chat went, we keep your answer and any comment "
+                 "(encrypted) with the day and the page language only. It isn't linked to your account or the chat, "
+                 "and it is deleted after 12 months.",
+        "points": [],
+    },
+    {
         "title": "Your language",
         "intro": "If you pick a language, that choice is remembered on this device, and on your account if you are signed in. It is not used for the counts.",
         "points": [],

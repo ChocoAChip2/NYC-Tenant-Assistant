@@ -1,0 +1,19 @@
+2026-11-08  Site open again on the domain; feedback question in the chat
+
+Owner: "let's just open the whole site so we can work on it", and a feature
+that asks for feedback at a smart time: when a longer session seems to be
+coming to an end.
+
+Open: the domain serves the real site unless COMING_SOON=1 is set in Render
+(no Render change was needed to open it). Until SITE_LAUNCHED=1 the domain
+asks search engines not to index it. Team preview and launch list stay for
+when it closes again.
+
+Feedback: feedback.py decides (3+ messages and a sign-off -> ask now; 5+
+messages and 90 s of quiet -> ask), the chat shows a small card, answers go
+to submit_feedback() with the comment encrypted and no account or chat
+attached; deleted after 12 months. docs/frontend/feedback.md.
+
+Tests: tests/test_feedback.py (21), coming-soon tests updated; full suite
+OK. A browser run (local server, fake services) showed the card after
+"thanks, that's all", sent an answer and raised no page errors.
