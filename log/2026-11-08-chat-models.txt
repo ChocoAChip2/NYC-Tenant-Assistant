@@ -1,0 +1,30 @@
+2026-11-08  Chat replies: "The AI service is currently unavailable"
+
+Owner report: every chat message on the live site answered "The AI service
+is currently unavailable. Please try again shortly."
+
+Found (Supabase, counts and request log only; no message content read)
+- The last assistant message stored is from 2026-10-15 01:03 UTC. Every
+  tenant message since then (19) has no reply.
+- For today's two attempts the request log shows: tenant message saved
+  (201), law search (search_legal_documents, 200, so the embedding call to
+  Gemini worked), then nothing: the reply call to Gemini failed and the
+  route's catch-all answered.
+- The reply models were gemini-2.5-flash and gemini-2.5-flash-lite. The
+  Gemini API changelog (2026-09-18) limits the 2.5 models to users who had
+  been using them and recommends 3.8 Flash and 3.5 Flash-Lite. Users report
+  404 "This model ... is no longer available" for 2.5 Flash.
+- Render's logs (which hold the exact error) weren't readable: the Render
+  CLI on the Mac is logged out ("unauthorized"). So the cause is the
+  strongest fit, not confirmed from the traceback.
+
+Fixed (ai_service.py)
+- Replies, summaries: gemini-3.8-flash, then gemini-3.5-flash-lite.
+  Titles and "Your data": the reverse order.
+- A model that is retired or not open to the key (404, 403, "no longer
+  available") moves on to the next instead of failing the reply.
+- If a model refuses thinking_budget=0, the same call is made once more
+  without it.
+- Each skipped model is logged with its error code only, never the request.
+
+To confirm after the deploy: send one chat message on the live site.

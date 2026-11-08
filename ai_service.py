@@ -1,5 +1,6 @@
 """Gemini client wrapper used by chat routes."""
 
+import logging
 import time
 from dataclasses import dataclass
 from google import genai
@@ -9,9 +10,16 @@ import branding
 import case_context
 from config import Settings
 
+logger = logging.getLogger(__name__)
+
+# 2026-11-08: chat replies stopped on 2026-10-15 (the last assistant message
+# stored). Google limited the 2.5 models to keys that had been using them
+# (Gemini API changelog, 2026-09-18) and recommends 3.8 Flash and 3.5
+# Flash-Lite for new work; requests to 2.5 now fail. Both current models
+# are listed here so one failing still leaves the other.
 FALLBACK_MODELS = (
-    "gemini-2.5-flash",
-    "gemini-2.5-flash-lite",
+    "gemini-3.8-flash",
+    "gemini-3.5-flash-lite",
 )
 
 # Gemini returns a 503 (ServerError, not ClientError) fairly often under load,
@@ -26,7 +34,7 @@ _SERVER_ERROR_RETRIES_PER_MODEL = 1
 # Conversation titles are a throwaway few-word summary, so they try the
 # cheapest model first and never wait on retries: a title that fails just
 # falls back to conversation_titles.from_keywords().
-TITLE_MODELS = ("gemini-2.5-flash-lite", "gemini-2.5-flash")
+TITLE_MODELS = ("gemini-3.5-flash-lite", "gemini-3.8-flash")
 TITLE_INSTRUCTION = (
     "You name conversations for a New York City tenant-help app. Given the "
     "tenant's first message (and the start of the reply), answer with a title "
@@ -178,14 +186,44 @@ INTAKE_SYSTEM_PROMPT = (
 )
 
 
+_UNAVAILABLE_MESSAGES = ("not found", "no longer available", "not available", "not supported", "is not allowed")
+
+
 def _is_model_not_found_error(error: ClientError) -> bool:
-    """Handle the SDK's varying 404 representations across environments."""
+    """This model can't be used with this key: retired, never existed, or
+    not open to it. The next model might be, so this is never fatal.
+
+    Covers the SDK's varying 404 representations, 403 PERMISSION_DENIED,
+    and the wording Google uses for retired models ("This model ... is no
+    longer available"), whatever code it arrives with.
+    """
+    code = getattr(error, "code", None)
     status = getattr(error, "status", None)
-    if status == 404:
+    if code in (403, 404) or status in (403, 404):
         return True
-    if status is not None and str(status).upper() == "NOT_FOUND":
+    if status is not None and str(status).upper() in {"NOT_FOUND", "PERMISSION_DENIED"}:
         return True
-    return "not found" in str(error).lower()
+    message = str(error).lower()
+    return ("model" in message and any(phrase in message for phrase in _UNAVAILABLE_MESSAGES)) or "not found" in message
+
+
+def _generate(client, model_name, contents, config):
+    """One call. If a model refuses the thinking setting (models differ in
+    what they accept), ask once more without it rather than lose the reply."""
+    try:
+        return client.models.generate_content(model=model_name, contents=contents, config=config)
+    except ClientError as exc:
+        if "thinking_config" in config and "thinking" in str(exc).lower() and getattr(exc, "code", None) == 400:
+            logger.warning("Model %s refused the thinking setting; retrying without it.", model_name)
+            lighter = {k: v for k, v in config.items() if k != "thinking_config"}
+            return client.models.generate_content(model=model_name, contents=contents, config=lighter)
+        raise
+
+
+def _log_skipped(model_name, exc) -> None:
+    """Which model failed and how, never what was asked (the request holds the tenant's words)."""
+    logger.warning("Gemini model %s skipped: %s %s", model_name, type(exc).__name__,
+                   getattr(exc, "code", None) or getattr(exc, "status", ""))
 
 
 def _is_rate_limited_error(error: ClientError) -> bool:
@@ -264,17 +302,15 @@ class AIService:
         for model_name in FALLBACK_MODELS:
             for attempt in range(_SERVER_ERROR_RETRIES_PER_MODEL + 1):
                 try:
-                    response = self.client.models.generate_content(
-                        model=model_name,
-                        contents=contents,
-                        config=config,
-                    )
+                    response = _generate(self.client, model_name, contents, config)
                     return (response.text or "").strip() or "I could not generate a response."
                 except ClientError as exc:
                     if _is_model_not_found_error(exc):
+                        _log_skipped(model_name, exc)
                         last_error = exc
-                        break  # this model doesn't exist for this key -- retrying it won't help
+                        break  # this model can't be used with this key -- retrying it won't help
                     if _is_rate_limited_error(exc):
+                        _log_skipped(model_name, exc)
                         last_error = exc
                         break  # this model's quota is exhausted -- try the next model, don't hammer it
                     raise
@@ -315,11 +351,12 @@ class AIService:
         }
         for model_name in TITLE_MODELS:
             try:
-                response = self.client.models.generate_content(model=model_name, contents=contents, config=config)
+                response = _generate(self.client, model_name, contents, config)
                 text = (response.text or "").strip()
                 if text:
                     return text
-            except (ClientError, ServerError):
+            except (ClientError, ServerError) as exc:
+                _log_skipped(model_name, exc)
                 continue
         return ""
 
@@ -344,11 +381,12 @@ class AIService:
         }
         for model_name in TITLE_MODELS:
             try:
-                response = self.client.models.generate_content(model=model_name, contents=contents, config=config)
+                response = _generate(self.client, model_name, contents, config)
                 text = (response.text or "").strip()
                 if text:
                     return text
-            except (ClientError, ServerError):
+            except (ClientError, ServerError) as exc:
+                _log_skipped(model_name, exc)
                 continue
         return ""
 
@@ -370,10 +408,11 @@ class AIService:
         }
         for model_name in FALLBACK_MODELS:
             try:
-                response = self.client.models.generate_content(model=model_name, contents=contents, config=config)
+                response = _generate(self.client, model_name, contents, config)
                 text = (response.text or "").strip()
                 if text:
                     return text
-            except (ClientError, ServerError):
+            except (ClientError, ServerError) as exc:
+                _log_skipped(model_name, exc)
                 continue
         return ""

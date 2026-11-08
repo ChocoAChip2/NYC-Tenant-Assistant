@@ -6,6 +6,8 @@ stayed "New conversation" forever.
 
 import os
 import unittest
+
+import ai_service as _ai_service_module
 from unittest import mock
 
 import flask
@@ -239,7 +241,7 @@ class GenerateTitleTests(unittest.TestCase):
         service, calls = self._service(["Mold in bathroom"])
         self.assertEqual(service.generate_title("there is mold"), "Mold in bathroom")
         model, config = calls[0]
-        self.assertEqual(model, "gemini-2.5-flash-lite")
+        self.assertEqual(model, _ai_service_module.TITLE_MODELS[0])
         self.assertEqual(config["thinking_config"], {"thinking_budget": 0})
         self.assertIn("Never include a person's name", config["system_instruction"])
 

@@ -159,3 +159,37 @@ class RateLimitedRequestsFallBackToNextModelTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CurrentModelsTests(unittest.TestCase):
+    """2026-11-08: replies stopped on 2026-10-15 once the 2.5 models were no
+    longer open to this key. These pin the fix."""
+
+    def test_no_retired_model_is_first_in_line(self):
+        import ai_service
+        for models in (ai_service.FALLBACK_MODELS, ai_service.TITLE_MODELS):
+            self.assertFalse(any(m.startswith("gemini-2.") for m in models), models)
+            self.assertGreaterEqual(len(models), 2)
+
+    def test_a_retired_model_moves_on_to_the_next(self):
+        retired = _client_error(code=404, status="NOT_FOUND",
+                                message="This model models/gemini-x is no longer available. Please update your code to use a newer model.")
+        denied = _client_error(code=403, status="PERMISSION_DENIED", message="This model is not available for your project.")
+        for error in (retired, denied):
+            with self.subTest(code=error.code):
+                client = mock.MagicMock()
+                client.models.generate_content.side_effect = [error, _fake_response("ok")]
+                self.assertEqual(AIService(client=client).generate_reply([{"role": "user", "content": "hi"}]), "ok")
+
+    def test_a_model_that_refuses_the_thinking_setting_is_asked_again_without_it(self):
+        client = mock.MagicMock()
+        client.models.generate_content.side_effect = [
+            _client_error(code=400, status="INVALID_ARGUMENT", message="thinking_budget is not supported by this model."),
+            _fake_response("Heat complaint"),
+        ]
+        title = AIService(client=client).generate_title("no heat")
+        self.assertEqual(title, "Heat complaint")
+        first, second = client.models.generate_content.call_args_list
+        self.assertIn("thinking_config", first.kwargs["config"])
+        self.assertNotIn("thinking_config", second.kwargs["config"])
+        self.assertEqual(first.kwargs["model"], second.kwargs["model"])
