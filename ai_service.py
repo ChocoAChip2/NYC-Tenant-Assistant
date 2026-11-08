@@ -20,7 +20,17 @@ logger = logging.getLogger(__name__)
 FALLBACK_MODELS = (
     "gemini-3.8-flash",
     "gemini-3.5-flash-lite",
+    "gemini-2.5-flash",
 )
+
+# 2026-11-08, from Render's logs: every reply failed with 400 "Developer
+# instruction is not enabled for api version v1. Use api version v1beta
+# instead." requirements.txt doesn't pin google-genai, so a rebuild picked
+# up an SDK that calls v1 by default, and v1 refuses system_instruction,
+# which every reply, title, summary and "Your data" call sends. The
+# embedding call (no system instruction) kept working, which is why the
+# law search still ran. Name the version instead of relying on a default.
+API_VERSION = "v1beta"
 
 # Gemini returns a 503 (ServerError, not ClientError) fairly often under load,
 # especially on the free tier -- it's transient, not a sign the model/request
@@ -260,7 +270,7 @@ class AIService:
             return cls(client=None, initialization_error="Gemini API key is missing.")
 
         try:
-            client = genai.Client(api_key=settings.gemini_api_key)
+            client = genai.Client(api_key=settings.gemini_api_key, http_options={"api_version": API_VERSION})
             return cls(client=client)
         except Exception as exc:
             return cls(client=None, initialization_error=f"Failed to create Gemini client: {exc}")
