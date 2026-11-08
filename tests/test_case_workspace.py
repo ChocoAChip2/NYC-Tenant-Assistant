@@ -4,6 +4,8 @@ import io
 import json
 import re
 import unittest
+
+import ai_service as _ai_service_module
 from copy import deepcopy
 from types import SimpleNamespace
 from unittest import mock
@@ -367,7 +369,7 @@ class ExtractionCallTests(unittest.TestCase):
         payload = case_context.extraction_input(case_context.defaults(), [], ["I live in the Bronx"])
         self.assertEqual(service.extract_case_details(payload), '{"borough": "Bronx"}')
         model, contents, config = calls[0]
-        self.assertEqual(model, "gemini-2.5-flash-lite")
+        self.assertEqual(model, _ai_service_module.TITLE_MODELS[0])
         self.assertEqual(contents, [{"role": "user", "parts": [{"text": payload}]}])
         self.assertEqual(config["system_instruction"], case_context.EXTRACTION_INSTRUCTION)
         self.assertEqual(config["response_mime_type"], "application/json")
