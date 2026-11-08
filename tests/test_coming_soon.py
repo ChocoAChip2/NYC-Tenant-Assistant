@@ -170,6 +170,66 @@ class LaunchListTests(_Case):
         self.assertEqual(self.service.client.calls, [])
 
 
+PREVIEW_KEY = "team-key-for-tests-0123456789"
+
+
+class TeamPreviewTests(_Case):
+    def setUp(self):
+        super().setUp()
+        patcher = mock.patch.dict(os.environ, {"TEAM_PREVIEW_KEY": PREVIEW_KEY})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def enter(self, key=PREVIEW_KEY):
+        return self.post("/team-preview", {"key": key})
+
+    def test_the_right_key_opens_the_real_site_on_the_domain(self):
+        response = self.enter()
+        self.assertEqual(response.status_code, 302)
+        cookie = response.headers["Set-Cookie"]
+        self.assertIn("team_preview=", cookie)
+        self.assertIn("HttpOnly", cookie)
+        self.assertNotIn(PREVIEW_KEY, cookie)
+        body = self.get("/").get_data(as_text=True)
+        self.assertNotIn("Here is what we do", body)
+        self.assertEqual(self.get("/login").status_code, 200)
+
+    def test_a_wrong_key_is_refused(self):
+        response = self.enter("wrong-key-wrong-key-wrong")
+        self.assertEqual(response.status_code, 403)
+        self.assertIn("That key didn&#39;t work", response.get_data(as_text=True))
+        self.assertIn("Here is what we do", self.get("/").get_data(as_text=True))
+
+    def test_signing_out_keeps_the_preview_and_leaving_ends_it(self):
+        self.enter()
+        self.post("/logout", {})
+        self.assertNotIn("Here is what we do", self.get("/").get_data(as_text=True))
+        self.get("/team-preview/leave")
+        self.assertIn("Here is what we do", self.get("/").get_data(as_text=True))
+
+    def test_changing_the_key_in_render_ends_every_preview(self):
+        self.enter()
+        with mock.patch.dict(os.environ, {"TEAM_PREVIEW_KEY": "a-different-key-0123456789"}):
+            self.assertIn("Here is what we do", self.get("/").get_data(as_text=True))
+        with mock.patch.dict(os.environ, {"TEAM_PREVIEW_KEY": ""}):
+            self.assertIn("Here is what we do", self.get("/").get_data(as_text=True))
+
+    def test_a_forged_cookie_does_nothing(self):
+        self.client.set_cookie(coming_soon.PREVIEW_COOKIE, "anything", domain="www.sidekicktidbit.com")
+        self.assertIn("Here is what we do", self.get("/").get_data(as_text=True))
+
+    def test_off_when_no_key_or_a_short_key_is_set(self):
+        for value in ("", "short"):
+            with self.subTest(value=value), mock.patch.dict(os.environ, {"TEAM_PREVIEW_KEY": value}):
+                self.assertEqual(self.get("/team-preview").status_code, 404)
+                self.assertEqual(self.enter(value or "x").status_code, 404)
+
+    def test_the_domain_is_never_cached_between_visitors(self):
+        response = self.get("/")
+        self.assertIn("no-store", response.headers["Cache-Control"])
+        self.assertIn("Cookie", response.headers.get("Vary", ""))
+
+
 class MigrationTests(unittest.TestCase):
     def test_the_table_is_closed_except_through_the_function(self):
         folder = os.path.join(os.path.dirname(_TEMPLATES_DIR), "supabase", "migrations")

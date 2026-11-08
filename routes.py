@@ -50,12 +50,17 @@ main_bp = Blueprint("main", __name__)
 # Registered first, so a visitor to the public domain before launch never
 # reaches any other handler (coming_soon.py).
 _OPEN_BEFORE_LAUNCH = frozenset({"main.home", "main.join_launch_list", "main.privacy",
-                                 "main.set_language", "main.favicon"})
+                                 "main.set_language", "main.favicon",
+                                 "main.team_preview", "main.leave_team_preview"})
+
+
+def _in_team_preview() -> bool:
+    return coming_soon.in_preview(request.cookies.get(coming_soon.PREVIEW_COOKIE), current_app.secret_key)
 
 
 @main_bp.before_request
 def _coming_soon_gate():
-    if not coming_soon.gated(request.host):
+    if not coming_soon.gated(request.host) or _in_team_preview():
         return None
     if request.endpoint == "main.home" and request.method == "GET":
         return _render_coming_soon()
@@ -68,6 +73,39 @@ def _coming_soon_gate():
 def _keep_team_address_unindexed(response):
     if coming_soon.is_team_host(request.host):
         response.headers["X-Robots-Tag"] = "noindex, nofollow"
+    elif coming_soon.gated(request.host):
+        # The same address shows the team the site and everyone else the
+        # coming-soon page, so no cache in between may keep either copy.
+        response.headers["Cache-Control"] = "private, no-store"
+        response.vary.add("Cookie")
+    return response
+
+
+@main_bp.route("/team-preview", methods=["GET", "POST"])
+@limiter.limit("10 per hour", methods=["POST"])
+def team_preview():
+    """The team's way past the coming-soon page (coming_soon.py, TEAM PREVIEW)."""
+    if coming_soon.preview_key() is None:
+        return render_template("team_preview.html", available=False, error=None), 404
+    if request.method == "GET":
+        if _in_team_preview():
+            return redirect(url_for("main.home"))
+        return render_template("team_preview.html", available=True, error=None)
+    if not coming_soon.key_matches(request.form.get("key")):
+        return render_template("team_preview.html", available=True, error=_("That key didn't work.")), 403
+    response = redirect(url_for("main.home"))
+    response.set_cookie(
+        coming_soon.PREVIEW_COOKIE, coming_soon.preview_cookie_value(current_app.secret_key),
+        max_age=coming_soon.PREVIEW_DAYS * 24 * 3600, httponly=True, samesite="Lax",
+        secure=bool(current_app.config.get("SESSION_COOKIE_SECURE")),
+    )
+    return response
+
+
+@main_bp.route("/team-preview/leave")
+def leave_team_preview():
+    response = redirect(url_for("main.home"))
+    response.delete_cookie(coming_soon.PREVIEW_COOKIE)
     return response
 
 
