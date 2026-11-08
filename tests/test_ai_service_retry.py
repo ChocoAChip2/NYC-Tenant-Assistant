@@ -81,15 +81,16 @@ class GenerateReplyExhaustedTests(unittest.TestCase):
     @mock.patch("ai_service.time.sleep")
     def test_raises_runtime_error_after_every_model_and_retry_fails(self, mock_sleep):
         client = mock.MagicMock()
-        # 2 fallback models x (1 initial attempt + 1 retry) = 4 total calls, all 503.
-        client.models.generate_content.side_effect = [_server_error() for _ in range(4)]
+        # every fallback model x (1 initial attempt + 1 retry), all 503.
+        calls = 2 * len(FALLBACK_MODELS)
+        client.models.generate_content.side_effect = [_server_error() for _ in range(calls)]
         service = AIService(client=client)
 
         with self.assertRaises(RuntimeError) as ctx:
             service.generate_reply([{"role": "user", "content": "What are my rights?"}])
 
         self.assertIn("temporarily unavailable", str(ctx.exception))
-        self.assertEqual(client.models.generate_content.call_count, 4)
+        self.assertEqual(client.models.generate_content.call_count, calls)
 
 
 class ModelNotFoundStillSkipsToNextModelTests(unittest.TestCase):
@@ -168,8 +169,17 @@ class CurrentModelsTests(unittest.TestCase):
     def test_no_retired_model_is_first_in_line(self):
         import ai_service
         for models in (ai_service.FALLBACK_MODELS, ai_service.TITLE_MODELS):
-            self.assertFalse(any(m.startswith("gemini-2.") for m in models), models)
+            self.assertFalse(models[0].startswith("gemini-2."), models)
             self.assertGreaterEqual(len(models), 2)
+
+    def test_the_client_asks_for_the_api_version_that_takes_system_instructions(self):
+        import ai_service
+        from config import Settings
+        settings = mock.MagicMock(spec=Settings)
+        settings.gemini_api_key = "test-key"
+        with mock.patch.object(ai_service.genai, "Client") as client_class:
+            ai_service.AIService.from_settings(settings)
+        self.assertEqual(client_class.call_args.kwargs["http_options"], {"api_version": "v1beta"})
 
     def test_a_retired_model_moves_on_to_the_next(self):
         retired = _client_error(code=404, status="NOT_FOUND",

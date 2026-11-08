@@ -28,3 +28,15 @@ Fixed (ai_service.py)
 - Each skipped model is logged with its error code only, never the request.
 
 To confirm after the deploy: send one chat message on the live site.
+
+Update, same day: the real cause (Render logs, after the owner logged the
+Render CLI in)
+- Every failed reply: google.genai ClientError 400 INVALID_ARGUMENT
+  "Developer instruction is not enabled for api version v1. Use api version
+  v1beta instead." (Render runs Python 3.14 and an unpinned google-genai.)
+  The model was fine; the API version was not. v1 refuses
+  system_instruction, which every reply, title, summary and "Your data"
+  call sends. The embedding call sends none, so the law search kept working.
+- Fix: AIService builds its client with api_version "v1beta"
+  (ai_service.API_VERSION). The 3.8 / 3.5 models stay first, with
+  gemini-2.5-flash kept as the last fallback.
