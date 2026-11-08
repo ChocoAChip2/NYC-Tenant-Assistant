@@ -4,7 +4,7 @@ Flask-Limiter
 Flask-Babel
 Flask-WTF
 cryptography
-google-genai
+google-genai==3.0.0
 gunicorn
 pypdf
 fpdf2

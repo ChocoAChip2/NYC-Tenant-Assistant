@@ -242,7 +242,7 @@ class GenerateTitleTests(unittest.TestCase):
         self.assertEqual(service.generate_title("there is mold"), "Mold in bathroom")
         model, config = calls[0]
         self.assertEqual(model, _ai_service_module.TITLE_MODELS[0])
-        self.assertEqual(config["thinking_config"], {"thinking_budget": 0})
+        self.assertEqual(config["thinking_config"], _ai_service_module._thinking(model, _ai_service_module.HELPER_THINKING))
         self.assertIn("Never include a person's name", config["system_instruction"])
 
     def test_model_errors_fall_through_and_never_raise(self):

@@ -1505,12 +1505,22 @@ def chat_message():
                 reply = _("Your RA-81 draft is ready to review. [Review and confirm your form](%(url)s). Check every field before downloading. Nothing has been filed.", url=review_url)
                 sources = []
 
-        supabase_service.insert_message(user_client, {
-            "conversation_id": conversation_id,
-            "user_id": user_id,
-            "role": "assistant",
-            "content": reply,
-        })
+        try:
+            supabase_service.insert_message(user_client, {
+                "conversation_id": conversation_id,
+                "user_id": user_id,
+                "role": "assistant",
+                "content": reply,
+            })
+        except Exception:
+            # Seen 2026-11-08: the conversation was deleted in another tab
+            # while the reply was being written, and the insert was refused.
+            # That's "not found", not an AI outage.
+            try:
+                supabase_service.ensure_conversation_for_user(user_client, conversation_id, user_id)
+            except ValueError:
+                return jsonify({"error": _("This conversation was deleted.")}), 404
+            raise
 
         body = {"reply": reply, "reply_html": render_markdown(reply), "sources": sources}
         if intake_data is None:

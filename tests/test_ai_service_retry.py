@@ -179,7 +179,36 @@ class CurrentModelsTests(unittest.TestCase):
         settings.gemini_api_key = "test-key"
         with mock.patch.object(ai_service.genai, "Client") as client_class:
             ai_service.AIService.from_settings(settings)
-        self.assertEqual(client_class.call_args.kwargs["http_options"], {"api_version": "v1beta"})
+        options = client_class.call_args.kwargs["http_options"]
+        self.assertEqual(options["api_version"], "v1beta")
+        self.assertLessEqual(options["timeout"], 60_000)
+
+    def test_replies_ask_for_little_thinking_in_each_models_own_terms(self):
+        import ai_service
+        self.assertEqual(ai_service._thinking("gemini-3.8-flash", "low"), {"thinking_level": "LOW"})
+        self.assertEqual(ai_service._thinking("gemini-2.5-flash", "minimal"), {"thinking_budget": 0})
+        client = mock.MagicMock()
+        client.models.generate_content.return_value = _fake_response("ok")
+        AIService(client=client).generate_reply([{"role": "user", "content": "hi"}])
+        config = client.models.generate_content.call_args.kwargs["config"]
+        self.assertEqual(config["thinking_config"], {"thinking_level": "LOW"})
+
+    @mock.patch("ai_service.time.monotonic")
+    def test_a_slow_model_moves_on_and_a_reply_gives_up_after_the_deadline(self, clock):
+        import httpx
+        import ai_service
+        clock.side_effect = [0, ai_service.REPLY_DEADLINE_SECONDS + 1, ai_service.REPLY_DEADLINE_SECONDS + 2]
+        client = mock.MagicMock()
+        client.models.generate_content.side_effect = httpx.ReadTimeout("slow")
+        with self.assertRaises(RuntimeError):
+            AIService(client=client).generate_reply([{"role": "user", "content": "hi"}])
+        self.assertEqual(client.models.generate_content.call_count, 1)
+
+    def test_a_timeout_tries_the_next_model(self):
+        import httpx
+        client = mock.MagicMock()
+        client.models.generate_content.side_effect = [httpx.ReadTimeout("slow"), _fake_response("ok")]
+        self.assertEqual(AIService(client=client).generate_reply([{"role": "user", "content": "hi"}]), "ok")
 
     def test_a_retired_model_moves_on_to_the_next(self):
         retired = _client_error(code=404, status="NOT_FOUND",

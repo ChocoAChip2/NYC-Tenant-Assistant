@@ -40,3 +40,21 @@ Render CLI in)
 - Fix: AIService builds its client with api_version "v1beta"
   (ai_service.API_VERSION). The 3.8 / 3.5 models stay first, with
   gemini-2.5-flash kept as the last fallback.
+
+Update 2: replies worked but took 85-89 s (Render access log), and the
+owner had to reload to see one. Cloudflare, in front of the domain, gives
+up on a request after 100 s, so the page's request failed while the server
+went on to save the reply.
+- Replies ask the 3.x models for low thinking, helper calls (titles, "Your
+  data", summaries) for minimal; 2.5 gets the matching token budget.
+- Each Gemini request times out after 40 s and moves to the next model; a
+  reply stops trying more models after 70 s.
+- gemini-3.5-flash-lite answered helper calls with a 400; skipped models
+  now log Google's error text (cut to 200 characters) so the next look at
+  the logs says why.
+- google-genai pinned to 3.0.0 (what changed the default API version).
+- A gateway timeout or dropped connection on the chat page now says the
+  reply may still arrive and offers Reload, instead of inviting a resend.
+- A conversation deleted while its reply was being written answers 404
+  "This conversation was deleted" instead of the AI-outage message (seen in
+  the logs: RLS refused the reply's insert).
