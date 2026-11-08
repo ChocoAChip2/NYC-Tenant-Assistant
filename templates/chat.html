@@ -1807,6 +1807,7 @@
 
       let requestPending = false;
       let requestError = null;
+      const SLOW_REPLY_MESSAGE = {{ gettext("This is taking longer than usual. Your reply may still arrive, so reload the page in a minute and check before you send again.")|tojson }};
 
       const feedbackPrompt = (function () {
         const card = document.getElementById("feedback-card");
@@ -1922,6 +1923,7 @@
           const contentType = response.headers.get("content-type");
 
           if (!response.ok) {
+            if ([502, 504, 522, 524].includes(response.status)) throw new Error(SLOW_REPLY_MESSAGE);
             let message = {{ gettext("The request could not be completed. Your message is still below; please try again.")|tojson }};
             if (contentType && contentType.includes("application/json")) {
               const payload = await response.json();
@@ -1965,7 +1967,13 @@
           requestError = document.createElement("p");
           requestError.className = "flash error";
           requestError.setAttribute("role", "alert");
-          requestError.textContent = error.message || {{ gettext("Connection interrupted. Your message is still below; please try again.")|tojson }};
+          requestError.textContent = (error instanceof TypeError ? SLOW_REPLY_MESSAGE : error.message) || {{ gettext("Connection interrupted. Your message is still below; please try again.")|tojson }};
+          if (requestError.textContent === SLOW_REPLY_MESSAGE) {
+            const reload = document.createElement("a");
+            reload.href = window.location.href;
+            reload.textContent = " " + {{ gettext("Reload")|tojson }};
+            requestError.appendChild(reload);
+          }
           chatBox.appendChild(requestError);
           scrollChatToBottom();
         } finally {

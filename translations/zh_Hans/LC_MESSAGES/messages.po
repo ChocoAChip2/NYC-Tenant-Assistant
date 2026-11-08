@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SideKick Tidbit VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-08 22:51+0000\n"
+"POT-Creation-Date: 2026-11-08 23:25+0000\n"
 "PO-Revision-Date: 2026-10-11 17:36-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: zh_Hans\n"
@@ -1814,6 +1814,9 @@ msgstr ""
 msgid "Regular mail"
 msgstr ""
 
+msgid "Reload"
+msgstr ""
+
 msgid "Reload this chat and try again."
 msgstr ""
 
@@ -2311,6 +2314,9 @@ msgid ""
 "contacts above to confirm what applies to you."
 msgstr ""
 
+msgid "This conversation was deleted."
+msgstr ""
+
 msgid "This draft could not be found."
 msgstr ""
 
@@ -2318,6 +2324,11 @@ msgid "This draft is unavailable right now. Please try again."
 msgstr ""
 
 msgid "This is not legal advice"
+msgstr ""
+
+msgid ""
+"This is taking longer than usual. Your reply may still arrive, so reload "
+"the page in a minute and check before you send again."
 msgstr ""
 
 msgid "This is usually brief. Please try again in a minute."

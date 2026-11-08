@@ -3,6 +3,7 @@
 import logging
 import time
 from dataclasses import dataclass
+import httpx
 from google import genai
 from google.genai.errors import ClientError, ServerError
 
@@ -31,6 +32,26 @@ FALLBACK_MODELS = (
 # embedding call (no system instruction) kept working, which is why the
 # law search still ran. Name the version instead of relying on a default.
 API_VERSION = "v1beta"
+
+# 2026-11-08, also from Render's logs: once replies worked again they took
+# 85-89 s. The 3.x models think at length by default. Replies now ask for
+# little thinking, the short helper calls (titles, "Your data", summaries)
+# for the least, each request gives up after REQUEST_TIMEOUT_MS, and a
+# reply stops trying further models after REPLY_DEADLINE_SECONDS.
+REQUEST_TIMEOUT_MS = 40_000
+REPLY_DEADLINE_SECONDS = 70
+REPLY_THINKING = "low"
+HELPER_THINKING = "minimal"
+
+
+def _thinking(model_name: str, level: str) -> dict:
+    """The thinking setting each model family understands.
+
+    2.5 takes a token budget (0 turns thinking off); 3.x takes a level.
+    """
+    if model_name.startswith("gemini-2."):
+        return {"thinking_budget": 0 if level == "minimal" else 512}
+    return {"thinking_level": level.upper()}
 
 # Gemini returns a 503 (ServerError, not ClientError) fairly often under load,
 # especially on the free tier -- it's transient, not a sign the model/request
@@ -217,9 +238,11 @@ def _is_model_not_found_error(error: ClientError) -> bool:
     return ("model" in message and any(phrase in message for phrase in _UNAVAILABLE_MESSAGES)) or "not found" in message
 
 
-def _generate(client, model_name, contents, config):
+def _generate(client, model_name, contents, config, thinking=None):
     """One call. If a model refuses the thinking setting (models differ in
     what they accept), ask once more without it rather than lose the reply."""
+    if thinking:
+        config = {**config, "thinking_config": _thinking(model_name, thinking)}
     try:
         return client.models.generate_content(model=model_name, contents=contents, config=config)
     except ClientError as exc:
@@ -231,9 +254,12 @@ def _generate(client, model_name, contents, config):
 
 
 def _log_skipped(model_name, exc) -> None:
-    """Which model failed and how, never what was asked (the request holds the tenant's words)."""
-    logger.warning("Gemini model %s skipped: %s %s", model_name, type(exc).__name__,
-                   getattr(exc, "code", None) or getattr(exc, "status", ""))
+    """Which model failed and how, never what was asked (the request holds the
+    tenant's words). Google's own error text is kept, cut short: it names the
+    setting or model at fault and doesn't repeat the request."""
+    detail = getattr(exc, "message", None) if isinstance(exc, ClientError) else None
+    logger.warning("Gemini model %s skipped: %s %s %s", model_name, type(exc).__name__,
+                   getattr(exc, "code", None) or getattr(exc, "status", ""), (detail or "")[:200])
 
 
 def _is_rate_limited_error(error: ClientError) -> bool:
@@ -270,7 +296,10 @@ class AIService:
             return cls(client=None, initialization_error="Gemini API key is missing.")
 
         try:
-            client = genai.Client(api_key=settings.gemini_api_key, http_options={"api_version": API_VERSION})
+            client = genai.Client(
+                api_key=settings.gemini_api_key,
+                http_options={"api_version": API_VERSION, "timeout": REQUEST_TIMEOUT_MS},
+            )
             return cls(client=client)
         except Exception as exc:
             return cls(client=None, initialization_error=f"Failed to create Gemini client: {exc}")
@@ -309,11 +338,18 @@ class AIService:
         }
 
         last_error = None
+        started = time.monotonic()
         for model_name in FALLBACK_MODELS:
+            if last_error is not None and time.monotonic() - started > REPLY_DEADLINE_SECONDS:
+                break  # a tenant has waited long enough; say so instead of trying more models
             for attempt in range(_SERVER_ERROR_RETRIES_PER_MODEL + 1):
                 try:
-                    response = _generate(self.client, model_name, contents, config)
+                    response = _generate(self.client, model_name, contents, config, REPLY_THINKING)
                     return (response.text or "").strip() or "I could not generate a response."
+                except httpx.TimeoutException as exc:
+                    _log_skipped(model_name, exc)
+                    last_error = exc
+                    break
                 except ClientError as exc:
                     if _is_model_not_found_error(exc):
                         _log_skipped(model_name, exc)
@@ -355,17 +391,16 @@ class AIService:
         # cap and can leave no room for the title itself.
         config = {
             "system_instruction": TITLE_INSTRUCTION,
-            "max_output_tokens": 40,
+            "max_output_tokens": 200,
             "temperature": 0.2,
-            "thinking_config": {"thinking_budget": 0},
         }
         for model_name in TITLE_MODELS:
             try:
-                response = _generate(self.client, model_name, contents, config)
+                response = _generate(self.client, model_name, contents, config, HELPER_THINKING)
                 text = (response.text or "").strip()
                 if text:
                     return text
-            except (ClientError, ServerError) as exc:
+            except (ClientError, ServerError, httpx.TimeoutException) as exc:
                 _log_skipped(model_name, exc)
                 continue
         return ""
@@ -384,18 +419,17 @@ class AIService:
         contents = [{"role": "user", "parts": [{"text": payload}]}]
         config = {
             "system_instruction": case_context.EXTRACTION_INSTRUCTION,
-            "max_output_tokens": 600,
+            "max_output_tokens": 1500,
             "temperature": 0,
             "response_mime_type": "application/json",
-            "thinking_config": {"thinking_budget": 0},
         }
         for model_name in TITLE_MODELS:
             try:
-                response = _generate(self.client, model_name, contents, config)
+                response = _generate(self.client, model_name, contents, config, HELPER_THINKING)
                 text = (response.text or "").strip()
                 if text:
                     return text
-            except (ClientError, ServerError) as exc:
+            except (ClientError, ServerError, httpx.TimeoutException) as exc:
                 _log_skipped(model_name, exc)
                 continue
         return ""
@@ -411,18 +445,17 @@ class AIService:
         contents = [{"role": "user", "parts": [{"text": conversation}]}]
         config = {
             "system_instruction": instruction,
-            "max_output_tokens": 2000,
+            "max_output_tokens": 4000,
             "temperature": 0.2,
             "response_mime_type": "application/json",
-            "thinking_config": {"thinking_budget": 0},
         }
         for model_name in FALLBACK_MODELS:
             try:
-                response = _generate(self.client, model_name, contents, config)
+                response = _generate(self.client, model_name, contents, config, HELPER_THINKING)
                 text = (response.text or "").strip()
                 if text:
                     return text
-            except (ClientError, ServerError) as exc:
+            except (ClientError, ServerError, httpx.TimeoutException) as exc:
                 _log_skipped(model_name, exc)
                 continue
         return ""

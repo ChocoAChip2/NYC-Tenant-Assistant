@@ -373,7 +373,7 @@ class ExtractionCallTests(unittest.TestCase):
         self.assertEqual(contents, [{"role": "user", "parts": [{"text": payload}]}])
         self.assertEqual(config["system_instruction"], case_context.EXTRACTION_INSTRUCTION)
         self.assertEqual(config["response_mime_type"], "application/json")
-        self.assertEqual(config["thinking_config"], {"thinking_budget": 0})
+        self.assertEqual(config["thinking_config"], _ai_service_module._thinking(model, _ai_service_module.HELPER_THINKING))
 
     def test_model_errors_never_raise(self):
         from google.genai.errors import ClientError, ServerError
